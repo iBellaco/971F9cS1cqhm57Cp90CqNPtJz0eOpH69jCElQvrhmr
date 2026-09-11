@@ -222,12 +222,21 @@ fun ThemeCustomizationBottomSheet(
                                             .background(Brush.horizontalGradient(listOf(HextechGold, Color(0xFFD4AF37))))
                                             .padding(horizontal = 5.dp, vertical = 1.5.dp)
                                     ) {
-                                        Text(
-                                            text = "PREMIUM",
-                                            color = HextechDarkBg,
-                                            fontSize = 8.5.sp,
-                                            fontWeight = FontWeight.Black
-                                        )
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Default.Lock,
+                                                contentDescription = "Premium",
+                                                tint = HextechDarkBg,
+                                                modifier = Modifier.size(10.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            Text(
+                                                text = "PREMIUM",
+                                                color = HextechDarkBg,
+                                                fontSize = 8.5.sp,
+                                                fontWeight = FontWeight.Black
+                                            )
+                                        }
                                     }
                                 }
                             }

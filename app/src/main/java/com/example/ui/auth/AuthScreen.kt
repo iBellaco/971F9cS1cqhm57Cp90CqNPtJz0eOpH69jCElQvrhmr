@@ -58,6 +58,8 @@ import com.example.ui.theme.AppTheme
 import com.example.ui.theme.AppThemeManager
 import com.example.data.AvatarCatalog
 import com.example.ui.components.UserAvatarView
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.ui.components.AvatarSelectionBottomSheet
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
@@ -434,151 +436,154 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Quick Theme Selector Strip: Instant 1-tap live theme transformation with horizontal scroll!
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(activeTheme.surfaceVariant.copy(alpha = 0.6f))
-                    .border(1.dp, activeTheme.cardBorder, RoundedCornerShape(14.dp))
-                    .padding(10.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+            val isUserPremium = isPremium || userRole == "admin" || AuthManager.isCurrentUserAdmin()
+            if (isUserPremium) {
+                // Quick Theme Selector Strip: Instant 1-tap live theme transformation with horizontal scroll!
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(activeTheme.surfaceVariant.copy(alpha = 0.6f))
+                        .border(1.dp, activeTheme.cardBorder, RoundedCornerShape(14.dp))
+                        .padding(10.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Palette,
-                            contentDescription = null,
-                            tint = activeTheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "Tema de Región:",
-                            color = activeTheme.textPrimary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = activeTheme.titleKey,
-                            color = activeTheme.secondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(activeTheme.primary.copy(alpha = 0.12f))
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "↔ Desliza temas",
-                            color = activeTheme.primary,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Scrollable row of all region and thematic game styles
-                androidx.compose.foundation.lazy.LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    val allThemes = AppTheme.entries
-                    items(allThemes.size) { index ->
-                        val themeItem = allThemes[index]
-                        val isSelected = themeItem == activeTheme
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isSelected) themeItem.primary.copy(alpha = 0.25f) else themeItem.surface,
-                            border = BorderStroke(
-                                if (isSelected) 1.5.dp else 0.8.dp,
-                                if (isSelected) themeItem.secondary else themeItem.cardBorder.copy(alpha = 0.6f)
-                            ),
-                            modifier = Modifier
-                                .tactileClickable(scaleDown = 0.92f) {
-                                    AppThemeManager.setTheme(themeItem, context)
-                                }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                            Icon(
+                                imageVector = Icons.Filled.Palette,
+                                contentDescription = null,
+                                tint = activeTheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "Tema de Región:",
+                                color = activeTheme.textPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = activeTheme.titleKey,
+                                color = activeTheme.secondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(activeTheme.primary.copy(alpha = 0.12f))
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "↔ Desliza temas",
+                                color = activeTheme.primary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Scrollable row of all region and thematic game styles
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val allThemes = AppTheme.entries
+                        items(allThemes.size) { index ->
+                            val themeItem = allThemes[index]
+                            val isSelected = themeItem == activeTheme
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (isSelected) themeItem.primary.copy(alpha = 0.25f) else themeItem.surface,
+                                border = BorderStroke(
+                                    if (isSelected) 1.5.dp else 0.8.dp,
+                                    if (isSelected) themeItem.secondary else themeItem.cardBorder.copy(alpha = 0.6f)
+                                ),
+                                modifier = Modifier
+                                    .tactileClickable(scaleDown = 0.92f) {
+                                        AppThemeManager.setTheme(themeItem, context)
+                                    }
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .clip(CircleShape)
-                                        .background(themeItem.primary)
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                Text(
-                                    text = themeItem.titleKey,
-                                    color = if (isSelected) themeItem.secondary else themeItem.textSecondary,
-                                    fontSize = 11.sp,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                                )
-                                if (isSelected) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = themeItem.secondary,
-                                        modifier = Modifier.size(12.dp)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(themeItem.primary)
                                     )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = themeItem.titleKey,
+                                        color = if (isSelected) themeItem.secondary else themeItem.textSecondary,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                    if (isSelected) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            tint = themeItem.secondary,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-            // Consejo del Coach Challenger colocado DIRECTAMENTE debajo de los temas de regiones
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant.copy(alpha = 0.5f),
-                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.35f)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .tactileClickable { }
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                // Consejo del Coach Challenger colocado DIRECTAMENTE debajo de los temas de regiones
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = activeTheme.surfaceVariant.copy(alpha = 0.5f),
+                    border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.35f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .tactileClickable { }
                 ) {
-                    Text("💡", fontSize = 22.sp)
-                    Column {
-                        Text(
-                            text = "Consejo del Coach Challenger",
-                            color = activeTheme.secondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = "¡Cada región altera la energía y colores de la interfaz! Selecciona tu región favorita para sincronizar tu estilo competitivo.",
-                            color = activeTheme.textSecondary,
-                            fontSize = 10.5.sp,
-                            lineHeight = 14.sp
-                        )
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("💡", fontSize = 22.sp)
+                        Column {
+                            Text(
+                                text = "Consejo del Coach Challenger",
+                                color = activeTheme.secondary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "¡Cada región altera la energía y colores de la interfaz! Selecciona tu región favorita para sincronizar tu estilo competitivo.",
+                                color = activeTheme.textSecondary,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.sp
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+            }
 
             val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
             val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
@@ -930,24 +935,74 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 }
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             
-            TextButton(onClick = { showPlansDialog = true }) {
-                Text(
-                    text = if (isPremium) "Ver / Cambiar Plan de Suscripción" else "Comparar Planes Premium",
-                    color = activeTheme.primary,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    fontSize = 13.sp
-                )
-            }
-            
-            TextButton(onClick = { showHistoryDialog = true }) {
-                Text(
-                    text = "Historial de Suscripciones",
-                    color = activeTheme.textSecondary,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                    fontSize = 12.sp
-                )
+            // Animated buttons for Plans and History
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                        .tactileClickable { showPlansDialog = true },
+                    shape = RoundedCornerShape(10.dp),
+                    color = activeTheme.primary.copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.6f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocalActivity,
+                            contentDescription = null,
+                            tint = activeTheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isPremium) "Planes / Pase" else "Ver Planes Pro",
+                            color = activeTheme.primary,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontSize = 12.sp,
+                            maxLines = 1
+                        )
+                    }
+                }
+
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(44.dp)
+                        .tactileClickable { showHistoryDialog = true },
+                    shape = RoundedCornerShape(10.dp),
+                    color = activeTheme.surfaceVariant,
+                    border = BorderStroke(1.dp, activeTheme.cardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = null,
+                            tint = activeTheme.textSecondary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Historial",
+                            color = activeTheme.textSecondary,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                            fontSize = 12.sp,
+                            maxLines = 1
+                        )
+                    }
+                }
             }
             
             var showSupportDialog by remember { mutableStateOf(false) }
@@ -1161,7 +1216,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Card 3: Creators / Community con logo oficial local
+                    // Card 3: Creators / Community con logo oficial en nube o recurso local
                     Surface(
                         modifier = Modifier
                             .weight(1f)
@@ -1184,12 +1239,18 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                     .background(activeTheme.secondary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                androidx.compose.foundation.Image(
-                                    painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_creators_logo),
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data("https://i.postimg.cc/GhwSp1WM/Picsart-26-09-10-20-08-45-219.png")
+                                        .crossfade(true)
+                                        .error(com.example.R.drawable.ic_creators_logo)
+                                        .placeholder(com.example.R.drawable.ic_creators_logo)
+                                        .build(),
                                     contentDescription = "Creadores Pro",
                                     modifier = Modifier
-                                        .size(26.dp)
-                                        .clip(RoundedCornerShape(4.dp))
+                                        .size(30.dp)
+                                        .clip(CircleShape),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -1256,49 +1317,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Support Center Card Button
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .tactileClickable { showSupportDialog = true },
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant,
-                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.5f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = activeTheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                "Centro de Soporte y Ayuda",
-                                color = activeTheme.primary,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                fontSize = 13.sp
-                            )
-                            Text(
-                                "Reportar bugs, consultas o sugerencias",
-                                color = activeTheme.textMuted,
-                                fontSize = 10.5.sp
-                            )
-                        }
-                    }
-                    Text("›", color = activeTheme.primary, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(14.dp))
             
             if (userRole == "admin") {
                 val adminInteractionSource = remember { MutableInteractionSource() }

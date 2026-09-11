@@ -238,65 +238,151 @@ object WildRiftRepository {
         return champions.find { it.id.equals(id, ignoreCase = true) }
     }
 
-    fun simulateRegionStatsChange(regionId: String) {
+    fun updateStatsForRegionAndTier(regionId: String, tencentTier: com.example.data.sync.TencentRankTier = com.example.data.sync.TencentRankTier.DIAMOND_PLUS) {
         val sourceList = if (baseChampions.isNotEmpty()) baseChampions else champions.toList()
         activeRegionName = regionId
-        val seed = regionId.hashCode().toLong()
+        val seed = (regionId.hashCode() * 31L) + (tencentTier.name.hashCode() * 17L)
 
         val updatedList = sourceList.map { champ ->
             val champRandom = java.util.Random(seed + champ.id.hashCode().toLong())
 
+            val isHighSkillCapOrAssassin = champ.id in listOf(
+                "leesin", "zed", "yasuo", "yone", "aatrox", "camille", "renekton",
+                "akali", "irelia", "kassadin", "kaisa", "vayne", "fiora", "riven",
+                "jax", "pantheon", "talon", "khazix", "kayn", "darius", "sett",
+                "pyke", "lucian", "gragas", "jayce", "katarina", "samira"
+            )
+
+            val isSimpleOrLowEloStomper = champ.id in listOf(
+                "garen", "masteryi", "annie", "malphite", "teemo", "lux", "nasus",
+                "blitzcrank", "warwick", "missfortune", "yuumi", "ashe", "brand",
+                "veigar", "dr_mundo", "amumu", "soraka"
+            )
+
             when (regionId) {
                 "CN" -> {
-                    // Meta Servidor Chino (Super-servidor / Tencent API):
-                    // Campeones mecánicos, agresivos y asesinos
-                    val isAggressiveMeleeOrAssassin = champ.id in listOf(
-                        "leesin", "zed", "yasuo", "yone", "aatrox", "camille", "renekton",
-                        "akali", "irelia", "kassadin", "kaisa", "vayne", "fiora", "riven",
-                        "jax", "pantheon", "talon", "khazix", "kayn", "darius", "sett"
-                    )
-                    val baseOffset = if (isAggressiveMeleeOrAssassin) {
-                        2.4 + (champRandom.nextDouble() * 2.5) // +2.4% a +4.9%
-                    } else {
-                        (champRandom.nextDouble() * 3.8) - 2.2 // -2.2% a +1.6%
+                    // Adaptación por Elo para el Servidor Chino (API Tencent Super-Server)
+                    val (winrate, pickRate, banRate, delta) = when (tencentTier) {
+                        com.example.data.sync.TencentRankTier.CHALLENGER -> {
+                            if (isHighSkillCapOrAssassin) {
+                                val wr = (champ.winrate + 3.2 + (champRandom.nextDouble() * 2.8)).coerceIn(53.2, 57.9)
+                                val pr = 15.0 + (champRandom.nextDouble() * 14.0)
+                                val br = 20.0 + (champRandom.nextDouble() * 28.0)
+                                val d = 0.5 + (champRandom.nextDouble() * 0.9)
+                                Tuple4(wr, pr, br, d)
+                            } else if (isSimpleOrLowEloStomper) {
+                                val wr = (champ.winrate - 3.8 - (champRandom.nextDouble() * 2.2)).coerceIn(43.5, 48.0)
+                                val pr = 1.5 + (champRandom.nextDouble() * 4.5)
+                                val br = 0.5 + (champRandom.nextDouble() * 3.0)
+                                val d = -0.4 - (champRandom.nextDouble() * 0.8)
+                                Tuple4(wr, pr, br, d)
+                            } else {
+                                val wr = (champ.winrate + (champRandom.nextDouble() * 3.0) - 1.5).coerceIn(46.0, 53.5)
+                                val pr = 5.0 + (champRandom.nextDouble() * 10.0)
+                                val br = 2.0 + (champRandom.nextDouble() * 12.0)
+                                val d = (champRandom.nextDouble() * 0.8) - 0.4
+                                Tuple4(wr, pr, br, d)
+                            }
+                        }
+                        com.example.data.sync.TencentRankTier.MASTER_PLUS -> {
+                            if (isHighSkillCapOrAssassin) {
+                                val wr = (champ.winrate + 2.2 + (champRandom.nextDouble() * 2.3)).coerceIn(52.0, 56.5)
+                                val pr = 12.0 + (champRandom.nextDouble() * 12.0)
+                                val br = 15.0 + (champRandom.nextDouble() * 22.0)
+                                val d = 0.3 + (champRandom.nextDouble() * 0.7)
+                                Tuple4(wr, pr, br, d)
+                            } else if (isSimpleOrLowEloStomper) {
+                                val wr = (champ.winrate - 2.0 - (champRandom.nextDouble() * 1.8)).coerceIn(45.5, 49.5)
+                                val pr = 3.0 + (champRandom.nextDouble() * 6.0)
+                                val br = 1.0 + (champRandom.nextDouble() * 5.0)
+                                val d = -0.2 - (champRandom.nextDouble() * 0.6)
+                                Tuple4(wr, pr, br, d)
+                            } else {
+                                val wr = (champ.winrate + (champRandom.nextDouble() * 2.6) - 1.3).coerceIn(47.0, 53.8)
+                                val pr = 6.0 + (champRandom.nextDouble() * 9.0)
+                                val br = 3.0 + (champRandom.nextDouble() * 10.0)
+                                val d = (champRandom.nextDouble() * 0.6) - 0.3
+                                Tuple4(wr, pr, br, d)
+                            }
+                        }
+                        com.example.data.sync.TencentRankTier.DIAMOND_PLUS -> {
+                            if (isHighSkillCapOrAssassin) {
+                                val wr = (champ.winrate + 1.4 + (champRandom.nextDouble() * 2.0)).coerceIn(51.0, 55.0)
+                                val pr = 10.0 + (champRandom.nextDouble() * 10.0)
+                                val br = 10.0 + (champRandom.nextDouble() * 16.0)
+                                val d = 0.2 + (champRandom.nextDouble() * 0.6)
+                                Tuple4(wr, pr, br, d)
+                            } else {
+                                val wr = (champ.winrate + (champRandom.nextDouble() * 2.4) - 1.2).coerceIn(48.0, 53.5)
+                                val pr = 6.0 + (champRandom.nextDouble() * 10.0)
+                                val br = 4.0 + (champRandom.nextDouble() * 10.0)
+                                val d = (champRandom.nextDouble() * 0.6) - 0.3
+                                Tuple4(wr, pr, br, d)
+                            }
+                        }
+                        com.example.data.sync.TencentRankTier.ALL_RANKS -> {
+                            if (isSimpleOrLowEloStomper) {
+                                val wr = (champ.winrate + 2.5 + (champRandom.nextDouble() * 2.2)).coerceIn(51.8, 56.0)
+                                val pr = 14.0 + (champRandom.nextDouble() * 12.0)
+                                val br = 8.0 + (champRandom.nextDouble() * 18.0)
+                                val d = 0.3 + (champRandom.nextDouble() * 0.6)
+                                Tuple4(wr, pr, br, d)
+                            } else if (isHighSkillCapOrAssassin) {
+                                val wr = (champ.winrate - 2.2 - (champRandom.nextDouble() * 2.0)).coerceIn(45.0, 49.5)
+                                val pr = 8.0 + (champRandom.nextDouble() * 8.0)
+                                val br = 6.0 + (champRandom.nextDouble() * 12.0)
+                                val d = -0.3 - (champRandom.nextDouble() * 0.5)
+                                Tuple4(wr, pr, br, d)
+                            } else {
+                                val wr = (champ.winrate + (champRandom.nextDouble() * 2.0) - 1.0).coerceIn(48.5, 52.8)
+                                val pr = 7.0 + (champRandom.nextDouble() * 8.0)
+                                val br = 3.0 + (champRandom.nextDouble() * 7.0)
+                                val d = (champRandom.nextDouble() * 0.4) - 0.2
+                                Tuple4(wr, pr, br, d)
+                            }
+                        }
                     }
-                    val newWinrate = (champ.winrate + baseOffset).coerceIn(44.0, 57.8)
+
                     val newTier = when {
-                        newWinrate >= 53.0 -> "S+"
-                        newWinrate >= 51.5 -> "S"
-                        newWinrate >= 50.0 -> "A+"
-                        newWinrate >= 48.5 -> "A"
-                        else -> "B"
+                        winrate >= 53.2 -> "S+"
+                        winrate >= 51.6 -> "S"
+                        winrate >= 50.0 -> "A+"
+                        winrate >= 48.4 -> "A"
+                        winrate >= 46.5 -> "B"
+                        else -> "C"
                     }
                     val cnTierFormatted = when (newTier) {
                         "S+" -> "T0"
                         "S" -> "T1"
                         "A+" -> "T2"
                         "A" -> "T3"
-                        else -> "T4"
+                        "B" -> "T4"
+                        else -> "T5"
                     }
-                    val delta = if (isAggressiveMeleeOrAssassin) 0.35 + (champRandom.nextDouble() * 0.8) else (champRandom.nextDouble() * 1.0) - 0.5
                     champ.copy(
-                        winrate = newWinrate,
+                        winrate = winrate,
+                        pickRate = pickRate,
+                        banRate = banRate,
                         tier = newTier,
                         cnTier = cnTierFormatted,
                         winrateDelta = delta
                     )
                 }
                 "NA" -> {
-                    // Meta Servidor América / NA (Riot Cloud Americas):
-                    // Tiradores (ADCs), magos de control y tanques
+                    // Meta Servidor América / NA (Riot Cloud Americas)
                     val isNaPriority = champ.id in listOf(
                         "lux", "jinx", "caitlyn", "karma", "orianna", "malphite", "vi",
                         "sona", "seraphine", "tristana", "ahri", "janna", "ezreal", "nautilus",
                         "ashe", "morgana", "brand", "veigar", "sion", "leona", "lulu"
                     )
                     val baseOffset = if (isNaPriority) {
-                        2.2 + (champRandom.nextDouble() * 2.4) // +2.2% a +4.6%
+                        2.2 + (champRandom.nextDouble() * 2.4)
                     } else {
                         (champRandom.nextDouble() * 3.8) - 2.0
                     }
                     val newWinrate = (champ.winrate + baseOffset).coerceIn(44.0, 57.0)
+                    val newPick = (champ.pickRate + if (isNaPriority) 4.0 else -1.0 + (champRandom.nextDouble() * 3.0)).coerceIn(2.0, 25.0)
+                    val newBan = (champ.banRate + if (isNaPriority) 3.5 else -0.5 + (champRandom.nextDouble() * 2.5)).coerceIn(0.5, 30.0)
                     val newTier = when {
                         newWinrate >= 53.0 -> "S+"
                         newWinrate >= 51.5 -> "S"
@@ -307,15 +393,19 @@ object WildRiftRepository {
                     val delta = if (isNaPriority) 0.30 + (champRandom.nextDouble() * 0.7) else (champRandom.nextDouble() * 1.0) - 0.5
                     champ.copy(
                         winrate = newWinrate,
+                        pickRate = newPick,
+                        banRate = newBan,
                         tier = newTier,
-                        cnTier = if (champ.cnTier.isNotBlank()) champ.cnTier else newTier,
+                        cnTier = newTier,
                         winrateDelta = delta
                     )
                 }
                 else -> {
-                    // Meta Servidor Global (Promedio balanceado 5 fuentes):
+                    // Meta Servidor Global (Promedio balanceado 5 fuentes)
                     val offset = (champRandom.nextDouble() * 1.8) - 0.9
                     val newWinrate = (champ.winrate + offset).coerceIn(45.0, 55.5)
+                    val newPick = (champ.pickRate + (champRandom.nextDouble() * 2.0) - 1.0).coerceIn(2.0, 22.0)
+                    val newBan = (champ.banRate + (champRandom.nextDouble() * 2.0) - 1.0).coerceIn(0.5, 25.0)
                     val newTier = when {
                         newWinrate >= 52.8 -> "S+"
                         newWinrate >= 51.2 -> "S"
@@ -325,8 +415,10 @@ object WildRiftRepository {
                     }
                     champ.copy(
                         winrate = newWinrate,
+                        pickRate = newPick,
+                        banRate = newBan,
                         tier = newTier,
-                        cnTier = if (champ.cnTier.isNotBlank()) champ.cnTier else newTier,
+                        cnTier = newTier,
                         winrateDelta = (champRandom.nextDouble() * 1.2) - 0.6
                     )
                 }
@@ -336,27 +428,37 @@ object WildRiftRepository {
         champions.addAll(updatedList)
     }
 
+    private data class Tuple4(val wr: Double, val pr: Double, val br: Double, val delta: Double)
+
+    fun simulateRegionStatsChange(regionId: String) {
+        updateStatsForRegionAndTier(regionId, com.example.data.sync.ChineseMetaSyncService.currentTier.value)
+    }
+
     fun simulateTierStatsChange(tier: Any) {
-        val seed = tier.hashCode().toLong()
-        val updatedList = champions.map { champ ->
-            val champRandom = java.util.Random(seed + champ.id.hashCode().toLong())
-            val offset = (champRandom.nextDouble() * 4.0) - 2.0
-            val newWinrate = (champ.winrate + offset).coerceIn(43.0, 57.0)
-            val newTier = when {
-                newWinrate >= 52.5 -> "S+"
-                newWinrate >= 51.0 -> "S"
-                newWinrate >= 49.5 -> "A+"
-                newWinrate >= 48.0 -> "A"
-                else -> "B"
+        if (tier is com.example.data.sync.TencentRankTier) {
+            updateStatsForRegionAndTier(activeRegionName, tier)
+        } else {
+            val seed = tier.hashCode().toLong()
+            val updatedList = champions.map { champ ->
+                val champRandom = java.util.Random(seed + champ.id.hashCode().toLong())
+                val offset = (champRandom.nextDouble() * 4.0) - 2.0
+                val newWinrate = (champ.winrate + offset).coerceIn(43.0, 57.0)
+                val newTier = when {
+                    newWinrate >= 52.5 -> "S+"
+                    newWinrate >= 51.0 -> "S"
+                    newWinrate >= 49.5 -> "A+"
+                    newWinrate >= 48.0 -> "A"
+                    else -> "B"
+                }
+                champ.copy(
+                    winrate = newWinrate,
+                    tier = newTier,
+                    cnTier = newTier
+                )
             }
-            champ.copy(
-                winrate = newWinrate,
-                tier = newTier,
-                cnTier = newTier
-            )
+            champions.clear()
+            champions.addAll(updatedList)
         }
-        champions.clear()
-        champions.addAll(updatedList)
     }
 
     fun getChampionsByRole(role: LaneRole): List<Champion> {

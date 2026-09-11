@@ -482,18 +482,44 @@ fun AvatarSelectionBottomSheet(
                                     )
                                     .padding(horizontal = 4.dp, vertical = 2.dp)
                             ) {
-                                Text(
-                                    text = if (isEquipped) tr("ACTIVO")
-                                    else if (isGifted && !avatar.isDefault) tr("REGALO")
-                                    else if (canEquip) tr("LISTO")
-                                    else tr("PREMIUM"),
-                                    color = if (isEquipped) HextechGold
-                                    else if (isGifted && !avatar.isDefault) Color(0xFF10B981)
-                                    else if (canEquip) HextechCyan
-                                    else HextechGold.copy(alpha = 0.8f),
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.ExtraBold
-                                )
+                                if (isEquipped) {
+                                    Text(
+                                        text = tr("ACTIVO"),
+                                        color = HextechGold,
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                } else if (isGifted && !avatar.isDefault) {
+                                    Text(
+                                        text = tr("REGALO"),
+                                        color = Color(0xFF10B981),
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                } else if (canEquip) {
+                                    Text(
+                                        text = tr("LISTO"),
+                                        color = HextechCyan,
+                                        fontSize = 8.5.sp,
+                                        fontWeight = FontWeight.ExtraBold
+                                    )
+                                } else {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.Lock,
+                                            contentDescription = null,
+                                            tint = HextechGold.copy(alpha = 0.8f),
+                                            modifier = Modifier.size(10.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(2.dp))
+                                        Text(
+                                            text = tr("PREMIUM"),
+                                            color = HextechGold.copy(alpha = 0.8f),
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.ExtraBold
+                                        )
+                                    }
+                                }
                             }
                         }
                         

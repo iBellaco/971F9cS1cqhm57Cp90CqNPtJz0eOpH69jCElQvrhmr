@@ -1,6 +1,7 @@
 package com.example.data.sync
 
 import android.content.Context
+import com.example.data.WildRiftRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,8 @@ object ChineseMetaSyncService {
 
     fun setRegion(context: Context, regionId: String, scope: CoroutineScope) {
         _currentRegion.value = regionId
+        WildRiftRepository.updateStatsForRegionAndTier(regionId, _currentTier.value)
+        _syncState.value = ChineseSyncState.Success(BestBuildWrScraper.lastSyncFormattedTime.value, _currentTier.value)
         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
             BestBuildWrScraper.syncGlobalTierList(context, regionId, force = true)
         }
@@ -32,6 +35,7 @@ object ChineseMetaSyncService {
 
     suspend fun syncChineseMeta(context: Context, tier: TencentRankTier = TencentRankTier.DIAMOND_PLUS, forceRefresh: Boolean = false) {
         _currentTier.value = tier
+        WildRiftRepository.updateStatsForRegionAndTier(_currentRegion.value, tier)
         BestBuildWrScraper.syncGlobalTierList(context, _currentRegion.value, force = forceRefresh)
         _syncState.value = ChineseSyncState.Success(BestBuildWrScraper.lastSyncFormattedTime.value, tier)
     }

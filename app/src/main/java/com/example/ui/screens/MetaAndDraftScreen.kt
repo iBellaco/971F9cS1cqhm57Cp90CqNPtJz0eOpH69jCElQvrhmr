@@ -1453,13 +1453,13 @@ fun TierListTab(
     var selectedLane by remember { mutableStateOf<LaneRole?>(null) }
     var selectedSort by remember { mutableStateOf(TierSortOption.BY_TIER) }
 
-    val rawChampionsToDisplay = remember(selectedLane, showFavoritesOnly, favorites, syncState, WildRiftRepository.champions.toList()) {
-        val champs = if (selectedLane == null) WildRiftRepository.champions
+    val rawChampionsToDisplay = remember(selectedLane, showFavoritesOnly, favorites, syncState, currentTier, currentRegion, WildRiftRepository.champions.toList()) {
+        val champs = if (selectedLane == null) WildRiftRepository.champions.toList()
         else WildRiftRepository.getChampionsByRole(selectedLane!!)
         if (showFavoritesOnly) champs.filter { it.id in favorites } else champs
     }
 
-    val championsToDisplay = remember(rawChampionsToDisplay, selectedSort) {
+    val championsToDisplay = remember(rawChampionsToDisplay, selectedSort, currentTier, currentRegion) {
         when (selectedSort) {
             TierSortOption.BY_TIER -> rawChampionsToDisplay
             TierSortOption.WIN_RATE -> rawChampionsToDisplay.sortedByDescending { it.winrate }
@@ -1468,12 +1468,13 @@ fun TierListTab(
         }
     }
 
-    val tierSPlus = championsToDisplay.filter { it.tier == "S+" }
-    val tierS = championsToDisplay.filter { it.tier == "S" }
-    val tierA = championsToDisplay.filter { it.tier == "A+" || it.tier == "A" }
-    val tierB = championsToDisplay.filter { it.tier == "B" || it.tier == "B+" }
-    val tierC = championsToDisplay.filter { it.tier == "C" || it.tier == "C+" }
-    val tierD = championsToDisplay.filter { it.tier != "S+" && it.tier != "S" && it.tier != "A+" && it.tier != "A" && it.tier != "B" && it.tier != "B+" && it.tier != "C" && it.tier != "C+" }
+    val isCn = currentRegion == "CN"
+    val tierSPlus = championsToDisplay.filter { it.tier == "S+" || (isCn && it.cnTier == "T0") }
+    val tierS = championsToDisplay.filter { (it.tier == "S" || (isCn && it.cnTier == "T1")) && it !in tierSPlus }
+    val tierA = championsToDisplay.filter { (it.tier == "A+" || it.tier == "A" || (isCn && (it.cnTier == "T2" || it.cnTier == "T3"))) && it !in tierSPlus && it !in tierS }
+    val tierB = championsToDisplay.filter { (it.tier == "B" || it.tier == "B+" || (isCn && it.cnTier == "T4")) && it !in tierSPlus && it !in tierS && it !in tierA }
+    val tierC = championsToDisplay.filter { (it.tier == "C" || it.tier == "C+" || (isCn && it.cnTier == "T5")) && it !in tierSPlus && it !in tierS && it !in tierA && it !in tierB }
+    val tierD = championsToDisplay.filter { it !in tierSPlus && it !in tierS && it !in tierA && it !in tierB && it !in tierC }
 
     LazyColumn(
         modifier = Modifier
@@ -1656,12 +1657,12 @@ fun TierListTab(
         }
 
         if (selectedSort == TierSortOption.BY_TIER) {
-            // Tier S+
+            // Tier S+ / T0
             if (tierSPlus.isNotEmpty()) {
                 item {
                     TierSectionCard(
                         isOverlay = isOverlay,
-                        tierName = "TIER S+ (Dominantes / Prioridad Pick & Ban)",
+                        tierName = if (isCn) "TIER S+ / T0 (${tr("Dominantes en")} ${tr(currentTier.displayName)})" else "TIER S+ (${tr("Dominantes / Prioridad Pick & Ban")})",
                         tierColor = TierSPlusColor,
                         champions = tierSPlus,
                         onSelectChampion = onSelectChampion
@@ -1669,12 +1670,12 @@ fun TierListTab(
                 }
             }
 
-            // Tier S
+            // Tier S / T1
             if (tierS.isNotEmpty()) {
                 item {
                     TierSectionCard(
                         isOverlay = isOverlay,
-                        tierName = "TIER S (Meta Muy Fuerte / Alta Prioridad)",
+                        tierName = if (isCn) "TIER S / T1 (${tr("Meta Muy Fuerte / Alta Prioridad")})" else "TIER S (${tr("Meta Muy Fuerte / Alta Prioridad")})",
                         tierColor = TierSColor,
                         champions = tierS,
                         onSelectChampion = onSelectChampion
@@ -1682,12 +1683,12 @@ fun TierListTab(
                 }
             }
 
-            // Tier A
+            // Tier A / T2-T3
             if (tierA.isNotEmpty()) {
                 item {
                     TierSectionCard(
                         isOverlay = isOverlay,
-                        tierName = "TIER A (Opciones Sólidas y Balanceadas)",
+                        tierName = if (isCn) "TIER A / T2-T3 (${tr("Opciones Sólidas y Balanceadas")})" else "TIER A (${tr("Opciones Sólidas y Balanceadas")})",
                         tierColor = TierAColor,
                         champions = tierA,
                         onSelectChampion = onSelectChampion
@@ -1695,12 +1696,12 @@ fun TierListTab(
                 }
             }
             
-            // Tier B
+            // Tier B / T4
             if (tierB.isNotEmpty()) {
                 item {
                     TierSectionCard(
                         isOverlay = isOverlay,
-                        tierName = "TIER B (Opciones Viables)",
+                        tierName = if (isCn) "TIER B / T4 (${tr("Opciones Viables")})" else "TIER B (${tr("Opciones Viables")})",
                         tierColor = com.example.ui.theme.TierBColor,
                         champions = tierB,
                         onSelectChampion = onSelectChampion
@@ -1708,12 +1709,12 @@ fun TierListTab(
                 }
             }
 
-            // Tier C
+            // Tier C / T5
             if (tierC.isNotEmpty()) {
                 item {
                     TierSectionCard(
                         isOverlay = isOverlay,
-                        tierName = "TIER C (Situacionales)",
+                        tierName = if (isCn) "TIER C / T5 (${tr("Situacionales")})" else "TIER C (${tr("Situacionales")})",
                         tierColor = com.example.ui.theme.TierCColor,
                         champions = tierC,
                         onSelectChampion = onSelectChampion
@@ -1726,7 +1727,7 @@ fun TierListTab(
                 item {
                     TierSectionCard(
                         isOverlay = isOverlay,
-                        tierName = "TIER D / OTROS",
+                        tierName = if (isCn) "TIER D / OTROS (${tr("Fuera del Meta")})" else "TIER D / OTROS",
                         tierColor = com.example.ui.theme.TierDColor,
                         champions = tierD,
                         onSelectChampion = onSelectChampion

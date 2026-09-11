@@ -10,9 +10,15 @@ val isLightAppTheme: Boolean
     get() = !AppThemeManager.currentTheme.isDark
 
 val HextechDarkBg: Color get() = if (AppThemeManager.isOledMode) Color(0xFF000000) else AppThemeManager.currentTheme.background
-val HextechSurface: Color get() = if (AppThemeManager.isOledMode) Color(0xFF05080E) else AppThemeManager.currentTheme.surface.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
-val HextechSurfaceVariant: Color get() = if (AppThemeManager.isOledMode) Color(0xFF0C121C) else AppThemeManager.currentTheme.surfaceVariant.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
-val HextechCardBorder: Color get() = if (AppThemeManager.isOledMode) AppThemeManager.currentTheme.cardBorder.copy(alpha = 0.9f) else AppThemeManager.currentTheme.cardBorder
+val HextechSurface: Color get() = if (AppThemeManager.isOledMode) {
+    val s = AppThemeManager.currentTheme.surface
+    Color(0.02f + s.red * 0.15f, 0.02f + s.green * 0.15f, 0.03f + s.blue * 0.2f, 1f)
+} else AppThemeManager.currentTheme.surface.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
+val HextechSurfaceVariant: Color get() = if (AppThemeManager.isOledMode) {
+    val v = AppThemeManager.currentTheme.surfaceVariant
+    Color(0.05f + v.red * 0.2f, 0.05f + v.green * 0.2f, 0.07f + v.blue * 0.25f, 1f)
+} else AppThemeManager.currentTheme.surfaceVariant.copy(alpha = if (AppThemeManager.currentTheme.isDark) 0.65f else 0.85f)
+val HextechCardBorder: Color get() = if (AppThemeManager.isOledMode) AppThemeManager.currentTheme.cardBorder.copy(alpha = 0.95f) else AppThemeManager.currentTheme.cardBorder
 
 val HextechGold: Color get() = AppThemeManager.currentTheme.secondary
 val HextechGoldLight: Color get() = AppThemeManager.currentTheme.secondaryLight
