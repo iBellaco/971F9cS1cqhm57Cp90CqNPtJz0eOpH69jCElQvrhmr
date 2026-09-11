@@ -258,8 +258,6 @@ fun InfoScreen(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                com.example.ui.components.CreatorSocialMediaBar()
             }
 
             Spacer(modifier = Modifier.height(24.dp))

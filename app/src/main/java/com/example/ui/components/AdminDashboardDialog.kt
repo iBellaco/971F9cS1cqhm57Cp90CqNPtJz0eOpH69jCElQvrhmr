@@ -334,7 +334,10 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var content by remember { mutableStateOf("") }
     var videoUrl by remember { mutableStateOf("") }
     var expandedImageUrl by remember { mutableStateOf("") }
+    var externalUrl by remember { mutableStateOf("") }
     var selectedTag by remember { mutableStateOf("Anuncios importantes") }
+    var titleColor by remember { mutableStateOf("#FFD700") }
+    var contentColor by remember { mutableStateOf("#CCCCCC") }
     var isEnabled by remember { mutableStateOf(true) }
 
     val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad")
@@ -531,7 +534,10 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                             content = notice.content
                                             videoUrl = notice.videoUrl
                                             expandedImageUrl = notice.expandedImageUrl
+                                            externalUrl = notice.externalUrl
                                             selectedTag = notice.tag
+                                            titleColor = notice.titleColor
+                                            contentColor = notice.contentColor
                                             isEnabled = notice.isEnabled
                                         },
                                         modifier = Modifier.size(28.dp)
@@ -596,6 +602,39 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("🎨 Color del Título:", color = TextSecondary, fontSize = 11.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    val colorsList = listOf(
+                        "Dorado" to "#FFD700",
+                        "Cian" to "#00F2FE",
+                        "Blanco" to "#FFFFFF",
+                        "Verde" to "#00FF66",
+                        "Naranja" to "#FF9900",
+                        "Rojo" to "#FF3333",
+                        "Morado" to "#CC66FF"
+                    )
+                    colorsList.forEach { (name, hex) ->
+                        val isSelected = titleColor.equals(hex, true)
+                        val parsedColor = try { Color(android.graphics.Color.parseColor(hex)) } catch (_: Exception) { HextechGold }
+                        Button(
+                            onClick = { titleColor = hex },
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isSelected) parsedColor else HextechSurfaceVariant
+                            ),
+                            border = BorderStroke(1.dp, parsedColor)
+                        ) {
+                            Text(name, color = if (isSelected) HextechDarkBg else parsedColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = content,
@@ -605,6 +644,37 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     minLines = 2,
                     shape = RoundedCornerShape(8.dp)
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("🎨 Color de la Descripción:", color = TextSecondary, fontSize = 11.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    val contentColorsList = listOf(
+                        "Gris Claro" to "#CCCCCC",
+                        "Blanco" to "#FFFFFF",
+                        "Cian" to "#00F2FE",
+                        "Dorado" to "#FFD700",
+                        "Verde" to "#00FF66",
+                        "Amarillo" to "#FFEE55"
+                    )
+                    contentColorsList.forEach { (name, hex) ->
+                        val isSelected = contentColor.equals(hex, true)
+                        val parsedColor = try { Color(android.graphics.Color.parseColor(hex)) } catch (_: Exception) { TextSecondary }
+                        Button(
+                            onClick = { contentColor = hex },
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isSelected) parsedColor else HextechSurfaceVariant
+                            ),
+                            border = BorderStroke(1.dp, parsedColor)
+                        ) {
+                            Text(name, color = if (isSelected) HextechDarkBg else parsedColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
 
                 // 1. Horizontal Media (Home screen)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -686,6 +756,20 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     Text("📱 Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
 
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("3. 🔗 Enlace Web Externo (Opcional):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = externalUrl,
+                    onValueChange = { externalUrl = it },
+                    label = { Text("URL de sitio web externo (Redirección al tocar imagen)") },
+                    supportingText = {
+                        Text("Si se define, al ampliar la imagen se podrá abrir este enlace web externamente.", color = TextMuted, fontSize = 10.sp)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -712,7 +796,10 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             content = content,
                             videoUrl = videoUrl,
                             expandedImageUrl = expandedImageUrl,
+                            externalUrl = externalUrl,
                             tag = selectedTag,
+                            titleColor = titleColor,
+                            contentColor = contentColor,
                             isEnabled = isEnabled
                         )
                         if (editingIndex != null) {
@@ -725,6 +812,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         content = ""
                         videoUrl = ""
                         expandedImageUrl = ""
+                        externalUrl = ""
                         Toast.makeText(context, "Anuncio guardado en la lista", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxWidth(),

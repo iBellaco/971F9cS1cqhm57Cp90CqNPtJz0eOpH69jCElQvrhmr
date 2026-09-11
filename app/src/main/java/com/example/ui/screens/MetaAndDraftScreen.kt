@@ -5018,6 +5018,13 @@ fun TierSelectionPanel(
     val isOnline by BestBuildWrScraper.isOnline.collectAsStateWithLifecycle()
     val isSyncing by BestBuildWrScraper.isSyncing.collectAsStateWithLifecycle()
     val lastSyncFormattedTime by BestBuildWrScraper.lastSyncFormattedTime.collectAsStateWithLifecycle()
+    var showMultiServerStats by remember { mutableStateOf(false) }
+
+    if (showMultiServerStats) {
+        com.example.ui.components.MultiServerStatsDialog(
+            onDismiss = { showMultiServerStats = false }
+        )
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -5026,7 +5033,7 @@ fun TierSelectionPanel(
         border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
     ) {
         Column(modifier = Modifier.padding(if (isOverlay) 8.dp else 12.dp)) {
-            // CABECERA: 🌐 Servidor / Meta: | Botón de Actualizar con estado
+            // CABECERA: 🌐 Servidor / Meta: | Botón Estadísticas + Botón de Actualizar con estado
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -5040,46 +5047,70 @@ fun TierSelectionPanel(
                         fontWeight = FontWeight.Black
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(if (isOnline) HextechCyan.copy(alpha = 0.15f) else Color(0xFFE65100).copy(alpha = 0.2f))
-                        .border(
-                            0.8.dp,
-                            if (isOnline) HextechCyan.copy(alpha = 0.7f) else Color(0xFFFF9800),
-                            RoundedCornerShape(6.dp)
-                        )
-                        .clickable(enabled = !isSyncing) {
-                            coroutineScope.launch {
-                                BestBuildWrScraper.syncGlobalTierList(context, currentRegion, force = true)
-                                if (currentRegion == "CN") {
-                                    ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Botón Estadísticas Multi-Servidor
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(HextechGold.copy(alpha = 0.2f))
+                            .border(0.8.dp, HextechGold, RoundedCornerShape(6.dp))
+                            .clickable { showMultiServerStats = true }
+                            .padding(horizontal = 8.dp, vertical = 3.5.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                text = "📊 " + tr("Estadísticas"),
+                                color = HextechGold,
+                                fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (isOnline) HextechCyan.copy(alpha = 0.15f) else Color(0xFFE65100).copy(alpha = 0.2f))
+                            .border(
+                                0.8.dp,
+                                if (isOnline) HextechCyan.copy(alpha = 0.7f) else Color(0xFFFF9800),
+                                RoundedCornerShape(6.dp)
+                            )
+                            .clickable(enabled = !isSyncing) {
+                                coroutineScope.launch {
+                                    BestBuildWrScraper.syncGlobalTierList(context, currentRegion, force = true)
+                                    if (currentRegion == "CN") {
+                                        ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
+                                    }
                                 }
                             }
-                        }
-                        .padding(horizontal = 8.dp, vertical = 3.5.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        if (isSyncing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(10.dp),
-                                color = HextechCyan,
-                                strokeWidth = 1.5.dp
+                            .padding(horizontal = 8.dp, vertical = 3.5.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (isSyncing) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(10.dp),
+                                    color = HextechCyan,
+                                    strokeWidth = 1.5.dp
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Actualizar",
+                                    tint = if (isOnline) HextechCyan else Color(0xFFFF9800),
+                                    modifier = Modifier.size(11.dp)
+                                )
+                            }
+                            Text(
+                                text = if (isSyncing) tr("Sincronizando...") else tr("Actualizar"),
+                                color = if (isOnline) HextechCyan else Color(0xFFFFB74D),
+                                fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
+                                fontWeight = FontWeight.Bold
                             )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "Actualizar",
-                                tint = if (isOnline) HextechCyan else Color(0xFFFF9800),
-                                modifier = Modifier.size(11.dp)
-                            )
                         }
-                        Text(
-                            text = if (isSyncing) tr("Sincronizando...") else tr("Actualizar"),
-                            color = if (isOnline) HextechCyan else Color(0xFFFFB74D),
-                            fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
                     }
                 }
             }

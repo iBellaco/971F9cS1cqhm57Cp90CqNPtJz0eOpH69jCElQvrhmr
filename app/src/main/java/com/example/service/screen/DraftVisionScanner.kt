@@ -970,33 +970,33 @@ object DraftVisionScanner {
                         }
                     }
 
-                    if (bestMatchResult != null) {
+                    if (bestMatchResult != null && bestMatchResult.confidence >= 0.82f) {
                         val match = bestMatchResult
-                        if (match.confidence >= 0.65f) {
-                            targetSlot.champion = match.champion
-                            targetSlot.confidencePercent = (match.confidence * 100).toInt()
-                            targetSlot.isLikelyUnpicked = false
+                        targetSlot.champion = match.champion
+                        targetSlot.confidencePercent = (match.confidence * 100).toInt()
+                        targetSlot.isLikelyUnpicked = false
 
-                            if (targetSlot.isAlly) {
-                                allyOcrChampions[sIdx] = match.champion
-                                allySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
-                            } else {
-                                enemyOcrChampions[sIdx] = match.champion
-                                enemySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
-                            }
+                        if (targetSlot.isAlly) {
+                            allyOcrChampions[sIdx] = match.champion
+                            allySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                        } else {
+                            enemyOcrChampions[sIdx] = match.champion
+                            enemySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
+                        }
 
-                            val tenthTurn = pickSequence.last()
-                            if (targetSlot.isAlly == tenthTurn.isAlly && targetSlot.slotIndex == tenthTurn.slotIndex) {
-                                isLastPickVisualRecognized = true
-                                lastPickVisualChampion = match.champion
-                                lastPickVisualConfidence = match.confidence
-                            }
+                        val tenthTurn = pickSequence.last()
+                        if (targetSlot.isAlly == tenthTurn.isAlly && targetSlot.slotIndex == tenthTurn.slotIndex) {
+                            isLastPickVisualRecognized = true
+                            lastPickVisualChampion = match.champion
+                            lastPickVisualConfidence = match.confidence
+                        }
 
-                            val side = if (targetSlot.isAlly) "Aliado" else "Rival"
-                            auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
-                            AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
-                        } else if (targetSlot.champion == null) {
-                            AppLogger.d(TAG, "Confianza visual baja (${match.confidence}), asumiendo placeholder.")
+                        val side = if (targetSlot.isAlly) "Aliado" else "Rival"
+                        auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
+                        AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
+                    } else {
+                        if (targetSlot.champion == null) {
+                            targetSlot.isLikelyUnpicked = true
                         }
                     }
                 }

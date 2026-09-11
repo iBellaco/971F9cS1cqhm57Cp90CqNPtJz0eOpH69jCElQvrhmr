@@ -14,7 +14,10 @@ data class AppNotice(
     val content: String = "Bienvenido a Wild Rift Coach. ¡Consulta las últimas guías del parche y optimiza tu drafting!",
     val videoUrl: String = "", // Multimedia horizontal para panel de inicio
     val expandedImageUrl: String = "", // Imagen vertical para vista ampliada
+    val externalUrl: String = "", // Enlace web externo opcional al tocar la imagen ampliada
     val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia"
+    val titleColor: String = "#FFD700",
+    val contentColor: String = "#CCCCCC",
     val isEnabled: Boolean = true
 )
 
@@ -69,7 +72,10 @@ object AppNoticeManager {
                             content = obj.optString("content", ""),
                             videoUrl = obj.optString("videoUrl", ""),
                             expandedImageUrl = obj.optString("expandedImageUrl", ""),
+                            externalUrl = obj.optString("externalUrl", ""),
                             tag = obj.optString("tag", "Anuncios importantes"),
+                            titleColor = obj.optString("titleColor", "#FFD700"),
+                            contentColor = obj.optString("contentColor", "#CCCCCC"),
                             isEnabled = obj.optBoolean("isEnabled", true)
                         )
                     )
@@ -114,7 +120,10 @@ object AppNoticeManager {
                     put("content", n.content)
                     put("videoUrl", n.videoUrl)
                     put("expandedImageUrl", n.expandedImageUrl)
+                    put("externalUrl", n.externalUrl)
                     put("tag", n.tag)
+                    put("titleColor", n.titleColor)
+                    put("contentColor", n.contentColor)
                     put("isEnabled", n.isEnabled)
                 }
                 arr.put(obj)

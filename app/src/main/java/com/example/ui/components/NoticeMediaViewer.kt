@@ -127,6 +127,11 @@ fun NoticeMediaViewer(
         modifier
             .fillMaxWidth()
             .aspectRatio(985f / 425f)
+            .then(
+                if (onExpand != null) {
+                    Modifier.clickable { onExpand() }
+                } else Modifier
+            )
     }
 
     Box(
@@ -136,61 +141,49 @@ fun NoticeMediaViewer(
             .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(if (isFullscreen) 12.dp else 8.dp))
     ) {
         if (isYt && ytVideoId != null) {
-            // Robust YouTube Embed with BaseURL to prevent Error 153 and default muted
-            AndroidView(
-                factory = { ctx ->
-                    WebView(ctx).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
-                        settings.apply {
-                            javaScriptEnabled = true
-                            domStorageEnabled = true
-                            mediaPlaybackRequiresUserGesture = false
-                            loadWithOverviewMode = true
-                            useWideViewPort = true
-                            allowFileAccess = true
-                            allowContentAccess = true
-                            mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                            userAgentString = "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
-                        }
-                        webChromeClient = WebChromeClient()
-                        webViewClient = object : WebViewClient() {
-                            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                                return false
-                            }
-                        }
-
-                        // HTML with iframe configured to mute=1 by default and origin=https://www.youtube.com
-                        val htmlData = """
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-                                <style>
-                                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                                    body, html { width: 100%; height: 100%; background-color: #000; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-                                    iframe { width: 100%; height: 100%; border: none; }
-                                </style>
-                            </head>
-                            <body>
-                                <iframe
-                                    id="ytplayer"
-                                    type="text/html"
-                                    src="https://www.youtube.com/embed/$ytVideoId?enablejsapi=1&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-                                    allowfullscreen>
-                                </iframe>
-                            </body>
-                            </html>
-                        """.trimIndent()
-
-                        loadDataWithBaseURL("https://www.youtube.com", htmlData, "text/html", "UTF-8", null)
+            val thumbUrl = "https://img.youtube.com/vi/$ytVideoId/hqdefault.jpg"
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable {
+                        try {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(trimmedUrl))
+                            context.startActivity(intent)
+                        } catch (_: Exception) {}
                     }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+            ) {
+                AsyncImage(
+                    model = thumbUrl,
+                    contentDescription = "Miniatura de YouTube",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                // Dark overlay gradient / tint
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.35f))
+                )
+                // Play button badge
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechSurface.copy(alpha = 0.9f))
+                        .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Icon(Icons.Default.PlayArrow, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                        Text(
+                            text = "Reproducir en YouTube ▶",
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         } else if (NoticeMediaUtils.isLocalVideo(context, trimmedUrl)) {
             // Local gallery video player with VideoView, visual rendering and default muted
             AndroidView(
@@ -291,46 +284,31 @@ fun NoticeMediaViewer(
                 contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
             )
         }
-
-        // Top-right action buttons (Expand only for cards, no close button for images)
-        if (onExpand != null && !isFullscreen) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(6.dp)
-            ) {
-                IconButton(
-                    onClick = onExpand,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
-                ) {
-                    Icon(
-                        Icons.Default.Fullscreen,
-                        contentDescription = "Ampliar Imagen o Video",
-                        tint = HextechCyan,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-        }
     }
 }
 
 @Composable
 fun NoticeMediaFullscreenDialog(
     mediaUrl: String,
+    externalUrl: String = "",
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
+    val trimmedUrl = mediaUrl.trim()
+    val isYt = remember(trimmedUrl) { NoticeMediaUtils.isYouTubeUrl(trimmedUrl) }
+    val isLocal = remember(trimmedUrl) { NoticeMediaUtils.isLocalVideo(context, trimmedUrl) }
+    val isVideo = isYt || isLocal
+
     var isLandscape by remember { mutableStateOf(false) }
 
     DisposableEffect(isLandscape) {
-        if (isLandscape) {
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        } else {
-            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        if (isVideo) {
+            if (isLandscape) {
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            } else {
+                activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
         }
         onDispose {
             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -359,40 +337,82 @@ fun NoticeMediaFullscreenDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
+                        .then(
+                            if (!isVideo && externalUrl.isNotBlank()) {
+                                Modifier.clickable {
+                                    try {
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(externalUrl.trim()))
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {}
+                                }
+                            } else Modifier
+                        )
                 ) {
                     NoticeMediaViewer(
                         mediaUrl = mediaUrl,
                         modifier = Modifier.fillMaxSize(),
                         isFullscreen = true
                     )
+
+                    // Optional external link badge if externalUrl is provided for an image
+                    if (!isVideo && externalUrl.isNotBlank()) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(16.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(HextechSurface.copy(alpha = 0.9f))
+                                .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
+                                .clickable {
+                                    try {
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(externalUrl.trim()))
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {}
+                                }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Icon(Icons.Default.OpenInBrowser, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                Text(
+                                    text = "Abrir Enlace Web Externo ↗",
+                                    color = HextechGold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = if (isVideo) Arrangement.SpaceBetween else Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
-                        onClick = { isLandscape = !isLandscape },
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                    ) {
-                        Icon(
-                            if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
-                            contentDescription = "Rotar Pantalla",
-                            tint = HextechCyan,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
-                            color = HextechCyan,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    // ROTATE BUTTON ONLY IF IT IS A VIDEO
+                    if (isVideo) {
+                        Button(
+                            onClick = { isLandscape = !isLandscape },
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                        ) {
+                            Icon(
+                                if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
+                                contentDescription = "Rotar Pantalla",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
+                                color = HextechCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                     Button(

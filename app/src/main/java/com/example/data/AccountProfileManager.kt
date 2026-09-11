@@ -20,26 +20,6 @@ data class BlueEssencePurchase(
 )
 
 @Serializable
-data class CreatorChampionBuild(
-    val championId: String,
-    val championName: String,
-    val role: String = "Mid",
-    val title: String = "Build de Élite",
-    val startingItem: String = "",
-    val bootsItem: String = "",
-    val bootsEnchant: String = "",
-    val coreItems: List<String> = emptyList(),
-    val situationalItems: List<String> = emptyList(),
-    val keystoneRune: String = "",
-    val secondaryRunes: List<String> = emptyList(),
-    val spell1: String = "",
-    val spell2: String = "",
-    val guideNotes: String = "",
-    val comboTips: String = "",
-    val lastUpdated: Long = System.currentTimeMillis()
-)
-
-@Serializable
 data class AccountProfile(
     val id: String,
     val name: String,
@@ -48,14 +28,7 @@ data class AccountProfile(
     val isDefault: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val blueEssence: Int = 0,
-    val purchaseHistory: List<BlueEssencePurchase> = emptyList(),
-    val isCreator: Boolean = false,
-    val creatorStatus: String = "NONE", // "NONE", "PENDING", "APPROVED"
-    val creatorApplicationReason: String = "",
-    val subscribersCount: Int = 0,
-    val subscribers: List<String> = emptyList(),
-    val subscribedTo: List<String> = emptyList(),
-    val creatorBuild: CreatorChampionBuild? = null
+    val purchaseHistory: List<BlueEssencePurchase> = emptyList()
 )
 
 object AccountProfileManager {
@@ -214,142 +187,6 @@ object AccountProfileManager {
             }
         }
         return false
-    }
-
-    fun applyForCreator(context: Context, profileId: String, reason: String = "") {
-        val currentProfiles = _allProfiles.value.toMutableList()
-        val index = currentProfiles.indexOfFirst { it.id == profileId }
-        if (index != -1) {
-            val prof = currentProfiles[index]
-            val updatedProf = prof.copy(
-                isCreator = true,
-                creatorStatus = "APPROVED",
-                creatorApplicationReason = reason.trim()
-            )
-            currentProfiles[index] = updatedProf
-            saveProfiles(context, currentProfiles)
-        }
-    }
-
-    /**
-     * Guarda la build del Creador garantizando que SOLO PUEDE CREAR DE 1 CAMPEÓN.
-     */
-    fun saveCreatorBuild(context: Context, profileId: String, build: CreatorChampionBuild): Boolean {
-        val currentProfiles = _allProfiles.value.toMutableList()
-        val index = currentProfiles.indexOfFirst { it.id == profileId }
-        if (index != -1) {
-            val prof = currentProfiles[index]
-            if (!prof.isCreator) return false
-            // Actualiza o establece su build única para su campeón
-            val updatedProf = prof.copy(
-                creatorBuild = build.copy(lastUpdated = System.currentTimeMillis())
-            )
-            currentProfiles[index] = updatedProf
-            saveProfiles(context, currentProfiles)
-            return true
-        }
-        return false
-    }
-
-    fun deleteCreatorBuild(context: Context, profileId: String) {
-        val currentProfiles = _allProfiles.value.toMutableList()
-        val index = currentProfiles.indexOfFirst { it.id == profileId }
-        if (index != -1) {
-            val prof = currentProfiles[index]
-            val updatedProf = prof.copy(creatorBuild = null)
-            currentProfiles[index] = updatedProf
-            saveProfiles(context, currentProfiles)
-        }
-    }
-
-    /**
-     * Suscripción entre usuarios con Esencia Azul. Límite estricto de 100 suscriptores.
-     */
-    fun subscribeToUser(
-        context: Context,
-        subscriberProfileId: String,
-        targetProfileId: String,
-        essenceCost: Int = 100
-    ): Pair<Boolean, String> {
-        if (subscriberProfileId == targetProfileId) {
-            return Pair(false, "No puedes suscribirte a tu propia cuenta.")
-        }
-
-        val currentProfiles = _allProfiles.value.toMutableList()
-        val subIndex = currentProfiles.indexOfFirst { it.id == subscriberProfileId }
-        val targetIndex = currentProfiles.indexOfFirst { it.id == targetProfileId }
-
-        if (subIndex == -1) {
-            return Pair(false, "Perfil suscriptor no encontrado.")
-        }
-
-        val subscriber = currentProfiles[subIndex]
-        if (subscriber.subscribedTo.contains(targetProfileId)) {
-            return Pair(false, "Ya estás suscrito a este usuario.")
-        }
-
-        if (subscriber.blueEssence < essenceCost) {
-            return Pair(false, "Esencia Azul insuficiente. Necesitas $essenceCost EA.")
-        }
-
-        if (targetIndex != -1) {
-            val target = currentProfiles[targetIndex]
-            if (target.subscribersCount >= 100 || target.subscribers.size >= 100) {
-                return Pair(false, "Este usuario ya alcanzó el límite máximo de 100 suscriptores.")
-            }
-
-            // Aplicar suscripción
-            val updatedSub = subscriber.copy(
-                blueEssence = subscriber.blueEssence - essenceCost,
-                subscribedTo = subscriber.subscribedTo + targetProfileId
-            )
-            val updatedTarget = target.copy(
-                subscribersCount = (target.subscribersCount + 1).coerceAtMost(100),
-                subscribers = (target.subscribers + subscriberProfileId).distinct().take(100),
-                blueEssence = target.blueEssence + (essenceCost * 8 / 10) // 80% va al creador
-            )
-
-            currentProfiles[subIndex] = updatedSub
-            currentProfiles[targetIndex] = updatedTarget
-            saveProfiles(context, currentProfiles)
-            return Pair(true, "¡Te has suscrito con éxito por $essenceCost Esencias Azules!")
-        } else {
-            // Es un creador de la comunidad externo
-            if (subscriber.blueEssence < essenceCost) {
-                return Pair(false, "Esencia Azul insuficiente.")
-            }
-            val updatedSub = subscriber.copy(
-                blueEssence = subscriber.blueEssence - essenceCost,
-                subscribedTo = subscriber.subscribedTo + targetProfileId
-            )
-            currentProfiles[subIndex] = updatedSub
-            saveProfiles(context, currentProfiles)
-            return Pair(true, "¡Te has suscrito con éxito al Creador por $essenceCost Esencias Azules!")
-        }
-    }
-
-    fun unsubscribeFromUser(context: Context, subscriberProfileId: String, targetProfileId: String) {
-        val currentProfiles = _allProfiles.value.toMutableList()
-        val subIndex = currentProfiles.indexOfFirst { it.id == subscriberProfileId }
-        val targetIndex = currentProfiles.indexOfFirst { it.id == targetProfileId }
-
-        if (subIndex != -1) {
-            val subscriber = currentProfiles[subIndex]
-            val updatedSub = subscriber.copy(
-                subscribedTo = subscriber.subscribedTo - targetProfileId
-            )
-            currentProfiles[subIndex] = updatedSub
-
-            if (targetIndex != -1) {
-                val target = currentProfiles[targetIndex]
-                val updatedTarget = target.copy(
-                    subscribersCount = (target.subscribersCount - 1).coerceAtLeast(0),
-                    subscribers = target.subscribers - subscriberProfileId
-                )
-                currentProfiles[targetIndex] = updatedTarget
-            }
-            saveProfiles(context, currentProfiles)
-        }
     }
 
     private fun saveProfiles(context: Context, profiles: List<AccountProfile>) {

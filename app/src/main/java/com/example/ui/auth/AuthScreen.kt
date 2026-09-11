@@ -188,7 +188,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showPlansDialog by remember { mutableStateOf(false) }
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
-    var showCommunityCreatorsDialog by remember { mutableStateOf(false) }
     var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
     val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
@@ -234,21 +233,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     if (showAdminDashboard) {
         com.example.ui.components.AdminDashboardDialog(
             onDismiss = { showAdminDashboard = false }
-        )
-    }
-
-    if (showCommunityCreatorsDialog) {
-        com.example.ui.components.CommunityCreatorsDialog(
-            onDismiss = { showCommunityCreatorsDialog = false },
-            onOpenBlueEssenceStore = {
-                showCommunityCreatorsDialog = false
-                val isAdminUser = userRole == "admin" || AuthManager.isCurrentUserAdmin()
-                if (isAdminUser) {
-                    showBlueEssenceStoreDialog = true
-                } else {
-                    Toast.makeText(context, "Servicio temporalmente fuera de servicio", Toast.LENGTH_SHORT).show()
-                }
-            }
         )
     }
 
@@ -1048,62 +1032,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     userEmail = user.email,
                     onDismiss = { showHistoryDialog = false }
                 )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Community Creators Card (Clean & Streamlined)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(76.dp)
-                    .tactileClickable {
-                        showCommunityCreatorsDialog = true
-                    },
-                shape = RoundedCornerShape(14.dp),
-                color = activeTheme.surfaceVariant,
-                border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.7f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(activeTheme.secondary.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data("https://i.postimg.cc/GhwSp1WM/Picsart-26-09-10-20-08-45-219.png")
-                                .crossfade(true)
-                                .error(com.example.R.drawable.ic_creators_logo)
-                                .placeholder(com.example.R.drawable.ic_creators_logo)
-                                .build(),
-                            contentDescription = "Creadores Pro",
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Creadores de la Comunidad",
-                            color = activeTheme.secondary,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = "Conoce al equipo y colaboradores oficiales",
-                            color = activeTheme.textMuted,
-                            fontSize = 11.sp
-                        )
-                    }
-                }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
