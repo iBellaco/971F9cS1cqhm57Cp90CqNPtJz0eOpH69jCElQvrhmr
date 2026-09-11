@@ -55,6 +55,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material3.LinearProgressIndicator
@@ -477,16 +478,24 @@ fun MainDraftingScreen(
                                             Text(tag, color = tagColor, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                         }
                                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                            // Pin / Unpin button
+                                            // Pin / Unpin button (Fijación de la publicación)
                                             IconButton(
-                                                onClick = { pinnedMap[tag] = !isPinned },
+                                                onClick = {
+                                                    val newPinnedState = !isPinned
+                                                    pinnedMap[tag] = newPinnedState
+                                                    if (newPinnedState) {
+                                                        Toast.makeText(context, "📌 Publicación fijada. No cambiará automáticamente.", Toast.LENGTH_SHORT).show()
+                                                    } else {
+                                                        Toast.makeText(context, "Fijación desactivada.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                },
                                                 modifier = Modifier.size(28.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Default.Favorite,
-                                                    contentDescription = if (isPinned) "Desfijar anuncio" else "Fijar anuncio",
-                                                    tint = if (isPinned) tagColor else tagColor.copy(alpha = 0.5f),
-                                                    modifier = Modifier.size(16.dp)
+                                                    imageVector = Icons.Default.PushPin,
+                                                    contentDescription = if (isPinned) "Desfijar publicación" else "Fijar publicación",
+                                                    tint = if (isPinned) tagColor else tagColor.copy(alpha = 0.4f),
+                                                    modifier = Modifier.size(17.dp)
                                                 )
                                             }
 
@@ -495,18 +504,40 @@ fun MainDraftingScreen(
                                                     // Manual previous notice
                                                     IconButton(
                                                         onClick = {
-                                                            slideDirection = -1
-                                                            currentIndex = if (currentIndex > 0) currentIndex - 1 else tagNotices.size - 1
-                                                            autoTimerTrigger++
+                                                            if (isPinned) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            } else {
+                                                                slideDirection = -1
+                                                                currentIndex = if (currentIndex > 0) currentIndex - 1 else tagNotices.size - 1
+                                                                autoTimerTrigger++
+                                                            }
                                                         },
                                                         modifier = Modifier.size(28.dp)
                                                     ) {
-                                                        Text("<", color = tagColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                                        Text(
+                                                            text = "<",
+                                                            color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
+                                                            fontSize = 13.sp,
+                                                            fontWeight = FontWeight.Bold
+                                                        )
                                                     }
                                                     Surface(
-                                                        color = tagColor.copy(alpha = 0.2f),
+                                                        color = tagColor.copy(alpha = if (isPinned) 0.3f else 0.2f),
                                                         shape = RoundedCornerShape(4.dp),
-                                                        border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
+                                                        border = BorderStroke(1.dp, tagColor.copy(alpha = if (isPinned) 0.8f else 0.4f)),
+                                                        modifier = Modifier.clickable {
+                                                            if (isPinned) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            }
+                                                        }
                                                     ) {
                                                         Text(
                                                             text = "${if (isPinned) "📌 " else "🔄 "}${currentIndex + 1}/${tagNotices.size}",
@@ -519,13 +550,26 @@ fun MainDraftingScreen(
                                                     // Manual next notice
                                                     IconButton(
                                                         onClick = {
-                                                            slideDirection = 1
-                                                            currentIndex = (currentIndex + 1) % tagNotices.size
-                                                            autoTimerTrigger++
+                                                            if (isPinned) {
+                                                                Toast.makeText(
+                                                                    context,
+                                                                    "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                            } else {
+                                                                slideDirection = 1
+                                                                currentIndex = (currentIndex + 1) % tagNotices.size
+                                                                autoTimerTrigger++
+                                                            }
                                                         },
                                                         modifier = Modifier.size(28.dp)
                                                     ) {
-                                                        Text(">", color = tagColor, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                                        Text(
+                                                            text = ">",
+                                                            color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
+                                                            fontSize = 13.sp,
+                                                            fontWeight = FontWeight.Bold
+                                                        )
                                                     }
                                                 }
                                             } else if (isPinned) {

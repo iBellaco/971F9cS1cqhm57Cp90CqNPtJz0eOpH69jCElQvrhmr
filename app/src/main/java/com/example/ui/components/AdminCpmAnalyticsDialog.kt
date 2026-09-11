@@ -381,14 +381,14 @@ fun AdminCpmAnalyticsDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                // Section Title: Desglose por Anuncio
+                // Section Title: Desglose por Etiqueta y Anuncio
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "📋 Desglose por Anuncio (${notices.size})",
+                        text = "📋 Desglose por Etiqueta (${notices.size} anuncios)",
                         color = HextechGold,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
@@ -402,7 +402,7 @@ fun AdminCpmAnalyticsDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // List of individual notices with their stats
+                // List of notices grouped by Tag
                 if (notices.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -413,19 +413,109 @@ fun AdminCpmAnalyticsDialog(
                         Text("No hay anuncios configurados actualmente", color = TextSecondary, fontSize = 12.sp)
                     }
                 } else {
+                    val groupedNotices = remember(notices) {
+                        notices.groupBy { it.tag.trim().ifBlank { "General" } }
+                    }
+
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        items(notices, key = { it.id }) { notice ->
-                            val metrics = metricsMap[notice.id] ?: NoticeMetrics(notice.id)
-                            NoticeAnalyticsItemCard(
-                                notice = notice,
-                                metrics = metrics,
-                                baseCpm = baseCpmRate
-                            )
+                        groupedNotices.forEach { (tag, noticesInTag) ->
+                            item(key = "header_$tag") {
+                                val tagTotalImps = noticesInTag.sumOf { (metricsMap[it.id]?.impressions ?: 0L) }
+                                val tagTotalClicks = noticesInTag.sumOf { (metricsMap[it.id]?.clicks ?: 0L) }
+                                val tagTotalFullscreen = noticesInTag.sumOf { (metricsMap[it.id]?.fullscreenViews ?: 0L) }
+                                val tagRevenue = (tagTotalImps.toDouble() / 1000.0) * baseCpmRate
+                                val tagCtr = if (tagTotalImps > 0) (tagTotalClicks.toDouble() / tagTotalImps.toDouble()) * 100.0 else 0.0
+
+                                val tagColor = when {
+                                    tag.contains("importante", ignoreCase = true) -> HextechGold
+                                    tag.contains("publicidad", ignoreCase = true) -> Color(0xFF00FF66)
+                                    tag.contains("oferta", ignoreCase = true) -> HextechCyan
+                                    tag.contains("mantenimiento", ignoreCase = true) -> Color(0xFFFF3333)
+                                    tag.contains("noticia", ignoreCase = true) -> Color(0xFFCC66FF)
+                                    tag.contains("streamer", ignoreCase = true) -> Color(0xFFFF66CC)
+                                    else -> HextechCyan
+                                }
+
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = tagColor.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, tagColor.copy(alpha = 0.5f))
+                                ) {
+                                    Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(8.dp)
+                                                        .clip(CircleShape)
+                                                        .background(tagColor)
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text(
+                                                    text = tag.uppercase(),
+                                                    color = tagColor,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text(
+                                                    text = "(${noticesInTag.size} anuncios)",
+                                                    color = TextMuted,
+                                                    fontSize = 10.sp
+                                                )
+                                            }
+
+                                            Text(
+                                                text = "Total: $${String.format(Locale.US, "%.2f", tagRevenue)} USD",
+                                                color = Color(0xFF00FF66),
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.height(3.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = "👁️ ${String.format(Locale.US, "%,d", tagTotalImps)} imp.",
+                                                color = HextechCyan,
+                                                fontSize = 9.5.sp
+                                            )
+                                            Text(
+                                                text = "🖱️ $tagTotalClicks clics (${String.format(Locale.US, "%.1f", tagCtr)}%)",
+                                                color = HextechGold,
+                                                fontSize = 9.5.sp
+                                            )
+                                            Text(
+                                                text = "📱 $tagTotalFullscreen full",
+                                                color = Color(0xFFCC66FF),
+                                                fontSize = 9.5.sp
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            items(noticesInTag, key = { it.id }) { notice ->
+                                val metrics = metricsMap[notice.id] ?: NoticeMetrics(notice.id)
+                                NoticeAnalyticsItemCard(
+                                    notice = notice,
+                                    metrics = metrics,
+                                    baseCpm = baseCpmRate
+                                )
+                            }
                         }
                     }
                 }

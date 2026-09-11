@@ -12,15 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Campaign
-import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.Message
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
@@ -314,6 +308,294 @@ fun AdminPrivateMessageDialog(
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.White)
                         } else {
                             Text("Enviar")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+data class UserDirectMessageItem(
+    val id: String = "",
+    val title: String = "",
+    val content: String = "",
+    val tag: String = "aviso",
+    val timestamp: Long = 0L,
+    val isRead: Boolean = false
+)
+
+@Composable
+fun AdminUserMessagesViewerDialog(
+    userUid: String,
+    userName: String,
+    onDismiss: () -> Unit,
+    onOpenSendNewMessage: () -> Unit
+) {
+    val context = LocalContext.current
+    var messages by remember { mutableStateOf<List<UserDirectMessageItem>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var isDeletingId by remember { mutableStateOf<String?>(null) }
+
+    fun loadMessages() {
+        isLoading = true
+        errorMessage = null
+        FirebaseFirestore.getInstance()
+            .collection("users")
+            .document(userUid)
+            .collection("messages")
+            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val list = snapshot.documents.map { doc ->
+                    UserDirectMessageItem(
+                        id = doc.id,
+                        title = doc.getString("title") ?: "",
+                        content = doc.getString("content") ?: "",
+                        tag = doc.getString("tag") ?: "aviso",
+                        timestamp = doc.getLong("timestamp") ?: 0L,
+                        isRead = doc.getBoolean("isRead") ?: false
+                    )
+                }
+                messages = list
+                isLoading = false
+            }
+            .addOnFailureListener { e ->
+                errorMessage = "Error cargando mensajes: ${e.message}"
+                isLoading = false
+            }
+    }
+
+    LaunchedEffect(userUid) {
+        loadMessages()
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(14.dp),
+            color = Color(0xFF0F172A),
+            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B)),
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.80f)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Message, contentDescription = null, tint = Color(0xFFF59E0B))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                "Mensajes Enviados",
+                                color = Color(0xFFF59E0B),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                "Usuario: $userName",
+                                color = Color.LightGray,
+                                fontSize = 11.5.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.LightGray)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Action row: Nuevo Mensaje & Recargar
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Total: ${messages.size} mensaje(s)",
+                        color = Color.LightGray,
+                        fontSize = 11.sp
+                    )
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Button(
+                            onClick = { loadMessages() },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.1f)),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text("Recargar", fontSize = 10.5.sp, color = Color.White)
+                        }
+
+                        Button(
+                            onClick = {
+                                onDismiss()
+                                onOpenSendNewMessage()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, tint = Color.Black, modifier = Modifier.size(12.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text("Nuevo Mensaje", fontSize = 10.5.sp, color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                HorizontalDivider(color = Color.White.copy(alpha = 0.1f))
+                Spacer(modifier = Modifier.height(10.dp))
+
+                if (isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFFF59E0B))
+                    }
+                } else if (errorMessage != null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(errorMessage ?: "", color = Color(0xFFEF4444), fontSize = 12.sp)
+                    }
+                } else if (messages.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("No hay mensajes enviados a este usuario", color = Color.Gray, fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = {
+                                    onDismiss()
+                                    onOpenSendNewMessage()
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
+                                shape = RoundedCornerShape(6.dp)
+                            ) {
+                                Text("Enviar primer mensaje", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = messages,
+                            key = { it.id }
+                        ) { msg ->
+                            val msgTag = MessageTag.fromId(msg.tag)
+                            val dateStr = if (msg.timestamp > 0) {
+                                java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault()).format(java.util.Date(msg.timestamp))
+                            } else "Fecha desc."
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+                                border = androidx.compose.foundation.BorderStroke(0.8.dp, msgTag.badgeBg.copy(alpha = 0.5f))
+                            ) {
+                                Column(modifier = Modifier.padding(10.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Surface(
+                                            color = msgTag.badgeBg.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(4.dp),
+                                            border = androidx.compose.foundation.BorderStroke(1.dp, msgTag.badgeBg.copy(alpha = 0.5f))
+                                        ) {
+                                            Text(
+                                                text = "${msgTag.emoji} ${msgTag.label.uppercase()}",
+                                                color = msgTag.badgeBg,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                            )
+                                        }
+
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Surface(
+                                                color = if (msg.isRead) Color(0xFF00FF66).copy(alpha = 0.15f) else Color(0xFFF59E0B).copy(alpha = 0.15f),
+                                                shape = RoundedCornerShape(4.dp)
+                                            ) {
+                                                Text(
+                                                    text = if (msg.isRead) "✓ Leído" else "⏳ Pendiente",
+                                                    color = if (msg.isRead) Color(0xFF00FF66) else Color(0xFFF59E0B),
+                                                    fontSize = 8.5.sp,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
+                                                )
+                                            }
+
+                                            Spacer(modifier = Modifier.width(6.dp))
+
+                                            IconButton(
+                                                onClick = {
+                                                    isDeletingId = msg.id
+                                                    FirebaseFirestore.getInstance()
+                                                        .collection("users")
+                                                        .document(userUid)
+                                                        .collection("messages")
+                                                        .document(msg.id)
+                                                        .delete()
+                                                        .addOnSuccessListener {
+                                                            isDeletingId = null
+                                                            messages = messages.filter { it.id != msg.id }
+                                                            Toast.makeText(context, "Mensaje eliminado.", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                        .addOnFailureListener {
+                                                            isDeletingId = null
+                                                            Toast.makeText(context, "Error al eliminar: ${it.message}", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                },
+                                                modifier = Modifier.size(24.dp),
+                                                enabled = isDeletingId != msg.id
+                                            ) {
+                                                if (isDeletingId == msg.id) {
+                                                    CircularProgressIndicator(modifier = Modifier.size(12.dp), color = Color.White)
+                                                } else {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Delete,
+                                                        contentDescription = "Eliminar",
+                                                        tint = Color(0xFFEF4444),
+                                                        modifier = Modifier.size(14.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = msg.title,
+                                        color = Color.White,
+                                        fontSize = 12.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = msg.content,
+                                        color = Color(0xFFCBD5E1),
+                                        fontSize = 11.sp
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        text = "📅 $dateStr",
+                                        color = Color.Gray,
+                                        fontSize = 9.5.sp
+                                    )
+                                }
+                            }
                         }
                     }
                 }

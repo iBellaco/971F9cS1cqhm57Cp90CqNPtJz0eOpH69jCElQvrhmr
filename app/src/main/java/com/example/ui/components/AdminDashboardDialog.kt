@@ -126,13 +126,10 @@ fun AdminDashboardDialog(
                 // Header Premium Hextech
                 AdminDashboardHeader(
                     onClose = onDismiss,
-                    onOpenReports = { showReportsPanel = true },
-                    onOpenSupport = { showSupportReportsPanel = true },
+                    onOpenFeedbackAndSupport = { showReportsPanel = true },
                     onOpenBroadcast = { showBroadcastDialog = true },
                     onOpenNotice = { showNoticeConfigDialog = true },
-                    onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
-                    isMinimized = isMonitoringMinimized,
-                    onToggleMinimize = { isMonitoringMinimized = !isMonitoringMinimized }
+                    onOpenCpmAnalytics = { showCpmAnalyticsDialog = true }
                 )
 
                 // Panel principal de gestión
@@ -154,13 +151,10 @@ fun AdminDashboardDialog(
 @Composable
 private fun AdminDashboardHeader(
     onClose: () -> Unit,
-    onOpenReports: () -> Unit,
-    onOpenSupport: () -> Unit,
+    onOpenFeedbackAndSupport: () -> Unit,
     onOpenBroadcast: () -> Unit,
     onOpenNotice: () -> Unit,
-    onOpenCpmAnalytics: () -> Unit = {},
-    isMinimized: Boolean = false,
-    onToggleMinimize: () -> Unit = {}
+    onOpenCpmAnalytics: () -> Unit = {}
 ) {
     Surface(
         color = HextechSurfaceBg,
@@ -201,136 +195,85 @@ private fun AdminDashboardHeader(
                             color = HextechGold
                         )
                         Text(
-                            text = if (isMinimized) "Monitoreo minimizado (Vista amplia)" else "Control de Usuarios, Membresías y Slots",
+                            text = "Control de Usuarios, Membresías y Slots",
                             style = MaterialTheme.typography.bodySmall,
-                            color = if (isMinimized) HextechCyan else TextMuted,
+                            color = TextMuted,
                             fontSize = 11.sp
                         )
                     }
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Botón para minimizar / expandir herramientas y monitoreo
-                    IconButton(
-                        onClick = onToggleMinimize,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(
-                                if (isMinimized) HextechGold.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.05f),
-                                CircleShape
-                            )
-                    ) {
-                        Icon(
-                            imageVector = if (isMinimized) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                            contentDescription = if (isMinimized) "Expandir monitoreo y reportes" else "Minimizar monitoreo y reportes",
-                            tint = if (isMinimized) HextechGold else TextPrimary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(6.dp))
-
-                    IconButton(
-                        onClick = onClose,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(Color.White.copy(alpha = 0.05f), CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar",
-                            tint = TextPrimary
-                        )
-                    }
-                }
-            }
-
-            // Barra compacta cuando está minimizado
-            AnimatedVisibility(visible = isMinimized) {
-                Row(
+                IconButton(
+                    onClick = onClose,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 4.dp)
-                        .clickable { onToggleMinimize() },
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                        .size(36.dp)
+                        .background(Color.White.copy(alpha = 0.05f), CircleShape)
                 ) {
-                    Text(
-                        text = "⚡ Herramientas y monitoreo minimizados para ver más usuarios",
-                        color = HextechGold,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Cerrar",
+                        tint = TextPrimary
                     )
                 }
             }
 
-            // Botones de acción rápida superiores (Minimizables)
-            AnimatedVisibility(visible = !isMinimized) {
-                Column {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Button(
-                            onClick = onOpenReports,
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
-                        ) {
-                            Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("OCR", fontSize = 9.5.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
-                        }
+            Spacer(modifier = Modifier.height(10.dp))
 
-                        Button(
-                            onClick = onOpenSupport,
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
-                        ) {
-                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("Soporte", fontSize = 9.5.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
-                        }
+            // Botones de acción rápida superiores (Fijados y siempre visibles)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Botón combinado OCR & Soporte
+                Button(
+                    onClick = onOpenFeedbackAndSupport,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("OCR y Soporte", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
 
-                        Button(
-                            onClick = onOpenBroadcast,
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
-                        ) {
-                            Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("Broadcast", fontSize = 9.5.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
-                        }
+                // Botón Broadcast
+                Button(
+                    onClick = onOpenBroadcast,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("Broadcast", fontSize = 10.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
 
-                        Button(
-                            onClick = onOpenNotice,
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
-                        ) {
-                            Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("Avisos", fontSize = 9.5.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold)
-                        }
+                // Botón Avisos
+                Button(
+                    onClick = onOpenNotice,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("Avisos", fontSize = 10.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
 
-                        Button(
-                            onClick = onOpenCpmAnalytics,
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66).copy(alpha = 0.2f)),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
-                        ) {
-                            Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(12.dp))
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text("CPM", fontSize = 9.5.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold)
-                        }
-                    }
+                // Botón CPM
+                Button(
+                    onClick = onOpenCpmAnalytics,
+                    modifier = Modifier.weight(0.9f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(13.dp))
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("CPM", fontSize = 10.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
             }
         }
@@ -1917,6 +1860,7 @@ fun UserDetailManagementDialog(
     var showCustomDaysDialog by remember { mutableStateOf(false) }
     var showGiveEssenceDialog by remember { mutableStateOf(false) }
     var showPrivateMessageDialog by remember { mutableStateOf(false) }
+    var showUserMessagesViewerDialog by remember { mutableStateOf(false) }
 
     val registeredDevices = (user["registeredDevices"] as? List<*>) ?: emptyList<Any>()
     var currentDeviceCount by remember { mutableStateOf(registeredDevices.size) }
@@ -2413,14 +2357,14 @@ fun UserDetailManagementDialog(
 
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     Button(
-                                        onClick = { showPrivateMessageDialog = true },
+                                        onClick = { showUserMessagesViewerDialog = true },
                                         modifier = Modifier.weight(1f),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B)),
                                         shape = RoundedCornerShape(8.dp)
                                     ) {
                                         Icon(Icons.Default.Message, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Mensaje Privado", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text("Mensajes Privados", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
 
                                     Button(
@@ -2453,6 +2397,15 @@ fun UserDetailManagementDialog(
             onSuccess = { 
                 Toast.makeText(context, "Esencia Azul enviada.", Toast.LENGTH_SHORT).show() 
             }
+        )
+    }
+
+    if (showUserMessagesViewerDialog) {
+        AdminUserMessagesViewerDialog(
+            userUid = uid,
+            userName = currentName,
+            onDismiss = { showUserMessagesViewerDialog = false },
+            onOpenSendNewMessage = { showPrivateMessageDialog = true }
         )
     }
 

@@ -29,6 +29,7 @@ object AppNoticeAnalyticsManager {
     private const val KEY_METRICS_JSON = "metrics_json_map"
     private const val KEY_BASE_CPM = "base_cpm_rate_usd"
     private const val KEY_START_DATE = "tracking_start_date_ms"
+    private const val KEY_DAILY_IMPRESSIONS_PREFIX = "daily_unique_imps_"
 
     private val _metricsMap = MutableStateFlow<Map<String, NoticeMetrics>>(emptyMap())
     val metricsMap: StateFlow<Map<String, NoticeMetrics>> = _metricsMap.asStateFlow()
@@ -69,9 +70,29 @@ object AppNoticeAnalyticsManager {
         } catch (_: Exception) {}
     }
 
+    /**
+     * Registra una impresión única (una sola vez por dispositivo al día).
+     * Si alreadyRecordedToday=true, omite el conteo.
+     */
     @Synchronized
     fun recordImpression(context: Context, noticeId: String, noticeTag: String = "") {
         if (noticeId.isBlank()) return
+        
+        try {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val todayDate = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
+            val dailyKey = "$KEY_DAILY_IMPRESSIONS_PREFIX${todayDate}_$noticeId"
+            
+            // Comprobamos si ya fue contabilizado hoy en este dispositivo
+            val alreadyCountedToday = prefs.getBoolean(dailyKey, false)
+            if (alreadyCountedToday) {
+                return
+            }
+            
+            // Marcar como contabilizado para hoy
+            prefs.edit().putBoolean(dailyKey, true).apply()
+        } catch (_: Exception) {}
+
         val current = _metricsMap.value.toMutableMap()
         val existing = current[noticeId] ?: NoticeMetrics(noticeId = noticeId)
         val updated = existing.copy(

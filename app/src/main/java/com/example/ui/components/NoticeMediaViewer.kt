@@ -182,6 +182,9 @@ fun NoticeMediaViewer(
             }
 
             // YouTube Player with Error 153 fix, modern WebView settings, and custom Chrome user agent
+            var isYtMuted by remember { mutableStateOf(true) }
+            val currentPrimaryColor = MaterialTheme.colorScheme.primary
+
             Box(modifier = Modifier.fillMaxSize()) {
                 AndroidView(
                     factory = { ctx ->
@@ -221,6 +224,20 @@ fun NoticeMediaViewer(
                                         .video-wrapper { position: relative; width: 100%; height: 100%; }
                                         iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
                                     </style>
+                                    <script>
+                                        function unmuteVideo() {
+                                            var iframe = document.getElementById('ytplayer');
+                                            if (iframe && iframe.contentWindow) {
+                                                iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                                            }
+                                        }
+                                        function muteVideo() {
+                                            var iframe = document.getElementById('ytplayer');
+                                            if (iframe && iframe.contentWindow) {
+                                                iframe.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+                                            }
+                                        }
+                                    </script>
                                 </head>
                                 <body>
                                     <div class="video-wrapper">
@@ -242,29 +259,29 @@ fun NoticeMediaViewer(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // YouTube external open badge & expand badge
+                // YouTube controls overlay (Unmute button + Fullscreen Expand)
                 Row(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(6.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
+                    // Botón de Quitar Silencio / Silenciar
                     IconButton(
                         onClick = {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=$ytVideoId"))
-                                context.startActivity(intent)
-                            } catch (_: Exception) {}
+                            isYtMuted = !isYtMuted
+                            val jsFunc = if (isYtMuted) "muteVideo()" else "unmuteVideo()"
+                            webViewInstance?.evaluateJavascript(jsFunc, null)
                         },
                         modifier = Modifier
-                            .size(26.dp)
-                            .background(Color.Black.copy(alpha = 0.7f), CircleShape)
+                            .size(28.dp)
+                            .background(Color.Black.copy(alpha = 0.65f), CircleShape)
                     ) {
                         Icon(
-                            Icons.Default.OpenInNew,
-                            contentDescription = "Abrir en YouTube",
-                            tint = HextechGold,
-                            modifier = Modifier.size(14.dp)
+                            imageVector = if (isYtMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                            contentDescription = if (isYtMuted) "Quitar silencio" else "Silenciar",
+                            tint = if (isYtMuted) currentPrimaryColor else HextechGold,
+                            modifier = Modifier.size(15.dp)
                         )
                     }
 
@@ -272,14 +289,14 @@ fun NoticeMediaViewer(
                         IconButton(
                             onClick = onExpand,
                             modifier = Modifier
-                                .size(26.dp)
-                                .background(Color.Black.copy(alpha = 0.7f), CircleShape)
+                                .size(28.dp)
+                                .background(Color.Black.copy(alpha = 0.65f), CircleShape)
                         ) {
                             Icon(
                                 Icons.Default.Fullscreen,
                                 contentDescription = "Pantalla Completa",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(15.dp)
+                                tint = currentPrimaryColor,
+                                modifier = Modifier.size(16.dp)
                             )
                         }
                     }
@@ -339,11 +356,9 @@ fun LocalGalleryVideoPlayer(
     val lifecycleOwner = LocalLifecycleOwner.current
     var isMuted by remember { mutableStateOf(false) }
     var isPlaying by remember { mutableStateOf(true) }
-    var durationMs by remember { mutableIntStateOf(0) }
-    var currentPositionMs by remember { mutableIntStateOf(0) }
-    var isUserSeeking by remember { mutableStateOf(false) }
-    var showControls by remember { mutableStateOf(true) }
     var videoViewRef by remember { mutableStateOf<VideoView?>(null) }
+    var mediaPlayerRef by remember { mutableStateOf<android.media.MediaPlayer?>(null) }
+    val themePrimary = MaterialTheme.colorScheme.primary
 
     // Lifecycle observer to seamlessly recover video playback when returning from background / closing overlay
     DisposableEffect(lifecycleOwner, videoUriString) {
@@ -353,7 +368,6 @@ fun LocalGalleryVideoPlayer(
                     videoViewRef?.let { vv ->
                         try {
                             if (!vv.isPlaying && isPlaying) {
-                                vv.seekTo(currentPositionMs)
                                 vv.start()
                             }
                         } catch (_: Exception) {
@@ -367,7 +381,6 @@ fun LocalGalleryVideoPlayer(
                     videoViewRef?.let { vv ->
                         try {
                             if (vv.isPlaying) {
-                                currentPositionMs = vv.currentPosition
                                 vv.pause()
                             }
                         } catch (_: Exception) {}
@@ -390,33 +403,8 @@ fun LocalGalleryVideoPlayer(
         }
     }
 
-    // Progress update loop while playing
-    LaunchedEffect(isPlaying, isUserSeeking) {
-        while (isPlaying && !isUserSeeking) {
-            videoViewRef?.let { vv ->
-                try {
-                    if (vv.isPlaying) {
-                        currentPositionMs = vv.currentPosition
-                        val dur = vv.duration
-                        if (dur > 0 && durationMs != dur) {
-                            durationMs = dur
-                        }
-                    }
-                } catch (_: Exception) {}
-            }
-            delay(250)
-        }
-    }
-
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                showControls = !showControls
-            }
+        modifier = Modifier.fillMaxSize()
     ) {
         AndroidView(
             factory = { ctx ->
@@ -440,9 +428,10 @@ fun LocalGalleryVideoPlayer(
                     try {
                         setVideoURI(Uri.parse(videoUriString))
                         setOnPreparedListener { mp ->
+                            mediaPlayerRef = mp
                             mp.isLooping = true
-                            durationMs = mp.duration
-                            mp.setVolume(if (isMuted) 0f else 1f, if (isMuted) 0f else 1f)
+                            val vol = if (isMuted) 0f else 1f
+                            mp.setVolume(vol, vol)
                             if (isPlaying) {
                                 start()
                             }
@@ -467,184 +456,49 @@ fun LocalGalleryVideoPlayer(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Overlay Controls with Playback Bars & Time
-        AnimatedVisibility(
-            visible = showControls,
-            enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.fillMaxSize()
+        // Overlay Controls: Unmute / Mute + Fullscreen Expand ONLY
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Box(
+            // Botón de Quitar Silencio / Silenciar
+            IconButton(
+                onClick = {
+                    isMuted = !isMuted
+                    mediaPlayerRef?.let { mp ->
+                        try {
+                            val vol = if (isMuted) 0f else 1f
+                            mp.setVolume(vol, vol)
+                        } catch (_: Exception) {}
+                    }
+                },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Black.copy(alpha = 0.65f),
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.85f)
-                            )
-                        )
-                    )
+                    .size(28.dp)
+                    .background(Color.Black.copy(alpha = 0.65f), CircleShape)
             ) {
-                // Top Header (Tag/Info & Expand Button)
-                Row(
+                Icon(
+                    imageVector = if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                    contentDescription = if (isMuted) "Quitar silencio" else "Silenciar",
+                    tint = if (isMuted) themePrimary else HextechGold,
+                    modifier = Modifier.size(15.dp)
+                )
+            }
+
+            if (!isFullscreen && onExpand != null) {
+                IconButton(
+                    onClick = onExpand,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.TopCenter)
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .size(28.dp)
+                        .background(Color.Black.copy(alpha = 0.65f), CircleShape)
                 ) {
-                    Surface(
-                        color = HextechSurface.copy(alpha = 0.85f),
-                        shape = RoundedCornerShape(4.dp),
-                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
-                    ) {
-                        Text(
-                            text = "📹 Video de Galería",
-                            color = HextechCyan,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                        )
-                    }
-
-                    if (!isFullscreen && onExpand != null) {
-                        IconButton(
-                            onClick = onExpand,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
-                        ) {
-                            Icon(
-                                Icons.Default.Fullscreen,
-                                contentDescription = "Pantalla Completa",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-
-                // Center Play/Pause & Step Buttons
-                Row(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = {
-                            val newPos = (currentPositionMs - 5000).coerceAtLeast(0)
-                            currentPositionMs = newPos
-                            videoViewRef?.seekTo(newPos)
-                        },
-                        modifier = Modifier
-                            .size(34.dp)
-                            .background(HextechSurface.copy(alpha = 0.75f), CircleShape)
-                    ) {
-                        Icon(Icons.Default.Replay5, contentDescription = "Retroceder 5s", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                    }
-
-                    IconButton(
-                        onClick = {
-                            isPlaying = !isPlaying
-                            if (isPlaying) videoViewRef?.start() else videoViewRef?.pause()
-                        },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(HextechGold, CircleShape)
-                    ) {
-                        Icon(
-                            if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (isPlaying) "Pausar" else "Reproducir",
-                            tint = HextechDarkBg,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    IconButton(
-                        onClick = {
-                            val maxDur = if (durationMs > 0) durationMs else 60000
-                            val newPos = (currentPositionMs + 5000).coerceAtMost(maxDur)
-                            currentPositionMs = newPos
-                            videoViewRef?.seekTo(newPos)
-                        },
-                        modifier = Modifier
-                            .size(34.dp)
-                            .background(HextechSurface.copy(alpha = 0.75f), CircleShape)
-                    ) {
-                        Icon(Icons.Default.Forward5, contentDescription = "Avanzar 5s", tint = HextechCyan, modifier = Modifier.size(18.dp))
-                    }
-                }
-
-                // Bottom Playback Bar / Slider & Time Display
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
-                ) {
-                    // Playback Seek Bar Slider
-                    val safeDuration = if (durationMs > 0) durationMs.toFloat() else 100f
-                    val currentProgress = currentPositionMs.toFloat().coerceIn(0f, safeDuration)
-
-                    Slider(
-                        value = currentProgress,
-                        onValueChange = { newPos ->
-                            isUserSeeking = true
-                            currentPositionMs = newPos.toInt()
-                        },
-                        onValueChangeFinished = {
-                            isUserSeeking = false
-                            videoViewRef?.seekTo(currentPositionMs)
-                            if (isPlaying && videoViewRef?.isPlaying == false) {
-                                videoViewRef?.start()
-                            }
-                        },
-                        valueRange = 0f..safeDuration,
-                        colors = SliderDefaults.colors(
-                            thumbColor = HextechGold,
-                            activeTrackColor = HextechCyan,
-                            inactiveTrackColor = HextechCyan.copy(alpha = 0.3f)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(20.dp)
+                    Icon(
+                        Icons.Default.Fullscreen,
+                        contentDescription = "Pantalla Completa",
+                        tint = themePrimary,
+                        modifier = Modifier.size(16.dp)
                     )
-
-                    // Bottom info bar (Time + Mute)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "${NoticeMediaUtils.formatDurationMs(currentPositionMs)} / ${NoticeMediaUtils.formatDurationMs(durationMs)}",
-                            color = HextechCyan,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-
-                        IconButton(
-                            onClick = {
-                                isMuted = !isMuted
-                                try {
-                                    // VideoView volume adjustment via reflection or mute state
-                                    val vol = if (isMuted) 0f else 1f
-                                    // Set volume if supported
-                                } catch (_: Exception) {}
-                            },
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                                contentDescription = if (isMuted) "Activar sonido" else "Silenciar",
-                                tint = if (isMuted) TextMuted else HextechGold,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
                 }
             }
         }
@@ -721,17 +575,47 @@ fun NoticeMediaFullscreenDialog(
                         modifier = Modifier.fillMaxSize(),
                         isFullscreen = true
                     )
+                }
 
-                    // Optional external link badge if externalUrl is provided for an image
-                    if (!isVideo && externalUrl.isNotBlank()) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(16.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(HextechSurface.copy(alpha = 0.9f))
-                                .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
-                                .clickable {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // ROTATE BUTTON ONLY IF IT IS A VIDEO
+                        if (isVideo) {
+                            Button(
+                                onClick = { isLandscape = !isLandscape },
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                                shape = RoundedCornerShape(8.dp),
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                            ) {
+                                Icon(
+                                    if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
+                                    contentDescription = "Rotar Pantalla",
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
+                                    color = HextechCyan,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
+                        // OPTIONAL REDIRECTION BUTTON IF externalUrl IS CONFIGURED
+                        if (externalUrl.isNotBlank()) {
+                            Button(
+                                onClick = {
                                     try {
                                         if (noticeId.isNotBlank()) {
                                             com.example.data.AppNoticeAnalyticsManager.recordClick(context, noticeId)
@@ -739,50 +623,25 @@ fun NoticeMediaFullscreenDialog(
                                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl.trim()))
                                         context.startActivity(intent)
                                     } catch (_: Exception) {}
-                                }
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Icon(Icons.Default.OpenInBrowser, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                                shape = RoundedCornerShape(8.dp),
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.OpenInBrowser,
+                                    contentDescription = "Visitar Enlace",
+                                    tint = HextechDarkBg,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Abrir Enlace Web Externo ↗",
-                                    color = HextechGold,
+                                    text = "Visitar Enlace ↗",
+                                    fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold
+                                    color = HextechDarkBg
                                 )
                             }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = if (isVideo) Arrangement.SpaceBetween else Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // ROTATE BUTTON ONLY IF IT IS A VIDEO
-                    if (isVideo) {
-                        Button(
-                            onClick = { isLandscape = !isLandscape },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                            shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                        ) {
-                            Icon(
-                                if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
-                                contentDescription = "Rotar Pantalla",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
-                                color = HextechCyan,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
                         }
                     }
 
@@ -791,10 +650,11 @@ fun NoticeMediaFullscreenDialog(
                             activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
                             onDismiss()
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
-                        shape = RoundedCornerShape(8.dp)
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
                     ) {
-                        Text("Cerrar", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        Text("Cerrar", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextPrimary)
                     }
                 }
             }
