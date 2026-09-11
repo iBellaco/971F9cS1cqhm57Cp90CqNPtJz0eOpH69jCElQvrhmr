@@ -278,6 +278,11 @@ object DraftVisionScanner {
                     val xRatio = if (width > 0) centerX.toFloat() / width.toFloat() else 0.5f
                     val yRatio = if (height > 0) centerY.toFloat() / height.toFloat() else 0.5f
 
+                    // EXCLUSIÓN ABSOLUTA DEL OVERLAY Y RECOMENDACIONES EN LA ZONA CENTRAL (0.33f .. 0.67f)
+                    if (xRatio in 0.33f..0.67f && yRatio > 0.25f) {
+                        continue
+                    }
+
                     // Detección automática de Primera / Segunda Selección por texto y ubicación espacial superior
                     val textNorm = DraftValidationLayer.normalize(text)
 
