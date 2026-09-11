@@ -125,13 +125,13 @@ jobs:
           }
           EOF
 
-      - name: Build Release APK
+      - name: Build Debug APK
         run: |
-          gradle :app:assembleRelease
+          gradle :app:assembleDebug
 
       - name: Verify APK
         run: |
-          EXPECTED_APK="app/build/outputs/apk/release/app-release.apk"
+          EXPECTED_APK="app/build/outputs/apk/debug/app-debug.apk"
           if [ -f "$EXPECTED_APK" ] && [ -s "$EXPECTED_APK" ]; then
             echo "Confirmed valid debug APK at: $EXPECTED_APK"
             ls -lh "$EXPECTED_APK"
@@ -144,8 +144,8 @@ jobs:
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release.apk
-          path: app/build/outputs/apk/release/app-release.apk
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: warn
           retention-days: 1
         continue-on-error: true
@@ -175,9 +175,9 @@ jobs:
           mkdir -p "$ASSET_DIR"
           VERSION_NAME="${{ steps.app_version.outputs.version_name }}"
           VERSION_CODE="${{ steps.app_version.outputs.version_code }}"
-          ASSET_NAME="Wild-Rift-Coach-v${VERSION_NAME}-build-${VERSION_CODE}.apk"
+          ASSET_NAME="Wild-Rift-Coach-v${VERSION_NAME}-build-${VERSION_CODE}-debug.apk"
           ASSET_PATH="${ASSET_DIR}/${ASSET_NAME}"
-          cp app/build/outputs/apk/release/app-release.apk "$ASSET_PATH"
+          cp app/build/outputs/apk/debug/app-debug.apk "$ASSET_PATH"
           echo "asset_path=$ASSET_PATH" >> "$GITHUB_OUTPUT"
           echo "asset_name=$ASSET_NAME" >> "$GITHUB_OUTPUT"
 

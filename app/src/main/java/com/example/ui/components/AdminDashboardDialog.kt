@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -83,6 +84,7 @@ fun AdminDashboardDialog(
     var showReportsPanel by remember { mutableStateOf(false) }
     var showSupportReportsPanel by remember { mutableStateOf(false) }
     var showBroadcastDialog by remember { mutableStateOf(false) }
+    var showNoticeConfigDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
@@ -96,6 +98,10 @@ fun AdminDashboardDialog(
 
     if (showBroadcastDialog) {
         AdminBroadcastAnnouncementDialog(onDismiss = { showBroadcastDialog = false })
+    }
+
+    if (showNoticeConfigDialog) {
+        AdminNoticeConfigDialog(onDismiss = { showNoticeConfigDialog = false })
     }
 
     Dialog(
@@ -117,6 +123,7 @@ fun AdminDashboardDialog(
                     onOpenReports = { showReportsPanel = true },
                     onOpenSupport = { showSupportReportsPanel = true },
                     onOpenBroadcast = { showBroadcastDialog = true },
+                    onOpenNotice = { showNoticeConfigDialog = true },
                     isMinimized = isMonitoringMinimized,
                     onToggleMinimize = { isMonitoringMinimized = !isMonitoringMinimized }
                 )
@@ -143,6 +150,7 @@ private fun AdminDashboardHeader(
     onOpenReports: () -> Unit,
     onOpenSupport: () -> Unit,
     onOpenBroadcast: () -> Unit,
+    onOpenNotice: () -> Unit,
     isMinimized: Boolean = false,
     onToggleMinimize: () -> Unit = {}
 ) {
@@ -253,18 +261,18 @@ private fun AdminDashboardHeader(
                     Spacer(modifier = Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Button(
                             onClick = onOpenReports,
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Reportes OCR", fontSize = 11.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
+                            Icon(Icons.Default.Visibility, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("OCR", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold)
                         }
 
                         Button(
@@ -272,11 +280,11 @@ private fun AdminDashboardHeader(
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Soporte", fontSize = 11.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
+                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("Soporte", fontSize = 10.sp, color = HextechGold, fontWeight = FontWeight.SemiBold)
                         }
 
                         Button(
@@ -284,17 +292,110 @@ private fun AdminDashboardHeader(
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 6.dp)
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                         ) {
-                            Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Anuncio", fontSize = 11.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
+                            Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("Broadcast", fontSize = 10.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Button(
+                            onClick = onOpenNotice,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                        ) {
+                            Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text("Aviso", fontSize = 10.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    val currentNotice by com.example.data.AppNoticeManager.notice.collectAsState()
+    var title by remember { mutableStateOf(currentNotice.title) }
+    var content by remember { mutableStateOf(currentNotice.content) }
+    var videoUrl by remember { mutableStateOf(currentNotice.videoUrl) }
+    var isEnabled by remember { mutableStateOf(currentNotice.isEnabled) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Announcement, contentDescription = null, tint = HextechGold)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Configurar Noticias / Avisos", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+        },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text("Edita el aviso o noticia que se mostrará en el panel de la pantalla de inicio de la aplicación para todos los usuarios:", color = TextSecondary, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text("Título del Aviso") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = content,
+                    onValueChange = { content = it },
+                    label = { Text("Contenido / Descripción") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = videoUrl,
+                    onValueChange = { videoUrl = it },
+                    label = { Text("URL de Video o Enlace (Opcional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Mostrar panel en inicio", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Switch(checked = isEnabled, onCheckedChange = { isEnabled = it })
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    com.example.data.AppNoticeManager.updateNotice(
+                        context,
+                        com.example.data.AppNotice(title, content, videoUrl, isEnabled)
+                    )
+                    Toast.makeText(context, "Aviso actualizado correctamente", Toast.LENGTH_SHORT).show()
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
+            ) {
+                Text("Guardar", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar", color = TextMuted)
+            }
+        },
+        containerColor = HextechSurface
+    )
 }
 
 enum class UserFilterTab(val label: String) {

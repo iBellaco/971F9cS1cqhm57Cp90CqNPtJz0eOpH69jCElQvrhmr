@@ -1,6 +1,7 @@
 package com.example.ui.screens
 
 import android.app.Activity
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,10 +39,11 @@ import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -348,6 +350,8 @@ fun MainDraftingScreen(
                 )
             },
         ) { innerPadding ->
+            val notice by com.example.data.AppNoticeManager.notice.collectAsState()
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -356,12 +360,99 @@ fun MainDraftingScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(10.dp))
-                
-                // Hide buttons if user is already logged in
-                val isLoggedIn = com.example.util.AuthManager.getAuth()?.currentUser != null
-                // Botones de inicio de sesión eliminados del panel principal
+                Spacer(modifier = Modifier.height(6.dp))
 
+                // 1. Activar botón en la parte superior
+                HextechOrbButton(
+                    isActive = isAssistantActive,
+                    onToggle = toggleAssistant,
+                    enabled = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante")
+                           else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
+                    color = if (isAssistantActive) HextechCyan else TextMuted,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 2. Panel de Noticias / Avisos configurado desde el Admin
+                if (notice.isEnabled && notice.content.isNotBlank()) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(1.2.dp, HextechGold.copy(alpha = 0.7f), RoundedCornerShape(12.dp)),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
+                    ) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = notice.title,
+                                        color = HextechGold,
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Surface(
+                                    color = HextechGold.copy(alpha = 0.2f),
+                                    shape = RoundedCornerShape(4.dp)
+                                ) {
+                                    Text(
+                                        text = "AVISO OFICIAL",
+                                        color = HextechGold,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = notice.content,
+                                color = TextPrimary,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
+                            if (notice.videoUrl.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(notice.videoUrl))
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Ver Video / Enlace del Anuncio", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }
                 var hasOverlayPermission by remember { mutableStateOf(SystemPermissionHelper.hasOverlayPermission(context)) }
@@ -492,168 +583,147 @@ fun MainDraftingScreen(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.weight(1f))
 
-                // Botón Orbe Hextech 3D Central de Activación Inmediata
-                HextechOrbButton(
-                    isActive = isAssistantActive,
-                    onToggle = toggleAssistant,
-                    enabled = true
-                )
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante")
-                           else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
-                    color = if (isAssistantActive) HextechCyan else TextMuted,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Botones de Información, Preguntas Frecuentes y Política de Privacidad
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                // Botones de Información, Preguntas Frecuentes y Política de Privacidad apegados al final de la pantalla de inicio
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = onNavigateToInfo,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                                .testTag("btn_about_bottom"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                containerColor = HextechSurface.copy(alpha = 0.9f),
+                                contentColor = HextechGold
+                            ),
+                            border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(17.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("Información"),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
+
+                        androidx.compose.material3.OutlinedButton(
+                            onClick = onNavigateToFAQ,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp)
+                                .testTag("btn_faq_bottom"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                                containerColor = HextechSurface.copy(alpha = 0.9f),
+                                contentColor = HextechCyan
+                            ),
+                            border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f))
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = HextechCyan,
+                                modifier = Modifier.size(17.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("Preguntas Frecuentes"),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp,
+                                letterSpacing = 0.3.sp
+                            )
+                        }
+                    }
+
                     androidx.compose.material3.OutlinedButton(
-                        onClick = onNavigateToInfo,
+                        onClick = { showPrivacyPolicyDialog = true },
                         modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp)
-                            .testTag("btn_about_bottom"),
+                            .fillMaxWidth()
+                            .height(42.dp)
+                            .testTag("btn_privacy_bottom"),
                         shape = RoundedCornerShape(12.dp),
                         colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
                             containerColor = HextechSurface.copy(alpha = 0.9f),
-                            contentColor = HextechGold
+                            contentColor = HextechGoldLight
                         ),
-                        border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
+                        border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.5f))
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Info,
+                            imageVector = Icons.Default.Security,
                             contentDescription = null,
                             tint = HextechGold,
                             modifier = Modifier.size(17.dp)
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = tr("Información"),
+                            text = tr("Políticas de Privacidad, Términos y Terceros"),
                             fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                            letterSpacing = 0.5.sp
-                        )
-                    }
-
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = onNavigateToFAQ,
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(46.dp)
-                            .testTag("btn_faq_bottom"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                            containerColor = HextechSurface.copy(alpha = 0.9f),
-                            contentColor = HextechCyan
-                        ),
-                        border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = null,
-                            tint = HextechCyan,
-                            modifier = Modifier.size(17.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = tr("Preguntas Frecuentes"),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
+                            fontSize = 11.5.sp,
                             letterSpacing = 0.3.sp
                         )
                     }
+
+                    // Barra de Redes Sociales del Creador (Instagram, Facebook, WhatsApp, Discord)
+                    com.example.ui.components.CreatorSocialMediaBar(
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Derechos de autor y créditos de creador
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(HextechSurface.copy(alpha = 0.5f))
+                            .border(1.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "© 2026 Diego Barba Chavez",
+                            color = HextechGoldLight,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = tr("Creador & Desarrollador Principal • Todos los derechos reservados"),
+                            color = TextMuted,
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Alfa v${com.example.BuildConfig.VERSION_NAME} (${com.example.BuildConfig.VERSION_CODE})",
+                            color = TextMuted.copy(alpha = 0.9f),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                androidx.compose.material3.OutlinedButton(
-                    onClick = { showPrivacyPolicyDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(44.dp)
-                        .testTag("btn_privacy_bottom"),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                        containerColor = HextechSurface.copy(alpha = 0.9f),
-                        contentColor = HextechGoldLight
-                    ),
-                    border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.5f))
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Security,
-                        contentDescription = null,
-                        tint = HextechGold,
-                        modifier = Modifier.size(17.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = tr("Políticas de Privacidad, Términos y Terceros"),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 11.5.sp,
-                        letterSpacing = 0.3.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Barra de Redes Sociales del Creador (Instagram, Facebook, WhatsApp, Discord)
-                com.example.ui.components.CreatorSocialMediaBar(
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Derechos de autor y créditos de creador
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(HextechSurface.copy(alpha = 0.5f))
-                        .border(1.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "© 2026 Diego Barba Chavez",
-                        color = HextechGoldLight,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = tr("Creador & Desarrollador Principal • Todos los derechos reservados"),
-                        color = TextMuted,
-                        fontSize = 10.5.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Alfa v${com.example.BuildConfig.VERSION_NAME} (${com.example.BuildConfig.VERSION_CODE})",
-                        color = TextMuted.copy(alpha = 0.9f),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
             }
         }
 
