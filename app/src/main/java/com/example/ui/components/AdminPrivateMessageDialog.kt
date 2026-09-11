@@ -106,7 +106,7 @@ fun AdminPrivateMessageDialog(
                         ) {
                             Text(
                                 "${tag.emoji} ${tag.label}",
-                                color = if (isSelected) tag.textColor else tag.badgeBg,
+                                color = if (isSelected) tag.textColor else Color.White,
                                 fontSize = 11.sp,
                                 fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold,
                                 maxLines = 1

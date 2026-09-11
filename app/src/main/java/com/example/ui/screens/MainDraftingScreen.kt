@@ -352,7 +352,7 @@ fun MainDraftingScreen(
                 )
             },
         ) { innerPadding ->
-            val notice by com.example.data.AppNoticeManager.notice.collectAsState()
+            val notices by com.example.data.AppNoticeManager.notices.collectAsState()
 
             Column(
                 modifier = Modifier
@@ -364,10 +364,10 @@ fun MainDraftingScreen(
             ) {
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // 1. Panel de Noticias / Avisos configurado desde el Admin (Primero en la parte superior)
-                if (notice.isEnabled && notice.content.isNotBlank()) {
-                    var isNoticeMediaVisible by remember(notice.videoUrl) { mutableStateOf(true) }
-                    var isVideoPaused by remember { mutableStateOf(false) }
+                // 1. Panel de Noticias / Avisos configurados desde el Admin (Primero en la parte superior)
+                notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }.forEach { notice ->
+                    var isNoticeMediaVisible by remember(notice.id, notice.videoUrl) { mutableStateOf(true) }
+                    var isVideoPaused by remember(notice.id) { mutableStateOf(false) }
 
                     Card(
                         modifier = Modifier
@@ -397,7 +397,7 @@ fun MainDraftingScreen(
                                     shape = RoundedCornerShape(4.dp)
                                 ) {
                                     Text(
-                                        text = "AVISO OFICIAL",
+                                        text = notice.tag.uppercase(),
                                         color = HextechGold,
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
@@ -405,13 +405,15 @@ fun MainDraftingScreen(
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = notice.content,
-                                color = TextPrimary,
-                                fontSize = 12.sp,
-                                lineHeight = 16.sp
-                            )
+                            if (notice.content.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = notice.content,
+                                    color = TextPrimary,
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
+                            }
                             if (notice.videoUrl.isNotBlank() && isNoticeMediaVisible) {
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Box(
@@ -471,7 +473,7 @@ fun MainDraftingScreen(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
 

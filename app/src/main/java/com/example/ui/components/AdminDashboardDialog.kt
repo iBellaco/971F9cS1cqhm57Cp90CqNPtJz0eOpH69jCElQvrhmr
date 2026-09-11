@@ -320,12 +320,17 @@ private fun AdminDashboardHeader(
 @Composable
 fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    val currentNotice by com.example.data.AppNoticeManager.notice.collectAsState()
-    var title by remember { mutableStateOf(currentNotice.title) }
-    var content by remember { mutableStateOf(currentNotice.content) }
-    var videoUrl by remember { mutableStateOf(currentNotice.videoUrl) }
-    var isEnabled by remember { mutableStateOf(currentNotice.isEnabled) }
+    val currentNotices by com.example.data.AppNoticeManager.notices.collectAsState()
+    var noticesList by remember { mutableStateOf(currentNotices) }
 
+    var editingIndex by remember { mutableStateOf<Int?>(null) }
+    var title by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf("") }
+    var videoUrl by remember { mutableStateOf("") }
+    var selectedTag by remember { mutableStateOf("Anuncios importantes") }
+    var isEnabled by remember { mutableStateOf(true) }
+
+    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia")
     val isUrlValid = videoUrl.isBlank() || videoUrl.startsWith("http://", true) || videoUrl.startsWith("https://", true)
 
     AlertDialog(
@@ -334,7 +339,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Announcement, contentDescription = null, tint = HextechGold)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Configurar Noticias / Avisos", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Gestor de Noticias y Avisos", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         },
         text = {
@@ -343,8 +348,116 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     .verticalScroll(rememberScrollState())
                     .fillMaxWidth()
             ) {
-                Text("Edita el aviso o noticia que se mostrará en el panel de la pantalla de inicio de la aplicación para todos los usuarios:", color = TextSecondary, fontSize = 12.sp)
+                Text("Administra los avisos y anuncios oficiales que se muestran en la pantalla de inicio:", color = TextSecondary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(10.dp))
+
+                // List of existing notices
+                if (noticesList.isNotEmpty()) {
+                    Text("Anuncios Actuales (${noticesList.size}):", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    noticesList.forEachIndexed { index, notice ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            color = HextechSurfaceVariant,
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, if (notice.isEnabled) HextechGold.copy(alpha = 0.5f) else TextMuted.copy(alpha = 0.3f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(text = notice.tag, color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(text = "•", color = TextMuted, fontSize = 9.sp)
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            text = notice.title.ifBlank { "Sin título" },
+                                            color = TextPrimary,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1
+                                        )
+                                    }
+                                    Text(
+                                        text = notice.content,
+                                        color = TextSecondary,
+                                        fontSize = 10.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    IconButton(
+                                        onClick = {
+                                            editingIndex = index
+                                            title = notice.title
+                                            content = notice.content
+                                            videoUrl = notice.videoUrl
+                                            selectedTag = notice.tag
+                                            isEnabled = notice.isEnabled
+                                        },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechCyan, modifier = Modifier.size(14.dp))
+                                    }
+                                    IconButton(
+                                        onClick = {
+                                            noticesList = noticesList.filterIndexed { i, _ -> i != index }
+                                        },
+                                        modifier = Modifier.size(28.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(14.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                Divider(color = HextechCardBorder)
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = if (editingIndex != null) "✏️ Editando Anuncio #${editingIndex!! + 1}" else "➕ Agregar Nuevo Anuncio:",
+                    color = HextechGold,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Tag selector
+                Text("Etiqueta / Categoría:", color = TextSecondary, fontSize = 11.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    tagsList.forEach { tag ->
+                        val isSelected = selectedTag == tag
+                        Button(
+                            onClick = { selectedTag = tag },
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isSelected) HextechGold else HextechSurfaceVariant
+                            )
+                        ) {
+                            Text(tag, color = if (isSelected) HextechDarkBg else TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -358,7 +471,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     onValueChange = { content = it },
                     label = { Text("Contenido / Descripción") },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 3,
+                    minLines = 2,
                     shape = RoundedCornerShape(8.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -381,12 +494,48 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Mostrar panel en inicio", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Text("Activar anuncio en inicio", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     Switch(checked = isEnabled, onCheckedChange = { isEnabled = it })
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = {
+                        if (title.isBlank() && content.isBlank()) {
+                            Toast.makeText(context, "Ingresa un título o contenido para el anuncio", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (!isUrlValid) {
+                            Toast.makeText(context, "URL multimedia inválida", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        val newNotice = com.example.data.AppNotice(
+                            title = title.ifBlank { "Aviso Oficial" },
+                            content = content,
+                            videoUrl = videoUrl,
+                            tag = selectedTag,
+                            isEnabled = isEnabled
+                        )
+                        if (editingIndex != null) {
+                            noticesList = noticesList.toMutableList().apply { set(editingIndex!!, newNotice) }
+                            editingIndex = null
+                        } else {
+                            noticesList = noticesList + newNotice
+                        }
+                        title = ""
+                        content = ""
+                        videoUrl = ""
+                        Toast.makeText(context, "Anuncio agregado a la lista", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(if (editingIndex != null) "Guardar Cambios en Anuncio" else "➕ Agregar a la Lista de Anuncios", fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                }
+
                 Spacer(modifier = Modifier.height(14.dp))
-                Text("👁️ Vista Previa del Anuncio en Inicio:", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text("👁️ Vista Previa del Anuncio:", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // Live Preview Card
@@ -418,7 +567,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 shape = RoundedCornerShape(4.dp)
                             ) {
                                 Text(
-                                    text = "AVISO OFICIAL",
+                                    text = selectedTag.uppercase(),
                                     color = HextechGold,
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Bold,
@@ -443,7 +592,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                     .background(HextechDarkBg),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("🎥 [Vista previa multimedia cargada]", color = HextechCyan, fontSize = 10.sp)
+                                Text("🎥 [Enlace Multimedia Verificado]", color = HextechCyan, fontSize = 10.sp)
                             }
                         }
                     }
@@ -453,20 +602,13 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
         confirmButton = {
             Button(
                 onClick = {
-                    if (!isUrlValid) {
-                        Toast.makeText(context, "Por favor corrige la URL del anuncio", Toast.LENGTH_SHORT).show()
-                        return@Button
-                    }
-                    com.example.data.AppNoticeManager.updateNotice(
-                        context,
-                        com.example.data.AppNotice(title, content, videoUrl, isEnabled)
-                    )
-                    Toast.makeText(context, "Aviso actualizado correctamente", Toast.LENGTH_SHORT).show()
+                    com.example.data.AppNoticeManager.saveNotices(context, noticesList)
+                    Toast.makeText(context, "¡Anuncios guardados y publicados con éxito!", Toast.LENGTH_SHORT).show()
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
             ) {
-                Text("Guardar", fontWeight = FontWeight.Bold)
+                Text("Publicar Todos", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
@@ -1049,7 +1191,13 @@ fun EnhancedUserAdminCard(
                             fontSize = 14.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f, fill = false)
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .clickable {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    clipboard.setPrimaryClip(ClipData.newPlainText("Usuario", name))
+                                    Toast.makeText(context, "Usuario copiado: $name", Toast.LENGTH_SHORT).show()
+                                }
                         )
 
                         Spacer(modifier = Modifier.width(6.dp))
@@ -1064,7 +1212,12 @@ fun EnhancedUserAdminCard(
                             color = TextSecondary,
                             fontSize = 11.5.sp,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.clickable {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("Correo", email))
+                                Toast.makeText(context, "Correo copiado: $email", Toast.LENGTH_SHORT).show()
+                            }
                         )
                     }
 
