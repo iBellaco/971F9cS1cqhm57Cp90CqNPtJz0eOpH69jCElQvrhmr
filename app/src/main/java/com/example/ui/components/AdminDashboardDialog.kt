@@ -326,6 +326,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var videoUrl by remember { mutableStateOf(currentNotice.videoUrl) }
     var isEnabled by remember { mutableStateOf(currentNotice.isEnabled) }
 
+    val isUrlValid = videoUrl.isBlank() || videoUrl.startsWith("http://", true) || videoUrl.startsWith("https://", true)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -336,7 +338,11 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
             }
         },
         text = {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+            ) {
                 Text("Edita el aviso o noticia que se mostrará en el panel de la pantalla de inicio de la aplicación para todos los usuarios:", color = TextSecondary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
@@ -360,6 +366,12 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     value = videoUrl,
                     onValueChange = { videoUrl = it },
                     label = { Text("URL de Video o Enlace (Opcional)") },
+                    isError = !isUrlValid,
+                    supportingText = {
+                        if (!isUrlValid) {
+                            Text("URL inválida. Debe comenzar con http:// o https://", color = DangerRed, fontSize = 10.sp)
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -372,11 +384,79 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     Text("Mostrar panel en inicio", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     Switch(checked = isEnabled, onCheckedChange = { isEnabled = it })
                 }
+
+                Spacer(modifier = Modifier.height(14.dp))
+                Text("👁️ Vista Previa del Anuncio en Inicio:", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Live Preview Card
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(10.dp)),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant.copy(alpha = 0.9f))
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = title.ifBlank { "Título del aviso..." },
+                                    color = HextechGold,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Surface(
+                                color = HextechGold.copy(alpha = 0.2f),
+                                shape = RoundedCornerShape(4.dp)
+                            ) {
+                                Text(
+                                    text = "AVISO OFICIAL",
+                                    color = HextechGold,
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = content.ifBlank { "Escribe el contenido del anuncio para visualizarlo aquí..." },
+                            color = TextPrimary,
+                            fontSize = 11.sp,
+                            lineHeight = 14.sp
+                        )
+                        if (videoUrl.isNotBlank() && isUrlValid) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(80.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(HextechDarkBg),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("🎥 [Vista previa multimedia cargada]", color = HextechCyan, fontSize = 10.sp)
+                            }
+                        }
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
+                    if (!isUrlValid) {
+                        Toast.makeText(context, "Por favor corrige la URL del anuncio", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
                     com.example.data.AppNoticeManager.updateNotice(
                         context,
                         com.example.data.AppNotice(title, content, videoUrl, isEnabled)

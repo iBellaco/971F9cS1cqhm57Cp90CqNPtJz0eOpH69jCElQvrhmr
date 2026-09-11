@@ -35,6 +35,8 @@ import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -362,28 +364,11 @@ fun MainDraftingScreen(
             ) {
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // 1. Activar botón en la parte superior
-                HextechOrbButton(
-                    isActive = isAssistantActive,
-                    onToggle = toggleAssistant,
-                    enabled = true
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante")
-                           else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
-                    color = if (isAssistantActive) HextechCyan else TextMuted,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // 2. Panel de Noticias / Avisos configurado desde el Admin
+                // 1. Panel de Noticias / Avisos configurado desde el Admin (Primero en la parte superior)
                 if (notice.isEnabled && notice.content.isNotBlank()) {
+                    var isNoticeMediaVisible by remember(notice.videoUrl) { mutableStateOf(true) }
+                    var isVideoPaused by remember { mutableStateOf(false) }
+
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -427,31 +412,69 @@ fun MainDraftingScreen(
                                 fontSize = 12.sp,
                                 lineHeight = 16.sp
                             )
-                            if (notice.videoUrl.isNotBlank()) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                OutlinedButton(
-                                    onClick = {
-                                        try {
-                                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(notice.videoUrl))
-                                            context.startActivity(intent)
-                                        } catch (e: Exception) {
-                                            Toast.makeText(context, "No se pudo abrir el enlace", Toast.LENGTH_SHORT).show()
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
-                                    modifier = Modifier.fillMaxWidth()
+                            if (notice.videoUrl.isNotBlank() && isNoticeMediaVisible) {
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(140.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(HextechDarkBg)
+                                        .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                                 ) {
-                                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("Ver Video / Enlace del Anuncio", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    if (notice.videoUrl.contains("http", ignoreCase = true)) {
+                                        coil.compose.AsyncImage(
+                                            model = notice.videoUrl,
+                                            contentDescription = "Contenido Multimedia del Anuncio",
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                        )
+                                    }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(Color.Black.copy(alpha = if (isVideoPaused) 0.5f else 0.2f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            IconButton(
+                                                onClick = { isVideoPaused = !isVideoPaused },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isVideoPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
+                                                    contentDescription = if (isVideoPaused) "Reproducir" else "Pausar",
+                                                    tint = HextechGold
+                                                )
+                                            }
+                                            IconButton(
+                                                onClick = { isNoticeMediaVisible = false },
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .background(DangerRed.copy(alpha = 0.85f), CircleShape)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = "Cerrar multimedia (Ahorro de datos)",
+                                                    tint = Color.White,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+
+
                 
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
                 var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }
@@ -585,6 +608,28 @@ fun MainDraftingScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Activar Botón y descripción abajo de las recomendaciones
+                HextechOrbButton(
+                    isActive = isAssistantActive,
+                    onToggle = toggleAssistant,
+                    enabled = true
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = if (isAssistantActive) tr("Asistente Hextech Activo • Toca la cámara flotante")
+                           else tr("Presiona ACTIVAR para iniciar el Asistente Flotante"),
+                    color = if (isAssistantActive) HextechCyan else TextMuted,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Spacer(modifier = Modifier.weight(1f))
 

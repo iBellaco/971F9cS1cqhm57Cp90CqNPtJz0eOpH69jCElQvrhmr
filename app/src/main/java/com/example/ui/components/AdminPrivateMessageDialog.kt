@@ -1,5 +1,7 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
@@ -87,25 +89,26 @@ fun AdminPrivateMessageDialog(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     MessageTag.values().forEach { tag ->
                         val isSelected = selectedTag == tag
                         Button(
                             onClick = { selectedTag = tag },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(6.dp),
-                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isSelected) tag.badgeBg else tag.badgeBg.copy(alpha = 0.15f)
+                                containerColor = if (isSelected) tag.badgeBg else tag.badgeBg.copy(alpha = 0.2f)
                             )
                         ) {
                             Text(
                                 "${tag.emoji} ${tag.label}",
                                 color = if (isSelected) tag.textColor else tag.badgeBg,
-                                fontSize = 9.5.sp,
-                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                                fontSize = 11.sp,
+                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.SemiBold,
                                 maxLines = 1
                             )
                         }
