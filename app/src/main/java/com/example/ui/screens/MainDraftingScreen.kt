@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -477,149 +478,21 @@ fun MainDraftingScreen(
 
                                         if (currentStreamer.videoUrl.isNotBlank()) {
                                             Spacer(modifier = Modifier.height(8.dp))
-                                            if (isMediaVisible) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(160.dp)
-                                                        .clip(RoundedCornerShape(8.dp))
-                                                        .background(HextechDarkBg)
-                                                        .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                                ) {
-                                                    if (currentStreamer.videoUrl.contains("http", ignoreCase = true) && !currentStreamer.videoUrl.contains("youtube") && !currentStreamer.videoUrl.contains("mp4", true) && !currentStreamer.videoUrl.contains("youtu.be")) {
-                                                        coil.compose.AsyncImage(
-                                                            model = currentStreamer.videoUrl,
-                                                            contentDescription = "Multimedia del Streamer",
-                                                            modifier = Modifier.fillMaxSize(),
-                                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                                                        )
-                                                    } else {
-                                                        AndroidView(
-                                                            factory = { ctx ->
-                                                                android.webkit.WebView(ctx).apply {
-                                                                    settings.javaScriptEnabled = true
-                                                                    settings.domStorageEnabled = true
-                                                                    settings.loadWithOverviewMode = true
-                                                                    settings.useWideViewPort = true
-                                                                    settings.mediaPlaybackRequiresUserGesture = false
-                                                                    settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                                                                    settings.allowFileAccess = true
-                                                                    settings.allowContentAccess = true
-                                                                    webViewClient = android.webkit.WebViewClient()
-                                                                    val ytId = when {
-                                                                        currentStreamer.videoUrl.contains("watch?v=") -> currentStreamer.videoUrl.substringAfter("watch?v=").substringBefore("&")
-                                                                        currentStreamer.videoUrl.contains("youtu.be/") -> currentStreamer.videoUrl.substringAfter("youtu.be/").substringBefore("?")
-                                                                        else -> ""
-                                                                    }
-                                                                    val urlToLoad = if (ytId.isNotBlank()) "https://www.youtube.com/embed/$ytId?playsinline=1&controls=1&modestbranding=1&rel=0" else currentStreamer.videoUrl
-                                                                    loadUrl(urlToLoad)
-                                                                }
-                                                            },
-                                                            modifier = Modifier.fillMaxSize()
-                                                        )
-                                                    }
-
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .align(Alignment.TopEnd)
-                                                            .padding(6.dp),
-                                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                                    ) {
-                                                        IconButton(
-                                                            onClick = { isFullscreenMedia = true },
-                                                            modifier = Modifier
-                                                                .size(30.dp)
-                                                                .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
-                                                        ) {
-                                                            Icon(Icons.Default.Fullscreen, contentDescription = "Expandir", tint = HextechCyan, modifier = Modifier.size(16.dp))
-                                                        }
-                                                        IconButton(
-                                                            onClick = { isMediaVisible = false },
-                                                            modifier = Modifier
-                                                                .size(30.dp)
-                                                                .background(DangerRed.copy(alpha = 0.85f), CircleShape)
-                                                        ) {
-                                                            Icon(Icons.Default.Close, contentDescription = "Ocultar", tint = Color.White, modifier = Modifier.size(14.dp))
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                OutlinedButton(
-                                                    onClick = { isMediaVisible = true },
-                                                    shape = RoundedCornerShape(6.dp),
-                                                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                                    colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan)
-                                                ) {
-                                                    Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                    Text("Ver Stream / Multimedia", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                }
-                                            }
+                                            com.example.ui.components.NoticeMediaViewer(
+                                                mediaUrl = currentStreamer.videoUrl,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .aspectRatio(985f / 425f),
+                                                onExpand = { isFullscreenMedia = true }
+                                            )
                                         }
 
                                         if (isFullscreenMedia) {
-                                            Dialog(
-                                                onDismissRequest = { isFullscreenMedia = false },
-                                                properties = DialogProperties(usePlatformDefaultWidth = false)
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .background(Color.Black)
-                                                        .padding(16.dp),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Column(
-                                                        modifier = Modifier.fillMaxSize(),
-                                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                                        verticalArrangement = Arrangement.Center
-                                                    ) {
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .fillMaxWidth()
-                                                                .fillMaxHeight(0.85f)
-                                                                .clip(RoundedCornerShape(12.dp))
-                                                                .background(HextechDarkBg)
-                                                        ) {
-                                                            if (currentStreamer.videoUrl.contains("http", ignoreCase = true) && !currentStreamer.videoUrl.contains("youtube") && !currentStreamer.videoUrl.contains("mp4", true) && !currentStreamer.videoUrl.contains("youtu.be")) {
-                                                                coil.compose.AsyncImage(
-                                                                    model = currentStreamer.videoUrl,
-                                                                    contentDescription = "Stream Ampliado",
-                                                                    modifier = Modifier.fillMaxSize(),
-                                                                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                                                                )
-                                                            } else {
-                                                                AndroidView(
-                                                                    factory = { ctx ->
-                                                                        android.webkit.WebView(ctx).apply {
-                                                                            settings.javaScriptEnabled = true
-                                                                            settings.loadWithOverviewMode = true
-                                                                            settings.useWideViewPort = true
-                                                                            webViewClient = android.webkit.WebViewClient()
-                                                                            val urlToLoad = if (currentStreamer.videoUrl.contains("watch?v=")) {
-                                                                                currentStreamer.videoUrl.replace("watch?v=", "embed/")
-                                                                            } else if (currentStreamer.videoUrl.contains("youtu.be/")) {
-                                                                                currentStreamer.videoUrl.replace("youtu.be/", "youtube.com/embed/")
-                                                                            } else {
-                                                                                currentStreamer.videoUrl
-                                                                            }
-                                                                            loadUrl(urlToLoad)
-                                                                        }
-                                                                    },
-                                                                    modifier = Modifier.fillMaxSize()
-                                                                )
-                                                            }
-                                                        }
-                                                        Spacer(modifier = Modifier.height(12.dp))
-                                                        Button(
-                                                            onClick = { isFullscreenMedia = false },
-                                                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
-                                                        ) {
-                                                            Text("Cerrar Vista Horizontal", fontWeight = FontWeight.Bold)
-                                                        }
-                                                    }
-                                                }
-                                            }
+                                            val mediaToExpand = if (currentStreamer.expandedImageUrl.isNotBlank()) currentStreamer.expandedImageUrl else currentStreamer.videoUrl
+                                            com.example.ui.components.NoticeMediaFullscreenDialog(
+                                                mediaUrl = mediaToExpand,
+                                                onDismiss = { isFullscreenMedia = false }
+                                            )
                                         }
                                     }
                                 }
@@ -680,149 +553,21 @@ fun MainDraftingScreen(
 
                                             if (notice.videoUrl.isNotBlank()) {
                                                 Spacer(modifier = Modifier.height(8.dp))
-                                                if (isMediaVisible) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .height(160.dp)
-                                                            .clip(RoundedCornerShape(8.dp))
-                                                            .background(HextechDarkBg)
-                                                            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                                    ) {
-                                                        if (notice.videoUrl.contains("http", ignoreCase = true) && !notice.videoUrl.contains("youtube") && !notice.videoUrl.contains("mp4", true) && !notice.videoUrl.contains("youtu.be")) {
-                                                            coil.compose.AsyncImage(
-                                                                model = notice.videoUrl,
-                                                                contentDescription = "Multimedia del Anuncio",
-                                                                modifier = Modifier.fillMaxSize(),
-                                                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                                                            )
-                                                        } else {
-                                                            AndroidView(
-                                                                factory = { ctx ->
-                                                                    android.webkit.WebView(ctx).apply {
-                                                                        settings.javaScriptEnabled = true
-                                                                        settings.domStorageEnabled = true
-                                                                        settings.loadWithOverviewMode = true
-                                                                        settings.useWideViewPort = true
-                                                                        settings.mediaPlaybackRequiresUserGesture = false
-                                                                        settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-                                                                        settings.allowFileAccess = true
-                                                                        settings.allowContentAccess = true
-                                                                        webViewClient = android.webkit.WebViewClient()
-                                                                        val ytId = when {
-                                                                            notice.videoUrl.contains("watch?v=") -> notice.videoUrl.substringAfter("watch?v=").substringBefore("&")
-                                                                            notice.videoUrl.contains("youtu.be/") -> notice.videoUrl.substringAfter("youtu.be/").substringBefore("?")
-                                                                            else -> ""
-                                                                        }
-                                                                        val urlToLoad = if (ytId.isNotBlank()) "https://www.youtube.com/embed/$ytId?playsinline=1&controls=1&modestbranding=1&rel=0" else notice.videoUrl
-                                                                        loadUrl(urlToLoad)
-                                                                    }
-                                                                },
-                                                                modifier = Modifier.fillMaxSize()
-                                                            )
-                                                        }
-
-                                                        Row(
-                                                            modifier = Modifier
-                                                                .align(Alignment.TopEnd)
-                                                                .padding(6.dp),
-                                                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                                                        ) {
-                                                            IconButton(
-                                                                onClick = { isFullscreenMedia = true },
-                                                                modifier = Modifier
-                                                                    .size(30.dp)
-                                                                    .background(HextechSurface.copy(alpha = 0.85f), CircleShape)
-                                                            ) {
-                                                                Icon(Icons.Default.Fullscreen, contentDescription = "Expandir", tint = HextechCyan, modifier = Modifier.size(16.dp))
-                                                            }
-                                                            IconButton(
-                                                                onClick = { isMediaVisible = false },
-                                                                modifier = Modifier
-                                                                    .size(30.dp)
-                                                                    .background(DangerRed.copy(alpha = 0.85f), CircleShape)
-                                                            ) {
-                                                                Icon(Icons.Default.Close, contentDescription = "Ocultar", tint = Color.White, modifier = Modifier.size(14.dp))
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
-                                                    OutlinedButton(
-                                                        onClick = { isMediaVisible = true },
-                                                        shape = RoundedCornerShape(6.dp),
-                                                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan)
-                                                    ) {
-                                                        Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
-                                                        Spacer(modifier = Modifier.width(4.dp))
-                                                        Text("Ver Multimedia Adjunta", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                    }
-                                                }
+                                                com.example.ui.components.NoticeMediaViewer(
+                                                    mediaUrl = notice.videoUrl,
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .aspectRatio(985f / 425f),
+                                                    onExpand = { isFullscreenMedia = true }
+                                                )
                                             }
 
                                             if (isFullscreenMedia) {
-                                                Dialog(
-                                                    onDismissRequest = { isFullscreenMedia = false },
-                                                    properties = DialogProperties(usePlatformDefaultWidth = false)
-                                                ) {
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .fillMaxSize()
-                                                            .background(Color.Black)
-                                                            .padding(16.dp),
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Column(
-                                                            modifier = Modifier.fillMaxSize(),
-                                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                                            verticalArrangement = Arrangement.Center
-                                                        ) {
-                                                            Box(
-                                                                modifier = Modifier
-                                                                    .fillMaxWidth()
-                                                                    .fillMaxHeight(0.85f)
-                                                                    .clip(RoundedCornerShape(12.dp))
-                                                                    .background(HextechDarkBg)
-                                                            ) {
-                                                                if (notice.videoUrl.contains("http", ignoreCase = true) && !notice.videoUrl.contains("youtube") && !notice.videoUrl.contains("mp4", true) && !notice.videoUrl.contains("youtu.be")) {
-                                                                    coil.compose.AsyncImage(
-                                                                        model = notice.videoUrl,
-                                                                        contentDescription = "Multimedia Ampliada",
-                                                                        modifier = Modifier.fillMaxSize(),
-                                                                        contentScale = androidx.compose.ui.layout.ContentScale.Fit
-                                                                    )
-                                                                } else {
-                                                                    AndroidView(
-                                                                        factory = { ctx ->
-                                                                            android.webkit.WebView(ctx).apply {
-                                                                                settings.javaScriptEnabled = true
-                                                                                settings.loadWithOverviewMode = true
-                                                                                settings.useWideViewPort = true
-                                                                                webViewClient = android.webkit.WebViewClient()
-                                                                                val urlToLoad = if (notice.videoUrl.contains("watch?v=")) {
-                                                                                    notice.videoUrl.replace("watch?v=", "embed/")
-                                                                                } else if (notice.videoUrl.contains("youtu.be/")) {
-                                                                                    notice.videoUrl.replace("youtu.be/", "youtube.com/embed/")
-                                                                                } else {
-                                                                                    notice.videoUrl
-                                                                                }
-                                                                                loadUrl(urlToLoad)
-                                                                            }
-                                                                        },
-                                                                        modifier = Modifier.fillMaxSize()
-                                                                    )
-                                                                }
-                                                            }
-                                                            Spacer(modifier = Modifier.height(12.dp))
-                                                            Button(
-                                                                onClick = { isFullscreenMedia = false },
-                                                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
-                                                            ) {
-                                                                Text("Cerrar Vista Horizontal", fontWeight = FontWeight.Bold)
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                val mediaToExpand = if (notice.expandedImageUrl.isNotBlank()) notice.expandedImageUrl else notice.videoUrl
+                                                com.example.ui.components.NoticeMediaFullscreenDialog(
+                                                    mediaUrl = mediaToExpand,
+                                                    onDismiss = { isFullscreenMedia = false }
+                                                )
                                             }
 
                                             if (idx < otherNotices.size - 1) {

@@ -12,7 +12,8 @@ data class AppNotice(
     val id: String = UUID.randomUUID().toString(),
     val title: String = "Anuncio Importante",
     val content: String = "Bienvenido a Wild Rift Coach. ¡Consulta las últimas guías del parche y optimiza tu drafting!",
-    val videoUrl: String = "",
+    val videoUrl: String = "", // Multimedia horizontal para panel de inicio
+    val expandedImageUrl: String = "", // Imagen vertical para vista ampliada
     val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia"
     val isEnabled: Boolean = true
 )
@@ -67,6 +68,7 @@ object AppNoticeManager {
                             title = obj.optString("title", "Aviso"),
                             content = obj.optString("content", ""),
                             videoUrl = obj.optString("videoUrl", ""),
+                            expandedImageUrl = obj.optString("expandedImageUrl", ""),
                             tag = obj.optString("tag", "Anuncios importantes"),
                             isEnabled = obj.optBoolean("isEnabled", true)
                         )
@@ -111,6 +113,7 @@ object AppNoticeManager {
                     put("title", n.title)
                     put("content", n.content)
                     put("videoUrl", n.videoUrl)
+                    put("expandedImageUrl", n.expandedImageUrl)
                     put("tag", n.tag)
                     put("isEnabled", n.isEnabled)
                 }
