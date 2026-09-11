@@ -141,7 +141,6 @@ fun NoticeMediaViewer(
             .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(if (isFullscreen) 12.dp else 8.dp))
     ) {
         if (isYt && ytVideoId != null) {
-            val embedUrl = "https://www.youtube.com/embed/$ytVideoId?autoplay=1&mute=1&controls=1&playsinline=1&enablejsapi=1"
             AndroidView(
                 factory = { ctx ->
                     WebView(ctx).apply {
@@ -157,7 +156,22 @@ fun NoticeMediaViewer(
                             useWideViewPort = true
                         }
                         webViewClient = WebViewClient()
-                        loadUrl(embedUrl)
+                        val html = """
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <style>
+                                    body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000000; overflow: hidden; }
+                                    iframe { width: 100%; height: 100%; border: none; }
+                                </style>
+                            </head>
+                            <body>
+                                <iframe src="https://www.youtube.com/embed/$ytVideoId?autoplay=1&mute=1&controls=1&playsinline=1&enablejsapi=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </body>
+                            </html>
+                        """.trimIndent()
+                        loadDataWithBaseURL("https://www.youtube.com", html, "text/html", "utf-8", null)
                     }
                 },
                 modifier = Modifier.fillMaxSize()

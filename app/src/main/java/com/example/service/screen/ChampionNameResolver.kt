@@ -294,37 +294,6 @@ object ChampionNameResolver {
         // 4. Si la línea no contiene ningún campeón pero es claramente un apodo de invocador, descartar
         // REMOVIDO porque también daba falsos positivos en nombres legítimos concatenados.
 
-        // 5. Coincidencia difusa ultrarrestringida (Levenshtein distance <= 1) para errores OCR menores en nombres aislados largos (>= 5 letras)
-        // Se descartan palabras cortas (para evitar que nombres de invocador como "sam", "kain", "sony" se confundan con campeones)
-        if (clean.length in 5..12 && words.size == 1 && !DraftValidationLayer.isLikelySummonerName(trimmed)) {
-            for (champ in allChampions) {
-                val champNorm = normalize(champ.name)
-                if (champNorm.length >= 5 && Math.abs(champNorm.length - clean.length) <= 1) {
-                    if (levenshteinDistance(clean, champNorm) <= 1) {
-                        return champ
-                    }
-                }
-            }
-        }
-
         return null
-    }
-
-    private fun levenshteinDistance(s1: String, s2: String): Int {
-        val dp = Array(s1.length + 1) { IntArray(s2.length + 1) }
-        for (i in 0..s1.length) dp[i][0] = i
-        for (j in 0..s2.length) dp[0][j] = j
-
-        for (i in 1..s1.length) {
-            for (j in 1..s2.length) {
-                val cost = if (s1[i - 1] == s2[j - 1]) 0 else 1
-                dp[i][j] = minOf(
-                    dp[i - 1][j] + 1,
-                    dp[i][j - 1] + 1,
-                    dp[i - 1][j - 1] + cost
-                )
-            }
-        }
-        return dp[s1.length][s2.length]
     }
 }

@@ -4,6 +4,8 @@ import android.app.Activity
 import android.widget.Toast
 import java.util.Locale
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
