@@ -322,7 +322,12 @@ private fun AdminDashboardHeader(
 fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
     val currentNotices by com.example.data.AppNoticeManager.notices.collectAsState()
+    val currentIntervalVal by com.example.data.AppNoticeManager.streamerIntervalValue.collectAsState()
+    val currentIntervalUnit by com.example.data.AppNoticeManager.streamerIntervalUnit.collectAsState()
+
     var noticesList by remember { mutableStateOf(currentNotices) }
+    var intervalValueText by remember { mutableStateOf(currentIntervalVal.toString()) }
+    var intervalUnit by remember { mutableStateOf(currentIntervalUnit) }
 
     var editingIndex by remember { mutableStateOf<Int?>(null) }
     var title by remember { mutableStateOf("") }
@@ -351,6 +356,51 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
             ) {
                 Text("Administra los avisos y anuncios oficiales que se muestran en la pantalla de inicio:", color = TextSecondary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(10.dp))
+
+                // Interval configuration for streamer notices
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Text("⏱️ Intervalo de Rotación (Etiqueta Streamer > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Si hay más de 1 aviso con etiqueta Streamer, rotarán con este intervalo:", color = TextSecondary, fontSize = 10.sp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = intervalValueText,
+                                onValueChange = { intervalValueText = it.filter { c -> c.isDigit() } },
+                                label = { Text("Valor") },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(6.dp)
+                            )
+                            val units = listOf("seconds" to "Seg", "minutes" to "Min", "hours" to "Horas")
+                            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                units.forEach { (key, label) ->
+                                    val isSelected = intervalUnit == key
+                                    Button(
+                                        onClick = { intervalUnit = key },
+                                        shape = RoundedCornerShape(6.dp),
+                                        contentPadding = PaddingValues(horizontal = 6.dp, vertical = 4.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (isSelected) HextechCyan else HextechSurface
+                                        )
+                                    ) {
+                                        Text(label, color = if (isSelected) HextechDarkBg else TextPrimary, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
 
                 // List of existing notices
                 if (noticesList.isNotEmpty()) {
@@ -626,7 +676,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
             Button(
                 onClick = {
                     com.example.data.AppNoticeManager.saveNotices(context, noticesList)
-                    Toast.makeText(context, "¡Anuncios guardados y publicados con éxito!", Toast.LENGTH_SHORT).show()
+                    com.example.data.AppNoticeManager.saveStreamerInterval(context, intervalValueText.toIntOrNull() ?: 10, intervalUnit)
+                    Toast.makeText(context, "¡Anuncios e intervalo de streamer guardados con éxito!", Toast.LENGTH_SHORT).show()
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
