@@ -141,49 +141,27 @@ fun NoticeMediaViewer(
             .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(if (isFullscreen) 12.dp else 8.dp))
     ) {
         if (isYt && ytVideoId != null) {
-            val thumbUrl = "https://img.youtube.com/vi/$ytVideoId/hqdefault.jpg"
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable {
-                        try {
-                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, Uri.parse(trimmedUrl))
-                            context.startActivity(intent)
-                        } catch (_: Exception) {}
-                    }
-            ) {
-                AsyncImage(
-                    model = thumbUrl,
-                    contentDescription = "Miniatura de YouTube",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-                // Dark overlay gradient / tint
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.35f))
-                )
-                // Play button badge
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(HextechSurface.copy(alpha = 0.9f))
-                        .border(1.dp, HextechGold, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                        Text(
-                            text = "Reproducir en YouTube ▶",
-                            color = HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+            val embedUrl = "https://www.youtube.com/embed/$ytVideoId?autoplay=1&mute=1&controls=1&playsinline=1&enablejsapi=1"
+            AndroidView(
+                factory = { ctx ->
+                    WebView(ctx).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
                         )
+                        settings.apply {
+                            javaScriptEnabled = true
+                            domStorageEnabled = true
+                            mediaPlaybackRequiresUserGesture = false
+                            loadWithOverviewMode = true
+                            useWideViewPort = true
+                        }
+                        webViewClient = WebViewClient()
+                        loadUrl(embedUrl)
                     }
-                }
-            }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
         } else if (NoticeMediaUtils.isLocalVideo(context, trimmedUrl)) {
             // Local gallery video player with VideoView, visual rendering and default muted
             AndroidView(

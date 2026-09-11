@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import android.app.Activity
 import android.widget.Toast
+import java.util.Locale
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -387,21 +388,57 @@ fun MainDraftingScreen(
                     }
                 }
 
-                val noticesByTag = remember(activeNotices) { activeNotices.groupBy { it.tag.trim() } }
+                fun getTagColor(tag: String): Color {
+                    val l = tag.lowercase(Locale.ROOT)
+                    return when {
+                        l.contains("importante") -> HextechGold
+                        l.contains("publicidad") -> Color(0xFF00FF66)
+                        l.contains("oferta") -> HextechCyan
+                        l.contains("mantenimiento") -> Color(0xFFFF3333)
+                        l.contains("noticia") -> Color(0xFFCC66FF)
+                        l.contains("streamer") -> Color(0xFFFF66CC)
+                        else -> HextechCyan
+                    }
+                }
+
+                val sortedTags = remember(activeNotices) {
+                    val grouped = activeNotices.groupBy { it.tag.trim() }
+                    grouped.keys.sortedWith(Comparator { a, b ->
+                        val aLower = a.lowercase(Locale.ROOT)
+                        val bLower = b.lowercase(Locale.ROOT)
+                        val aIsImportant = aLower.contains("importante") || aLower.contains("avisos importantes")
+                        val bIsImportant = bLower.contains("importante") || bLower.contains("avisos importantes")
+                        val aIsPub = aLower.contains("publicidad")
+                        val bIsPub = bLower.contains("publicidad")
+
+                        when {
+                            aIsImportant && !bIsImportant -> -1
+                            !aIsImportant && bIsImportant -> 1
+                            aIsPub && !bIsPub -> -1
+                            !aIsPub && bIsPub -> 1
+                            else -> a.compareTo(b)
+                        }
+                    })
+                }
 
                 if (activeNotices.isNotEmpty()) {
-                    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        noticesByTag.forEach { (tag, tagNotices) ->
-                            var currentIndex by remember(tag, tagNotices.size) { mutableStateOf(0) }
+                    val groupedNotices = remember(activeNotices) { activeNotices.groupBy { it.tag.trim() } }
+                    val pinnedMap = remember { androidx.compose.runtime.mutableStateMapOf<String, Boolean>() }
 
-                            LaunchedEffect(tag, tagNotices.size, intervalMillis) {
-                                if (tagNotices.size > 1) {
+                    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        sortedTags.forEach { tag ->
+                            val tagNotices = groupedNotices[tag] ?: emptyList()
+                            if (tagNotices.isEmpty()) return@forEach
+                            val tagColor = getTagColor(tag)
+                            var currentIndex by remember(tag, tagNotices.size) { mutableStateOf(0) }
+                            val isPinned = pinnedMap[tag] ?: false
+
+                            LaunchedEffect(tag, tagNotices.size, intervalMillis, isPinned) {
+                                if (tagNotices.size > 1 && !isPinned) {
                                     while (true) {
                                         kotlinx.coroutines.delay(intervalMillis)
                                         currentIndex = (currentIndex + 1) % tagNotices.size
                                     }
-                                } else {
-                                    currentIndex = 0
                                 }
                             }
 
@@ -412,7 +449,7 @@ fun MainDraftingScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(14.dp))
-                                    .border(1.2.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(14.dp)),
+                                    .border(1.2.dp, tagColor.copy(alpha = 0.8f), RoundedCornerShape(14.dp)),
                                 colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
@@ -422,23 +459,66 @@ fun MainDraftingScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.Campaign, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                                            Icon(Icons.Default.Campaign, contentDescription = null, tint = tagColor, modifier = Modifier.size(20.dp))
                                             Spacer(modifier = Modifier.width(8.dp))
-                                            Text(tag, color = HextechGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                            Text(tag, color = tagColor, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                         }
-                                        if (tagNotices.size > 1) {
-                                            Surface(
-                                                color = HextechCyan.copy(alpha = 0.2f),
-                                                shape = RoundedCornerShape(4.dp),
-                                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f))
+                                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                            // Pin / Unpin button
+                                            IconButton(
+                                                onClick = { pinnedMap[tag] = !isPinned },
+                                                modifier = Modifier.size(28.dp)
                                             ) {
-                                                Text(
-                                                    text = "🔄 ${currentIndex + 1}/${tagNotices.size}",
-                                                    color = HextechCyan,
-                                                    fontSize = 9.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                Icon(
+                                                    imageVector = Icons.Default.Favorite,
+                                                    contentDescription = if (isPinned) "Desfijar anuncio" else "Fijar anuncio",
+                                                    tint = if (isPinned) tagColor else tagColor.copy(alpha = 0.5f),
+                                                    modifier = Modifier.size(16.dp)
                                                 )
+                                            }
+
+                                            if (tagNotices.size > 1) {
+                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                                    IconButton(
+                                                        onClick = { currentIndex = if (currentIndex > 0) currentIndex - 1 else tagNotices.size - 1 },
+                                                        modifier = Modifier.size(24.dp)
+                                                    ) {
+                                                        Text("<", color = tagColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                    }
+                                                    Surface(
+                                                        color = tagColor.copy(alpha = 0.2f),
+                                                        shape = RoundedCornerShape(4.dp),
+                                                        border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
+                                                    ) {
+                                                        Text(
+                                                            text = "${if (isPinned) "📌 " else "🔄 "}${currentIndex + 1}/${tagNotices.size}",
+                                                            color = tagColor,
+                                                            fontSize = 9.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                        )
+                                                    }
+                                                    IconButton(
+                                                        onClick = { currentIndex = (currentIndex + 1) % tagNotices.size },
+                                                        modifier = Modifier.size(24.dp)
+                                                    ) {
+                                                        Text(">", color = tagColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                                    }
+                                                }
+                                            } else if (isPinned) {
+                                                Surface(
+                                                    color = tagColor.copy(alpha = 0.2f),
+                                                    shape = RoundedCornerShape(4.dp),
+                                                    border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
+                                                ) {
+                                                    Text(
+                                                        text = "📌 Fijo",
+                                                        color = tagColor,
+                                                        fontSize = 9.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -446,13 +526,13 @@ fun MainDraftingScreen(
 
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         Surface(
-                                            color = HextechGold.copy(alpha = 0.2f),
+                                            color = tagColor.copy(alpha = 0.2f),
                                             shape = RoundedCornerShape(4.dp),
-                                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                                            border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
                                         ) {
                                             Text(
                                                 text = currentNotice.tag.uppercase(),
-                                                color = HextechGold,
+                                                color = tagColor,
                                                 fontSize = 9.5.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)

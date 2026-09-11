@@ -5069,49 +5069,6 @@ fun TierSelectionPanel(
                             )
                         }
                     }
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(if (isOnline) HextechCyan.copy(alpha = 0.15f) else Color(0xFFE65100).copy(alpha = 0.2f))
-                            .border(
-                                0.8.dp,
-                                if (isOnline) HextechCyan.copy(alpha = 0.7f) else Color(0xFFFF9800),
-                                RoundedCornerShape(6.dp)
-                            )
-                            .clickable(enabled = !isSyncing) {
-                                coroutineScope.launch {
-                                    BestBuildWrScraper.syncGlobalTierList(context, currentRegion, force = true)
-                                    if (currentRegion == "CN") {
-                                        ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
-                                    }
-                                }
-                            }
-                            .padding(horizontal = 8.dp, vertical = 3.5.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            if (isSyncing) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(10.dp),
-                                    color = HextechCyan,
-                                    strokeWidth = 1.5.dp
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = "Actualizar",
-                                    tint = if (isOnline) HextechCyan else Color(0xFFFF9800),
-                                    modifier = Modifier.size(11.dp)
-                                )
-                            }
-                            Text(
-                                text = if (isSyncing) tr("Sincronizando...") else tr("Actualizar"),
-                                color = if (isOnline) HextechCyan else Color(0xFFFFB74D),
-                                fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
                 }
             }
 

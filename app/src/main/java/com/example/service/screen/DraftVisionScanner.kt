@@ -572,9 +572,8 @@ object DraftVisionScanner {
                     if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
                     if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
                     
-                    val exactRoleWords = setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "solo", "lane")
-                    val tokens = lLower.split(Regex("\\s+"))
-                    if (tokens.size == 1 && exactRoleWords.contains(tokens[0])) continue
+                    val exactRoleWords = setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "solo", "lane", "apoyo")
+                    if (exactRoleWords.any { lLower.contains(it) }) continue
 
                     if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
                     if (!validSummonerLines.contains(trimmed)) {
@@ -921,6 +920,18 @@ object DraftVisionScanner {
                     val isAlly = targetSlot.isAlly
 
                     val slotTexts = if (isAlly) allySlotTexts[sIdx] else enemySlotTexts[sIdx]
+                    if (isAlly) {
+                        val hasRoleText = slotTexts.any { (text, _) ->
+                            val tLower = text.lowercase(Locale.ROOT)
+                            DraftValidationLayer.parseRoleFromText(text) != null ||
+                            setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "apoyo").any { tLower.contains(it) }
+                        }
+                        if (hasRoleText && allyOcrChampions[sIdx] == null) {
+                            targetSlot.champion = null
+                            targetSlot.isLikelyUnpicked = true
+                            continue
+                        }
+                    }
                     val defaultYCenter = if (isAlly) {
                         (height * allySlotYRatios[sIdx]).toInt()
                     } else {
