@@ -1773,17 +1773,10 @@ private fun FloatingOverlayContent(
                                 .padding(12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = when (role) {
-                                    LaneRole.TOP -> Icons.Default.Hardware
-                                    LaneRole.JUNGLE -> Icons.Default.Eco
-                                    LaneRole.MID -> Icons.Default.LocalFireDepartment
-                                    LaneRole.ADC -> Icons.Default.Security
-                                    LaneRole.SUPPORT -> Icons.Default.Healing
-                                },
+                            Image(
+                                painter = painterResource(id = role.iconResId),
                                 contentDescription = null,
-                                tint = if (role == activeRole) HextechCyan else TextMuted,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(26.dp)
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
@@ -1941,16 +1934,29 @@ private fun FloatingOverlayContent(
                                     .background(if (isSel) HextechCyan else HextechSurface)
                                     .border(0.5.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(4.dp))
                                     .clickable { selectedRoleFilter = lane }
-                                    .padding(vertical = 3.dp),
+                                    .padding(vertical = 3.dp, horizontal = 2.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = label,
-                                    fontSize = 8.sp,
-                                    fontWeight = if (isSel) FontWeight.Black else FontWeight.Medium,
-                                    color = if (isSel) HextechDarkBg else TextPrimary,
-                                    maxLines = 1
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    if (lane != null) {
+                                        Image(
+                                            painter = painterResource(id = lane.iconResId),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(11.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(2.dp))
+                                    }
+                                    Text(
+                                        text = label,
+                                        fontSize = 8.sp,
+                                        fontWeight = if (isSel) FontWeight.Black else FontWeight.Medium,
+                                        color = if (isSel) HextechDarkBg else TextPrimary,
+                                        maxLines = 1
+                                    )
+                                }
                             }
                         }
                     }
@@ -2449,11 +2455,11 @@ private fun OverlayVersusDraftBoard(
     onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
 ) {
     val roles = listOf(
-        Triple(LaneRole.TOP, "TOP", R.drawable.ic_wr_role_solo),
-        Triple(LaneRole.JUNGLE, "JUG", R.drawable.ic_wr_role_jungle),
-        Triple(LaneRole.MID, "MID", R.drawable.ic_wr_role_mid),
-        Triple(LaneRole.ADC, "DÚO", R.drawable.ic_wr_role_duo),
-        Triple(LaneRole.SUPPORT, "SUP", R.drawable.ic_wr_role_support)
+        Pair(LaneRole.TOP, "TOP"),
+        Pair(LaneRole.JUNGLE, "JUG"),
+        Pair(LaneRole.MID, "MID"),
+        Pair(LaneRole.ADC, "DÚO"),
+        Pair(LaneRole.SUPPORT, "SUP")
     )
 
     Card(
@@ -2561,7 +2567,7 @@ private fun OverlayVersusDraftBoard(
                 }
             }
 
-            roles.forEachIndexed { index, (role, label, iconRes) ->
+            roles.forEachIndexed { index, (role, label) ->
                 val allySlot = allySlots.find { it.assignedRole == role }
                 val enemySlot = enemySlots.find { it.assignedRole == role }
                 val summonerName = allySlot?.summonerName ?: allySummonerNames[index]
@@ -2699,11 +2705,10 @@ private fun OverlayVersusDraftBoard(
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier.padding(horizontal = 4.dp)
                         ) {
-                            Icon(
-                                painterResource(id = iconRes),
+                            Image(
+                                painter = painterResource(id = role.iconResId),
                                 contentDescription = label,
-                                tint = if (isMyRole) HextechCyan else HextechGold,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                             Text(
                                 text = label,
@@ -2938,12 +2943,23 @@ private fun CoachContent(
                         .padding(vertical = 3.5.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = tr(role.shortName),
-                        fontSize = 9.sp,
-                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
-                        color = if (isSelected) HextechDarkBg else TextPrimary
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = role.iconResId),
+                            contentDescription = null,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = tr(role.shortName),
+                            fontSize = 9.sp,
+                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Normal,
+                            color = if (isSelected) HextechDarkBg else TextPrimary
+                        )
+                    }
                 }
             }
         }

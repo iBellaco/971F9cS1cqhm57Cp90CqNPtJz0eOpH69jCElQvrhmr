@@ -10,9 +10,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -2323,11 +2325,19 @@ private fun DraftDetailInnerContent(
                                         Text("(Mío)", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Black)
                                     }
                                 }
-                                Text(
-                                    text = tr(slot.assignedRole.displayName) + " • Tier ${slot.champion.tier}",
-                                    color = HextechCyan,
-                                    fontSize = 11.sp
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Image(
+                                        painter = painterResource(id = slot.assignedRole.iconResId),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = tr(slot.assignedRole.displayName) + " • Tier ${slot.champion.tier}",
+                                        color = HextechCyan,
+                                        fontSize = 11.sp
+                                    )
+                                }
                             }
                         }
                         Text(
@@ -2368,11 +2378,19 @@ private fun DraftDetailInnerContent(
                                         Text("(" + tr("Rival Directo") + ")", color = DangerRed, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
-                                Text(
-                                    text = tr(slot.assignedRole.displayName) + " • Tier ${slot.champion.tier}",
-                                    color = TextMuted,
-                                    fontSize = 11.sp
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Image(
+                                        painter = painterResource(id = slot.assignedRole.iconResId),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(13.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = tr(slot.assignedRole.displayName) + " • Tier ${slot.champion.tier}",
+                                        color = TextMuted,
+                                        fontSize = 11.sp
+                                    )
+                                }
                             }
                         }
                         Text(

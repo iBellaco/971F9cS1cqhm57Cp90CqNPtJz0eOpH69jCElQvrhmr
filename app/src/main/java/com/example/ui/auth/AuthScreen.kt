@@ -51,6 +51,9 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import com.example.ui.theme.AppTheme
 import com.example.ui.theme.AppThemeManager
 import com.example.data.AvatarCatalog
@@ -1017,11 +1020,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Action Grid: 2x2 Animated Theme-Aware Cards
+            // Action Grid: Animated Theme-Aware Cards
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // Fila 1: Avatares y Temas
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1031,7 +1035,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         modifier = Modifier
                             .weight(1f)
                             .height(72.dp)
-                            .clickable { showAvatarDialog = true },
+                            .tactileClickable { showAvatarDialog = true },
                         shape = RoundedCornerShape(12.dp),
                         color = activeTheme.surfaceVariant,
                         border = BorderStroke(1.2.dp, activeTheme.secondary.copy(alpha = 0.8f))
@@ -1076,7 +1080,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         modifier = Modifier
                             .weight(1f)
                             .height(72.dp)
-                            .clickable { showThemeDialog = true },
+                            .tactileClickable { showThemeDialog = true },
                         shape = RoundedCornerShape(12.dp),
                         color = activeTheme.surfaceVariant,
                         border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.8f))
@@ -1117,6 +1121,39 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     }
                 }
 
+                // Friendly Coach Advice Card - Colocado DIRECTAMENTE abajo de la Selección del Tema
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = activeTheme.surfaceVariant.copy(alpha = 0.45f),
+                    border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.35f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .tactileClickable { showThemeDialog = true }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Text("💡", fontSize = 20.sp)
+                        Column {
+                            Text(
+                                text = "Consejo del Coach Challenger",
+                                color = activeTheme.secondary,
+                                fontSize = 11.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "¡Cada región altera la energía y colores de la interfaz! Selecciona tu región favorita para sincronizar tu estilo.",
+                                color = activeTheme.textSecondary,
+                                fontSize = 10.5.sp,
+                                lineHeight = 14.sp
+                            )
+                        }
+                    }
+                }
+
+                // Fila 2: Esencia Azul y Creadores
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -1126,7 +1163,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         modifier = Modifier
                             .weight(1f)
                             .height(72.dp)
-                            .clickable {
+                            .tactileClickable {
                                 if (isAdminUser) {
                                     showPurchaseHistoryDialog = true
                                 } else {
@@ -1176,7 +1213,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         modifier = Modifier
                             .weight(1f)
                             .height(72.dp)
-                            .clickable {
+                            .tactileClickable {
                                 if (userRole == "admin") showCommunityCreatorsDialog = true
                                 else android.widget.Toast.makeText(context, "Fuera de servicio temporalmente", android.widget.Toast.LENGTH_SHORT).show()
                             },
@@ -1216,45 +1253,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Friendly Coach Advice Card
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant.copy(alpha = 0.45f),
-                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.35f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Text("💡", fontSize = 20.sp)
-                    Column {
-                        Text(
-                            text = "Consejo del Coach Challenger",
-                            color = activeTheme.secondary,
-                            fontSize = 11.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "¡Cada región altera la energía y colores de la interfaz! Selecciona tu región favorita para sincronizar tu estilo.",
-                            color = activeTheme.textSecondary,
-                            fontSize = 10.5.sp,
-                            lineHeight = 14.sp
-                        )
-                    }
-                }
-            }
-
             Spacer(modifier = Modifier.height(12.dp))
 
             // Support Center Card Button
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showSupportDialog = true },
+                    .tactileClickable { showSupportDialog = true },
                 shape = RoundedCornerShape(12.dp),
                 color = activeTheme.surfaceVariant,
                 border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.5f))
@@ -1293,10 +1298,24 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(12.dp))
             
             if (userRole == "admin") {
+                val adminInteractionSource = remember { MutableInteractionSource() }
+                val adminPressed by adminInteractionSource.collectIsPressedAsState()
+                val adminScale by animateFloatAsState(
+                    targetValue = if (adminPressed) 0.95f else 1f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    ),
+                    label = "adminBtnScale"
+                )
                 Button(
                     onClick = { showAdminDashboard = true },
                     colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.DangerRed),
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .scale(adminScale),
+                    interactionSource = adminInteractionSource,
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(imageVector = Icons.Default.AdminPanelSettings, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
@@ -1306,10 +1325,24 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Spacer(modifier = Modifier.height(12.dp))
             }
             
+            val signOutInteractionSource = remember { MutableInteractionSource() }
+            val signOutPressed by signOutInteractionSource.collectIsPressedAsState()
+            val signOutScale by animateFloatAsState(
+                targetValue = if (signOutPressed) 0.95f else 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                label = "signOutBtnScale"
+            )
             Button(
                 onClick = onSignOut,
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
-                modifier = Modifier.fillMaxWidth().height(46.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(46.dp)
+                    .scale(signOutScale),
+                interactionSource = signOutInteractionSource,
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.35f))
             ) {
@@ -1317,4 +1350,28 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
         }
     }
+}
+
+@Composable
+fun Modifier.tactileClickable(
+    scaleDown: Float = 0.94f,
+    onClick: () -> Unit
+): Modifier {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) scaleDown else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "tactileScale"
+    )
+    return this
+        .scale(scale)
+        .clickable(
+            interactionSource = interactionSource,
+            indication = androidx.compose.material3.ripple(bounded = true),
+            onClick = onClick
+        )
 }

@@ -586,6 +586,7 @@ fun EnhancedUserManagementPanel(
                 items(filteredUsers, key = { it["uid"] as? String ?: "" }) { user ->
                     EnhancedUserAdminCard(
                         user = user,
+                        currentTime = currentTime,
                         onManageClick = { selectedUserForManage = user },
                         onAvatarGiftClick = { selectedUserForAvatarGift = user },
                         onResetSlotsClick = {
@@ -792,6 +793,7 @@ private fun KpiItemCard(
 @Composable
 fun EnhancedUserAdminCard(
     user: Map<String, Any>,
+    currentTime: Long = System.currentTimeMillis(),
     onManageClick: () -> Unit,
     onAvatarGiftClick: () -> Unit,
     onResetSlotsClick: () -> Unit
@@ -813,7 +815,7 @@ fun EnhancedUserAdminCard(
     val unlockedCount = unlockedAvatars.size
 
     val lastActiveTimestamp = (user["last_active"] as? Number)?.toLong() ?: (user["lastActiveTimestamp"] as? Number)?.toLong() ?: 0L
-    val now = System.currentTimeMillis()
+    val now = currentTime
     val isOnline = (user["is_online"] as? Boolean ?: false) || (now - lastActiveTimestamp < 10 * 60 * 1000L && lastActiveTimestamp > 0L)
 
     val isPremiumActive = when {
@@ -913,7 +915,7 @@ fun EnhancedUserAdminCard(
                             Icon(Icons.Default.ContentCopy, contentDescription = "Copiar UID", tint = TextMuted, modifier = Modifier.size(10.dp))
                         }
 
-                        // Badge de Conexión / Última Conexión
+                        // Badge de Conexión / Última Conexión en Vivo
                         Surface(
                             color = if (isOnline) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechDarkBg,
                             shape = RoundedCornerShape(4.dp),
@@ -934,7 +936,7 @@ fun EnhancedUserAdminCard(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = formatLastConnection(lastActiveTimestamp, isOnline),
+                                    text = formatLastConnection(lastActiveTimestamp, isOnline, now),
                                     color = if (isOnline) Color(0xFF00FF7F) else TextMuted,
                                     fontSize = 9.5.sp,
                                     fontWeight = if (isOnline) FontWeight.Bold else FontWeight.Normal
@@ -955,7 +957,7 @@ fun EnhancedUserAdminCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Info de Suscripción
+                // Info de Suscripción con conteo en vivo de segundos
                 Column(modifier = Modifier.weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -966,7 +968,7 @@ fun EnhancedUserAdminCard(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = getSubscriptionStatusText(role, premiumUntil, isPremiumActive),
+                            text = getSubscriptionStatusText(role, premiumUntil, isPremiumActive, now),
                             fontSize = 11.sp,
                             color = if (isPremiumActive) HextechCyan else TextMuted,
                             fontWeight = FontWeight.Medium
@@ -1134,15 +1136,31 @@ private fun RoleBadge(role: String, isPremiumActive: Boolean, isBanned: Boolean)
     }
 }
 
-private fun formatLastConnection(lastActiveTimestamp: Long, isOnline: Boolean): String {
-    if (isOnline) return "En línea ahora"
+private fun formatLastConnection(lastActiveTimestamp: Long, isOnline: Boolean, currentTimestamp: Long = System.currentTimeMillis()): String {
+    if (isOnline) {
+        if (lastActiveTimestamp > 0L) {
+            val diff = (currentTimestamp - lastActiveTimestamp).coerceAtLeast(0L)
+            val secs = diff / 1000L
+            if (secs < 60) return "En línea (${secs}s)"
+            val mins = secs / 60
+            return "En línea (${mins}m)"
+        }
+        return "En línea ahora"
+    }
     if (lastActiveTimestamp <= 0L) return "Sin registro reciente"
-    val diff = System.currentTimeMillis() - lastActiveTimestamp
-    if (diff < 60 * 1000L) return "Hace un momento"
-    val mins = diff / (60 * 1000L)
-    if (mins < 60) return "Hace $mins min"
+    val diff = (currentTimestamp - lastActiveTimestamp).coerceAtLeast(0L)
+    val secs = diff / 1000L
+    if (secs < 60) return "Hace ${secs}s"
+    val mins = secs / 60
+    if (mins < 60) {
+        val remSecs = secs % 60
+        return "Hace ${mins}m ${remSecs}s"
+    }
     val hours = mins / 60
-    if (hours < 24) return "Hace $hours h"
+    if (hours < 24) {
+        val remMins = mins % 60
+        return "Hace ${hours}h ${remMins}m"
+    }
     val days = hours / 24
     if (days < 7) return "Hace $days d"
     return try {
@@ -1153,13 +1171,13 @@ private fun formatLastConnection(lastActiveTimestamp: Long, isOnline: Boolean): 
     }
 }
 
-private fun getSubscriptionStatusText(role: String, premiumUntil: Long?, isPremiumActive: Boolean): String {
+private fun getSubscriptionStatusText(role: String, premiumUntil: Long?, isPremiumActive: Boolean, currentTimestamp: Long = System.currentTimeMillis()): String {
     if (role == "admin") return "Acceso Administrador (Vitalicio)"
     if (role == "banned") return "Cuenta Suspendida"
     if (!isPremiumActive) return "Plan Gratuito"
     if (premiumUntil == null || premiumUntil == 0L) return "Premium Vitalicio ♾️"
 
-    val diff = premiumUntil - System.currentTimeMillis()
+    val diff = premiumUntil - currentTimestamp
     if (diff <= 0) return "Suscripción Expirada"
 
     val days = diff / (24 * 60 * 60 * 1000L)
@@ -1170,7 +1188,8 @@ private fun getSubscriptionStatusText(role: String, premiumUntil: Long?, isPremi
     return when {
         days > 0 -> "Premium: ${days}d ${hours}h ${minutes}m ${seconds}s restantes"
         hours > 0 -> "Premium: ${hours}h ${minutes}m ${seconds}s restantes"
-        else -> "Premium: ${minutes}m ${seconds}s restantes"
+        minutes > 0 -> "Premium: ${minutes}m ${seconds}s restantes"
+        else -> "Premium: ${seconds}s restantes"
     }
 }
 
@@ -2522,7 +2541,7 @@ private fun ServerScraperHealthCard() {
                     Icon(Icons.Default.CloudSync, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Monitoreo en Vivo de Scrappers & Servidores",
+                        text = "Monitoreo Multi-Servidor (CN, NA, Global)",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
@@ -2535,7 +2554,7 @@ private fun ServerScraperHealthCard() {
                             BestBuildWrScraper.syncGlobalTierList(context)
                             kotlinx.coroutines.delay(600L)
                             isChecking = false
-                            Toast.makeText(context, "Verificación de servidores completada", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Sincronización multi-servidor completada", Toast.LENGTH_SHORT).show()
                         }
                     },
                     modifier = Modifier.size(32.dp)
@@ -2551,7 +2570,7 @@ private fun ServerScraperHealthCard() {
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Estado Global (Promedio 5 Fuentes): $globalStatus",
+                text = "Estado de Red: $globalStatus",
                 color = TextSecondary,
                 fontSize = 11.sp
             )
@@ -2560,6 +2579,11 @@ private fun ServerScraperHealthCard() {
 
             val allSources = sourceStatuses.values.toList()
             allSources.forEach { status ->
+                val regionPrefix = when (status.region) {
+                    "CN" -> "🇨🇳 [CN]"
+                    "NA" -> "🌎 [NA]"
+                    else -> "🌍 [Global]"
+                }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -2576,7 +2600,7 @@ private fun ServerScraperHealthCard() {
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = status.name,
+                            text = "$regionPrefix ${status.name}",
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
@@ -2604,44 +2628,6 @@ private fun ServerScraperHealthCard() {
                             )
                         }
                     }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-            Divider(color = HextechCardBorder.copy(alpha = 0.5f), thickness = 0.5.dp)
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF00FF7F))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Servidor Oficial Tencent (China - lolm.qq.com)",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-                Surface(
-                    color = Color(0xFF2E7D32).copy(alpha = 0.2f),
-                    shape = RoundedCornerShape(4.dp),
-                    border = BorderStroke(0.5.dp, Color(0xFF81C784))
-                ) {
-                    Text(
-                        text = "OPERATIVO (OK)",
-                        color = Color(0xFF81C784),
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
                 }
             }
         }

@@ -8,7 +8,16 @@ enum class LaneRole(val displayName: String, val shortName: String) {
     JUNGLE("Jungla", "Jungla"),
     MID("Línea Central", "Mid"),
     ADC("Línea de Dragón", "Dúo"),
-    SUPPORT("Soporte", "Soporte")
+    SUPPORT("Soporte", "Soporte");
+
+    val iconResId: Int
+        get() = when (this) {
+            TOP -> com.example.R.drawable.ic_role_baron
+            JUNGLE -> com.example.R.drawable.ic_role_jungle
+            MID -> com.example.R.drawable.ic_role_mid
+            ADC -> com.example.R.drawable.ic_role_dragon
+            SUPPORT -> com.example.R.drawable.ic_role_support
+        }
 }
 
 @Serializable

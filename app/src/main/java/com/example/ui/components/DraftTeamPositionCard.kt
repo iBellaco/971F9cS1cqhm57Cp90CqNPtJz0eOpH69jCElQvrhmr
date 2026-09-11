@@ -2,9 +2,11 @@ package com.example.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,11 +76,11 @@ fun DraftTeamPositionCard(
     modifier: Modifier = Modifier
 ) {
     val roles = listOf(
-        Triple(LaneRole.TOP, "TOP", R.drawable.ic_wr_role_solo),
-        Triple(LaneRole.JUNGLE, "JUNGLA", R.drawable.ic_wr_role_jungle),
-        Triple(LaneRole.MID, "MID", R.drawable.ic_wr_role_mid),
-        Triple(LaneRole.ADC, "DÚO", R.drawable.ic_wr_role_duo),
-        Triple(LaneRole.SUPPORT, "SOPORTE", R.drawable.ic_wr_role_support)
+        Pair(LaneRole.TOP, "TOP"),
+        Pair(LaneRole.JUNGLE, "JUNGLA"),
+        Pair(LaneRole.MID, "MID"),
+        Pair(LaneRole.ADC, "DÚO"),
+        Pair(LaneRole.SUPPORT, "SOPORTE")
     )
 
     val teamColor = if (isEnemy) DangerRed else AllyBlue
@@ -154,7 +156,7 @@ fun DraftTeamPositionCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                roles.forEach { (role, labelKey, iconRes) ->
+                roles.forEach { (role, labelKey) ->
                     val slot = slots.find { it.assignedRole == role }
                     val champ = slot?.champion
                     val isMyRole = !isEnemy && role == activeUserRole
@@ -179,15 +181,6 @@ fun DraftTeamPositionCard(
                         label = "colBg"
                     )
 
-                    val iconTint by animateColorAsState(
-                        targetValue = when {
-                            isMyRole -> HextechCyan
-                            isOccupied -> if (isEnemy) DangerRed else HextechGold
-                            else -> TextMuted
-                        },
-                        label = "iconTint"
-                    )
-
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -201,13 +194,13 @@ fun DraftTeamPositionCard(
                             .testTag("${if (isEnemy) "enemy" else "ally"}_pos_${role.name.lowercase()}"),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Icono Oficial de Rol
-                        Icon(
-                            painter = painterResource(id = iconRes),
+                        // Icono Oficial de Rol (Cresta de Wild Rift)
+                        Image(
+                            painter = painterResource(id = role.iconResId),
                             contentDescription = tr(labelKey),
-                            tint = iconTint,
                             modifier = Modifier
-                                .size(if (isOverlay) 20.dp else 28.dp)
+                                .size(if (isOverlay) 22.dp else 28.dp)
+                                .alpha(if (isMyRole || isOccupied) 1f else 0.7f)
                                 .padding(1.dp)
                         )
 

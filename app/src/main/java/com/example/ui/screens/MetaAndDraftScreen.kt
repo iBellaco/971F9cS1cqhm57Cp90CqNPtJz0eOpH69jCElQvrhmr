@@ -10,6 +10,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,6 +65,7 @@ import androidx.compose.material.icons.filled.History
 import android.widget.Toast
 import com.example.data.local.FavoriteChampionsManager
 import com.example.data.repository.DraftHistoryRepository
+import com.example.data.sync.BestBuildWrScraper
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
@@ -854,15 +857,16 @@ fun ChampionsCatalogTab(
     var isGridView by remember { mutableStateOf(true) }
     var showFilterChips by remember { mutableStateOf(true) }
 
-    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, showOnlyFavorites, favorites, syncState, WildRiftRepository.champions.toList()) {
+    val filteredChampions = remember(searchQuery, selectedRoleFilter, selectedTierFilter, showOnlyFavorites, favorites, syncState, currentRegion, WildRiftRepository.activeRegionName, WildRiftRepository.champions.toList()) {
         val trimmedQuery = searchQuery.trim()
+        val isCn = currentRegion == "CN"
         val list = WildRiftRepository.champions.filter { champ ->
             val matchesQuery = trimmedQuery.isBlank() ||
                     champ.name.contains(trimmedQuery, ignoreCase = true)
             val matchesRole = selectedRoleFilter == null ||
                     champ.primaryRole == selectedRoleFilter ||
                     champ.secondaryRoles.contains(selectedRoleFilter)
-            val matchesTier = selectedTierFilter == null || champ.tier == selectedTierFilter
+            val matchesTier = selectedTierFilter == null || champ.tier == selectedTierFilter || (isCn && champ.cnTier == selectedTierFilter)
             val matchesFavorite = !showOnlyFavorites || favorites.contains(champ.id.lowercase())
             matchesQuery && matchesRole && matchesTier && matchesFavorite
         }
@@ -1311,10 +1315,15 @@ fun ChampionsCatalogTab(
                                         fontWeight = FontWeight.Bold
                                     )
                                     val formattedWr = String.format(java.util.Locale.US, "%.2f", champion.winrate)
+                                    val regionTag = when (currentRegion) {
+                                        "CN" -> "🇨🇳 CN"
+                                        "NA" -> "🌎 NA"
+                                        else -> "🌍 Global"
+                                    }
                                     Text(
-                                        text = "WR: $formattedWr%",
+                                        text = "$regionTag WR: $formattedWr%",
                                         color = HextechGold,
-                                        fontSize = 13.sp,
+                                        fontSize = 12.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 } }
@@ -1575,6 +1584,13 @@ fun TierListTab(
                     FilterChip(
                         selected = selectedLane == role,
                         onClick = { selectedLane = if (selectedLane == role) null else role },
+                        leadingIcon = {
+                            Image(
+                                painter = painterResource(id = role.iconResId),
+                                contentDescription = null,
+                                modifier = Modifier.size(if (isOverlay) 13.dp else 16.dp)
+                            )
+                        },
                         label = { Text(tr(role.shortName), fontSize = if (isOverlay) 10.sp else 11.5.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = HextechCyan,
@@ -3610,6 +3626,11 @@ fun DraftAnalysisTab(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = activeRole.iconResId),
+                            contentDescription = com.example.util.tr(activeRole.displayName),
+                            modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                        )
                         Column {
                             Text(
                                 text = tr("Mi Línea"),
@@ -4028,12 +4049,20 @@ fun DraftAnalysisTab(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = tr("TU ELECCIÓN EN") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
-                            color = if (shouldChange) DangerRed else HextechGold,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Black
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = activeRole.iconResId),
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("TU ELECCIÓN EN") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
+                                color = if (shouldChange) DangerRed else HextechGold,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Black
+                            )
+                        }
                         Text(
                             text = tr("Winrate Est.:") + " ${myEval.estimatedWinrate}%",
                             color = if (shouldChange) DangerRed else HextechCyan,
@@ -4133,10 +4162,9 @@ fun DraftAnalysisTab(
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
+                Image(
+                    painter = painterResource(id = activeRole.iconResId),
                     contentDescription = null,
-                    tint = HextechGold,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -4151,12 +4179,20 @@ fun DraftAnalysisTab(
         }
 
         // Live Recommendations Header
-        Text(
-            text = if (isFirstPick) tr(" Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr(" Mejor Opción según tu Equipo y el Rival"),
-            color = HextechGold,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(id = activeRole.iconResId),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = if (isFirstPick) tr("Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr("Mejor Opción según tu Equipo y el Rival"),
+                color = HextechGold,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Spacer(modifier = Modifier.height(8.dp))
 
         // #1 Best Pick Hero Card
@@ -4315,12 +4351,20 @@ fun DraftAnalysisTab(
         // Secondary Recommendations
         val otherRecs = analysis.recommendations.filter { it.champion.id != topPick?.champion?.id }
         if (otherRecs.isNotEmpty()) {
-            Text(
-                text = tr("Otras Opciones Viables para") + " ${com.example.util.tr(activeRole.displayName)}:",
-                color = HextechCyan,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = activeRole.iconResId),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = tr("Otras Opciones Viables para") + " ${com.example.util.tr(activeRole.displayName)}:",
+                    color = HextechCyan,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             Spacer(modifier = Modifier.height(6.dp))
 
             otherRecs.forEach { rec ->
@@ -4481,6 +4525,12 @@ private fun TeamChampionSlot(
                                 .padding(horizontal = 5.dp, vertical = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Image(
+                                painter = painterResource(id = slot.assignedRole.iconResId),
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
                             val roleLabel = com.example.util.tr(slot.assignedRole.shortName) +
                                     if (isOffMeta) " [${com.example.util.tr(slot.champion.primaryRole.shortName)}]" else ""
                             Text(
@@ -4505,6 +4555,13 @@ private fun TeamChampionSlot(
                         ) {
                             LaneRole.entries.forEach { role ->
                                 DropdownMenuItem(
+                                    leadingIcon = {
+                                        Image(
+                                            painter = painterResource(id = role.iconResId),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    },
                                     text = {
                                         Text(
                                             text = com.example.util.tr(role.displayName),
@@ -4671,6 +4728,13 @@ private fun DraftChampionPickerSheet(
                     FilterChip(
                         selected = selectedRoleFilter == role,
                         onClick = { selectedRoleFilter = if (selectedRoleFilter == role) null else role },
+                        leadingIcon = {
+                            Image(
+                                painter = painterResource(id = role.iconResId),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        },
                         label = { Text(com.example.util.tr(role.shortName), fontSize = 11.sp) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = HextechCyan,
@@ -4758,7 +4822,18 @@ private fun RoleChangeBottomSheet(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(com.example.util.tr(role.displayName), color = TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Image(
+                                painter = painterResource(id = role.iconResId),
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(com.example.util.tr(role.displayName), color = if (role == currentRole) HextechCyan else TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text(com.example.util.tr(role.shortName), color = TextMuted, fontSize = 11.sp)
+                            }
+                        }
                         if (role == currentRole) {
                             Icon(Icons.Default.Check, contentDescription = null, tint = HextechCyan)
                         }
@@ -4939,6 +5014,10 @@ fun TierSelectionPanel(
     coroutineScope: kotlinx.coroutines.CoroutineScope,
     isOverlay: Boolean = false
 ) {
+    val isOnline by BestBuildWrScraper.isOnline.collectAsStateWithLifecycle()
+    val isSyncing by BestBuildWrScraper.isSyncing.collectAsStateWithLifecycle()
+    val lastSyncFormattedTime by BestBuildWrScraper.lastSyncFormattedTime.collectAsStateWithLifecycle()
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = HextechSurface),
@@ -4946,7 +5025,7 @@ fun TierSelectionPanel(
         border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
     ) {
         Column(modifier = Modifier.padding(if (isOverlay) 8.dp else 12.dp)) {
-            // CABECERA: 🌐 Servidor / Meta: | Δ 24h Meta Sync
+            // CABECERA: 🌐 Servidor / Meta: | Botón de Actualizar con estado
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -4963,25 +5042,44 @@ fun TierSelectionPanel(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(HextechCyan.copy(alpha = 0.12f))
-                        .border(0.8.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
-                        .clickable {
+                        .background(if (isOnline) HextechCyan.copy(alpha = 0.15f) else Color(0xFFE65100).copy(alpha = 0.2f))
+                        .border(
+                            0.8.dp,
+                            if (isOnline) HextechCyan.copy(alpha = 0.7f) else Color(0xFFFF9800),
+                            RoundedCornerShape(6.dp)
+                        )
+                        .clickable(enabled = !isSyncing) {
                             coroutineScope.launch {
+                                BestBuildWrScraper.syncGlobalTierList(context, currentRegion, force = true)
                                 if (currentRegion == "CN") {
-                                    ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
-                                } else {
                                     ChineseMetaSyncService.syncChineseMeta(context, currentTier, forceRefresh = true)
                                 }
                             }
                         }
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                        .padding(horizontal = 8.dp, vertical = 3.5.dp)
                 ) {
-                    Text(
-                        text = if (isOverlay) "24h Sync" else "Δ 24h Meta Sync",
-                        color = HextechCyan,
-                        fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        if (isSyncing) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(10.dp),
+                                color = HextechCyan,
+                                strokeWidth = 1.5.dp
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "Actualizar",
+                                tint = if (isOnline) HextechCyan else Color(0xFFFF9800),
+                                modifier = Modifier.size(11.dp)
+                            )
+                        }
+                        Text(
+                            text = if (isSyncing) tr("Sincronizando...") else tr("Actualizar"),
+                            color = if (isOnline) HextechCyan else Color(0xFFFFB74D),
+                            fontSize = if (isOverlay) 8.5.sp else 9.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
@@ -5105,37 +5203,55 @@ fun TierSelectionPanel(
                 }
             }
 
-            val lastSyncInfo = remember(syncState, currentRegion) { ChineseMetaSyncService.getLastSyncInfo(context) }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Barra de Estado de Conexión, Hora de Captura y Caché Persistente
+            Surface(
+                color = if (isOnline) Color(0xFF00E5FF).copy(alpha = 0.08f) else Color(0xFFE65100).copy(alpha = 0.12f),
+                shape = RoundedCornerShape(6.dp),
+                border = BorderStroke(0.5.dp, if (isOnline) HextechCyan.copy(alpha = 0.4f) else Color(0xFFFF9800).copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = if (currentRegion == "NA") {
-                        val formatter = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
-                        "⚡ ${tr("NA En vivo:")} ${formatter.format(java.util.Date())}"
-                    } else when (val s = syncState) {
-                        is ChineseSyncState.Syncing -> "⏳ " + tr("Sincronizando...")
-                        is ChineseSyncState.Success -> if (currentRegion == "BestBuildWR" || currentRegion == "Global") "⚡ ${s.timestamp}" else "⚡ ${s.timestamp} (${tr(s.tier.displayName)})"
-                        is ChineseSyncState.Error -> "⚠️ ${tr("Caché:")} ${lastSyncInfo.second}"
-                        ChineseSyncState.Idle -> "⚡ ${lastSyncInfo.second}"
-                    },
-                    color = if (currentRegion == "NA") Color(0xFF4CAF50) else when (syncState) {
-                        is ChineseSyncState.Syncing -> HextechCyan
-                        is ChineseSyncState.Success -> Color(0xFF4CAF50)
-                        is ChineseSyncState.Error -> Color(0xFFFFA726)
-                        ChineseSyncState.Idle -> TextMuted
-                    },
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = if (currentRegion == "NA") tr("Base") else if (currentRegion == "BestBuildWR" || currentRegion == "Global") tr("Global") else tr("Instantáneo 24/7"),
-                    color = HextechGold,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.5.dp)
+                                .clip(CircleShape)
+                                .background(if (isOnline) Color(0xFF00FF7F) else Color(0xFFFF5252))
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isOnline) {
+                                if (isSyncing) "⏳ " + tr("Sincronizando...")
+                                else "⚡ " + tr("Actualizado:") + " $lastSyncFormattedTime"
+                            } else {
+                                "⚠️ " + tr("Sin conexión • Última estadística:") + " $lastSyncFormattedTime"
+                            },
+                            color = if (isOnline) (if (isSyncing) HextechCyan else Color(0xFF81C784)) else Color(0xFFFFB74D),
+                            fontSize = if (isOverlay) 8.sp else 9.5.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 1
+                        )
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = if (isOnline) HextechGold.copy(alpha = 0.15f) else Color(0xFFFF5252).copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = if (isOnline) tr("Auto-Sync 24/7") else tr("Caché Local"),
+                            color = if (isOnline) HextechGold else Color(0xFFFF8A80),
+                            fontSize = if (isOverlay) 7.5.sp else 8.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.5.dp)
+                        )
+                    }
+                }
             }
         }
     }

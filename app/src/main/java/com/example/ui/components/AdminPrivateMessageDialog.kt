@@ -10,10 +10,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +26,26 @@ import androidx.compose.ui.unit.sp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FieldValue
 import java.util.UUID
+
+enum class MessageTag(
+    val id: String,
+    val label: String,
+    val emoji: String,
+    val badgeBg: Color,
+    val textColor: Color
+) {
+    AVISO("aviso", "Aviso", "📢", Color(0xFF3B82F6), Color.White),
+    IMPORTANTE("importante", "Importante", "🚨", Color(0xFFEF4444), Color.White),
+    MANTENIMIENTO("mantenimiento", "Mantenimiento", "🛠️", Color(0xFFF97316), Color.White),
+    OFERTA("oferta", "Oferta", "💎", Color(0xFFEAB308), Color.Black),
+    PRUEBA("prueba", "Prueba", "🧪", Color(0xFF06B6D4), Color.Black);
+
+    companion object {
+        fun fromId(id: String?): MessageTag {
+            return values().firstOrNull { it.id.equals(id, ignoreCase = true) } ?: AVISO
+        }
+    }
+}
 
 enum class MessageAudienceTarget(val label: String) {
     SINGLE_USER("Este usuario"),
@@ -36,6 +61,7 @@ fun AdminPrivateMessageDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
+    var selectedTag by remember { mutableStateOf(MessageTag.AVISO) }
     var targetAudience by remember { mutableStateOf(MessageAudienceTarget.SINGLE_USER) }
     var isProcessing by remember { mutableStateOf(false) }
     var statusText by remember { mutableStateOf("") }
@@ -43,7 +69,7 @@ fun AdminPrivateMessageDialog(
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             color = Color(0xFF0F172A),
             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B)),
             modifier = Modifier.fillMaxWidth(0.95f)
@@ -54,10 +80,42 @@ fun AdminPrivateMessageDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Enviar Mensaje / Comunicado", color = Color(0xFFF59E0B), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Text("Destinatarios:", color = Color.LightGray, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                Spacer(modifier = Modifier.height(6.dp))
+                // Selector de Etiquetas (Mantenimiento, Importante, Prueba, Oferta, Aviso)
+                Text("Etiqueta del Mensaje:", color = Color.LightGray, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    MessageTag.values().forEach { tag ->
+                        val isSelected = selectedTag == tag
+                        Button(
+                            onClick = { selectedTag = tag },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isSelected) tag.badgeBg else tag.badgeBg.copy(alpha = 0.15f)
+                            )
+                        ) {
+                            Text(
+                                "${tag.emoji} ${tag.label}",
+                                color = if (isSelected) tag.textColor else tag.badgeBg,
+                                fontSize = 9.5.sp,
+                                fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text("Destinatarios:", color = Color.LightGray, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -97,12 +155,12 @@ fun AdminPrivateMessageDialog(
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Título (ej: Oferta Especial o Aviso)", color = Color.Gray) },
+                    label = { Text("Título (ej: Nueva Actualización)", color = Color.Gray) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -112,13 +170,13 @@ fun AdminPrivateMessageDialog(
                     )
                 )
                 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 
                 OutlinedTextField(
                     value = content,
                     onValueChange = { content = it },
                     label = { Text("Mensaje del comunicado...", color = Color.Gray) },
-                    modifier = Modifier.fillMaxWidth().height(110.dp),
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White,
@@ -127,11 +185,11 @@ fun AdminPrivateMessageDialog(
                 )
                 
                 if (statusText.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(statusText, color = Color(0xFF38BDF8), fontSize = 11.sp)
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -154,6 +212,7 @@ fun AdminPrivateMessageDialog(
                                             "id" to messageId,
                                             "title" to title.trim(),
                                             "content" to content.trim(),
+                                            "tag" to selectedTag.id,
                                             "timestamp" to System.currentTimeMillis(),
                                             "isRead" to false
                                         )
@@ -167,7 +226,7 @@ fun AdminPrivateMessageDialog(
                                                     "privateMessages", FieldValue.arrayUnion(messageData)
                                                 ).addOnCompleteListener {
                                                     isProcessing = false
-                                                    Toast.makeText(context, "¡Mensaje privado enviado con éxito!", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, "¡Mensaje enviado con éxito!", Toast.LENGTH_SHORT).show()
                                                     onSuccess()
                                                     onDismiss()
                                                 }
@@ -216,6 +275,7 @@ fun AdminPrivateMessageDialog(
                                                     "id" to messageId,
                                                     "title" to title.trim(),
                                                     "content" to content.trim(),
+                                                    "tag" to selectedTag.id,
                                                     "timestamp" to System.currentTimeMillis(),
                                                     "isRead" to false
                                                 )
@@ -237,7 +297,7 @@ fun AdminPrivateMessageDialog(
                                             }
                                         }.addOnFailureListener { e ->
                                             isProcessing = false
-                                            Toast.makeText(context, "Error obteniendo lista de usuarios: ${e.message}", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, "Error obteniendo usuarios: ${e.message}", Toast.LENGTH_LONG).show()
                                         }
                                     }
                                 }

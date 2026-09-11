@@ -93,7 +93,6 @@ import com.example.model.LaneRole
 import com.example.ui.components.BugReportFeedbackDialog
 import com.example.ui.components.AdminFeedbackBottomSheet
 import com.example.ui.components.HextechOrbButton
-import com.example.ui.components.LaneDisplaySettingCard
 import com.example.ui.theme.DangerRed
 import com.example.ui.theme.HextechCardBorder
 import com.example.ui.theme.HextechCyan
@@ -516,10 +515,7 @@ fun MainDraftingScreen(
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Botones de Información, Preguntas Frecuentes y Política de Privacidad
                 Row(

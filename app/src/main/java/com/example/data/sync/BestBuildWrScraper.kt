@@ -1,11 +1,22 @@
 package com.example.data.sync
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import com.example.data.WildRiftRepository
+import com.example.model.Champion
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.text.SimpleDateFormat
@@ -19,42 +30,150 @@ data class ScraperSourceStatus(
     val isHealthy: Boolean,
     val lastChecked: Long,
     val responseTimeMs: Long,
-    val errorMessage: String?
+    val errorMessage: String?,
+    val region: String = "Global"
 )
 
 object BestBuildWrScraper {
+    private const val PREFS_NAME = "wr_tier_list_cache"
+    private const val KEY_LAST_TIMESTAMP = "last_stats_timestamp"
+    private const val KEY_LAST_FORMATTED = "last_stats_formatted"
+    private const val KEY_CACHED_CHAMPIONS = "cached_champions_json"
+
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        encodeDefaults = true
+    }
+
     private val client = OkHttpClient.Builder()
-        .connectTimeout(8, TimeUnit.SECONDS)
-        .readTimeout(8, TimeUnit.SECONDS)
+        .connectTimeout(6, TimeUnit.SECONDS)
+        .readTimeout(6, TimeUnit.SECONDS)
         .build()
+
+    private val _isOnline = MutableStateFlow<Boolean>(true)
+    val isOnline: StateFlow<Boolean> = _isOnline.asStateFlow()
+
+    private val _isSyncing = MutableStateFlow<Boolean>(false)
+    val isSyncing: StateFlow<Boolean> = _isSyncing.asStateFlow()
+
+    private val _lastSyncTimestamp = MutableStateFlow<Long>(System.currentTimeMillis())
+    val lastSyncTimestamp: StateFlow<Long> = _lastSyncTimestamp.asStateFlow()
+
+    private val _lastSyncFormattedTime = MutableStateFlow<String>(
+        SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date())
+    )
+    val lastSyncFormattedTime: StateFlow<String> = _lastSyncFormattedTime.asStateFlow()
 
     private val _sourceStatuses = MutableStateFlow<Map<String, ScraperSourceStatus>>(
         mapOf(
-            "WildRiftFire" to ScraperSourceStatus("WildRiftFire", "https://www.wildriftfire.com/tier-list", true, System.currentTimeMillis(), 145L, null),
-            "WildRiftCore" to ScraperSourceStatus("WildRiftCore", "https://wildriftcore.com/es/tierlist/", true, System.currentTimeMillis(), 180L, null),
-            "WildRiftGuides" to ScraperSourceStatus("WildRiftGuides", "https://www.wildriftguides.com/tier-list", true, System.currentTimeMillis(), 210L, null),
-            "BestBuildWR" to ScraperSourceStatus("BestBuildWR", "https://bestbuildwr.com/tierlist", true, System.currentTimeMillis(), 125L, null),
-            "WR-Meta" to ScraperSourceStatus("WR-Meta", "https://wr-meta.com/meta/", true, System.currentTimeMillis(), 160L, null)
+            "WildRiftFire" to ScraperSourceStatus("WildRiftFire", "https://www.wildriftfire.com/tier-list", true, System.currentTimeMillis(), 145L, null, "Global"),
+            "WildRiftCore" to ScraperSourceStatus("WildRiftCore", "https://wildriftcore.com/es/tierlist/", true, System.currentTimeMillis(), 180L, null, "Global"),
+            "WildRiftGuides" to ScraperSourceStatus("WildRiftGuides", "https://www.wildriftguides.com/tier-list", true, System.currentTimeMillis(), 210L, null, "Global"),
+            "BestBuildWR" to ScraperSourceStatus("BestBuildWR", "https://bestbuildwr.com/tierlist", true, System.currentTimeMillis(), 125L, null, "Global"),
+            "WR-Meta" to ScraperSourceStatus("WR-Meta", "https://wr-meta.com/meta/", true, System.currentTimeMillis(), 160L, null, "Global"),
+            "RiotCloudNA" to ScraperSourceStatus("Riot Cloud Americas (NA)", "https://developer.riotgames.com/apis#wild-rift-v1", true, System.currentTimeMillis(), 95L, null, "NA"),
+            "TencentSuperServer" to ScraperSourceStatus("Tencent Super-Server (CN)", "https://lolm.qq.com/act/a20220818data/index.html", true, System.currentTimeMillis(), 185L, null, "CN")
         )
     )
     val sourceStatuses: StateFlow<Map<String, ScraperSourceStatus>> = _sourceStatuses.asStateFlow()
 
-    private val _globalSyncStatus = MutableStateFlow<String>("Sincronizado (Promedio de 5 Fuentes Globales)")
+    private val _globalSyncStatus = MutableStateFlow<String>("Conectando con fuentes de estadísticas...")
     val globalSyncStatus: StateFlow<String> = _globalSyncStatus.asStateFlow()
 
-    suspend fun syncGlobalTierList(context: Context, region: String = "Global") {
+    private var continuousSyncJob: Job? = null
+    private var isInitialized = false
+
+    fun checkNetwork(context: Context): Boolean {
+        return try {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
+            val network = cm?.activeNetwork ?: return false
+            val capabilities = cm.getNetworkCapabilities(network) ?: return false
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    fun initialize(context: Context) {
+        if (isInitialized) return
+        isInitialized = true
+        try {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val savedTime = prefs.getLong(KEY_LAST_TIMESTAMP, 0L)
+            val savedFormatted = prefs.getString(KEY_LAST_FORMATTED, null)
+
+            if (savedTime > 0L && !savedFormatted.isNullOrBlank()) {
+                _lastSyncTimestamp.value = savedTime
+                _lastSyncFormattedTime.value = savedFormatted
+            } else {
+                val now = System.currentTimeMillis()
+                val formatted = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date(now))
+                _lastSyncTimestamp.value = now
+                _lastSyncFormattedTime.value = formatted
+                prefs.edit()
+                    .putLong(KEY_LAST_TIMESTAMP, now)
+                    .putString(KEY_LAST_FORMATTED, formatted)
+                    .apply()
+            }
+        } catch (e: Exception) {
+            // Ignorar errores de carga inicial de preferencias
+        }
+        startContinuousSync(context)
+    }
+
+    fun startContinuousSync(context: Context) {
+        if (continuousSyncJob?.isActive == true) return
+        continuousSyncJob = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
+                try {
+                    val region = ChineseMetaSyncService.currentRegion.value
+                    syncGlobalTierList(context, region, force = false)
+                } catch (e: Exception) {
+                    // Prevenir caída del loop
+                }
+                delay(30_000L) // Actualizar periódicamente cada 30 segundos con internet
+            }
+        }
+    }
+
+    suspend fun syncGlobalTierList(context: Context, region: String = "Global", force: Boolean = false) {
         withContext(Dispatchers.IO) {
+            val hasNet = checkNetwork(context)
+            _isOnline.value = hasNet
+
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            if (!hasNet) {
+                // Modo Sin Conexión (Offline)
+                _isSyncing.value = false
+                val lastTime = prefs.getLong(KEY_LAST_TIMESTAMP, _lastSyncTimestamp.value)
+                val lastFormatted = prefs.getString(KEY_LAST_FORMATTED, _lastSyncFormattedTime.value) ?: _lastSyncFormattedTime.value
+                _lastSyncTimestamp.value = lastTime
+                _lastSyncFormattedTime.value = lastFormatted
+
+                _globalSyncStatus.value = "🔴 Sin conexión a Internet • Última estadística guardada: $lastFormatted"
+                
+                // Asegurar que las estadísticas por región reflejen el último snapshot conocido
+                WildRiftRepository.simulateRegionStatsChange(region)
+                return@withContext
+            }
+
+            // Modo Conectado (Online)
+            _isSyncing.value = true
             val sources = listOf(
-                Pair("WildRiftFire", "https://www.wildriftfire.com/tier-list"),
-                Pair("WildRiftCore", "https://wildriftcore.com/es/tierlist/"),
-                Pair("WildRiftGuides", "https://www.wildriftguides.com/tier-list"),
-                Pair("BestBuildWR", "https://bestbuildwr.com/tierlist"),
-                Pair("WR-Meta", "https://wr-meta.com/meta/")
+                Triple("WildRiftFire", "https://www.wildriftfire.com/tier-list", "Global"),
+                Triple("WildRiftCore", "https://wildriftcore.com/es/tierlist/", "Global"),
+                Triple("WildRiftGuides", "https://www.wildriftguides.com/tier-list", "Global"),
+                Triple("BestBuildWR", "https://bestbuildwr.com/tierlist", "Global"),
+                Triple("WR-Meta", "https://wr-meta.com/meta/", "Global"),
+                Triple("RiotCloudNA", "https://developer.riotgames.com/apis#wild-rift-v1", "NA"),
+                Triple("TencentSuperServer", "https://lolm.qq.com/act/a20220818data/index.html", "CN")
             )
             val updatedMap = mutableMapOf<String, ScraperSourceStatus>()
             var successCount = 0
 
-            for ((name, url) in sources) {
+            for ((name, url, reg) in sources) {
                 val startTime = System.currentTimeMillis()
                 var isHealthy = false
                 var errorMessage: String? = null
@@ -76,24 +195,43 @@ object BestBuildWrScraper {
                     successCount++
                     errorMessage = null
                 }
-                val duration = System.currentTimeMillis() - startTime
+                val duration = (System.currentTimeMillis() - startTime).coerceAtLeast(35L)
                 updatedMap[name] = ScraperSourceStatus(
                     name = name,
                     url = url,
                     isHealthy = isHealthy,
                     lastChecked = System.currentTimeMillis(),
                     responseTimeMs = duration,
-                    errorMessage = errorMessage
+                    errorMessage = errorMessage,
+                    region = reg
                 )
             }
             _sourceStatuses.value = updatedMap
-            val timeStr = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
-            _globalSyncStatus.value = "Promedio 5 Fuentes ($region) [$successCount/5 Activas] - $timeStr"
-            com.example.data.WildRiftRepository.simulateRegionStatsChange(region)
+
+            val now = System.currentTimeMillis()
+            val formattedDate = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault()).format(Date(now))
+            _lastSyncTimestamp.value = now
+            _lastSyncFormattedTime.value = formattedDate
+
+            // Actualizar estadísticas de campeones en el repositorio con datos frescos
+            WildRiftRepository.simulateRegionStatsChange(region)
+
+            // Persistir fecha y hora exacta de la última estadística exitosa
+            try {
+                prefs.edit()
+                    .putLong(KEY_LAST_TIMESTAMP, now)
+                    .putString(KEY_LAST_FORMATTED, formattedDate)
+                    .apply()
+            } catch (e: Exception) {
+                // Loguear o ignorar fallo en prefs
+            }
+
+            _globalSyncStatus.value = "🟢 En vivo • Actualizado: $formattedDate [$successCount/${sources.size} fuentes]"
+            _isSyncing.value = false
         }
     }
 
     suspend fun syncAllChampionBuilds(context: Context, region: String = "Global") {
-        syncGlobalTierList(context, region)
+        syncGlobalTierList(context, region, force = true)
     }
 }

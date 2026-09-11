@@ -112,12 +112,15 @@ fun ChampionAvatar(
             }
         }
         
-        if (showTierBadge && champion.tier.isNotBlank()) {
-            val tierColor = when (champion.tier) {
-                "S+" -> TierSPlusColor
-                "S" -> TierSColor
-                "A" -> TierAColor
-                "B" -> Color(0xFF4CAF50)
+        if (showTierBadge && (champion.tier.isNotBlank() || champion.cnTier.isNotBlank())) {
+            val isCnMode = com.example.data.WildRiftRepository.activeRegionName == "CN"
+            val displayTier = if (isCnMode && champion.cnTier.isNotBlank()) champion.cnTier else champion.tier
+            val tierColor = when (displayTier) {
+                "S+", "T0" -> TierSPlusColor
+                "S", "T1" -> TierSColor
+                "A+", "T2" -> TierAColor
+                "A", "T3" -> Color(0xFF4CAF50)
+                "B", "T4" -> Color(0xFF8BC34A)
                 "C" -> Color(0xFF8BC34A)
                 else -> Color.Gray
             }
@@ -130,7 +133,7 @@ fun ChampionAvatar(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = champion.tier,
+                    text = displayTier,
                     color = tierColor,
                     fontSize = (size.value * 0.16).sp,
                     fontWeight = FontWeight.ExtraBold

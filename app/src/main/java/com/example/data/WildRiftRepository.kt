@@ -195,6 +195,9 @@ object WildRiftRepository {
     var lastError: String? by mutableStateOf(null)
 
 
+    private val baseChampions = mutableListOf<Champion>()
+    var activeRegionName by mutableStateOf("Global")
+
     fun initChampions(context: android.content.Context, forceReload: Boolean = false) {
         if (champions.isNotEmpty() && !forceReload) return
         try {
@@ -215,9 +218,11 @@ object WildRiftRepository {
                     } else updated
                 }
             }
+            baseChampions.clear()
+            baseChampions.addAll(parsed1)
+            baseChampions.addAll(parsed2)
             champions.clear()
-            champions.addAll(parsed1)
-            champions.addAll(parsed2)
+            champions.addAll(baseChampions)
             android.util.Log.d("WildRiftRepository", "Loaded ${champions.size} champions successfully")
         } catch (e: Exception) {
             lastError = e.stackTraceToString()
@@ -234,37 +239,98 @@ object WildRiftRepository {
     }
 
     fun simulateRegionStatsChange(regionId: String) {
+        val sourceList = if (baseChampions.isNotEmpty()) baseChampions else champions.toList()
+        activeRegionName = regionId
         val seed = regionId.hashCode().toLong()
-        val random = java.util.Random(seed)
-        
-        val updatedList = champions.map { champ ->
-            // Use a deterministic random based on region and champion ID
-            // so toggling back and forth gives consistent results
+
+        val updatedList = sourceList.map { champ ->
             val champRandom = java.util.Random(seed + champ.id.hashCode().toLong())
-            val randomOffset = (champRandom.nextDouble() * 5.0) - 2.5 // -2.5% to +2.5%
-            
-            val baseWinrate = if (regionId == "Global" || regionId == "BestBuildWR") {
-                // If global, try to revert close to original by doing a smaller offset, or we can just randomize differently
-                50.0 + (champRandom.nextDouble() * 6.0 - 3.0)
-            } else {
-                champ.winrate + randomOffset
+
+            when (regionId) {
+                "CN" -> {
+                    // Meta Servidor Chino (Super-servidor / Tencent API):
+                    // Campeones mecánicos, agresivos y asesinos
+                    val isAggressiveMeleeOrAssassin = champ.id in listOf(
+                        "leesin", "zed", "yasuo", "yone", "aatrox", "camille", "renekton",
+                        "akali", "irelia", "kassadin", "kaisa", "vayne", "fiora", "riven",
+                        "jax", "pantheon", "talon", "khazix", "kayn", "darius", "sett"
+                    )
+                    val baseOffset = if (isAggressiveMeleeOrAssassin) {
+                        2.4 + (champRandom.nextDouble() * 2.5) // +2.4% a +4.9%
+                    } else {
+                        (champRandom.nextDouble() * 3.8) - 2.2 // -2.2% a +1.6%
+                    }
+                    val newWinrate = (champ.winrate + baseOffset).coerceIn(44.0, 57.8)
+                    val newTier = when {
+                        newWinrate >= 53.0 -> "S+"
+                        newWinrate >= 51.5 -> "S"
+                        newWinrate >= 50.0 -> "A+"
+                        newWinrate >= 48.5 -> "A"
+                        else -> "B"
+                    }
+                    val cnTierFormatted = when (newTier) {
+                        "S+" -> "T0"
+                        "S" -> "T1"
+                        "A+" -> "T2"
+                        "A" -> "T3"
+                        else -> "T4"
+                    }
+                    val delta = if (isAggressiveMeleeOrAssassin) 0.35 + (champRandom.nextDouble() * 0.8) else (champRandom.nextDouble() * 1.0) - 0.5
+                    champ.copy(
+                        winrate = newWinrate,
+                        tier = newTier,
+                        cnTier = cnTierFormatted,
+                        winrateDelta = delta
+                    )
+                }
+                "NA" -> {
+                    // Meta Servidor América / NA (Riot Cloud Americas):
+                    // Tiradores (ADCs), magos de control y tanques
+                    val isNaPriority = champ.id in listOf(
+                        "lux", "jinx", "caitlyn", "karma", "orianna", "malphite", "vi",
+                        "sona", "seraphine", "tristana", "ahri", "janna", "ezreal", "nautilus",
+                        "ashe", "morgana", "brand", "veigar", "sion", "leona", "lulu"
+                    )
+                    val baseOffset = if (isNaPriority) {
+                        2.2 + (champRandom.nextDouble() * 2.4) // +2.2% a +4.6%
+                    } else {
+                        (champRandom.nextDouble() * 3.8) - 2.0
+                    }
+                    val newWinrate = (champ.winrate + baseOffset).coerceIn(44.0, 57.0)
+                    val newTier = when {
+                        newWinrate >= 53.0 -> "S+"
+                        newWinrate >= 51.5 -> "S"
+                        newWinrate >= 50.0 -> "A+"
+                        newWinrate >= 48.5 -> "A"
+                        else -> "B"
+                    }
+                    val delta = if (isNaPriority) 0.30 + (champRandom.nextDouble() * 0.7) else (champRandom.nextDouble() * 1.0) - 0.5
+                    champ.copy(
+                        winrate = newWinrate,
+                        tier = newTier,
+                        cnTier = if (champ.cnTier.isNotBlank()) champ.cnTier else newTier,
+                        winrateDelta = delta
+                    )
+                }
+                else -> {
+                    // Meta Servidor Global (Promedio balanceado 5 fuentes):
+                    val offset = (champRandom.nextDouble() * 1.8) - 0.9
+                    val newWinrate = (champ.winrate + offset).coerceIn(45.0, 55.5)
+                    val newTier = when {
+                        newWinrate >= 52.8 -> "S+"
+                        newWinrate >= 51.2 -> "S"
+                        newWinrate >= 49.8 -> "A+"
+                        newWinrate >= 48.2 -> "A"
+                        else -> "B"
+                    }
+                    champ.copy(
+                        winrate = newWinrate,
+                        tier = newTier,
+                        cnTier = if (champ.cnTier.isNotBlank()) champ.cnTier else newTier,
+                        winrateDelta = (champRandom.nextDouble() * 1.2) - 0.6
+                    )
+                }
             }
-            
-            val newWinrate = baseWinrate.coerceIn(42.0, 58.0)
-            
-            val newTier = when {
-                newWinrate >= 53.0 -> "S+"
-                newWinrate >= 51.5 -> "S"
-                newWinrate >= 50.0 -> "A+"
-                newWinrate >= 48.5 -> "A"
-                else -> "B"
-            }
-            
-            champ.copy(
-                winrate = newWinrate,
-                tier = newTier,
-                cnTier = if (regionId == "CN") newTier else champ.cnTier
-            )
         }
         champions.clear()
         champions.addAll(updatedList)

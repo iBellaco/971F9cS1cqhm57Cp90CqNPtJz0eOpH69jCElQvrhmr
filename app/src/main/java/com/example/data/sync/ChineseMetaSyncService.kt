@@ -19,29 +19,21 @@ object ChineseMetaSyncService {
     private val _currentRegion = MutableStateFlow("Global")
     val currentRegion: StateFlow<String> = _currentRegion.asStateFlow()
 
-    data class CnChampionStat(
-        val winRate: Float,
-        val pickRate: Float,
-        val banRate: Float,
-        val tier: String
-    )
-
     fun loadRegion(context: Context) {
-        // Stub
+        BestBuildWrScraper.initialize(context)
     }
 
     fun setRegion(context: Context, regionId: String, scope: CoroutineScope) {
         _currentRegion.value = regionId
-        com.example.data.WildRiftRepository.simulateRegionStatsChange(regionId)
         scope.launch(kotlinx.coroutines.Dispatchers.IO) {
-            BestBuildWrScraper.syncGlobalTierList(context, regionId)
+            BestBuildWrScraper.syncGlobalTierList(context, regionId, force = true)
         }
     }
 
     suspend fun syncChineseMeta(context: Context, tier: TencentRankTier = TencentRankTier.DIAMOND_PLUS, forceRefresh: Boolean = false) {
         _currentTier.value = tier
-        _syncState.value = ChineseSyncState.Success("Reciente", tier)
-        com.example.data.WildRiftRepository.simulateTierStatsChange(tier)
+        BestBuildWrScraper.syncGlobalTierList(context, _currentRegion.value, force = forceRefresh)
+        _syncState.value = ChineseSyncState.Success(BestBuildWrScraper.lastSyncFormattedTime.value, tier)
     }
 
     suspend fun getFilteredRankings(context: Context, tier: TencentRankTier, lane: LaneRole?): List<Champion> {
@@ -49,6 +41,8 @@ object ChineseMetaSyncService {
     }
 
     fun getLastSyncInfo(context: Context): Pair<String, String> {
-        return Pair("Sincronizado", "Reciente")
+        val isOnline = BestBuildWrScraper.isOnline.value
+        val time = BestBuildWrScraper.lastSyncFormattedTime.value
+        return Pair(if (isOnline) "En vivo" else "Sin conexión", time)
     }
 }

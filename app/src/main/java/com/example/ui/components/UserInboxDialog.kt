@@ -239,6 +239,8 @@ fun UserInboxDialog(
                             val id = msg["id"] as String
                             val title = msg["title"] as? String ?: "Sin título"
                             val content = msg["content"] as? String ?: ""
+                            val rawTag = msg["tag"] as? String
+                            val messageTag = MessageTag.fromId(rawTag)
                             val timestamp = msg["timestamp"] as? Long ?: 0L
                             val isRead = msg["isRead"] as? Boolean ?: false
                             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
@@ -275,6 +277,23 @@ fun UserInboxDialog(
                                                     )
                                                 }
                                             }
+
+                                            // Badge de Etiqueta del Mensaje (Mantenimiento, Importante, Oferta, etc.)
+                                            Surface(
+                                                shape = RoundedCornerShape(4.dp),
+                                                color = messageTag.badgeBg.copy(alpha = 0.2f),
+                                                border = BorderStroke(0.5.dp, messageTag.badgeBg),
+                                                modifier = Modifier.padding(end = 6.dp)
+                                            ) {
+                                                Text(
+                                                    "${messageTag.emoji} ${messageTag.label.uppercase()}",
+                                                    color = if (messageTag.textColor == Color.Black) messageTag.badgeBg else messageTag.textColor,
+                                                    fontSize = 8.5.sp,
+                                                    fontWeight = FontWeight.ExtraBold,
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                                )
+                                            }
+
                                             Text(title, color = if (!isRead) Color(0xFF0EA5E9) else Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                                         }
 

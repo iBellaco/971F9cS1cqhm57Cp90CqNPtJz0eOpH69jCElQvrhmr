@@ -259,6 +259,36 @@ fun ThemeCustomizationBottomSheet(
 
             Spacer(modifier = Modifier.height(4.dp))
             
+            // Friendly Coach Advice Card
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = HextechGold.copy(alpha = 0.08f),
+                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f)),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("💡", fontSize = 18.sp)
+                    Column {
+                        Text(
+                            text = "Consejo del Coach Challenger",
+                            color = HextechGold,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "¡Cada región altera la energía y colores de la interfaz! Selecciona tu región favorita para sincronizar tu estilo.",
+                            color = TextSecondary,
+                            fontSize = 10.5.sp,
+                            lineHeight = 14.sp
+                        )
+                    }
+                }
+            }
+
             // Guide text
             Text(
                 text = tr("💡 Desliza horizontalmente en el explorador de regiones para descubrir más temas. Presiona 'Aplicar' para usar el tema seleccionado."),
