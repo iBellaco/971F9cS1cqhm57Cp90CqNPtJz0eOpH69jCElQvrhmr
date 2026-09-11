@@ -38,11 +38,11 @@ data class VisionCalibrationConfig(
     val spellSizeRatio: Float = 0.041f,
     val spellYOffsetRatio: Float = 0.0f,
 
-    // Rango horizontal OCR para detección de nombres/roles
-    val allyOcrMinX: Float = 0.05f,
-    val allyOcrMaxX: Float = 0.33f,
-    val enemyOcrMinX: Float = 0.67f,
-    val enemyOcrMaxX: Float = 0.95f
+    // Rango horizontal OCR para detección de nombres/roles (estrictamente laterales, ignorando centro y asistente)
+    val allyOcrMinX: Float = 0.03f,
+    val allyOcrMaxX: Float = 0.28f,
+    val enemyOcrMinX: Float = 0.72f,
+    val enemyOcrMaxX: Float = 0.97f
 ) {
     fun toFormattedCoordinatesString(): String {
         val sb = StringBuilder()

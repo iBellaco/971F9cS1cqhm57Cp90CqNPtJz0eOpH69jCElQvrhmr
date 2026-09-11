@@ -278,8 +278,8 @@ object DraftVisionScanner {
                     val xRatio = if (width > 0) centerX.toFloat() / width.toFloat() else 0.5f
                     val yRatio = if (height > 0) centerY.toFloat() / height.toFloat() else 0.5f
 
-                    // EXCLUSIÓN ABSOLUTA DEL OVERLAY Y RECOMENDACIONES EN LA ZONA CENTRAL (0.33f .. 0.67f)
-                    if (xRatio in 0.33f..0.67f && yRatio > 0.25f) {
+                    // EXCLUSIÓN ABSOLUTA DEL CENTRO (0.28f a 0.72f) Y DEL OVERLAY FLOTANTE DEL ASISTENTE
+                    if (xRatio in 0.28f..0.72f || (box != null && overlayRect != null && android.graphics.Rect.intersects(box, overlayRect!!))) {
                         continue
                     }
 
@@ -371,10 +371,8 @@ object DraftVisionScanner {
                         // Ignorar barra de bans y botones
                         if (subYRatio < 0.100f || subYRatio > 0.850f) continue
 
-                        val isAllyCol = (xRatio in calib.allyOcrMinX..calib.allyOcrMaxX) ||
-                                        (leftRatio <= calib.allyOcrMaxX && rightRatio >= calib.allyOcrMinX && xRatio < 0.40f)
-                        val isEnemyCol = (xRatio in calib.enemyOcrMinX..calib.enemyOcrMaxX) ||
-                                         (leftRatio <= calib.enemyOcrMaxX && rightRatio >= calib.enemyOcrMinX && xRatio > 0.60f)
+                        val isAllyCol = xRatio in calib.allyOcrMinX..calib.allyOcrMaxX
+                        val isEnemyCol = xRatio in calib.enemyOcrMinX..calib.enemyOcrMaxX
 
                         // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar)
                         if (isAllyCol) {

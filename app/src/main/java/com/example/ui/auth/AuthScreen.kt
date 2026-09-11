@@ -785,41 +785,51 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         essenceBounce = true
                         showBuyEssenceDialog = true
                     },
-                shape = RoundedCornerShape(10.dp),
-                color = activeTheme.surfaceVariant.copy(alpha = 0.7f),
-                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.5f))
+                shape = RoundedCornerShape(12.dp),
+                color = activeTheme.surfaceVariant.copy(alpha = 0.8f),
+                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        Image(
-                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                            contentDescription = "Esencia Azul",
-                            modifier = Modifier.size(20.dp)
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                contentDescription = "Esencia Azul",
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "Esencia Azul",
+                                color = activeTheme.textSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                         Text(
-                            text = "Esencia Azul: $currentBlueEssence EA",
+                            text = "$currentBlueEssence EA",
                             color = activeTheme.primary,
-                            fontSize = 12.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .background(activeTheme.secondary)
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(
-                            text = "+ Recargar",
+                            text = "Comprar",
                             color = activeTheme.background,
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
                     }
@@ -827,140 +837,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-
-
-            
-            val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
-            if (unreadCount > 0) {
-                val infiniteTransition = rememberInfiniteTransition(label = "NewMessageAnimation")
-                val pulseScale by infiniteTransition.animateFloat(
-                    initialValue = 1f,
-                    targetValue = 1.035f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 700, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "pulseScale"
-                )
-                val iconWiggle by infiniteTransition.animateFloat(
-                    initialValue = -12f,
-                    targetValue = 12f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 280, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "iconWiggle"
-                )
-                val glowAlpha by infiniteTransition.animateFloat(
-                    initialValue = 0.5f,
-                    targetValue = 1f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 700, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "glowAlpha"
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
-                        .graphicsLayer {
-                            scaleX = pulseScale
-                            scaleY = pulseScale
-                        }
-                ) {
-                    Button(
-                        onClick = { showInboxDialog = true },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
-                        shape = RoundedCornerShape(10.dp),
-                        border = BorderStroke(
-                            1.5.dp,
-                            Brush.horizontalGradient(
-                                listOf(
-                                    com.example.ui.theme.HextechGold.copy(alpha = glowAlpha),
-                                    DangerRed.copy(alpha = glowAlpha),
-                                    com.example.ui.theme.HextechCyan.copy(alpha = glowAlpha)
-                                )
-                            )
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                brush = Brush.horizontalGradient(
-                                    listOf(
-                                        Color(0xFFDC2626),
-                                        Color(0xFF991B1B)
-                                    )
-                                ),
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MarkEmailUnread,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(22.dp)
-                                        .graphicsLayer {
-                                            rotationZ = iconWiggle
-                                        }
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(
-                                        text = "Tienes $unreadCount mensaje(s) nuevo(s)",
-                                        color = Color.White,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 13.5.sp
-                                    )
-                                    Text(
-                                        text = "Toca para abrir tu bandeja de entrada",
-                                        color = Color.White.copy(alpha = 0.85f),
-                                        fontSize = 10.5.sp
-                                    )
-                                }
-                            }
-
-                            Surface(
-                                color = com.example.ui.theme.HextechGold.copy(alpha = glowAlpha),
-                                shape = RoundedCornerShape(6.dp),
-                                shadowElevation = 4.dp
-                            ) {
-                                Text(
-                                    text = "¡NUEVO!",
-                                    color = Color(0xFF0F172A),
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 10.sp,
-                                    modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            } else {
-                OutlinedButton(
-                    onClick = { showInboxDialog = true },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = com.example.ui.theme.HextechCyan),
-                    border = BorderStroke(1.dp, com.example.ui.theme.HextechCyan.copy(alpha = 0.5f)),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
-                ) {
-                    Icon(Icons.Default.Message, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Bandeja de Entrada")
-                }
-            }
 
             // Premium Status Card & Expiration Indicator
             Card(
