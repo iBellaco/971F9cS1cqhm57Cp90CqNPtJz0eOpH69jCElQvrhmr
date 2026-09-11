@@ -70,6 +70,12 @@ data class TextBlockDiagnostic(
     val color: Int
 )
 
+data class DraftPickTurn(
+    val turnNumber: Int, // 1..10
+    val isAlly: Boolean,
+    val slotIndex: Int // 0..4
+)
+
 data class DraftScanResult(
     val allies: List<Champion>,
     val enemies: List<Champion>,
@@ -103,7 +109,43 @@ object DraftVisionScanner {
     val debugVisualMatches = kotlinx.coroutines.flow.MutableStateFlow<Map<String, String>>(emptyMap())
 
     
-    // Configuración estándar de coordenadas y cálculos
+    /**
+     * Devuelve la secuencia real de los 10 turnos del Draft de Wild Rift:
+     * - Si PRIMERA SELECCIÓN (Aliado elige primero):
+     *   A1 -> E1 -> E2 -> A2 -> A3 -> E3 -> E4 -> A4 -> A5 -> E5 (Pick 10: Rival 5)
+     * - Si SIN PRIMERA SELECCIÓN (Rival elige primero):
+     *   E1 -> A1 -> A2 -> E2 -> E3 -> A3 -> A4 -> E4 -> E5 -> A5 (Pick 10: Aliado 5)
+     */
+    fun getDraftPickSequence(isFirstPick: Boolean): List<DraftPickTurn> {
+        return if (isFirstPick) {
+            listOf(
+                DraftPickTurn(1, isAlly = true, slotIndex = 0),   // A1
+                DraftPickTurn(2, isAlly = false, slotIndex = 0),  // E1
+                DraftPickTurn(3, isAlly = false, slotIndex = 1),  // E2
+                DraftPickTurn(4, isAlly = true, slotIndex = 1),   // A2
+                DraftPickTurn(5, isAlly = true, slotIndex = 2),   // A3
+                DraftPickTurn(6, isAlly = false, slotIndex = 2),  // E3
+                DraftPickTurn(7, isAlly = false, slotIndex = 3),  // E4
+                DraftPickTurn(8, isAlly = true, slotIndex = 3),   // A4
+                DraftPickTurn(9, isAlly = true, slotIndex = 4),   // A5
+                DraftPickTurn(10, isAlly = false, slotIndex = 4)  // E5
+            )
+        } else {
+            listOf(
+                DraftPickTurn(1, isAlly = false, slotIndex = 0),  // E1
+                DraftPickTurn(2, isAlly = true, slotIndex = 0),   // A1
+                DraftPickTurn(3, isAlly = true, slotIndex = 1),   // A2
+                DraftPickTurn(4, isAlly = false, slotIndex = 1),  // E2
+                DraftPickTurn(5, isAlly = false, slotIndex = 2),  // E3
+                DraftPickTurn(6, isAlly = true, slotIndex = 2),   // A3
+                DraftPickTurn(7, isAlly = true, slotIndex = 3),   // A4
+                DraftPickTurn(8, isAlly = false, slotIndex = 3),  // E4
+                DraftPickTurn(9, isAlly = false, slotIndex = 4),  // E5
+                DraftPickTurn(10, isAlly = true, slotIndex = 4)   // A5
+            )
+        }
+    }
+
     var calibrationConfig = VisionCalibrationConfig()
     val calibrationConfigFlow = kotlinx.coroutines.flow.MutableStateFlow(VisionCalibrationConfig())
 
@@ -255,8 +297,8 @@ object DraftVisionScanner {
                                      textNorm.contains("2.a seleccion") || textNorm.contains("2.ª seleccion") ||
                                      textNorm.contains("segunda escolha") || textNorm.contains("segunda selecao")
 
-                    // Solo detectar en la cabecera superior extrema donde aparecen los banners oficiales
-                    if (yRatio < 0.20f && (xRatio < 0.35f || xRatio > 0.65f)) {
+                    // Detectar en la cabecera superior extrema donde aparecen los banners oficiales
+                    if (yRatio < 0.25f && (xRatio < 0.40f || xRatio > 0.60f)) {
                         if (hasPrimera) {
                             if (xRatio > 0.50f) {
                                 // Insignia en mitad derecha (equipo rival) -> Rival tiene 1º Pick -> Aliados son 2º Pick
@@ -278,6 +320,12 @@ object DraftVisionScanner {
                                 AppLogger.d(TAG, "OCR Segunda Selección detectada en lado ALIADO (xRatio=$xRatio) -> Aliados = Segunda Selección")
                             }
                         }
+                    }
+
+                    // Si el texto completo es una indicación de primera/segunda selección o ruido de interfaz,
+                    // descartarlo de inmediato para que NUNCA se asigne a un slot de invocador o campeón
+                    if (hasPrimera || hasSegunda || DraftValidationLayer.isNoiseText(text)) {
+                        continue
                     }
 
                     // Ignorar cualquier texto generado por el overlay de depuración
@@ -520,7 +568,11 @@ object DraftVisionScanner {
                     if (trimmed.matches(Regex("^[0-9\\s:.,%#-]+$"))) continue
                     if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
                     if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
-                    if (lLower.contains("calle") || lLower.contains("carril") || lLower.contains("dragon") || lLower.contains("dragón") || lLower.contains("baron") || lLower.contains("barón") || lLower.contains("central") || lLower.contains("jungla") || lLower.contains("soporte") || lLower.contains("adc") || lLower.contains("duo") || lLower.contains("dúo") || lLower.contains("top") || lLower.contains("mid") || lLower.contains("sup")) continue
+                    
+                    val exactRoleWords = setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "solo", "lane")
+                    val tokens = lLower.split(Regex("\\s+"))
+                    if (tokens.size == 1 && exactRoleWords.contains(tokens[0])) continue
+
                     if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
                     if (!validSummonerLines.contains(trimmed)) {
                         validSummonerLines.add(trimmed)
@@ -534,14 +586,7 @@ object DraftVisionScanner {
                         !DraftValidationLayer.isNoiseText(line) &&
                         ChampionNameResolver.findChampionInText(line, allChamps) == null &&
                         DraftValidationLayer.parseRoleFromText(line) == null &&
-                        !lLower.contains("calle") && !lLower.contains("carril") &&
-                        !lLower.contains("dragon") && !lLower.contains("dragón") &&
-                        !lLower.contains("baron") && !lLower.contains("barón") &&
-                        !lLower.contains("central") && !lLower.contains("jungla") &&
-                        !lLower.contains("soporte") && !lLower.contains("adc") &&
-                        !lLower.contains("duo") && !lLower.contains("dúo") &&
-                        !lLower.contains("top") && !lLower.contains("mid") &&
-                        !lLower.equals("tu", true) && !lLower.equals("(tu)", true) && !lLower.equals("you", true)
+                        !lLower.equals("tu", true) && !lLower.equals("(tu)", true) && !lLower.equals("you", true) && !lLower.equals("(you)", true)
                     }
                     if (filtered.isNotEmpty()) {
                         bestSummoner = filtered.maxByOrNull { it.length } ?: filtered.first()
@@ -840,35 +885,23 @@ object DraftVisionScanner {
         }
 
         val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
+        val pickSequence = getDraftPickSequence(effectiveFirstPick)
 
         // RECONOCIMIENTO VISUAL DE CAMPEÓN POR SIMILITUD DE IMAGEN
-        // Aplicamos reconocimiento visual a todos los slots que aún no tienen campeón confirmado por OCR
+        // Evaluamos los slots que aún no tienen campeón confirmado por OCR siguiendo la secuencia de turnos
         if (context != null) {
-            val totalPickedSoFar = allySlots.count { it.champion != null } + enemySlots.count { it.champion != null }
-            val isFinalTenthPick = totalPickedSoFar >= 9
             val isCalibrating = showCalibrationBoxes.value
 
             val candidateSlots = if (isCalibrating) {
                 // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
                 allySlots + enemySlots
-            } else if (isFinalTenthPick) {
-                // Flujo normal: escáner visual EXCLUSIVAMENTE para el Pick 10 (Slot 4 del equipo enemigo),
-                // ignorando los demás slots ya que su nombre aparece por OCR.
-                // Pick 10 dinámico según Primera o Segunda Selección:
-                // - Si el equipo aliado tiene 1º Pick (effectiveFirstPick = true), el último pick (10) es el último rival (enemySlots[4]).
-                // - Si el equipo aliado tiene 2º Pick (effectiveFirstPick = false), el último pick (10) es el último aliado (allySlots[4]).
-                val tenthPickSlot = if (effectiveFirstPick) {
-                    enemySlots.getOrNull(4)
-                } else {
-                    allySlots.getOrNull(4)
-                }
-                if (tenthPickSlot != null) {
-                    listOf(tenthPickSlot)
-                } else {
-                    emptyList()
-                }
             } else {
-                emptyList()
+                // Evaluamos los slots pendientes en el orden exacto de la secuencia del draft
+                // (incluyendo el 10º pick ya sea rival o aliado)
+                pickSequence.mapNotNull { turn ->
+                    val slot = if (turn.isAlly) allySlots.getOrNull(turn.slotIndex) else enemySlots.getOrNull(turn.slotIndex)
+                    if (slot != null && slot.champion == null) slot else null
+                }.distinct()
             }
             
             val newDebugMatches = mutableMapOf<String, String>()
@@ -880,11 +913,7 @@ object DraftVisionScanner {
                     val sIdx = targetSlot.slotIndex
                     val isAlly = targetSlot.isAlly
 
-                    // Ubicación dinámica adaptativa: Si el OCR detectó texto en este slot (ej: "Jugador 5" o nombre),
-                    // usamos la posición Y exacta del texto y colocamos el avatar al lado
                     val slotTexts = if (isAlly) allySlotTexts[sIdx] else enemySlotTexts[sIdx]
-                    val detectedTextBox = slotTexts.mapNotNull { it.second }.firstOrNull()
-
                     val defaultYCenter = if (isAlly) {
                         (height * allySlotYRatios[sIdx]).toInt()
                     } else {
@@ -949,9 +978,13 @@ object DraftVisionScanner {
                                 enemySlotFilters[sIdx].process(match.champion, isOcr = false, score = match.confidence)
                             }
 
-                            isLastPickVisualRecognized = true
-                            lastPickVisualChampion = match.champion
-                            lastPickVisualConfidence = match.confidence
+                            val tenthTurn = pickSequence.last()
+                            if (targetSlot.isAlly == tenthTurn.isAlly && targetSlot.slotIndex == tenthTurn.slotIndex) {
+                                isLastPickVisualRecognized = true
+                                lastPickVisualChampion = match.champion
+                                lastPickVisualConfidence = match.confidence
+                            }
+
                             val side = if (targetSlot.isAlly) "Aliado" else "Rival"
                             auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
                             AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
@@ -1027,10 +1060,16 @@ object DraftVisionScanner {
             else -> "Detectados: $total picks con certeza"
         }
 
-        val tenthSlot = if (effectiveFirstPick) enemySlots.getOrNull(4) else allySlots.getOrNull(4)
+        val tenthTurn = pickSequence.last()
+        val tenthSlot = if (tenthTurn.isAlly) allySlots.getOrNull(tenthTurn.slotIndex) else enemySlots.getOrNull(tenthTurn.slotIndex)
         val isTenthOcr = tenthSlot != null && tenthSlot.champion != null && tenthSlot.confidencePercent == 100
-        val isTenthVisualConfirmed = isLastPickVisualRecognized && lastPickVisualConfidence >= 0.82f
-        val isLastPickConfirmedValue = if (total == 10) (isTenthOcr || isTenthVisualConfirmed) else false
+        val isTenthVisualConfirmed = isLastPickVisualRecognized && lastPickVisualConfidence >= 0.65f
+        val isTenthConfirmed = isTenthOcr || isTenthVisualConfirmed
+
+        // Finalizar SOLAMENTE cuando existan 5 aliados + 5 rivales CONFIRMADOS
+        val allAlliesConfirmed = allySlots.all { it.champion != null }
+        val allEnemiesConfirmed = enemySlots.all { it.champion != null }
+        val isLastPickConfirmedValue = (total == 10 && allAlliesConfirmed && allEnemiesConfirmed && isTenthConfirmed)
 
         return DraftScanResult(
             allies = allyChampsList,
@@ -1045,7 +1084,7 @@ object DraftVisionScanner {
             detectedFirstPick = detectedFirstPick,
             isLastPickImageRecognized = isLastPickVisualRecognized,
             isLastPickConfirmed = isLastPickConfirmedValue,
-            lastPickChampion = lastPickVisualChampion,
+            lastPickChampion = tenthSlot?.champion ?: lastPickVisualChampion,
             detectedRawWords = detectedWords,
             discrepancies = auditList,
             diagnostics = diagnosticsList,

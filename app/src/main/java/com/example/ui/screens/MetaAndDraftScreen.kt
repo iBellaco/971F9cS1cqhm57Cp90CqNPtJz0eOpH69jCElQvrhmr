@@ -4630,7 +4630,7 @@ private fun DraftChampionPickerSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var search by remember { mutableStateOf("") }
-    var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(suggestedRole) }
+    var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
 
     val availableChamps = remember(search, alreadySelected, selectedRoleFilter, WildRiftRepository.champions.toList()) {
         val list = WildRiftRepository.champions.filter { champ ->

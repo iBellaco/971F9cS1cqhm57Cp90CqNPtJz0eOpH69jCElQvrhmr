@@ -974,17 +974,13 @@ private fun FloatingOverlayContent(
                             val totalAlliesPicked = allies.filterNotNull().size
                             val totalEnemiesPicked = enemies.filterNotNull().size
 
-                            if (totalAlliesPicked == 5 && totalEnemiesPicked == 5) {
-                                // Los 10 campeones están completamente seleccionados: Apagar Auto-Scan para congelar y evitar falsos positivos
-                                if (result.isLastPickConfirmed) {
-                                    autoScanEnabled = false
-                                    scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
-                                        "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
-                                    } else {
-                                        "🎯 10/10 Campeones detectados • Auto-Scan completado"
-                                    }
+                            if (totalAlliesPicked == 5 && totalEnemiesPicked == 5 && result.isLastPickConfirmed) {
+                                // Finalizar Auto-Scan únicamente cuando existan 5 aliados + 5 rivales CONFIRMADOS
+                                autoScanEnabled = false
+                                scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
+                                    "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
                                 } else {
-                                    scanNoticeMessage = "⏳ 10/10 Detectados (Esperando confirmación del último pick...)"
+                                    "🎯 10/10 Campeones confirmados (5 Aliados + 5 Rivales)"
                                 }
                             } else if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
                                 scanNoticeMessage = "🎯 10º Pick por Imagen: ${result.lastPickChampion.name}"
@@ -2469,66 +2465,33 @@ private fun OverlayVersusDraftBoard(
         border = BorderStroke(1.dp, HextechCardBorder)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
-            // 0. Banner de Primera Selección y Secuencia Snake 5v5 (Detectado automáticamente o manual)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 6.dp)
-                    .clickable { onToggleFirstPick?.invoke() },
-                shape = RoundedCornerShape(8.dp),
-                color = if (isFirstPick) AllyBlue.copy(alpha = 0.12f) else DangerRed.copy(alpha = 0.12f),
-                border = BorderStroke(
-                    1.dp,
-                    if (isFirstPick) AllyBlue.copy(alpha = 0.5f) else DangerRed.copy(alpha = 0.5f)
-                )
-            ) {
-                Column(
+            // 0. Etiqueta condicional de Primera Selección (Solo si es primera selección; si no, no muestra nada)
+            if (isFirstPick) {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 5.dp)
+                        .padding(bottom = 6.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    Surface(
+                        modifier = Modifier.clickable { onToggleFirstPick?.invoke() },
+                        shape = RoundedCornerShape(12.dp),
+                        color = AllyBlue.copy(alpha = 0.15f),
+                        border = BorderStroke(1.dp, AllyBlue.copy(alpha = 0.6f))
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = if (isFirstPick) "⚡" else "🛡️",
-                                fontSize = 11.sp
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = if (isFirstPick) tr("PRIMERA SELECCIÓN (EQUIPO ALIADO)") else tr("SEGUNDA SELECCIÓN (RIVAL ELIGE PRIMERO)"),
-                                color = if (isFirstPick) AllyBlue else DangerRed,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 9.5.sp
-                            )
-                        }
-                        Surface(
-                            shape = RoundedCornerShape(4.dp),
-                            color = HextechDarkBg.copy(alpha = 0.8f),
-                            border = BorderStroke(0.5.dp, if (isFirstPick) AllyBlue.copy(alpha = 0.4f) else DangerRed.copy(alpha = 0.4f))
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = tr("Cambiar"),
-                                color = TextMuted,
-                                fontSize = 7.5.sp,
-                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                text = "⚡ " + tr("Primera Selección"),
+                                color = AllyBlue,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 10.sp
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = if (isFirstPick) {
-                            "Secuencia: 1 Aliado ➔ 2 Rivales ➔ 2 Aliados ➔ 2 Rivales ➔ 2 Aliados ➔ 1 Rival (Último pick: Imagen)"
-                        } else {
-                            "Secuencia: 1 Rival ➔ 2 Aliados ➔ 2 Rivales ➔ 2 Aliados ➔ 2 Rivales ➔ 1 Aliado (Último pick: Imagen)"
-                        },
-                        color = TextSecondary,
-                        fontSize = 8.sp,
-                        fontWeight = FontWeight.Medium
-                    )
                 }
             }
 

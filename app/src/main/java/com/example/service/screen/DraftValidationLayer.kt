@@ -13,17 +13,25 @@ import java.util.Locale
  */
 object DraftValidationLayer {
 
-    // Palabras de ruido de interfaz que deben descartarse inmediatamente
+    // Palabras y frases de ruido de interfaz que deben descartarse inmediatamente
     private val NOISE_WORDS = setOf(
         "draft", "coach", "tiers", "tier", "champs", "campeon", "campeones",
         "aliado", "aliados", "rival", "rivales", "enemigo", "enemigos", "vs", "versus",
         "marca", "estelar", "eterna", "beta", "primera", "segunda", "seleccion", "selección",
+        "eleccion", "elección", "escolha", "selecao", "seleção", "pick", "picks",
         "auto-scan", "autoscan", "activo", "detener", "asistente", "ajustes",
         "bloquear", "elegir", "jugador", "player", "tarjeta", "aumento", "usó", "uso",
         "combatamos", "juntos", "excelente", "composicion", "composición", "oponentes",
         "eligiendo", "equipo", "buscando", "emparejamiento", "listo", "esperando",
         "fijar", "preseleccion", "preselección", "fase", "bloqueando", "maestria", "maestría",
         "nivel", "lvl", "lv", "puntos", "pts", "pnt", "rango", "insignia", "emblema",
+        "primera seleccion", "primera selección", "primera eleccion", "primera elección",
+        "segunda seleccion", "segunda selección", "segunda eleccion", "segunda elección",
+        "1a eleccion", "1ª eleccion", "1.a eleccion", "1.ª eleccion", "1a seleccion", "1ª seleccion",
+        "2a eleccion", "2ª eleccion", "2.a eleccion", "2.ª eleccion", "2a seleccion", "2ª seleccion",
+        "primer pick", "segundo pick", "first pick", "second pick",
+        "primeira escolha", "segunda escolha", "primeira selecao", "segunda selecao",
+        "orden de seleccion", "orden de selección", "orden de eleccion", "orden de elección",
         // Hechizos de Invocador (ES, EN, PT) para evitar que aparezcan como nombres o texto en el Hub
         "destello", "flash", "castigo", "smite", "golpe", "ignicion", "ignición", "ignite", "incendiar",
         "fantasmal", "ghost", "fantasma", "barrera", "barrier", "curacion", "curación", "heal", "curar", "cura",
@@ -39,7 +47,25 @@ object DraftValidationLayer {
         // Descartar números puros o temporizadores de draft (ej: "18", "25", "30", "0:15", "100%")
         if (norm.matches(Regex("^[0-9\\s:.,%#-]+$"))) return true
         if (norm.startsWith("jugador ") || norm.startsWith("player ") || norm.startsWith("jogador ") ||
-            norm.matches(Regex("^(jugador|player|jogador)\\s*\\d+$"))) return true
+            norm.matches(Regex("^(jugador|player|jogador)\\s*\\d+$")) ||
+            norm.matches(Regex("^(jugador|player|jogador)\\s*[a-z0-9]*$"))) return true
+        
+        // Descartar frases compuestas de orden de selección o interfaz
+        if (norm.contains("primera eleccion") || norm.contains("primera seleccion") ||
+            norm.contains("segunda eleccion") || norm.contains("segunda seleccion") ||
+            norm.contains("primer pick") || norm.contains("segundo pick") ||
+            norm.contains("first pick") || norm.contains("second pick") ||
+            norm.contains("1a eleccion") || norm.contains("1ª eleccion") ||
+            norm.contains("1a seleccion") || norm.contains("1ª seleccion") ||
+            norm.contains("2a eleccion") || norm.contains("2ª eleccion") ||
+            norm.contains("2a seleccion") || norm.contains("2ª seleccion") ||
+            norm.contains("primeira escolha") || norm.contains("segunda escolha") ||
+            norm.contains("primeira selecao") || norm.contains("segunda selecao") ||
+            norm.contains("orden de seleccion") || norm.contains("orden de eleccion") ||
+            norm.contains("buscando oponentes") || norm.contains("combatamos juntos")) {
+            return true
+        }
+
         if (NOISE_WORDS.contains(norm)) return true
         val words = norm.split(Regex("\\s+"))
         return words.size == 1 && NOISE_WORDS.contains(words[0])

@@ -10,12 +10,13 @@ object ChampionNameResolver {
 
     // Palabras reservadas de la UI de Wild Rift que nunca deben confundirse con campeones
     private val UI_IGNORE_WORDS = setOf(
-        "jugador", "player", "draft", "coach", "tier", "tiers", "champs", "campeon", "campeones",
-        "equipo", "aliado", "enemigo", "rival", "victoria", "derrota", "carril", "baron", "barón", "central", "medio",
+        "jugador", "player", "jogador", "draft", "coach", "tier", "tiers", "champs", "campeon", "campeones",
+        "equipo", "aliado", "aliados", "enemigo", "enemigos", "rival", "rivales", "victoria", "derrota", "carril", "baron", "barón", "central", "medio",
         "jungla", "duo", "dúo", "soporte", "apoyo", "tirador", "marca", "estelar", "eterna", "maestria", "maestría",
-        "nivel", "combatanos", "combatamos", "juntos", "bloquear", "elegir", "seleccion", "selección", "fase",
+        "nivel", "combatanos", "combatamos", "juntos", "bloquear", "elegir", "seleccion", "selección", "eleccion", "elección", "fase",
         "ban", "bans", "auto", "scan", "activo", "asistente", "detener", "ajustes", "ajuste", "versus", "vs",
-        "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición", "diego",
+        "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición", "oponentes", "buscando",
+        "primera", "segunda", "escolha", "selecao", "seleção", "pick", "picks",
         "destello", "flash", "castigo", "smite", "ignicion", "ignición", "ignite", "prender", "incendiar",
         "curacion", "curación", "cura", "heal", "barrera", "barrier", "extenuacion", "extenuación", "exaustao",
         "exaustão", "exhaust", "fantasmal", "fantasma", "ghost", "claridad", "teletransporte", "teleport",

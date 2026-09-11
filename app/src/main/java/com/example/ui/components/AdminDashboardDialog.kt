@@ -56,6 +56,8 @@ import com.example.util.AuthManager
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
@@ -233,7 +235,7 @@ private fun AdminDashboardHeader(
                         .fillMaxWidth()
                         .padding(top = 4.dp)
                         .clickable { onToggleMinimize() },
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -241,12 +243,6 @@ private fun AdminDashboardHeader(
                         color = HextechGold,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "Mostrar ▲",
-                        color = HextechCyan,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -2518,10 +2514,21 @@ private fun toggleUserBanStatus(
 @Composable
 private fun ServerScraperHealthCard() {
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
     val sourceStatuses by BestBuildWrScraper.sourceStatuses.collectAsState()
     val globalStatus by BestBuildWrScraper.globalSyncStatus.collectAsState()
-    var isChecking by remember { mutableStateOf(false) }
+    val isSyncing by BestBuildWrScraper.isSyncing.collectAsState()
+
+    // Actualización reactiva constante en tiempo real en segundo plano
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            try {
+                BestBuildWrScraper.syncGlobalTierList(context)
+            } catch (e: Exception) {
+                // Prevenir interrupción
+            }
+            delay(8000L) // Actualización automática constante cada 8 segundos
+        }
+    }
 
     Surface(
         color = HextechSurfaceBg,
@@ -2547,23 +2554,25 @@ private fun ServerScraperHealthCard() {
                         fontSize = 14.sp
                     )
                 }
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            isChecking = true
-                            BestBuildWrScraper.syncGlobalTierList(context)
-                            kotlinx.coroutines.delay(600L)
-                            isChecking = false
-                            Toast.makeText(context, "Sincronización multi-servidor completada", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier.size(32.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(HextechCyan.copy(alpha = 0.15f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Verificar",
-                        tint = if (isChecking) HextechGold else HextechCyan,
-                        modifier = Modifier.size(18.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(if (isSyncing) HextechGold else Color(0xFF00FF7F))
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = if (isSyncing) "Sincronizando..." else "En tiempo real",
+                        color = if (isSyncing) HextechGold else HextechCyan,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

@@ -1322,7 +1322,13 @@ fun DraftHistoryScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("👑", fontSize = 18.sp)
+                            androidx.compose.foundation.Image(
+                                painter = androidx.compose.ui.res.painterResource(id = com.example.R.drawable.ic_creators_logo),
+                                contentDescription = "Creadores",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(

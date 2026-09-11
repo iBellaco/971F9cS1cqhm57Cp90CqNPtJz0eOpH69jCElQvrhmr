@@ -72,8 +72,8 @@ object BestBuildWrScraper {
             "WildRiftGuides" to ScraperSourceStatus("WildRiftGuides", "https://www.wildriftguides.com/tier-list", true, System.currentTimeMillis(), 210L, null, "Global"),
             "BestBuildWR" to ScraperSourceStatus("BestBuildWR", "https://bestbuildwr.com/tierlist", true, System.currentTimeMillis(), 125L, null, "Global"),
             "WR-Meta" to ScraperSourceStatus("WR-Meta", "https://wr-meta.com/meta/", true, System.currentTimeMillis(), 160L, null, "Global"),
-            "RiotCloudNA" to ScraperSourceStatus("Riot Cloud Americas (NA)", "https://developer.riotgames.com/apis#wild-rift-v1", true, System.currentTimeMillis(), 95L, null, "NA"),
-            "TencentSuperServer" to ScraperSourceStatus("Tencent Super-Server (CN)", "https://lolm.qq.com/act/a20220818data/index.html", true, System.currentTimeMillis(), 185L, null, "CN")
+            "RiotCloudNA" to ScraperSourceStatus("Riot Cloud Americas (NA)", "https://wildrift.leagueoflegends.com/en-us/", true, System.currentTimeMillis(), 95L, null, "NA"),
+            "TencentSuperServer" to ScraperSourceStatus("Tencent Super-Server (CN)", "https://lolm.qq.com/", true, System.currentTimeMillis(), 185L, null, "CN")
         )
     )
     val sourceStatuses: StateFlow<Map<String, ScraperSourceStatus>> = _sourceStatuses.asStateFlow()
@@ -167,8 +167,8 @@ object BestBuildWrScraper {
                 Triple("WildRiftGuides", "https://www.wildriftguides.com/tier-list", "Global"),
                 Triple("BestBuildWR", "https://bestbuildwr.com/tierlist", "Global"),
                 Triple("WR-Meta", "https://wr-meta.com/meta/", "Global"),
-                Triple("RiotCloudNA", "https://developer.riotgames.com/apis#wild-rift-v1", "NA"),
-                Triple("TencentSuperServer", "https://lolm.qq.com/act/a20220818data/index.html", "CN")
+                Triple("RiotCloudNA", "https://wildrift.leagueoflegends.com/en-us/", "NA"),
+                Triple("TencentSuperServer", "https://lolm.qq.com/", "CN")
             )
             val updatedMap = mutableMapOf<String, ScraperSourceStatus>()
             var successCount = 0
