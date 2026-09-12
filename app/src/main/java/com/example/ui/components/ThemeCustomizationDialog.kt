@@ -724,7 +724,7 @@ private fun RegionVisualPreviewGridCard(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = "Wild Rift Coach Live UI",
+                                text = "Coach Live UI",
                                 color = inspectedTheme.textPrimary,
                                 fontSize = 11.5.sp,
                                 fontWeight = FontWeight.Bold

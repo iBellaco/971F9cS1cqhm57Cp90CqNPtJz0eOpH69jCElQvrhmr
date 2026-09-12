@@ -130,7 +130,7 @@ fun DonationDialog(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = tr("Wild Rift Coach es una app sin anuncios molestos. Si la app te ayuda a subir de elo y ganar partidas, tu donación permite mantener los servidores y actualizaciones constantes."),
+                                text = tr("Coach es una app sin anuncios molestos. Si la app te ayuda a subir de elo y ganar partidas, tu donación permite mantener los servidores y actualizaciones constantes."),
                                 color = TextSecondary,
                                 fontSize = 12.sp,
                                 lineHeight = 16.5.sp

@@ -116,7 +116,7 @@ fun ExitConfirmationDialog(
 
                 // Description
                 Text(
-                    text = tr("¿Estás seguro de que deseas cerrar Wild Rift Coach? Se cerrarán los asistentes activos."),
+                    text = tr("¿Estás seguro de que deseas cerrar Coach? Se cerrarán los asistentes activos."),
                     color = TextMuted,
                     fontSize = 13.5.sp,
                     lineHeight = 19.sp,

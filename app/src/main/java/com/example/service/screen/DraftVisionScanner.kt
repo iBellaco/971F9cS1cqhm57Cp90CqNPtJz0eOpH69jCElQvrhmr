@@ -99,6 +99,7 @@ data class DraftScanResult(
     val allySummonerNamesByRole: Map<LaneRole, String> = emptyMap(),
     val allySpellsByRole: Map<LaneRole, List<String>> = emptyMap(),
     val isLegendaryRanked: Boolean = false,
+    val isPreparationPhase: Boolean = false,
     val isSuccessful: Boolean,
     val statusMessage: String
 )
@@ -259,6 +260,7 @@ object DraftVisionScanner {
         // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS (IGNORA EL OVERLAY CENTRAL 0.28..0.72)
         // -----------------------------------------------------------------------------------------
         var isLegendaryRanked = false
+        var isPreparationPhase = false
         try {
             val inputImage = InputImage.fromBitmap(bitmap, 0)
             val visionText = recognizer.process(inputImage).await()
@@ -287,6 +289,11 @@ object DraftVisionScanner {
                     val xRatio = if (width > 0) centerX.toFloat() / width.toFloat() else 0.5f
                     val yRatio = if (height > 0) centerY.toFloat() / height.toFloat() else 0.5f
 
+                    val lowerText = text.lowercase()
+                    if (yRatio < 0.2f && (lowerText.contains("fase de") || lowerText.contains("preparación") || lowerText.contains("preparacion"))) {
+                        isPreparationPhase = true
+                    }
+
                     // EXCLUSIÓN ABSOLUTA DEL CENTRO (0.28f a 0.72f) Y DEL OVERLAY FLOTANTE DEL ASISTENTE
                     if (xRatio in 0.28f..0.72f || (box != null && overlayRect != null && android.graphics.Rect.intersects(box, overlayRect!!))) {
                         continue
@@ -310,6 +317,13 @@ object DraftVisionScanner {
                                      textNorm.contains("2a seleccion") || textNorm.contains("2ª seleccion") ||
                                      textNorm.contains("2.a seleccion") || textNorm.contains("2.ª seleccion") ||
                                      textNorm.contains("segunda escolha") || textNorm.contains("segunda selecao")
+
+                    val hasPreparation = textNorm.contains("fase de preparacion") || textNorm.contains("fase de preparación") || 
+                                         textNorm.contains("fase de preparacao") || textNorm.contains("preparation phase")
+                    if (hasPreparation) {
+                        isPreparationPhase = true
+                        AppLogger.d(TAG, "OCR Fase de Preparación detectada.")
+                    }
 
                     // Detectar en la cabecera superior extrema donde aparecen los banners oficiales
                     if (yRatio < 0.25f && (xRatio < 0.40f || xRatio > 0.60f)) {
@@ -1034,6 +1048,27 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 4: RESOLUCIÓN Y ASIGNACIÓN DETERMINISTA DE CARRILES (ZERO-CONFUSION)
         // -----------------------------------------------------------------------------------------
+        
+        if (isPreparationPhase && !isLastPickVisualRecognized) {
+            val tenthTurn = pickSequence.last()
+            val targetSlotIdx = tenthTurn.slotIndex
+            val targetIsAlly = tenthTurn.isAlly
+            val matched = GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, targetIsAlly)
+            if (matched != null) {
+                isLastPickVisualRecognized = true
+                lastPickVisualChampion = matched
+                lastPickVisualConfidence = 1.0f
+                if (targetIsAlly) {
+                    allySlots[targetSlotIdx].champion = matched
+                    allySlots[targetSlotIdx].confidencePercent = 100
+                } else {
+                    enemySlots[targetSlotIdx].champion = matched
+                    enemySlots[targetSlotIdx].confidencePercent = 100
+                }
+                AppLogger.d(TAG, "Gemini identificó 10º pick en Fase de Preparación: ${matched.name}")
+            }
+        }
+        
         // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados
         val validAllySlots = allySlots.filter { it.champion != null }
         val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validAllySlots, allChamps, auditList)
@@ -1085,7 +1120,7 @@ object DraftVisionScanner {
         val enemyChampsList = finalEnemiesMap.values.toList()
         val total = allyChampsList.size + enemyChampsList.size
 
-        val hasDraftActivity = total > 0 || allySummonerNamesCache.isNotEmpty() || userDetectedLane != null || detectedFirstPick != null || isLegendaryRanked
+        val hasDraftActivity = total > 0 || allySummonerNamesCache.isNotEmpty() || userDetectedLane != null || detectedFirstPick != null || isLegendaryRanked || isPreparationPhase
 
         val statusMsg = when {
             isLegendaryRanked && total == 0 -> "🛡️ Clasificatoria Legendaria (Nombres anónimos)"
@@ -1106,7 +1141,11 @@ object DraftVisionScanner {
         // Finalizar SOLAMENTE cuando existan 5 aliados + 5 rivales CONFIRMADOS
         val allAlliesConfirmed = allySlots.all { it.champion != null }
         val allEnemiesConfirmed = enemySlots.all { it.champion != null }
-        val isLastPickConfirmedValue = (total == 10 && allAlliesConfirmed && allEnemiesConfirmed && isTenthConfirmed)
+        val isLastPickConfirmedValue = if (isPreparationPhase && isTenthConfirmed) {
+            true
+        } else {
+            (total == 10 && allAlliesConfirmed && allEnemiesConfirmed && isTenthConfirmed)
+        }
 
         return DraftScanResult(
             allies = allyChampsList,
@@ -1131,6 +1170,7 @@ object DraftVisionScanner {
             allySummonerNamesByRole = allySummonerNamesByRole,
             allySpellsByRole = allySpellsByRole,
             isLegendaryRanked = isLegendaryRanked,
+            isPreparationPhase = isPreparationPhase,
             isSuccessful = hasDraftActivity,
             statusMessage = statusMsg
         )

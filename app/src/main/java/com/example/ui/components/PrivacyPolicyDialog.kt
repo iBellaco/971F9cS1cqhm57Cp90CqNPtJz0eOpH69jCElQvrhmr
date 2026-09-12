@@ -219,12 +219,12 @@ fun PrivacyPolicyDialog(
 private fun PrivacyPolicyContent() {
     PolicySection(
         title = tr("1. Qué datos recopilamos y por qué"),
-        body = tr("Queremos ser 100% transparentes: Wild Rift Coach está diseñada para el análisis táctico de partidas y drafting. Si decides autenticarte en la aplicación, almacenamos únicamente tu correo electrónico y tu nombre de perfil para gestionar tu sesión, tu nivel de suscripción y tus configuraciones en la nube. No vendemos, no comercializamos ni compartimos tu información personal con ninguna entidad.")
+        body = tr("Queremos ser 100% transparentes: Coach está diseñada para el análisis táctico de partidas y drafting. Si decides autenticarte en la aplicación, almacenamos únicamente tu correo electrónico y tu nombre de perfil para gestionar tu sesión, tu nivel de suscripción y tus configuraciones en la nube. No vendemos, no comercializamos ni compartimos tu información personal con ninguna entidad.")
     )
 
     PolicySection(
         title = tr("2. Permisos del Asistente Flotante y Captura en Vivo"),
-        body = tr("Para brindar asistencia en tiempo real durante la selección de campeones, la app solicita permiso de superposición (Overlay) y proyección de pantalla. Dichas capturas se procesan estrictamente en la memoria RAM de tu propio dispositivo de manera local para el reconocimiento óptico de caracteres (OCR) y lectura visual. Ninguna imagen ni grabación se almacena ni se transmite a servidores externos.")
+        body = tr("Para brindar asistencia en tiempo real durante la selección de campeones, la app solicita permiso de superposición (Overlay) y proyección de pantalla. Dichas capturas se envían de forma temporal y cifrada a servicios de Inteligencia Artificial (como Google Gemini) para su análisis táctico e identificación de elementos en pantalla. Las imágenes no se almacenan permanentemente, no se utilizan para entrenar modelos públicos y son descartadas inmediatamente después de generar la recomendación. Ninguna grabación continua de video se almacena ni se transmite.")
     )
 
     PolicySection(
@@ -247,12 +247,12 @@ private fun PrivacyPolicyContent() {
 private fun TermsOfServiceContent() {
     PolicySection(
         title = tr("1. Aceptación de los Términos"),
-        body = tr("Al descargar, instalar o utilizar Wild Rift Coach, aceptas cumplir estos Términos de Servicio. Si no estás de acuerdo con alguna disposición, te solicitamos abstenerte de utilizar la aplicación.")
+        body = tr("Al descargar, instalar o utilizar Coach, aceptas cumplir estos Términos de Servicio. Si no estás de acuerdo con alguna disposición, te solicitamos abstenerte de utilizar la aplicación.")
     )
 
     PolicySection(
         title = tr("2. Propósito y Uso Permitido"),
-        body = tr("Esta aplicación es una herramienta de asistencia táctica, aprendizaje y análisis estratégico para League of Legends: Wild Rift. No modifica archivos del juego ni interactúa con la memoria del proceso del juego; opera únicamente mediante lectura visual externa y recomendaciones estadísticas.")
+        body = tr("Esta aplicación es una herramienta de asistencia táctica, aprendizaje y análisis estratégico para League of Legends: Wild Rift. No modifica archivos del juego ni interactúa con la memoria del proceso del juego; opera únicamente mediante captura de pantalla externa, análisis de inteligencia artificial y recomendaciones estadísticas.")
     )
 
     PolicySection(
@@ -275,12 +275,12 @@ private fun TermsOfServiceContent() {
 private fun ThirdPartyAgreementsContent() {
     PolicySection(
         title = tr("1. Descargo de Responsabilidad de Riot Games"),
-        body = tr("Wild Rift Coach no está respaldada, afiliada ni patrocinada por Riot Games, Inc. ni por ninguna de sus subsidiarias. League of Legends: Wild Rift y todos los nombres, marcas registradas y elementos visuales asociados son propiedad y derechos de autor de Riot Games, Inc.")
+        body = tr("Coach no está respaldada, afiliada ni patrocinada por Riot Games, Inc. ni por ninguna de sus subsidiarias. League of Legends: Wild Rift y todos los nombres, marcas registradas y elementos visuales asociados son propiedad y derechos de autor de Riot Games, Inc.")
     )
 
     PolicySection(
-        title = tr("2. Proveedores de Infraestructura en la Nube"),
-        body = tr("Utilizamos infraestructura en la nube con servidores seguros y bases de datos cifradas para la sincronización de perfiles, autenticación y almacenamiento de estados de suscripción, bajo estrictas normas de seguridad y protección de datos.")
+        title = tr("2. Proveedores de Infraestructura en la Nube e Inteligencia Artificial"),
+        body = tr("Utilizamos infraestructura en la nube con servidores seguros y bases de datos cifradas para la sincronización de perfiles, autenticación y almacenamiento de estados de suscripción. Además, utilizamos servicios de Inteligencia Artificial (como Google Gemini API) para el análisis avanzado de imágenes en tiempo real, operando bajo estrictas normas de seguridad y privacidad empresarial.")
     )
 
     PolicySection(

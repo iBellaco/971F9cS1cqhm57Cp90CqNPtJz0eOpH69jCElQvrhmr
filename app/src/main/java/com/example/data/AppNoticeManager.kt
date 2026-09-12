@@ -16,7 +16,7 @@ import java.util.UUID
 data class AppNotice(
     val id: String = UUID.randomUUID().toString(),
     val title: String = "Anuncio Importante",
-    val content: String = "Bienvenido a Wild Rift Coach. ¡Consulta las últimas guías del parche y optimiza tu drafting!",
+    val content: String = "Bienvenido a Coach. ¡Consulta las últimas guías del parche y optimiza tu drafting!",
     val videoUrl: String = "", // Multimedia horizontal para panel de inicio
     val expandedImageUrl: String = "", // Imagen vertical para vista ampliada
     val externalUrl: String = "", // Enlace web externo opcional al tocar la imagen ampliada

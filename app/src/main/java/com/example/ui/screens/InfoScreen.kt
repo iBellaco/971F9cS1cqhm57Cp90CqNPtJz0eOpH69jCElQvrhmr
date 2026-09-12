@@ -136,7 +136,7 @@ fun InfoScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.custom_app_icon),
-                            contentDescription = "Wild Rift Coach Icon",
+                            contentDescription = "Coach Icon",
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -144,7 +144,7 @@ fun InfoScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Wild Rift Coach",
+                            text = "Coach",
                             color = HextechGoldLight,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Bold

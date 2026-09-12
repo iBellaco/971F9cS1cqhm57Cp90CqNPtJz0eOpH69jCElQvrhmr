@@ -59,6 +59,7 @@ fun AdminCpmAnalyticsDialog(
     }
 
     var showEditCpmDialog by remember { mutableStateOf(false) }
+    var editingNoticeId by remember { mutableStateOf<String?>(null) }
     var showResetConfirmDialog by remember { mutableStateOf(false) }
     var showRecommendationInfoDialog by remember { mutableStateOf(false) }
     var cpmInputText by remember { mutableStateOf(String.format(Locale.US, "%.2f", baseCpmRate)) }
@@ -84,7 +85,7 @@ fun AdminCpmAnalyticsDialog(
 
     fun copyReport() {
         val report = AppNoticeAnalyticsManager.generateSummaryReport(notices)
-        val clip = ClipData.newPlainText("Reporte CPM Wild Rift Coach", report)
+        val clip = ClipData.newPlainText("Reporte CPM Coach", report)
         clipboardManager?.setPrimaryClip(clip)
         Toast.makeText(context, "Reporte CPM copiado al portapapeles", Toast.LENGTH_SHORT).show()
     }
@@ -131,7 +132,37 @@ fun AdminCpmAnalyticsDialog(
                     Text(dynamicRec.reasoning, color = TextPrimary, fontSize = 11.5.sp, lineHeight = 15.sp)
                     
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("📅 Proyección de Precios Fijos (Sponsor):", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("📅 Proyección de Precios Fijos (Sponsor):", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        IconButton(
+                            onClick = {
+                                val presentationText = """
+PRECIOS PUBLICITARIOS - COACH APP
+CPM Recomendado (por cada 1,000 vistas): ${'$'}${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} USD
+
+Proyección de Paquetes (Precios Fijos):
+- 1 Día: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Day)} USD
+- 3 Días: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price3Days)} USD
+- 1 Semana: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Week)} USD
+- 1 Mes: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Month)} USD
+- 1 Año: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Year)} USD
+
+Estos precios están calculados en base a nuestras analíticas activas y engagement de la audiencia.
+                                """.trimIndent()
+                                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                val clip = android.content.ClipData.newPlainText("Precios CPM", presentationText)
+                                clipboardManager.setPrimaryClip(clip)
+                                Toast.makeText(context, "Presentación copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = "Copiar precios", tint = HextechCyan, modifier = Modifier.size(16.dp))
+                        }
+                    }
                     Spacer(modifier = Modifier.height(4.dp))
                     Surface(
                         color = HextechSurfaceVariant,
@@ -141,23 +172,23 @@ fun AdminCpmAnalyticsDialog(
                         Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("1 Día", color = TextSecondary, fontSize = 11.sp)
-                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Day)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Day)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("3 Días", color = TextSecondary, fontSize = 11.sp)
-                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price3Days)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text("$${String.format(Locale.US, "%.0f", dynamicRec.price3Days)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("1 Semana", color = TextSecondary, fontSize = 11.sp)
-                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Week)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Week)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("1 Mes", color = TextSecondary, fontSize = 11.sp)
-                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Month)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Month)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("1 Año", color = TextSecondary, fontSize = 11.sp)
-                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Year)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Year)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -220,14 +251,17 @@ fun AdminCpmAnalyticsDialog(
 
     if (showEditCpmDialog) {
         AlertDialog(
-            onDismissRequest = { showEditCpmDialog = false },
+            onDismissRequest = { 
+                showEditCpmDialog = false 
+                editingNoticeId = null
+            },
             title = {
-                Text("Tarifa CPM Base (USD)", color = HextechGold, fontWeight = FontWeight.Bold)
+                Text(if (editingNoticeId != null) "Tarifa CPM Individual (USD)" else "Tarifa CPM Global (USD)", color = HextechGold, fontWeight = FontWeight.Bold)
             },
             text = {
                 Column {
                     Text(
-                        "Configura el costo por cada 1,000 impresiones para calcular los ingresos estimados generados por tus anuncios y patrocinios:",
+                        if (editingNoticeId != null) "Configura el costo específico para este anuncio. Si lo dejas vacío, usará el precio global." else "Configura el costo por cada 1,000 impresiones para calcular los ingresos estimados generados por tus anuncios y patrocinios:",
                         color = TextSecondary,
                         fontSize = 12.sp
                     )
@@ -313,10 +347,17 @@ fun AdminCpmAnalyticsDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        val parsed = cpmInputText.replace(',', '.').toDoubleOrNull() ?: 2.50
-                        AppNoticeAnalyticsManager.setBaseCpm(context, parsed)
+                        val parsed = cpmInputText.replace(',', '.').toDoubleOrNull()
+                        if (editingNoticeId != null) {
+                            AppNoticeAnalyticsManager.setNoticeCpm(context, editingNoticeId!!, parsed)
+                            Toast.makeText(context, "CPM individual actualizado", Toast.LENGTH_SHORT).show()
+                        } else {
+                            val globalParsed = parsed ?: 2.50
+                            AppNoticeAnalyticsManager.setBaseCpm(context, globalParsed)
+                            Toast.makeText(context, "Tarifa CPM actualizada: $$globalParsed USD", Toast.LENGTH_SHORT).show()
+                        }
                         showEditCpmDialog = false
-                        Toast.makeText(context, "Tarifa CPM actualizada: $$parsed USD", Toast.LENGTH_SHORT).show()
+                        editingNoticeId = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
                 ) {
@@ -324,7 +365,10 @@ fun AdminCpmAnalyticsDialog(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showEditCpmDialog = false }) {
+                TextButton(onClick = { 
+                    showEditCpmDialog = false 
+                    editingNoticeId = null
+                }) {
                     Text("Cancelar", color = TextSecondary)
                 }
             },
@@ -555,7 +599,7 @@ fun AdminCpmAnalyticsDialog(
                             KpiCard(
                                 modifier = Modifier.weight(1f),
                                 label = "Ingresos Est.",
-                                value = "$${String.format(Locale.US, "%.2f", totalRevenue)}",
+                                value = "$${String.format(Locale.US, "%.0f", totalRevenue)}",
                                 subtext = "USD con CPM actual",
                                 accentColor = Color(0xFF00FF66),
                                 icon = Icons.Default.AttachMoney
@@ -724,7 +768,7 @@ fun AdminCpmAnalyticsDialog(
                                 val tagTotalImps = noticesInTag.sumOf { (metricsMap[it.id]?.impressions ?: 0L) }
                                 val tagTotalClicks = noticesInTag.sumOf { (metricsMap[it.id]?.clicks ?: 0L) }
                                 val tagTotalFullscreen = noticesInTag.sumOf { (metricsMap[it.id]?.fullscreenViews ?: 0L) }
-                                val tagRevenue = (tagTotalImps.toDouble() / 1000.0) * baseCpmRate
+                                val tagRevenue = noticesInTag.sumOf { (metricsMap[it.id]?.calculateRevenue(baseCpmRate) ?: 0.0) }
                                 val tagCtr = if (tagTotalImps > 0) (tagTotalClicks.toDouble() / tagTotalImps.toDouble()) * 100.0 else 0.0
 
                                 val tagColor = when {
@@ -772,7 +816,7 @@ fun AdminCpmAnalyticsDialog(
                                             }
 
                                             Text(
-                                                text = "Total: $${String.format(Locale.US, "%.2f", tagRevenue)} USD",
+                                                text = "Total: $${String.format(Locale.US, "%.0f", tagRevenue)} USD",
                                                 color = Color(0xFF00FF66),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold
@@ -809,7 +853,12 @@ fun AdminCpmAnalyticsDialog(
                                 NoticeAnalyticsItemCard(
                                     notice = notice,
                                     metrics = metrics,
-                                    baseCpm = baseCpmRate
+                                    baseCpm = baseCpmRate,
+                                    onEditCustomCpm = {
+                                        editingNoticeId = notice.id
+                                        cpmInputText = if (metrics.customCpmRate != null) String.format(Locale.US, "%.2f", metrics.customCpmRate) else ""
+                                        showEditCpmDialog = true
+                                    }
                                 )
                             }
                         }
@@ -855,7 +904,8 @@ private fun KpiCard(
 private fun NoticeAnalyticsItemCard(
     notice: AppNotice,
     metrics: NoticeMetrics,
-    baseCpm: Double
+    baseCpm: Double,
+    onEditCustomCpm: () -> Unit
 ) {
     val revenue = metrics.calculateRevenue(baseCpm)
 
@@ -972,9 +1022,20 @@ private fun NoticeAnalyticsItemCard(
 
                 // Ingresos Generados
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Generado", color = TextMuted, fontSize = 9.sp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(if (metrics.customCpmRate != null) "Generado (CPM ★)" else "Generado", color = TextMuted, fontSize = 9.sp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar CPM",
+                            tint = HextechGold,
+                            modifier = Modifier
+                                .size(12.dp)
+                                .clickable { onEditCustomCpm() }
+                        )
+                    }
                     Text(
-                        "$${String.format(Locale.US, "%.2f", revenue)}",
+                        "$${String.format(Locale.US, "%.0f", revenue)}",
                         color = Color(0xFF00FF66),
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold

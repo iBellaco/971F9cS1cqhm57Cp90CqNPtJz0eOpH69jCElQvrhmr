@@ -264,7 +264,7 @@ fun MainDraftingScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "« Wild Rift Coach »",
+                                text = "« Coach »",
                                 color = TextPrimary,
                                 fontSize = 17.5.sp,
                                 fontWeight = FontWeight.Black,

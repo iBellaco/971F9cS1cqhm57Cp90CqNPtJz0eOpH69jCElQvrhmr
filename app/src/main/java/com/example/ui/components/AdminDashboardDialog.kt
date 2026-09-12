@@ -1373,26 +1373,37 @@ fun EnhancedUserManagementPanel(
     var selectedUserForManage by remember { mutableStateOf<Map<String, Any>?>(null) }
     var selectedUserForAvatarGift by remember { mutableStateOf<Map<String, Any>?>(null) }
 
+    var listenerReg by remember { mutableStateOf<com.google.firebase.firestore.ListenerRegistration?>(null) }
+
     fun loadUsers() {
         isLoading = true
         errorMessage = null
-        FirebaseFirestore.getInstance().collection("users")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val list = snapshot.documents.map { doc ->
-                    val data = doc.data?.toMutableMap() ?: mutableMapOf()
-                    data["uid"] = doc.id
-                    data
+        listenerReg?.remove()
+        listenerReg = FirebaseFirestore.getInstance().collection("users")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    errorMessage = "Error al cargar usuarios: ${e.message}"
+                    isLoading = false
+                    isRefreshing = false
+                    return@addSnapshotListener
                 }
-                users = list
-                isLoading = false
-                isRefreshing = false
+                if (snapshot != null) {
+                    val list = snapshot.documents.map { doc ->
+                        val data = doc.data?.toMutableMap() ?: mutableMapOf()
+                        data["uid"] = doc.id
+                        data
+                    }
+                    users = list
+                    isLoading = false
+                    isRefreshing = false
+                }
             }
-            .addOnFailureListener { e ->
-                errorMessage = "Error al cargar usuarios: ${e.message}"
-                isLoading = false
-                isRefreshing = false
-            }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            listenerReg?.remove()
+        }
     }
 
     var currentTime by remember { mutableStateOf(System.currentTimeMillis()) }
@@ -1410,9 +1421,9 @@ fun EnhancedUserManagementPanel(
     val onlineThreshold = 10 * 60 * 1000L // Activos en últimos 10 minutos o con flag is_online
 
     val onlineUsers = users.count { u ->
-        val isOnlineFlag = u["is_online"] as? Boolean ?: false
+        val isOnlineFlag = u["is_online"] as? Boolean
         val lastActive = (u["last_active"] as? Number)?.toLong() ?: (u["lastActiveTimestamp"] as? Number)?.toLong() ?: 0L
-        isOnlineFlag || (now - lastActive < onlineThreshold)
+        if (isOnlineFlag == false) false else (lastActive > 0L && now - lastActive < onlineThreshold)
     }
 
     val premiumUsers = users.count { u ->
@@ -1442,7 +1453,9 @@ fun EnhancedUserManagementPanel(
             val role = user["role"] as? String ?: "free"
             val until = (user["premiumUntil"] as? Number)?.toLong()
             val isPrem = role == "premium" && (until == null || until == 0L || until > now)
-            val isOnline = (user["is_online"] as? Boolean ?: false) || (now - ((user["last_active"] as? Number)?.toLong() ?: 0L) < onlineThreshold)
+            val explicitOnline = user["is_online"] as? Boolean
+            val lastActiveTmp = (user["last_active"] as? Number)?.toLong() ?: (user["lastActiveTimestamp"] as? Number)?.toLong() ?: 0L
+            val isOnline = if (explicitOnline == false) false else (lastActiveTmp > 0L && now - lastActiveTmp < onlineThreshold)
             val isBanned = (user["banned"] as? Boolean) == true || role == "banned"
 
             val matchesTab = when (selectedFilter) {
@@ -1862,7 +1875,8 @@ fun EnhancedUserAdminCard(
 
     val lastActiveTimestamp = (user["last_active"] as? Number)?.toLong() ?: (user["lastActiveTimestamp"] as? Number)?.toLong() ?: 0L
     val now = currentTime
-    val isOnline = (user["is_online"] as? Boolean ?: false) || (now - lastActiveTimestamp < 10 * 60 * 1000L && lastActiveTimestamp > 0L)
+    val explicitOnline = user["is_online"] as? Boolean
+    val isOnline = if (explicitOnline == false) false else (lastActiveTimestamp > 0L && now - lastActiveTimestamp < 10 * 60 * 1000L)
 
     val isPremiumActive = when {
         role == "admin" -> true
@@ -3260,9 +3274,15 @@ fun AdminBroadcastAnnouncementDialog(
     var title by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var isUrgent by remember { mutableStateOf(false) }
-    var sendNotification by remember { mutableStateOf(true) }
+    var sendNotification by remember { mutableStateOf(false) }
     var isPublishing by remember { mutableStateOf(false) }
     var isDeactivating by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isUrgent) {
+        if (isUrgent) {
+            sendNotification = true
+        }
+    }
 
     val activeAnnouncement by com.example.data.GlobalAnnouncementManager.currentAnnouncement.collectAsState()
     val scrollState = rememberScrollState()

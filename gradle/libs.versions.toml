@@ -53,6 +53,7 @@ mlkitTextRecognition = "16.0.1"
 
 
 [libraries]
+generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version = "0.9.0" }
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }

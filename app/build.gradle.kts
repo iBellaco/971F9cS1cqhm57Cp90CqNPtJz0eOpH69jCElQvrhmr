@@ -20,9 +20,11 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 304
-    versionName = "1.9.42"
+    versionCode = 310
+    versionName = "1.9.48"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: System.getenv("GEMINI_API_KEY") ?: ""
+    buildConfigField("String", "GEMINI_API_KEY", "\"${geminiKey}\"")
   }
 
   signingConfigs {
@@ -125,6 +127,9 @@ dependencies {
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.kotlinx.coroutines.play.services)
   implementation(libs.okhttp)
+  implementation(libs.generativeai)
+  implementation("com.squareup.retrofit2:retrofit:2.12.0")
+  implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.12.0")
   implementation(libs.supabase.postgrest)
   implementation(libs.ktor.client.okhttp)
   implementation(libs.supabase.auth)

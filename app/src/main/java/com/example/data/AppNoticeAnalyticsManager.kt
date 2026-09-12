@@ -21,13 +21,15 @@ data class NoticeMetrics(
     val clicks: Long = 0,
     val totalRawClicks: Long = 0,
     val fullscreenViews: Long = 0,
-    val lastViewedTimestamp: Long = System.currentTimeMillis()
+    val lastViewedTimestamp: Long = System.currentTimeMillis(),
+    val customCpmRate: Double? = null
 ) {
     val ctr: Double
         get() = if (impressions > 0) (clicks.toDouble() / impressions.toDouble()) * 100.0 else 0.0
 
-    fun calculateRevenue(cpmRate: Double): Double {
-        return (impressions.toDouble() / 1000.0) * cpmRate
+    fun calculateRevenue(globalCpmRate: Double): Double {
+        val effectiveCpm = customCpmRate ?: globalCpmRate
+        return (impressions.toDouble() / 1000.0) * effectiveCpm
     }
 }
 
@@ -312,6 +314,7 @@ object AppNoticeAnalyticsManager {
                     val rawClicks = (map["totalRawClicks"] as? Number)?.toLong() ?: 0L
                     val full = (map["fullscreenViews"] as? Number)?.toLong() ?: 0L
                     val lastViewed = (map["lastViewedTimestamp"] as? Number)?.toLong() ?: System.currentTimeMillis()
+                    val customCpmRate = (map["customCpmRate"] as? Number)?.toDouble()
 
                     val localExisting = current[noticeId]
                     val mergedImps = maxOf(imps, localExisting?.impressions ?: 0L)
@@ -319,6 +322,7 @@ object AppNoticeAnalyticsManager {
                     val mergedRawClicks = maxOf(rawClicks, localExisting?.totalRawClicks ?: 0L)
                     val mergedFull = maxOf(full, localExisting?.fullscreenViews ?: 0L)
                     val mergedLastViewed = maxOf(lastViewed, localExisting?.lastViewedTimestamp ?: 0L)
+                    val mergedCustomCpmRate = customCpmRate ?: localExisting?.customCpmRate
 
                     current[noticeId] = NoticeMetrics(
                         noticeId = noticeId,
@@ -326,7 +330,8 @@ object AppNoticeAnalyticsManager {
                         clicks = mergedClicks,
                         totalRawClicks = mergedRawClicks,
                         fullscreenViews = mergedFull,
-                        lastViewedTimestamp = mergedLastViewed
+                        lastViewedTimestamp = mergedLastViewed,
+                        customCpmRate = mergedCustomCpmRate
                     )
                 }
                 _metricsMap.value = current
@@ -554,6 +559,24 @@ object AppNoticeAnalyticsManager {
         }
     }
 
+    fun setNoticeCpm(context: Context, noticeId: String, customCpm: Double?) {
+        val currentMap = _metricsMap.value.toMutableMap()
+        val metrics = currentMap[noticeId] ?: NoticeMetrics(noticeId = noticeId)
+        val safeCpm = customCpm?.coerceAtLeast(0.01)
+        currentMap[noticeId] = metrics.copy(customCpmRate = safeCpm)
+        _metricsMap.value = currentMap
+        saveToPrefs(context, currentMap)
+
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val cpmValue: Any = safeCpm ?: FieldValue.delete()
+            db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_ANALYTICS)
+                .set(hashMapOf("metrics" to hashMapOf(noticeId to hashMapOf("customCpmRate" to cpmValue))), SetOptions.merge())
+        } catch (e: Exception) {
+            Log.w(TAG, "Error sincronizando custom CPM en la nube: ${e.message}")
+        }
+    }
+
     fun resetMetrics(context: Context) {
         _metricsMap.value = emptyMap()
         _trackingStartDate.value = System.currentTimeMillis()
@@ -615,9 +638,8 @@ object AppNoticeAnalyticsManager {
     fun getTotalClicks(): Long = _metricsMap.value.values.sumOf { it.clicks }
     fun getTotalFullscreenViews(): Long = _metricsMap.value.values.sumOf { it.fullscreenViews }
 
-    fun getTotalRevenue(cpmRate: Double = _baseCpmRate.value): Double {
-        val totalImps = getTotalImpressions()
-        return (totalImps.toDouble() / 1000.0) * cpmRate
+    fun getTotalRevenue(globalCpmRate: Double = _baseCpmRate.value): Double {
+        return _metricsMap.value.values.sumOf { it.calculateRevenue(globalCpmRate) }
     }
 
     fun getOverallCtr(): Double {

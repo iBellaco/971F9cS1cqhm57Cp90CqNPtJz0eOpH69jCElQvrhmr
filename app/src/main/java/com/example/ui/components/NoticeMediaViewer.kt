@@ -409,8 +409,36 @@ fun LocalGalleryVideoPlayer(
                 Lifecycle.Event.ON_RESUME -> {
                     videoViewRef?.let { vv ->
                         try {
-                            if (!vv.isPlaying && isPlaying) {
+                            vv.resume()
+                            if (isPlaying) {
                                 vv.start()
+                            } else {
+                                // Restore the frame if paused and surface was destroyed
+                                try {
+                                    val pos = vv.currentPosition
+                                    if (videoUriString.startsWith("file://")) {
+                                        val filePath = Uri.parse(videoUriString).path
+                                        if (filePath != null && java.io.File(filePath).exists()) {
+                                            vv.setVideoPath(filePath)
+                                        } else {
+                                            vv.setVideoURI(Uri.parse(videoUriString))
+                                        }
+                                    } else if (videoUriString.startsWith("/")) {
+                                        vv.setVideoPath(videoUriString)
+                                    } else {
+                                        vv.setVideoURI(Uri.parse(videoUriString))
+                                    }
+                                    vv.setOnPreparedListener { mp ->
+                                        mediaPlayerRef = mp
+                                        mp.isLooping = true
+                                        val vol = if (isMuted) 0f else 1f
+                                        mp.setVolume(vol, vol)
+                                        if (pos > 0) vv.seekTo(pos)
+                                        if (isPlaying) {
+                                            vv.start()
+                                        }
+                                    }
+                                } catch (_: Exception) {}
                             }
                         } catch (_: Exception) {
                             try {
@@ -436,6 +464,7 @@ fun LocalGalleryVideoPlayer(
                             if (vv.isPlaying) {
                                 vv.pause()
                             }
+                            vv.suspend()
                         } catch (_: Exception) {}
                     }
                 }
@@ -527,6 +556,23 @@ fun LocalGalleryVideoPlayer(
                 .padding(6.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            // Botón de Play / Pausa
+            IconButton(
+                onClick = {
+                    isPlaying = !isPlaying
+                },
+                modifier = Modifier
+                    .size(28.dp)
+                    .background(Color.Black.copy(alpha = 0.65f), CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                    contentDescription = if (isPlaying) "Pausar" else "Reproducir",
+                    tint = themePrimary,
+                    modifier = Modifier.size(15.dp)
+                )
+            }
+
             // Botón de Quitar Silencio / Silenciar
             IconButton(
                 onClick = {
@@ -583,7 +629,7 @@ fun NoticeMediaFullscreenDialog(
     val isLocal = remember(trimmedUrl) { NoticeMediaUtils.isLocalVideo(context, trimmedUrl) }
     val isVideo = isYt || isLocal
 
-    var isLandscape by remember { mutableStateOf(false) }
+    var isLandscape by remember { mutableStateOf(isVideo) }
 
     DisposableEffect(isLandscape) {
         if (isVideo) {

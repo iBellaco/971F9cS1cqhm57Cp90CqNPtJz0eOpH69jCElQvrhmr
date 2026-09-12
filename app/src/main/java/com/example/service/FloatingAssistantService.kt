@@ -389,7 +389,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Wild Rift Coach Activo")
+            .setContentTitle("Coach Activo")
             .setContentText("Superposición en vivo sobre Wild Rift • Toca para abrir")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setOngoing(true)
@@ -802,6 +802,7 @@ class OverlayState {
     var activeRole by androidx.compose.runtime.mutableStateOf(LaneRole.MID)
     var isRoleManuallySelected by androidx.compose.runtime.mutableStateOf(false)
     var isFirstPick by androidx.compose.runtime.mutableStateOf(false)
+    var hasCalledGeminiFor10thPick by androidx.compose.runtime.mutableStateOf(false)
     var isCompactBubble by androidx.compose.runtime.mutableStateOf(false)
     var isScanning by androidx.compose.runtime.mutableStateOf(false)
     var autoScanEnabled by androidx.compose.runtime.mutableStateOf(false)
@@ -981,7 +982,38 @@ private fun FloatingOverlayContent(
                             val totalAlliesPicked = allies.filterNotNull().size
                             val totalEnemiesPicked = enemies.filterNotNull().size
 
-                            if (totalAlliesPicked == 5 && totalEnemiesPicked == 5 && result.isLastPickConfirmed) {
+                            if (result.isPreparationPhase && !state.hasCalledGeminiFor10thPick) {
+                                val isEnemy10th = state.isFirstPick
+                                if ((isEnemy10th && enemies[4] == null) || (!isEnemy10th && allies[4] == null)) {
+                                    state.hasCalledGeminiFor10thPick = true
+                                    scanNoticeMessage = "Analizando 10º pick con IA (Preparación)..."
+                                    launch(Dispatchers.IO) {
+                                        val cropRect = if (isEnemy10th) {
+                                            android.graphics.Rect((bitmap.width * 0.5f).toInt(), 0, bitmap.width, (bitmap.height * 0.20f).toInt())
+                                        } else {
+                                            android.graphics.Rect(0, 0, (bitmap.width * 0.5f).toInt(), (bitmap.height * 0.20f).toInt())
+                                        }
+                                        val crop = android.graphics.Bitmap.createBitmap(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
+                                        val champName = com.example.service.gemini.GeminiVisionService.identify10thPickFromPreparationScreen(crop, isEnemy10th)
+                                        crop.recycle()
+                                        if (champName != null) {
+                                            val matchedChamp = com.example.service.screen.ChampionNameResolver.findChampionInText(champName, com.example.data.WildRiftRepository.champions)
+                                            if (matchedChamp != null) {
+                                                withContext(Dispatchers.Main) {
+                                                    if (isEnemy10th) {
+                                                        assignEnemySlot(4, matchedChamp, 100)
+                                                    } else {
+                                                        assignAllySlot(4, matchedChamp)
+                                                    }
+                                                    scanNoticeMessage = "🎯 10º Pick detectado con IA: ${matchedChamp.name}"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (totalAlliesPicked == 5 && totalEnemiesPicked == 5 && (result.isLastPickConfirmed || result.isPreparationPhase)) {
                                 // Finalizar Auto-Scan únicamente cuando existan 5 aliados + 5 rivales CONFIRMADOS
                                 autoScanEnabled = false
                                 scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
@@ -1636,6 +1668,7 @@ private fun FloatingOverlayContent(
                                                 state.allySpells.clear()
                                                 state.enemySpells.clear()
                                                 state.isRoleManuallySelected = false
+                                                state.hasCalledGeminiFor10thPick = false
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
