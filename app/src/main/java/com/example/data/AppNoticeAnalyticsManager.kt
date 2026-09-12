@@ -19,6 +19,7 @@ data class NoticeMetrics(
     val noticeId: String,
     val impressions: Long = 0,
     val clicks: Long = 0,
+    val totalRawClicks: Long = 0,
     val fullscreenViews: Long = 0,
     val lastViewedTimestamp: Long = System.currentTimeMillis()
 ) {
@@ -75,7 +76,12 @@ object AppNoticeAnalyticsManager {
         val ctrMultiplier: Double,
         val engagementBonus: Double,
         val reasoning: String,
-        val suggestedPriceRange: Pair<Double, Double>
+        val suggestedPriceRange: Pair<Double, Double>,
+        val price1Day: Double = 0.0,
+        val price3Days: Double = 0.0,
+        val price1Week: Double = 0.0,
+        val price1Month: Double = 0.0,
+        val price1Year: Double = 0.0
     )
 
     fun calculateRecommendedCpm(): DynamicCpmRecommendation {
@@ -83,6 +89,11 @@ object AppNoticeAnalyticsManager {
         val totalClicks = getTotalClicks()
         val totalFullscreen = getTotalFullscreenViews()
         val ctr = getOverallCtr()
+        val millisTracked = System.currentTimeMillis() - _trackingStartDate.value
+        val daysTracked = maxOf(1L, millisTracked / (1000 * 60 * 60 * 24)).toDouble()
+        
+        // Estimar impresiones diarias (min 50 para cálculo)
+        val avgDailyImps = maxOf(totalImps.toDouble() / daysTracked, 50.0)
 
         // Base de mercado eSports Gaming en LATAM/Global: $1.20 - $4.50 USD CPM
         val baseMarketCpm = 2.20
@@ -135,6 +146,15 @@ object AppNoticeAnalyticsManager {
 
         val minRange = (Math.round((finalCpm * 0.85) * 100.0) / 100.0).coerceAtLeast(0.50)
         val maxRange = (Math.round((finalCpm * 1.25) * 100.0) / 100.0)
+        
+        // Cálculo de precios proyectados basados en impresiones diarias promedio
+        val calcPrice = { days: Double -> (avgDailyImps * days / 1000.0) * finalCpm }
+        // Descuentos progresivos por volumen de tiempo
+        val price1Day = Math.round(calcPrice(1.0) * 100.0) / 100.0
+        val price3Days = Math.round(calcPrice(3.0) * 0.95 * 100.0) / 100.0
+        val price1Week = Math.round(calcPrice(7.0) * 0.90 * 100.0) / 100.0
+        val price1Month = Math.round(calcPrice(30.0) * 0.80 * 100.0) / 100.0
+        val price1Year = Math.round(calcPrice(365.0) * 0.65 * 100.0) / 100.0
 
         return DynamicCpmRecommendation(
             recommendedCpm = finalCpm,
@@ -144,7 +164,12 @@ object AppNoticeAnalyticsManager {
             ctrMultiplier = ctrFactor,
             engagementBonus = engagementBonus,
             reasoning = reasoning,
-            suggestedPriceRange = Pair(minRange, maxRange)
+            suggestedPriceRange = Pair(minRange, maxRange),
+            price1Day = price1Day,
+            price3Days = price3Days,
+            price1Week = price1Week,
+            price1Month = price1Month,
+            price1Year = price1Year
         )
     }
 
@@ -181,30 +206,9 @@ object AppNoticeAnalyticsManager {
 
     private fun ensureAuthAndSync(context: Context) {
         val appContext = context.applicationContext
-        try {
-            val auth = FirebaseAuth.getInstance()
-            if (auth.currentUser == null) {
-                if (isAuthenticatingAnonymously) return
-                isAuthenticatingAnonymously = true
-                auth.signInAnonymously()
-                    .addOnSuccessListener {
-                        isAuthenticatingAnonymously = false
-                        attachFirestoreListener(appContext, force = true)
-                        syncFromCloud(appContext)
-                    }
-                    .addOnFailureListener {
-                        isAuthenticatingAnonymously = false
-                        attachFirestoreListener(appContext, force = true)
-                        syncFromCloud(appContext)
-                    }
-            } else {
-                attachFirestoreListener(appContext, force = false)
-                syncFromCloud(appContext)
-            }
-        } catch (e: Exception) {
-            Log.w(TAG, "Excepción en ensureAuthAndSync: ${e.message}")
-            attachFirestoreListener(appContext, force = false)
-            syncFromCloud(appContext)
+        com.example.util.GuestAuthHelper.ensureAuth {
+            attachFirestoreListener(appContext, force = true)
+            executeCloudFetch(appContext, null)
         }
     }
 
@@ -222,6 +226,13 @@ object AppNoticeAnalyticsManager {
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Error escuchando analíticas en la nube: ${error.message}")
+                        try {
+                            firestoreListener?.remove()
+                        } catch (_: Exception) {}
+                        firestoreListener = null
+                        com.example.util.GuestAuthHelper.ensureAuth {
+                            attachFirestoreListener(context, force = false)
+                        }
                         return@addSnapshotListener
                     }
                     if (snapshot != null && snapshot.exists()) {
@@ -236,6 +247,17 @@ object AppNoticeAnalyticsManager {
 
     fun syncFromCloud(context: Context, onComplete: ((Boolean) -> Unit)? = null) {
         val appContext = context.applicationContext
+        val auth = try { FirebaseAuth.getInstance() } catch (_: Exception) { null }
+        if (auth?.currentUser == null) {
+            com.example.util.GuestAuthHelper.ensureAuth {
+                executeCloudFetch(appContext, onComplete)
+            }
+        } else {
+            executeCloudFetch(appContext, onComplete)
+        }
+    }
+
+    private fun executeCloudFetch(appContext: Context, onComplete: ((Boolean) -> Unit)?) {
         _isSyncing.value = true
         try {
             val db = FirebaseFirestore.getInstance()
@@ -248,7 +270,6 @@ object AppNoticeAnalyticsManager {
                         _lastSyncTime.value = System.currentTimeMillis()
                         onComplete?.invoke(true)
                     } else {
-                        // Si el documento en la nube aún no existe, subir los datos locales iniciales
                         pushLocalToCloud(appContext)
                         _lastSyncTime.value = System.currentTimeMillis()
                         onComplete?.invoke(true)
@@ -288,12 +309,14 @@ object AppNoticeAnalyticsManager {
                     val map = v as? Map<*, *> ?: continue
                     val imps = (map["impressions"] as? Number)?.toLong() ?: 0L
                     val clicks = (map["clicks"] as? Number)?.toLong() ?: 0L
+                    val rawClicks = (map["totalRawClicks"] as? Number)?.toLong() ?: 0L
                     val full = (map["fullscreenViews"] as? Number)?.toLong() ?: 0L
                     val lastViewed = (map["lastViewedTimestamp"] as? Number)?.toLong() ?: System.currentTimeMillis()
 
                     val localExisting = current[noticeId]
                     val mergedImps = maxOf(imps, localExisting?.impressions ?: 0L)
                     val mergedClicks = maxOf(clicks, localExisting?.clicks ?: 0L)
+                    val mergedRawClicks = maxOf(rawClicks, localExisting?.totalRawClicks ?: 0L)
                     val mergedFull = maxOf(full, localExisting?.fullscreenViews ?: 0L)
                     val mergedLastViewed = maxOf(lastViewed, localExisting?.lastViewedTimestamp ?: 0L)
 
@@ -301,6 +324,7 @@ object AppNoticeAnalyticsManager {
                         noticeId = noticeId,
                         impressions = mergedImps,
                         clicks = mergedClicks,
+                        totalRawClicks = mergedRawClicks,
                         fullscreenViews = mergedFull,
                         lastViewedTimestamp = mergedLastViewed
                     )
@@ -324,6 +348,7 @@ object AppNoticeAnalyticsManager {
                     "noticeId" to v.noticeId,
                     "impressions" to v.impressions,
                     "clicks" to v.clicks,
+                    "totalRawClicks" to v.totalRawClicks,
                     "fullscreenViews" to v.fullscreenViews,
                     "lastViewedTimestamp" to v.lastViewedTimestamp
                 )
@@ -362,6 +387,7 @@ object AppNoticeAnalyticsManager {
                         noticeId = key,
                         impressions = obj.optLong("impressions", 0L),
                         clicks = obj.optLong("clicks", 0L),
+                        totalRawClicks = obj.optLong("totalRawClicks", 0L),
                         fullscreenViews = obj.optLong("fullscreenViews", 0L),
                         lastViewedTimestamp = obj.optLong("lastViewedTimestamp", System.currentTimeMillis())
                     )
@@ -425,38 +451,41 @@ object AppNoticeAnalyticsManager {
     fun recordClick(context: Context, noticeId: String) {
         if (noticeId.isBlank()) return
 
+        var incrementUniqueClick = false
         try {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             val todayDate = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
             val dailyKey = "$KEY_DAILY_CLICKS_PREFIX${todayDate}_$noticeId"
             
-            // Si ya hizo clic hoy en este dispositivo para este anuncio, evitamos conteo inflado artificial (1 clic único por dispositivo al día)
             val alreadyClickedToday = prefs.getBoolean(dailyKey, false)
-            if (alreadyClickedToday) {
-                return
+            if (!alreadyClickedToday) {
+                prefs.edit().putBoolean(dailyKey, true).apply()
+                incrementUniqueClick = true
             }
-            prefs.edit().putBoolean(dailyKey, true).apply()
         } catch (_: Exception) {}
 
         val current = _metricsMap.value.toMutableMap()
         val existing = current[noticeId] ?: NoticeMetrics(noticeId = noticeId)
         val updated = existing.copy(
-            clicks = existing.clicks + 1,
+            clicks = existing.clicks + (if (incrementUniqueClick) 1 else 0),
+            totalRawClicks = existing.totalRawClicks + 1,
             lastViewedTimestamp = System.currentTimeMillis()
         )
         current[noticeId] = updated
         _metricsMap.value = current
         saveToPrefs(context, current)
 
-        // Sincronizar incremento atómico de clics en la nube
         try {
             val db = FirebaseFirestore.getInstance()
             val updates = hashMapOf<String, Any>(
-                "metrics.$noticeId.clicks" to FieldValue.increment(1L),
+                "metrics.$noticeId.totalRawClicks" to FieldValue.increment(1L),
                 "metrics.$noticeId.noticeId" to noticeId,
                 "metrics.$noticeId.lastViewedTimestamp" to System.currentTimeMillis(),
                 "updatedAt" to System.currentTimeMillis()
             )
+            if (incrementUniqueClick) {
+                updates["metrics.$noticeId.clicks"] = FieldValue.increment(1L)
+            }
             db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_ANALYTICS)
                 .set(updates, SetOptions.merge())
         } catch (e: Exception) {

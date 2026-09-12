@@ -3260,6 +3260,7 @@ fun AdminBroadcastAnnouncementDialog(
     var title by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var isUrgent by remember { mutableStateOf(false) }
+    var sendNotification by remember { mutableStateOf(true) }
     var isPublishing by remember { mutableStateOf(false) }
     var isDeactivating by remember { mutableStateOf(false) }
 
@@ -3401,6 +3402,19 @@ fun AdminBroadcastAnnouncementDialog(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("Marcar como Urgente / Mantenimiento", color = if (isUrgent) DangerRed else TextSecondary, fontSize = 12.sp)
                 }
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { sendNotification = !sendNotification }
+                ) {
+                    Checkbox(
+                        checked = sendNotification,
+                        onCheckedChange = { sendNotification = it },
+                        colors = CheckboxDefaults.colors(checkedColor = HextechGold)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Enviar notificación a los dispositivos", color = if (sendNotification) HextechGold else TextSecondary, fontSize = 12.sp)
+                }
             }
         },
         confirmButton = {
@@ -3415,7 +3429,8 @@ fun AdminBroadcastAnnouncementDialog(
                         context = context,
                         title = title,
                         message = message,
-                        isUrgent = isUrgent
+                        isUrgent = isUrgent,
+                        sendNotification = sendNotification
                     ) { success, err ->
                         isPublishing = false
                         if (success) {

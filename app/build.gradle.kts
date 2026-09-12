@@ -20,8 +20,8 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 303
-    versionName = "1.9.41"
+    versionCode = 304
+    versionName = "1.9.42"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 

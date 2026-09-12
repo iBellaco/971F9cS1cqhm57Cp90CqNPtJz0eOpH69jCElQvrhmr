@@ -35,6 +35,7 @@ data class GlobalAnnouncement(
     val title: String = "",
     val message: String = "",
     val isUrgent: Boolean = false,
+    val sendNotification: Boolean = false,
     val timestamp: Long = 0L,
     val active: Boolean = false
 ) {
@@ -202,6 +203,7 @@ object GlobalAnnouncementManager {
             val title = snapshot.getString("title") ?: ""
             val message = snapshot.getString("message") ?: ""
             val isUrgent = snapshot.getBoolean("isUrgent") ?: false
+            val sendNotification = snapshot.getBoolean("sendNotification") ?: isUrgent
             val timestamp = snapshot.getLong("timestamp") ?: 0L
             val id = snapshot.getString("id") ?: "${title.hashCode()}_$timestamp"
 
@@ -215,6 +217,7 @@ object GlobalAnnouncementManager {
                 title = title,
                 message = message,
                 isUrgent = isUrgent,
+                sendNotification = sendNotification,
                 timestamp = timestamp,
                 active = true
             )
@@ -234,8 +237,10 @@ object GlobalAnnouncementManager {
 
             if (isNewOrUpdated) {
                 _isAnnouncementVisible.value = true
-                // Disparar notificación en la barra de estado del sistema
-                showSystemNotification(context, announcement)
+                // Disparar notificación en la barra de estado del sistema si está habilitado
+                if (announcement.sendNotification) {
+                    showSystemNotification(context, announcement)
+                }
             } else {
                 // Ya fue descartado previamente por el usuario, mantener en memoria para banner secundario
                 _isAnnouncementVisible.value = false
@@ -401,6 +406,7 @@ object GlobalAnnouncementManager {
         title: String,
         message: String,
         isUrgent: Boolean,
+        sendNotification: Boolean,
         onComplete: (Boolean, String?) -> Unit
     ) {
         val newId = UUID.randomUUID().toString()
@@ -410,6 +416,7 @@ object GlobalAnnouncementManager {
             "title" to title.trim(),
             "message" to message.trim(),
             "isUrgent" to isUrgent,
+            "sendNotification" to sendNotification,
             "timestamp" to now,
             "active" to true
         )
@@ -425,6 +432,7 @@ object GlobalAnnouncementManager {
                         title = title.trim(),
                         message = message.trim(),
                         isUrgent = isUrgent,
+                        sendNotification = sendNotification,
                         timestamp = now,
                         active = true
                     )

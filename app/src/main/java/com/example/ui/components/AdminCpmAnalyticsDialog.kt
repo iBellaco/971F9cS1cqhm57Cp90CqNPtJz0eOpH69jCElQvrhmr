@@ -129,6 +129,38 @@ fun AdminCpmAnalyticsDialog(
                     Text("💡 Criterio del Sistema:", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(dynamicRec.reasoning, color = TextPrimary, fontSize = 11.5.sp, lineHeight = 15.sp)
+                    
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("📅 Proyección de Precios Fijos (Sponsor):", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Surface(
+                        color = HextechSurfaceVariant,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("1 Día", color = TextSecondary, fontSize = 11.sp)
+                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Day)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("3 Días", color = TextSecondary, fontSize = 11.sp)
+                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price3Days)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("1 Semana", color = TextSecondary, fontSize = 11.sp)
+                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Week)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("1 Mes", color = TextSecondary, fontSize = 11.sp)
+                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Month)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text("1 Año", color = TextSecondary, fontSize = 11.sp)
+                                Text("$${String.format(Locale.US, "%.2f", dynamicRec.price1Year)} USD", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
@@ -911,18 +943,18 @@ private fun NoticeAnalyticsItemCard(
                     Text(
                         String.format(Locale.US, "%,d", metrics.impressions),
                         color = HextechCyan,
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
                 // Clics / CTR
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Clics Únicos (CTR)", color = TextMuted, fontSize = 9.sp)
+                    Text("Únicos / Totales", color = TextMuted, fontSize = 9.sp)
                     Text(
-                        "${metrics.clicks} (${String.format(Locale.US, "%.1f", metrics.ctr)}%)",
+                        "${metrics.clicks} / ${metrics.totalRawClicks}",
                         color = HextechGold,
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -933,18 +965,18 @@ private fun NoticeAnalyticsItemCard(
                     Text(
                         "${metrics.fullscreenViews}",
                         color = Color(0xFFCC66FF),
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
 
                 // Ingresos Generados
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Generado (CPM)", color = TextMuted, fontSize = 9.sp)
+                    Text("Generado", color = TextMuted, fontSize = 9.sp)
                     Text(
                         "$${String.format(Locale.US, "%.2f", revenue)}",
                         color = Color(0xFF00FF66),
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
