@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,10 +18,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.ui.theme.*
 import com.example.util.tr
 
@@ -32,19 +36,23 @@ enum class LegalTab(val titleRes: String) {
 
 @Composable
 fun PrivacyPolicyDialog(
+    isMandatoryAcceptance: Boolean = false,
+    onAccept: () -> Unit = {},
     onDismiss: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(LegalTab.PRIVACY) }
-    var acceptedPrivacy by remember { mutableStateOf(false) }
-    var acceptedTerms by remember { mutableStateOf(false) }
-    var acceptedThirdParty by remember { mutableStateOf(false) }
-    val allAccepted = acceptedPrivacy && acceptedTerms && acceptedThirdParty
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnClickOutside = !isMandatoryAcceptance,
+            dismissOnBackPress = true
+        )
+    ) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.90f)
+                .fillMaxHeight(0.92f)
                 .border(1.5.dp, HextechGold.copy(alpha = 0.7f), RoundedCornerShape(20.dp)),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = HextechSurface)
@@ -82,7 +90,11 @@ fun PrivacyPolicyDialog(
                         )
                     }
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = tr("Cerrar"), tint = TextSecondary)
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = if (isMandatoryAcceptance) tr("Cerrar y Salir") else tr("Cerrar"),
+                            tint = TextSecondary
+                        )
                     }
                 }
 
@@ -134,20 +146,69 @@ fun PrivacyPolicyDialog(
                     }
                 }
 
-                Button(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = HextechGold
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (isMandatoryAcceptance) {
                     Text(
-                        text = tr("Cerrar"),
-                        color = HextechDarkBg,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
+                        text = tr("Debes aceptar los Términos de Servicio y la Política de Privacidad para poder ingresar a la aplicación. Si cierras esta ventana, la aplicación se cerrará."),
+                        color = HextechCyan.copy(alpha = 0.9f),
+                        fontSize = 11.5.sp,
+                        lineHeight = 15.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp, vertical = 2.dp)
                     )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, Color(0xFFFF4D4D).copy(alpha = 0.6f)),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF6666))
+                        ) {
+                            Text(
+                                text = tr("Rechazar y Salir"),
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        Button(
+                            onClick = onAccept,
+                            modifier = Modifier.weight(1.3f),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                text = tr("Aceptar y Entrar"),
+                                color = HextechDarkBg,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.5.sp
+                            )
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = onDismiss,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = tr("Cerrar"),
+                            color = HextechDarkBg,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                    }
                 }
             }
         }

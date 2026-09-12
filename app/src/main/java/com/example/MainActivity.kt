@@ -654,9 +654,9 @@ fun DraftingApp() {
     val context = LocalContext.current
     val sharedPrefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
     var isLanguageSet by remember { mutableStateOf(sharedPrefs.getBoolean("is_language_set", false)) }
+    var hasAcceptedLegal by remember { mutableStateOf(sharedPrefs.getBoolean("has_accepted_legal", false)) }
     var hasSeenOnboarding by remember { mutableStateOf(sharedPrefs.getBoolean("has_seen_onboarding", false)) }
-    var showPrivacyPolicyAfterLang by remember { mutableStateOf(false) }
-    var pendingScreenAfterPrivacy by remember { mutableStateOf<AppScreen?>(null) }
+    var showLegalDialog by remember { mutableStateOf(isLanguageSet && !hasAcceptedLegal) }
     var currentScreen by remember { 
         mutableStateOf(
             when {
@@ -714,7 +714,11 @@ fun DraftingApp() {
             }
         }
 
-    BackHandler(enabled = currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
+    BackHandler(enabled = showLegalDialog && !hasAcceptedLegal) {
+        (context as? android.app.Activity)?.finishAffinity()
+    }
+
+    BackHandler(enabled = !showLegalDialog && currentScreen != AppScreen.MAIN && currentScreen != AppScreen.LANGUAGE_SELECTION) {
         currentScreen = AppScreen.MAIN
     }
 
@@ -754,9 +758,11 @@ fun DraftingApp() {
                             .apply()
                         isLanguageSet = true
                         selectedLanguage = langCode
-                        val next = if (!hasSeenOnboarding) AppScreen.ONBOARDING else AppScreen.MAIN
-                        pendingScreenAfterPrivacy = next
-                        showPrivacyPolicyAfterLang = true
+                        if (!hasAcceptedLegal) {
+                            showLegalDialog = true
+                        } else {
+                            currentScreen = if (!hasSeenOnboarding) AppScreen.ONBOARDING else AppScreen.MAIN
+                        }
                         // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)
                         coroutineScope.launch {
                             AppUpdateManager.checkForUpdates(context, true)
@@ -805,14 +811,18 @@ fun DraftingApp() {
         }
     }
 
-    if (showPrivacyPolicyAfterLang) {
+    if (showLegalDialog && !hasAcceptedLegal) {
         PrivacyPolicyDialog(
+            isMandatoryAcceptance = true,
+            onAccept = {
+                sharedPrefs.edit().putBoolean("has_accepted_legal", true).apply()
+                hasAcceptedLegal = true
+                showLegalDialog = false
+                currentScreen = if (!hasSeenOnboarding) AppScreen.ONBOARDING else AppScreen.MAIN
+            },
             onDismiss = {
-                showPrivacyPolicyAfterLang = false
-                pendingScreenAfterPrivacy?.let { next ->
-                    currentScreen = next
-                    pendingScreenAfterPrivacy = null
-                }
+                // Si la cierran en vez de aceptar se cierra la aplicación y no la pueden usar
+                (context as? android.app.Activity)?.finishAffinity()
             }
         )
     }

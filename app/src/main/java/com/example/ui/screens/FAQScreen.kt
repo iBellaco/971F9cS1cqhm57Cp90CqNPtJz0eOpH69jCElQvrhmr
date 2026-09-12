@@ -242,10 +242,6 @@ fun FAQScreen(
                 "Ni la Inteligencia Artificial más potente del mundo ha logrado descifrar la psicología de un equipo en partidas clasificatorias de Wild Rift que prefiere ir a farmear los lobos en vez de hacer el Dragón Anciano. Es un misterio de la humanidad."
             ),
             Pair(
-                "¿Si me pongo la skin de Lee Sin Puño de Dios, la app me da más winrate automáticamente?",
-                "Visualmente intimidarás más, pero el algoritmo sabe que seguirás fallando la Onda Sónica (Habilidad 1 / H1). Las skins dan +10 de facha, pero no apuntan por ti."
-            ),
-            Pair(
                 "¿La app incluye un botón de 'rendición automática' al minuto 5?",
                 "No, ¡nunca te rindas! Bueno, a menos que el Nexo enemigo tenga 10 de vida y tu equipo esté peleando por el escurridizo del río. Ahí te damos permiso moral de llorar."
             ),
