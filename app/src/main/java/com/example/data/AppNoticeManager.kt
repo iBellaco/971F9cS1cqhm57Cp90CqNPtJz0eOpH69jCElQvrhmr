@@ -70,6 +70,7 @@ object AppNoticeManager {
         val appContext = context.applicationContext
         // 1. Cargar caché local de inmediato (garantiza arranque instantáneo en 0ms)
         loadFromLocalStorage(appContext)
+        preloadMedia(appContext, _notices.value)
 
         // 2. Intentar leer caché local de Firestore de inmediato (0ms de latencia)
         fetchFromFirestoreCache(appContext)

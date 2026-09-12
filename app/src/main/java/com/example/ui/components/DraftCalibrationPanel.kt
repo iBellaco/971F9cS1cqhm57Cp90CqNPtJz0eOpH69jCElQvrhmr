@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,15 +21,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.model.LaneRole
 import com.example.service.screen.DraftVisionScanner
 import com.example.service.screen.VisionCalibrationConfig
 import com.example.ui.theme.*
@@ -38,20 +34,24 @@ import com.example.util.tr
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 enum class CalibrationTarget(val title: String, val subtitle: String) {
-    GLOBAL_ALLY_X("Columna Aliados (X)", "Mover horizontalmente todos los avatares aliados"),
-    GLOBAL_ENEMY_X("Columna Rivales (X)", "Mover horizontalmente todos los avatares rivales"),
-    AVATAR_SIZE("Tamaño Avatar (⌀)", "Agrandar o reducir radio de escaneo de retratos"),
+    TOP_ENEMY_5("⭐ 10º Pick Rival Superior (Top 5)", "Calibrar círculo superior derecho del 10º pick rival"),
+    TOP_ALLY_5("⭐ 10º Pick Aliado Superior (Top 5)", "Calibrar círculo superior izquierdo del 10º pick aliado"),
+    TOP_AVATAR_Y("Altura Y Círculos Superiores", "Mover arriba/abajo la barra superior de avatares"),
+    TOP_AVATAR_SIZE("Tamaño Círculos Superiores (⌀)", "Ajustar diámetro de los 10 avatares de la barra superior"),
+    AVATAR_SIZE("Tamaño Avatar Slots (⌀)", "Agrandar o reducir radio de escaneo de retratos en slots"),
+    GLOBAL_ALLY_X("Columna Aliados X", "Mover horizontalmente todos los avatares aliados verticales"),
+    GLOBAL_ENEMY_X("Columna Rivales X", "Mover horizontalmente todos los avatares rivales verticales"),
+    ENEMY_SLOT_4("10º Pick Rival Inferior (Slot 5)", "Ajuste vertical Y del slot 5 rival (abajo derecha)"),
+    ALLY_SLOT_4("10º Pick Aliado Inferior (Slot 5)", "Ajuste vertical Y del slot 5 aliado (abajo izquierda)"),
     ALLY_SLOT_0("Aliado 1 (TOP)", "Ajuste vertical Y del carril de Barón"),
     ALLY_SLOT_1("Aliado 2 (JG)", "Ajuste vertical Y de la Jungla"),
     ALLY_SLOT_2("Aliado 3 (MID)", "Ajuste vertical Y del carril Central"),
     ALLY_SLOT_3("Aliado 4 (ADC)", "Ajuste vertical Y del Tirador"),
-    ALLY_SLOT_4("Aliado 5 (SUP)", "Ajuste vertical Y del Apoyo"),
     ENEMY_SLOT_0("Rival 1", "Ajuste vertical Y del slot 1 rival"),
     ENEMY_SLOT_1("Rival 2", "Ajuste vertical Y del slot 2 rival"),
     ENEMY_SLOT_2("Rival 3", "Ajuste vertical Y del slot 3 rival"),
     ENEMY_SLOT_3("Rival 4", "Ajuste vertical Y del slot 4 rival"),
-    ENEMY_SLOT_4("Rival 5", "Ajuste vertical Y del slot 5 rival"),
-    GLOBAL_Y("Mover Todo el Draft (Y)", "Desplazar verticalmente todas las casillas")
+    GLOBAL_Y("Mover Todos los Slots (Y)", "Desplazar verticalmente todas las casillas")
 }
 
 @Composable
@@ -65,7 +65,7 @@ fun DraftCalibrationPanel(
     LaunchedEffect(currentConfig) {
         config = currentConfig
     }
-    var selectedTarget by remember { mutableStateOf(CalibrationTarget.AVATAR_SIZE) }
+    var selectedTarget by remember { mutableStateOf(CalibrationTarget.TOP_ENEMY_5) }
     var stepFactor by remember { mutableStateOf(0.005f) } // 0.5% paso normal
 
     fun updateAndApply(newConfig: VisionCalibrationConfig) {
@@ -80,19 +80,33 @@ fun DraftCalibrationPanel(
         val effectiveDeltaY = if (deltaY != 0f) deltaY else deltaX
 
         val updated = when (selectedTarget) {
+            CalibrationTarget.TOP_ENEMY_5 -> cur.copy(
+                topEnemy5XRatio = (cur.topEnemy5XRatio + effectiveDeltaX).coerceIn(0.70f, 0.99f),
+                topEnemyXRatios = cur.topEnemyXRatios.toMutableList().also {
+                    it[4] = (it[4] + effectiveDeltaX).coerceIn(0.70f, 0.99f)
+                }
+            )
+            CalibrationTarget.TOP_ALLY_5 -> cur.copy(
+                topAlly5XRatio = (cur.topAlly5XRatio + effectiveDeltaX).coerceIn(0.05f, 0.35f),
+                topAllyXRatios = cur.topAllyXRatios.toMutableList().also {
+                    it[4] = (it[4] + effectiveDeltaX).coerceIn(0.05f, 0.35f)
+                }
+            )
+            CalibrationTarget.TOP_AVATAR_Y -> cur.copy(topAvatarYRatio = (cur.topAvatarYRatio + effectiveDeltaY).coerceIn(0.01f, 0.30f))
+            CalibrationTarget.TOP_AVATAR_SIZE -> cur.copy(topAvatarDiameterRatio = (cur.topAvatarDiameterRatio + effectiveDeltaSize).coerceIn(0.02f, 0.20f))
             CalibrationTarget.GLOBAL_ALLY_X -> cur.copy(allyAvatarCenterX = (cur.allyAvatarCenterX + effectiveDeltaX).coerceIn(0.01f, 0.40f))
             CalibrationTarget.GLOBAL_ENEMY_X -> cur.copy(enemyAvatarCenterX = (cur.enemyAvatarCenterX + effectiveDeltaX).coerceIn(0.60f, 0.99f))
             CalibrationTarget.AVATAR_SIZE -> cur.copy(avatarDiameterRatio = (cur.avatarDiameterRatio + effectiveDeltaSize).coerceIn(0.04f, 0.28f))
+            CalibrationTarget.ENEMY_SLOT_4 -> cur.copy(enemySlotYRatios = cur.enemySlotYRatios.toMutableList().also { it[4] = (it[4] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
+            CalibrationTarget.ALLY_SLOT_4 -> cur.copy(allySlotYRatios = cur.allySlotYRatios.toMutableList().also { it[4] = (it[4] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ALLY_SLOT_0 -> cur.copy(allySlotYRatios = cur.allySlotYRatios.toMutableList().also { it[0] = (it[0] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ALLY_SLOT_1 -> cur.copy(allySlotYRatios = cur.allySlotYRatios.toMutableList().also { it[1] = (it[1] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ALLY_SLOT_2 -> cur.copy(allySlotYRatios = cur.allySlotYRatios.toMutableList().also { it[2] = (it[2] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ALLY_SLOT_3 -> cur.copy(allySlotYRatios = cur.allySlotYRatios.toMutableList().also { it[3] = (it[3] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
-            CalibrationTarget.ALLY_SLOT_4 -> cur.copy(allySlotYRatios = cur.allySlotYRatios.toMutableList().also { it[4] = (it[4] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ENEMY_SLOT_0 -> cur.copy(enemySlotYRatios = cur.enemySlotYRatios.toMutableList().also { it[0] = (it[0] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ENEMY_SLOT_1 -> cur.copy(enemySlotYRatios = cur.enemySlotYRatios.toMutableList().also { it[1] = (it[1] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ENEMY_SLOT_2 -> cur.copy(enemySlotYRatios = cur.enemySlotYRatios.toMutableList().also { it[2] = (it[2] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.ENEMY_SLOT_3 -> cur.copy(enemySlotYRatios = cur.enemySlotYRatios.toMutableList().also { it[3] = (it[3] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
-            CalibrationTarget.ENEMY_SLOT_4 -> cur.copy(enemySlotYRatios = cur.enemySlotYRatios.toMutableList().also { it[4] = (it[4] + effectiveDeltaY).coerceIn(0.05f, 0.95f) })
             CalibrationTarget.GLOBAL_Y -> cur.copy(
                 allySlotYRatios = cur.allySlotYRatios.map { (it + effectiveDeltaY).coerceIn(0.05f, 0.95f) },
                 enemySlotYRatios = cur.enemySlotYRatios.map { (it + effectiveDeltaY).coerceIn(0.05f, 0.95f) }
@@ -115,7 +129,7 @@ fun DraftCalibrationPanel(
                 .padding(8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // CABECERA CON BOTÓN CERRAR Y TÍTULO DEPURACIÓN
+            // CABECERA
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -130,9 +144,9 @@ fun DraftCalibrationPanel(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "🐛 " + tr("Calibrador de Visión & ROI"),
+                        text = tr("Calibrador de Visión (10º Pick & Draft)"),
                         color = HextechGold,
-                        fontSize = 12.sp,
+                        fontSize = 11.5.sp,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -156,69 +170,101 @@ fun DraftCalibrationPanel(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(135.dp)
+                    .height(130.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color(0xFF07121E))
                     .border(1.dp, HextechCardBorder.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
                     .padding(4.dp)
             ) {
-                // Dibujar columnas y slots
-                val allyRoles = listOf("TOP", "JG", "MID", "ADC", "SUP")
-                val diamPercent = (config.avatarDiameterRatio * 100).toInt()
+                // Barra Superior (Top Avatars)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopCenter)
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Top 5 Aliados
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        (0..4).forEach { idx ->
+                            val is10thAlly = idx == 4 && selectedTarget == CalibrationTarget.TOP_ALLY_5
+                            val isTopActive = is10thAlly || selectedTarget == CalibrationTarget.TOP_AVATAR_Y || selectedTarget == CalibrationTarget.TOP_AVATAR_SIZE
+                            Box(
+                                modifier = Modifier
+                                    .size(13.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isTopActive) HextechCyan else Color(0xFF0F3B56))
+                                    .border(0.8.dp, if (isTopActive) Color.White else HextechCyan.copy(alpha = 0.5f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("${idx + 1}", color = if (isTopActive) Color.Black else HextechCyan, fontSize = 6.5.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
 
-                // Columna Aliada
+                    // Título Top Bar
+                    Text("BARRA SUPERIOR", color = HextechGold.copy(alpha = 0.7f), fontSize = 6.5.sp, fontWeight = FontWeight.Bold)
+
+                    // Top 5 Rivales
+                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                        (0..4).forEach { idx ->
+                            val is10thEnemy = idx == 4 && selectedTarget == CalibrationTarget.TOP_ENEMY_5
+                            val isTopActive = is10thEnemy || selectedTarget == CalibrationTarget.TOP_AVATAR_Y || selectedTarget == CalibrationTarget.TOP_AVATAR_SIZE
+                            Box(
+                                modifier = Modifier
+                                    .size(13.dp)
+                                    .clip(CircleShape)
+                                    .background(if (is10thEnemy) HextechGold else if (isTopActive) DangerRed else Color(0xFF4A1A22))
+                                    .border(0.8.dp, if (is10thEnemy) Color.White else DangerRed.copy(alpha = 0.5f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("${idx + 1}", color = if (is10thEnemy) Color.Black else Color.White, fontSize = 6.5.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                // Slots Verticales Aliados
+                val allyRoles = listOf("TOP", "JG", "MID", "ADC", "SUP")
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
                         .align(Alignment.CenterStart)
-                        .padding(start = (config.allyAvatarCenterX * 180).dp.coerceIn(4.dp, 60.dp)),
+                        .padding(start = 6.dp, top = 20.dp, bottom = 4.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    config.allySlotYRatios.forEachIndexed { i, y ->
+                    config.allySlotYRatios.forEachIndexed { i, _ ->
                         val isTargeted = selectedTarget == CalibrationTarget.GLOBAL_ALLY_X ||
-                                selectedTarget == CalibrationTarget.AVATAR_SIZE ||
-                                (selectedTarget == CalibrationTarget.ALLY_SLOT_0 && i == 0) ||
-                                (selectedTarget == CalibrationTarget.ALLY_SLOT_1 && i == 1) ||
-                                (selectedTarget == CalibrationTarget.ALLY_SLOT_2 && i == 2) ||
-                                (selectedTarget == CalibrationTarget.ALLY_SLOT_3 && i == 3) ||
-                                (selectedTarget == CalibrationTarget.ALLY_SLOT_4 && i == 4)
-
+                                (selectedTarget == CalibrationTarget.ALLY_SLOT_4 && i == 4) ||
+                                (selectedTarget == CalibrationTarget.ALLY_SLOT_0 && i == 0)
                         Box(
                             modifier = Modifier
-                                .size(22.dp)
+                                .size(16.dp)
                                 .clip(CircleShape)
-                                .background(if (isTargeted) AllyBlue.copy(alpha = 0.35f) else Color(0xFF13273D))
-                                .border(
-                                    if (isTargeted) 1.5.dp else 0.8.dp,
-                                    if (isTargeted) HextechCyan else AllyBlue.copy(alpha = 0.5f),
-                                    CircleShape
-                                ),
+                                .background(if (isTargeted) AllyBlue.copy(alpha = 0.5f) else Color(0xFF13273D))
+                                .border(0.8.dp, if (isTargeted) HextechCyan else AllyBlue.copy(alpha = 0.5f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = allyRoles.getOrElse(i) { "$i" },
-                                color = if (isTargeted) HextechCyan else TextMuted,
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text(allyRoles.getOrElse(i) { "$i" }, color = if (isTargeted) HextechCyan else TextMuted, fontSize = 6.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
 
                 // Centro Informativo del Escáner
                 Column(
-                    modifier = Modifier.align(Alignment.Center),
+                    modifier = Modifier.align(Alignment.Center).padding(top = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "ÁREA DRAFT EN VIVO",
-                        color = HextechGold.copy(alpha = 0.8f),
-                        fontSize = 8.5.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "DETECCIÓN 10º PICK & SLOTS",
+                        color = HextechGold.copy(alpha = 0.85f),
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Black
                     )
                     Text(
-                        text = "⌀: ${(config.avatarDiameterRatio * 100).format(1)}% | Aliados X: ${(config.allyAvatarCenterX * 100).format(1)}% | Rivales X: ${(config.enemyAvatarCenterX * 100).format(1)}%",
+                        text = "10º Rival Top: ${(config.topEnemy5XRatio * 100).format(1)}% | Top Y: ${(config.topAvatarYRatio * 100).format(1)}%",
                         color = HextechCyan,
                         fontSize = 7.5.sp,
                         fontFamily = FontFamily.Monospace
@@ -228,54 +274,40 @@ fun DraftCalibrationPanel(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
                             .background(HextechSurface)
-                            .border(0.5.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
+                            .border(0.5.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "Objetivo: ${selectedTarget.title}",
+                            text = "Calibrando: ${selectedTarget.title}",
                             color = HextechGold,
                             fontSize = 8.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
 
-                // Columna Rival
+                // Slots Verticales Rivales
                 Column(
                     modifier = Modifier
                         .fillMaxHeight()
                         .align(Alignment.CenterEnd)
-                        .padding(end = ((1f - config.enemyAvatarCenterX) * 180).dp.coerceIn(4.dp, 60.dp)),
+                        .padding(end = 6.dp, top = 20.dp, bottom = 4.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    config.enemySlotYRatios.forEachIndexed { i, y ->
+                    config.enemySlotYRatios.forEachIndexed { i, _ ->
                         val isTargeted = selectedTarget == CalibrationTarget.GLOBAL_ENEMY_X ||
-                                selectedTarget == CalibrationTarget.AVATAR_SIZE ||
-                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_0 && i == 0) ||
-                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_1 && i == 1) ||
-                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_2 && i == 2) ||
-                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_3 && i == 3) ||
-                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_4 && i == 4)
-
+                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_4 && i == 4) ||
+                                (selectedTarget == CalibrationTarget.ENEMY_SLOT_0 && i == 0)
                         Box(
                             modifier = Modifier
-                                .size(22.dp)
+                                .size(16.dp)
                                 .clip(CircleShape)
-                                .background(if (isTargeted) DangerRed.copy(alpha = 0.35f) else Color(0xFF38141B))
-                                .border(
-                                    if (isTargeted) 1.5.dp else 0.8.dp,
-                                    if (isTargeted) Color(0xFFFF5252) else DangerRed.copy(alpha = 0.5f),
-                                    CircleShape
-                                ),
+                                .background(if (isTargeted) DangerRed.copy(alpha = 0.5f) else Color(0xFF38141B))
+                                .border(0.8.dp, if (isTargeted) Color(0xFFFF5252) else DangerRed.copy(alpha = 0.5f), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "R${i + 1}",
-                                color = if (isTargeted) Color(0xFFFF5252) else TextMuted,
-                                fontSize = 7.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                            Text("R${i + 1}", color = if (isTargeted) Color(0xFFFF5252) else TextMuted, fontSize = 6.5.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -287,7 +319,7 @@ fun DraftCalibrationPanel(
             Text(
                 text = "1. Selecciona qué elemento calibrar:",
                 color = TextPrimary,
-                fontSize = 9.5.sp,
+                fontSize = 9.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -314,7 +346,7 @@ fun DraftCalibrationPanel(
                         Text(
                             text = target.title,
                             color = if (isSel) HextechCyan else TextMuted,
-                            fontSize = 8.5.sp,
+                            fontSize = 8.sp,
                             fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
                         )
                     }
@@ -329,10 +361,10 @@ fun DraftCalibrationPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Pad de Movimiento
+                // Pad de Movimiento (Arriba, Abajo, Izquierda, Derecha)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 6.dp)
                 ) {
                     // Arriba
                     Surface(
@@ -412,17 +444,17 @@ fun DraftCalibrationPanel(
                     }
                 }
 
-                // Controles de Tamaño de Cuadro (Agrandar / Reducir) y Selector de Paso
+                // Controles de Tamaño (Agrandar / Reducir) y Selector de Paso
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     Text(
-                        text = "Tamaño de Detección:",
+                        text = "Tamaño de Cuadro:",
                         color = TextPrimary,
-                        fontSize = 9.sp,
+                        fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold
                     )
 
@@ -438,9 +470,9 @@ fun DraftCalibrationPanel(
                             contentPadding = PaddingValues(0.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
+                                Icon(Icons.Default.Add, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                                 Spacer(modifier = Modifier.width(2.dp))
-                                Text("Agrandar", color = HextechCyan, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                Text("Agrandar", color = HextechCyan, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                             }
                         }
 
@@ -452,24 +484,24 @@ fun DraftCalibrationPanel(
                             contentPadding = PaddingValues(0.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Remove, contentDescription = null, tint = DangerRed, modifier = Modifier.size(14.dp))
+                                Icon(Icons.Default.Remove, contentDescription = null, tint = DangerRed, modifier = Modifier.size(13.dp))
                                 Spacer(modifier = Modifier.width(2.dp))
-                                Text("Reducir", color = DangerRed, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                Text("Reducir", color = DangerRed, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
 
-                    // Selector de Paso de Ajuste
+                    // Selector de Paso
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Paso:", color = TextMuted, fontSize = 8.sp)
+                        Text("Paso:", color = TextMuted, fontSize = 7.5.sp)
                         val steps = listOf(
-                            Pair("Fino 0.1%", 0.001f),
-                            Pair("Normal 0.5%", 0.005f),
-                            Pair("Rápido 1%", 0.010f)
+                            Pair("0.1%", 0.001f),
+                            Pair("0.5%", 0.005f),
+                            Pair("1.0%", 0.010f)
                         )
                         steps.forEach { (label, value) ->
                             val isSel = stepFactor == value
@@ -486,7 +518,7 @@ fun DraftCalibrationPanel(
                                 Text(
                                     text = label,
                                     color = if (isSel) HextechGold else TextMuted,
-                                    fontSize = 7.5.sp,
+                                    fontSize = 7.sp,
                                     fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
                                 )
                             }
@@ -497,7 +529,7 @@ fun DraftCalibrationPanel(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // BOTONES DE ACCIÓN: COPIAR COORDENADAS, RESTABLECER, GUARDAR
+            // BOTONES DE ACCIÓN: COPIAR COORDENADAS, RESTABLECER
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -508,7 +540,7 @@ fun DraftCalibrationPanel(
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         val clip = ClipData.newPlainText("WildRift_Vision_Calibration", config.toFormattedCoordinatesString())
                         clipboard.setPrimaryClip(clip)
-                        Toast.makeText(context, "📋 Coordenadas copiadas al portapapeles", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Coordenadas copiadas al portapapeles", Toast.LENGTH_LONG).show()
                     },
                     modifier = Modifier.weight(1.3f).height(34.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
@@ -535,7 +567,7 @@ fun DraftCalibrationPanel(
                     shape = RoundedCornerShape(6.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp)
                 ) {
-                    Text("Restablecer", color = TextMuted, fontSize = 8.5.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Restablecer", color = TextMuted, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

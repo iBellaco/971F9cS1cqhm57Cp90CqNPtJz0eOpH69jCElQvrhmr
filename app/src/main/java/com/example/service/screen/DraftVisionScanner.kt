@@ -621,13 +621,6 @@ object DraftVisionScanner {
                             AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón 100%: ${matched.name}")
                             continue
                         }
-
-                        // C) Nombre de invocador (SOLO SI NO ES CLASIFICATORIA LEGENDARIA)
-                        if (!isLegendaryRanked && line.length in 1..28 && !DraftValidationLayer.isNoiseText(line) && !line.matches(Regex("^[0-9\\s:.,%#-]+$"))) {
-                            if (ChampionNameResolver.findChampionInText(line, allChamps) == null) {
-                                summonerCandidates.add(line)
-                            }
-                        }
                     }
                 }
 
@@ -651,58 +644,6 @@ object DraftVisionScanner {
 
                 if (allySlotRolesCache[i] != null) {
                     slot.explicitRole = allySlotRolesCache[i]
-                }
-
-                // Filtrar y limpiar candidatos a nombre de invocador estrictamente (SOLO SI NO ES CLASIFICATORIA LEGENDARIA)
-                val validSummonerLines = mutableListOf<String>()
-                if (!isLegendaryRanked) {
-                    for (cand in summonerCandidates) {
-                        val cleanedCand = cand.replace(Regex("^\\d+\\s*[\\).:-]?\\s*"), "").trim()
-                        val trimmed = if (cleanedCand.length >= 2) cleanedCand else cand.trim()
-                        if (trimmed.length < 2 || trimmed.length > 25) continue
-                        if (DraftValidationLayer.isNoiseText(trimmed)) continue
-                        val lLower = trimmed.lowercase(Locale.ROOT)
-                        if (lLower.contains(":") || lLower.contains("beta") || lLower.contains("porcentaje") || lLower.contains("victorias") || lLower.contains("bora") || lLower.contains("...") || lLower.contains("confirmar") || lLower.contains("detener") || lLower.contains("asistente")) continue
-                        if (trimmed.matches(Regex("^[0-9\\s:.,%#-]+$"))) continue
-                        if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
-                        if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
-                        
-                        val exactRoleWords = setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "solo", "lane", "apoyo")
-                        if (exactRoleWords.any { lLower.contains(it) }) continue
-
-                        if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
-                        if (!validSummonerLines.contains(trimmed)) {
-                            validSummonerLines.add(trimmed)
-                        }
-                    }
-
-                    var bestSummoner: String? = null
-                    if (validSummonerLines.isNotEmpty()) {
-                        val filtered = validSummonerLines.filter { line ->
-                            val lLower = line.lowercase(Locale.ROOT)
-                            !DraftValidationLayer.isNoiseText(line) &&
-                            ChampionNameResolver.findChampionInText(line, allChamps) == null &&
-                            DraftValidationLayer.parseRoleFromText(line) == null &&
-                            !lLower.equals("tu", true) && !lLower.equals("(tu)", true) && !lLower.equals("you", true) && !lLower.equals("(you)", true)
-                        }
-                        if (filtered.isNotEmpty()) {
-                            bestSummoner = filtered.maxByOrNull { it.length } ?: filtered.first()
-                        }
-                    }
-
-                    if (!bestSummoner.isNullOrBlank()) {
-                        allySummonerNamesCache[i] = bestSummoner!!
-                        textDiagnosticsList.add(
-                            TextBlockDiagnostic(
-                                text = bestSummoner!!,
-                                rect = Rect(0, 0, 10, 10),
-                                isAlly = true,
-                                slotIndex = i,
-                                tag = "INVOCADOR",
-                                color = android.graphics.Color.argb(255, 120, 180, 255)
-                            )
-                        )
-                    }
                 }
             }
 
@@ -993,16 +934,15 @@ object DraftVisionScanner {
         // Evaluamos los slots que aún no tienen campeón confirmado por OCR siguiendo la secuencia de turnos
         if (context != null) {
             val isCalibrating = showCalibrationBoxes.value
-
             val totalPickedCount = (allySlots + enemySlots).count { it.champion != null }
             val unpickedSlots = (allySlots + enemySlots).filter { it.champion == null }
             val candidateSlots = if (isCalibrating) {
-                // Durante la calibración escaneamos visualmente todo para dar feedback en vivo
                 allySlots + enemySlots
             } else {
-                // REQUISITO ESTRICTO: NO aplicar reconocimiento visual a los primeros 9 picks.
-                // Exclusivamente para el PICK #10 cuando ya hay exactamente 9 campeones detectados (evidencia real del 10º turno).
-                if (totalPickedCount == 9 && unpickedSlots.size == 1) {
+                // Si faltan picks (especialmente el 10º pick) o si estamos en fase de preparación
+                if ((totalPickedCount >= 8 && unpickedSlots.isNotEmpty()) || isPreparationPhase) {
+                    unpickedSlots
+                } else if (totalPickedCount == 9 && unpickedSlots.size == 1) {
                     unpickedSlots
                 } else {
                     emptyList()
@@ -1010,10 +950,76 @@ object DraftVisionScanner {
             }
             
             val newDebugMatches = mutableMapOf<String, String>()
+            val alreadyPickedIds = if (!isCalibrating) (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet() else emptySet()
 
+            // 1. Escaneo de Círculos Superiores (Top Bar Avatars)
+            val topDiameter = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(24)
+            val topYCenter = (height * calib.topAvatarYRatio).toInt()
+
+            // Escanear Top Aliados (0..4)
+            for (idx in 0..4) {
+                val topXCenter = (width * calib.topAllyXRatios.getOrElse(idx) { 0.03f + idx * 0.03f }).toInt()
+                val roi = Rect(
+                    (topXCenter - topDiameter / 2).coerceIn(0, width - topDiameter),
+                    (topYCenter - topDiameter / 2).coerceIn(0, height - topDiameter),
+                    (topXCenter + topDiameter / 2).coerceIn(topDiameter, width),
+                    (topYCenter + topDiameter / 2).coerceIn(topDiameter, height)
+                )
+                try {
+                    val crop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
+                    val match = ChampionVisualMatcher.matchChampion(
+                        context = context,
+                        avatarCrop = crop,
+                        candidates = allChamps,
+                        excludedChampionIds = if (isCalibrating) emptySet() else alreadyPickedIds,
+                        minConfidenceThreshold = 0.42f
+                    )
+                    crop.recycle()
+                    if (match != null) {
+                        newDebugMatches["top_ally_$idx"] = "${match.champion.name} (${(match.confidence * 100).toInt()}%)"
+                        if (isPreparationPhase && allySlots[idx].champion == null) {
+                            allySlots[idx].champion = match.champion
+                            allySlots[idx].confidencePercent = (match.confidence * 100).toInt()
+                        }
+                    }
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error escaneando top ally circle $idx", e)
+                }
+            }
+
+            // Escanear Top Rivales (0..4)
+            for (idx in 0..4) {
+                val topXCenter = (width * calib.topEnemyXRatios.getOrElse(idx) { 0.83f + idx * 0.03f }).toInt()
+                val roi = Rect(
+                    (topXCenter - topDiameter / 2).coerceIn(0, width - topDiameter),
+                    (topYCenter - topDiameter / 2).coerceIn(0, height - topDiameter),
+                    (topXCenter + topDiameter / 2).coerceIn(topDiameter, width),
+                    (topYCenter + topDiameter / 2).coerceIn(topDiameter, height)
+                )
+                try {
+                    val crop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
+                    val match = ChampionVisualMatcher.matchChampion(
+                        context = context,
+                        avatarCrop = crop,
+                        candidates = allChamps,
+                        excludedChampionIds = if (isCalibrating) emptySet() else alreadyPickedIds,
+                        minConfidenceThreshold = 0.42f
+                    )
+                    crop.recycle()
+                    if (match != null) {
+                        newDebugMatches["top_enemy_$idx"] = "${match.champion.name} (${(match.confidence * 100).toInt()}%)"
+                        if (isPreparationPhase && enemySlots[idx].champion == null) {
+                            enemySlots[idx].champion = match.champion
+                            enemySlots[idx].confidencePercent = (match.confidence * 100).toInt()
+                        }
+                    }
+                } catch (e: Exception) {
+                    AppLogger.e(TAG, "Error escaneando top enemy circle $idx", e)
+                }
+            }
+
+            // 2. Escaneo de Slots Candidatos (Verticales y Top Bar para el 10º Pick)
             if (candidateSlots.isNotEmpty()) {
-                val alreadyPickedIds = if (!isCalibrating) (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet() else emptySet()
-
                 for (targetSlot in candidateSlots) {
                     val sIdx = targetSlot.slotIndex
                     val isAlly = targetSlot.isAlly
@@ -1031,63 +1037,70 @@ object DraftVisionScanner {
                             continue
                         }
                     }
-                    val defaultYCenter = if (isAlly) {
-                        (height * allySlotYRatios[sIdx]).toInt()
-                    } else {
-                        (height * enemySlotYRatios[sIdx]).toInt()
-                    }
+
+                    // Coordenadas del slot vertical estándar
+                    val defaultYCenter = if (isAlly) (height * allySlotYRatios[sIdx]).toInt() else (height * enemySlotYRatios[sIdx]).toInt()
                     val defaultXCenter = if (isAlly) allyAvatarCenterX else enemyAvatarCenterX
 
-                    val yCenter = defaultYCenter
-                    val xCenter = defaultXCenter
+                    // Si es el 5º pick (10º pick potencial), también probamos las coordenadas de la barra superior
+                    val centersToTest = mutableListOf(Pair(defaultXCenter, defaultYCenter))
+                    if (sIdx == 4) {
+                        val topX = if (isAlly) (width * calib.topAlly5XRatio).toInt() else (width * calib.topEnemy5XRatio).toInt()
+                        centersToTest.add(Pair(topX, topYCenter))
+                    }
 
-                    // Muestreo multiescala y desplazamientos espaciales para máxima precisión en el 10º pick
-                    val diameterScales = listOf(1.15f, 1.25f, 1.35f)
+                    // Muestreo multiescala y desplazamientos espaciales para máxima precisión
+                    val diameterScales = listOf(1.0f, 1.15f, 1.28f)
                     var bestMatchResult: ChampionVisualMatcher.VisualMatchResult? = null
 
-                    for (scale in diameterScales) {
-                        val expandedDiameter = (avatarDiameter * scale).toInt().coerceAtLeast(36)
-                        val offsets = listOf(
-                            Pair(0, 0),
-                            Pair(-(expandedDiameter * 0.06f).toInt(), 0),
-                            Pair((expandedDiameter * 0.06f).toInt(), 0),
-                            Pair(0, -(expandedDiameter * 0.06f).toInt()),
-                            Pair(0, (expandedDiameter * 0.06f).toInt())
-                        )
+                    for ((xCenter, yCenter) in centersToTest) {
+                        for (scale in diameterScales) {
+                            val expandedDiameter = (avatarDiameter * scale).toInt().coerceAtLeast(32)
+                            val offsets = listOf(
+                                Pair(0, 0),
+                                Pair(-(expandedDiameter * 0.05f).toInt(), 0),
+                                Pair((expandedDiameter * 0.05f).toInt(), 0),
+                                Pair(0, -(expandedDiameter * 0.05f).toInt()),
+                                Pair(0, (expandedDiameter * 0.05f).toInt())
+                            )
 
-                        for ((offX, offY) in offsets) {
-                            val startX = (xCenter + offX - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
-                            val startY = (yCenter + offY - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
-                            val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
+                            for ((offX, offY) in offsets) {
+                                val startX = (xCenter + offX - expandedDiameter / 2).coerceIn(0, width - expandedDiameter)
+                                val startY = (yCenter + offY - expandedDiameter / 2).coerceIn(0, height - expandedDiameter)
+                                val roi = Rect(startX, startY, startX + expandedDiameter, startY + expandedDiameter)
 
-                            try {
-                                val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
-                                val threshold = 0.46f
-                                val match = ChampionVisualMatcher.matchChampion(
-                                    context = context,
-                                    avatarCrop = avatarCrop,
-                                    candidates = allChamps,
-                                    excludedChampionIds = alreadyPickedIds,
-                                    minConfidenceThreshold = threshold
-                                )
-                                avatarCrop.recycle()
+                                try {
+                                    val avatarCrop = Bitmap.createBitmap(bitmap, roi.left, roi.top, roi.width(), roi.height())
+                                    val threshold = 0.44f
+                                    val match = ChampionVisualMatcher.matchChampion(
+                                        context = context,
+                                        avatarCrop = avatarCrop,
+                                        candidates = allChamps,
+                                        excludedChampionIds = alreadyPickedIds,
+                                        minConfidenceThreshold = threshold
+                                    )
+                                    avatarCrop.recycle()
 
-                                if (match != null) {
-                                    if (bestMatchResult == null || match.confidence > bestMatchResult.confidence) {
-                                        bestMatchResult = match
+                                    if (match != null) {
+                                        if (bestMatchResult == null || match.confidence > bestMatchResult.confidence) {
+                                            bestMatchResult = match
+                                        }
                                     }
+                                } catch (e: Exception) {
+                                    AppLogger.e(TAG, "Error en reconocimiento visual del slot $sIdx", e)
                                 }
-                            } catch (e: Exception) {
-                                AppLogger.e(TAG, "Error en reconocimiento visual del slot $sIdx (offset $offX,$offY)", e)
                             }
                         }
                     }
 
-                    if (bestMatchResult != null && bestMatchResult.confidence >= 0.46f) {
+                    val key = if (isAlly) "ally_$sIdx" else "enemy_$sIdx"
+                    if (bestMatchResult != null && bestMatchResult.confidence >= 0.44f) {
                         val match = bestMatchResult
                         targetSlot.champion = match.champion
                         targetSlot.confidencePercent = (match.confidence * 100).toInt()
                         targetSlot.isLikelyUnpicked = false
+
+                        newDebugMatches[key] = "${match.champion.name} (${(match.confidence * 100).toInt()}%)"
 
                         if (targetSlot.isAlly) {
                             allyOcrChampions[sIdx] = match.champion
@@ -1106,7 +1119,6 @@ object DraftVisionScanner {
 
                         val side = if (targetSlot.isAlly) "Aliado" else "Rival"
                         auditList.add("🎯 Slot $side $sIdx detectado por Similitud Visual: ${match.champion.name} (${(match.confidence * 100).toInt()}%)")
-                        AppLogger.d(TAG, "Reconocimiento por similitud en $side $sIdx: ${match.champion.name}")
                     } else {
                         if (targetSlot.champion == null) {
                             targetSlot.isLikelyUnpicked = true
@@ -1114,6 +1126,8 @@ object DraftVisionScanner {
                     }
                 }
             }
+
+            debugVisualMatches.value = newDebugMatches
         }
 
         // -----------------------------------------------------------------------------------------

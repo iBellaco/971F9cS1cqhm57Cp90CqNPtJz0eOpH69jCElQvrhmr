@@ -225,11 +225,17 @@ fun NoticeMediaViewer(
             .aspectRatio(985f / 425f)
     }
 
-    Box(
-        modifier = containerModifier
-            .clip(RoundedCornerShape(if (isFullscreen) 12.dp else 8.dp))
+    val boxModifier = if (isFullscreen) {
+        containerModifier.background(Color.Black)
+    } else {
+        containerModifier
+            .clip(RoundedCornerShape(8.dp))
             .background(Color.Black)
-            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(if (isFullscreen) 12.dp else 8.dp))
+            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+    }
+
+    Box(
+        modifier = boxModifier
     ) {
         if (isYt && ytVideoId != null) {
             val lifecycleOwner = LocalLifecycleOwner.current
@@ -919,7 +925,7 @@ fun NoticeMediaFullscreenDialog(
     val trimmedUrl = mediaUrl.trim()
     val isVideo = remember(trimmedUrl) { NoticeMediaUtils.isVideo(context, trimmedUrl) }
 
-    // MANTENER ORIENTACIÓN NATURAL POR DEFECTO. NO forzar rotación horizontal automática.
+    // Control de rotación de pantalla
     var isLandscape by remember { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
@@ -950,7 +956,6 @@ fun NoticeMediaFullscreenDialog(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black)
-                .systemBarsPadding()
         ) {
             val openLinkAction: () -> Unit = {
                 if (externalUrl.isNotBlank()) {
@@ -971,138 +976,137 @@ fun NoticeMediaFullscreenDialog(
                 }
             }
 
-            Column(
+            // 1. Contenedor del reproductor / medio a PANTALLA COMPLETA 100% (sin márgenes ni padding que compriman el video)
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                    .then(
+                        if (!isVideo && externalUrl.isNotBlank()) {
+                            Modifier.clickable { openLinkAction() }
+                        } else Modifier
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                // Header superior con botón de cerrar claro
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(
-                        onClick = {
-                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                            onDismiss()
-                        },
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(Color.White.copy(alpha = 0.15f), CircleShape)
-                    ) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = "Cerrar",
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
+                NoticeMediaViewer(
+                    mediaUrl = mediaUrl,
+                    modifier = Modifier.fillMaxSize(),
+                    isFullscreen = true,
+                    onImageClick = if (!isVideo && externalUrl.isNotBlank()) openLinkAction else null
+                )
+            }
 
+            // 2. Botón flotante superior derecho de Cerrar (elegante Hextech con fondo translúcido)
+            IconButton(
+                onClick = {
+                    activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                    onDismiss()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .statusBarsPadding()
+                    .padding(top = 12.dp, end = 12.dp)
+                    .size(40.dp)
+                    .background(Color.Black.copy(alpha = 0.65f), CircleShape)
+                    .border(1.dp, Color.White.copy(alpha = 0.35f), CircleShape)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Cerrar",
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+
+            // 3. Botón flotante inferior izquierdo de rotación (Modo Horizontal / Vertical)
+            if (isVideo) {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .then(
-                            if (!isVideo && externalUrl.isNotBlank()) {
-                                Modifier.clickable { openLinkAction() }
-                            } else Modifier
-                        ),
-                    contentAlignment = Alignment.Center
+                        .align(Alignment.BottomStart)
+                        .navigationBarsPadding()
+                        .padding(start = 14.dp, bottom = 14.dp)
                 ) {
-                    NoticeMediaViewer(
-                        mediaUrl = mediaUrl,
-                        modifier = Modifier.fillMaxSize(),
-                        isFullscreen = true,
-                        onImageClick = if (!isVideo && externalUrl.isNotBlank()) openLinkAction else null
-                    )
-
-                    if (!isVideo && externalUrl.isNotBlank()) {
-                        val infiniteTransition = rememberInfiniteTransition()
-                        val pulseScale by infiniteTransition.animateFloat(
-                            initialValue = 1f,
-                            targetValue = 1.05f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Reverse
-                            )
-                        )
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(start = 12.dp, bottom = 12.dp)
-                                .scale(pulseScale)
-                                .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(20.dp))
-                                .border(1.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(20.dp))
-                                .clickable { openLinkAction() }
-                                .padding(horizontal = 14.dp, vertical = 6.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.TouchApp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(15.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Toca la imagen para abrir enlace", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (isVideo) {
-                        Button(
-                            onClick = {
-                                val nextLandscape = !isLandscape
-                                isLandscape = nextLandscape
-                                activity?.requestedOrientation = if (nextLandscape) {
-                                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
-                                } else {
-                                    ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                            shape = RoundedCornerShape(8.dp),
-                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                        ) {
-                            Icon(
-                                if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
-                                contentDescription = "Rotar Pantalla",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
-                                color = HextechCyan,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    } else {
-                        Spacer(modifier = Modifier.width(1.dp))
-                    }
-
                     Button(
                         onClick = {
-                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                            onDismiss()
+                            val nextLandscape = !isLandscape
+                            isLandscape = nextLandscape
+                            activity?.requestedOrientation = if (nextLandscape) {
+                                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                            } else {
+                                ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                            }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f))
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg.copy(alpha = 0.85f)),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.7f)),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.height(36.dp)
                     ) {
-                        Text("Cerrar", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = TextPrimary)
+                        Icon(
+                            if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
+                            contentDescription = "Rotar Pantalla",
+                            tint = HextechCyan,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isLandscape) "Modo Vertical" else "Pantalla Completa",
+                            color = HextechCyan,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            // 4. Botón flotante inferior derecho de Cerrar
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
+                    .padding(end = 14.dp, bottom = 14.dp)
+            ) {
+                Button(
+                    onClick = {
+                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg.copy(alpha = 0.85f)),
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.35f)),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text("Cerrar", fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = TextPrimary)
+                }
+            }
+
+            // 5. Enlace interactivo flotante si es imagen con enlace externo
+            if (!isVideo && externalUrl.isNotBlank()) {
+                val infiniteTransition = rememberInfiniteTransition(label = "PulseTransition")
+                val pulseScale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.05f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(1000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "PulseAnim"
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 14.dp)
+                        .scale(pulseScale)
+                        .background(HextechDarkBg.copy(alpha = 0.9f), RoundedCornerShape(20.dp))
+                        .border(1.dp, HextechGold.copy(alpha = 0.85f), RoundedCornerShape(20.dp))
+                        .clickable { openLinkAction() }
+                        .padding(horizontal = 16.dp, vertical = 7.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.TouchApp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(15.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Toca para abrir enlace", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
