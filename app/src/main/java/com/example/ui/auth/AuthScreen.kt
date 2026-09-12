@@ -275,7 +275,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             )
             
             var showInboxDialog by remember { mutableStateOf(false) }
-            var showSupportDialog by remember { mutableStateOf(false) }
             var showBuyEssenceDialog by remember { mutableStateOf(false) }
 
             if (showInboxDialog) {
@@ -283,9 +282,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     userUid = user.uid,
                     onDismiss = { showInboxDialog = false }
                 )
-            }
-            if (showSupportDialog) {
-                com.example.ui.components.SupportReportDialog(onDismiss = { showSupportDialog = false })
             }
             if (showBuyEssenceDialog) {
                 com.example.ui.components.BuyEssenceDialog(
@@ -438,26 +434,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             modifier = Modifier.size(13.dp)
                         )
                     }
-                }
-
-                Spacer(modifier = Modifier.width(20.dp))
-
-                // Support button on right (smaller)
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(activeTheme.surfaceVariant)
-                        .border(1.dp, activeTheme.cardBorder, CircleShape)
-                        .tactileClickable { showSupportDialog = true },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Soporte",
-                        tint = activeTheme.secondary,
-                        modifier = Modifier.size(18.dp)
-                    )
                 }
             }
 
@@ -772,79 +748,81 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
-            // Compact Blue Essence panel right below themes / coach tip
-            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-            var essenceBounce by remember { mutableStateOf(false) }
-            val essenceScale by animateFloatAsState(
-                targetValue = if (essenceBounce) 1.05f else 1f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                label = "essenceScale",
-                finishedListener = { essenceBounce = false }
-            )
+            // Compact Blue Essence panel right below themes / coach tip (Only for Admins)
+            if (isAdminUser) {
+                val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
+                var essenceBounce by remember { mutableStateOf(false) }
+                val essenceScale by animateFloatAsState(
+                    targetValue = if (essenceBounce) 1.05f else 1f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                    label = "essenceScale",
+                    finishedListener = { essenceBounce = false }
+                )
 
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        scaleX = essenceScale
-                        scaleY = essenceScale
-                    }
-                    .tactileClickable {
-                        essenceBounce = true
-                        showBuyEssenceDialog = true
-                    },
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant.copy(alpha = 0.8f),
-                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .graphicsLayer {
+                            scaleX = essenceScale
+                            scaleY = essenceScale
+                        }
+                        .tactileClickable {
+                            essenceBounce = true
+                            showBuyEssenceDialog = true
+                        },
+                    shape = RoundedCornerShape(12.dp),
+                    color = activeTheme.surfaceVariant.copy(alpha = 0.8f),
+                    border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
                 ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
-                            Image(
-                                painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                                contentDescription = "Esencia Azul",
-                                modifier = Modifier.size(20.dp)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                                    contentDescription = "Esencia Azul",
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Text(
+                                    text = "Esencia Azul",
+                                    color = activeTheme.textSecondary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
                             Text(
-                                text = "Esencia Azul",
-                                color = activeTheme.textSecondary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium
+                                text = "$currentBlueEssence EA",
+                                color = activeTheme.primary,
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
-                        Text(
-                            text = "$currentBlueEssence EA",
-                            color = activeTheme.primary,
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(activeTheme.secondary)
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = "Comprar",
-                            color = activeTheme.background,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(activeTheme.secondary)
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = "Comprar",
+                                color = activeTheme.background,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
+            }
 
             // Alerta de suscripción por vencer (si aplica)
             if (isExpiringSoon) {
@@ -890,7 +868,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             ),
                             label = "renewBtnScale"
                         )
-                        Button(
+                        com.example.ui.components.AnimatedTactileButton(
                             onClick = { showPlansDialog = true },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = com.example.ui.theme.DangerRed,
@@ -898,9 +876,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(36.dp)
-                                .scale(renewScale),
-                            interactionSource = renewInteractionSource,
+                                .height(36.dp),
                             shape = RoundedCornerShape(6.dp),
                             contentPadding = PaddingValues(0.dp)
                         ) {
@@ -923,66 +899,60 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Surface(
+                com.example.ui.components.AnimatedTactileButton(
+                    onClick = { showPlansDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = activeTheme.primary.copy(alpha = 0.12f),
+                        contentColor = activeTheme.primary
+                    ),
+                    border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.6f)),
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)
-                        .tactileClickable { showPlansDialog = true },
-                    shape = RoundedCornerShape(10.dp),
-                    color = activeTheme.primary.copy(alpha = 0.12f),
-                    border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.6f))
+                        .height(44.dp),
+                    shape = RoundedCornerShape(10.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocalActivity,
-                            contentDescription = null,
-                            tint = activeTheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = if (isPremium) "Planes / Pase" else "Ver Planes Pro",
-                            color = activeTheme.primary,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                            fontSize = 12.sp,
-                            maxLines = 1
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.LocalActivity,
+                        contentDescription = null,
+                        tint = activeTheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = if (isPremium) "Planes / Pase" else "Ver Planes Pro",
+                        color = activeTheme.primary,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        fontSize = 12.sp,
+                        maxLines = 1
+                    )
                 }
 
-                Surface(
+                com.example.ui.components.AnimatedTactileButton(
+                    onClick = { showHistoryDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = activeTheme.surfaceVariant,
+                        contentColor = activeTheme.textSecondary
+                    ),
+                    border = BorderStroke(1.dp, activeTheme.cardBorder),
                     modifier = Modifier
                         .weight(1f)
-                        .height(44.dp)
-                        .tactileClickable { showHistoryDialog = true },
-                    shape = RoundedCornerShape(10.dp),
-                    color = activeTheme.surfaceVariant,
-                    border = BorderStroke(1.dp, activeTheme.cardBorder)
+                        .height(44.dp),
+                    shape = RoundedCornerShape(10.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = null,
-                            tint = activeTheme.textSecondary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Historial",
-                            color = activeTheme.textSecondary,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                            fontSize = 12.sp,
-                            maxLines = 1
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = null,
+                        tint = activeTheme.textSecondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Historial",
+                        color = activeTheme.textSecondary,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                        fontSize = 12.sp,
+                        maxLines = 1
+                    )
                 }
             }
             
@@ -997,17 +967,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(14.dp))
             
             if (userRole == "admin" || userRole == "moderador") {
-                val adminInteractionSource = remember { MutableInteractionSource() }
-                val adminPressed by adminInteractionSource.collectIsPressedAsState()
-                val adminScale by animateFloatAsState(
-                    targetValue = if (adminPressed) 0.95f else 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    label = "adminBtnScale"
-                )
-                Button(
+                com.example.ui.components.AnimatedTactileButton(
                     onClick = {
                         if (userRole == "admin") {
                             showAdminDashboard = true
@@ -1018,9 +978,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     colors = ButtonDefaults.buttonColors(containerColor = if (userRole == "admin") com.example.ui.theme.DangerRed else com.example.ui.theme.HextechCyan),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
-                        .scale(adminScale),
-                    interactionSource = adminInteractionSource,
+                        .height(48.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Icon(
@@ -1038,24 +996,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Spacer(modifier = Modifier.height(12.dp))
             }
             
-            val signOutInteractionSource = remember { MutableInteractionSource() }
-            val signOutPressed by signOutInteractionSource.collectIsPressedAsState()
-            val signOutScale by animateFloatAsState(
-                targetValue = if (signOutPressed) 0.95f else 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                ),
-                label = "signOutBtnScale"
-            )
-            Button(
+            com.example.ui.components.AnimatedTactileButton(
                 onClick = onSignOut,
                 colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(46.dp)
-                    .scale(signOutScale),
-                interactionSource = signOutInteractionSource,
+                    .height(46.dp),
                 shape = RoundedCornerShape(12.dp),
                 border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.35f))
             ) {
@@ -1081,7 +1027,10 @@ fun Modifier.tactileClickable(
         label = "tactileScale"
     )
     return this
-        .scale(scale)
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
         .clickable(
             interactionSource = interactionSource,
             indication = androidx.compose.material3.ripple(bounded = true),

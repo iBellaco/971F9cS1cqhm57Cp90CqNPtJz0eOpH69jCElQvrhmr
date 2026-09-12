@@ -155,6 +155,36 @@ object SupportReplyManager {
                 }
             } catch (_: Exception) {}
 
+            // 4. Notificar a la bandeja de entrada del usuario en Firestore si existe userId
+            try {
+                val db = FirebaseFirestore.getInstance()
+                val docSnap = db.collection("support_reports").document(reportId).get().await()
+                val userId = docSnap.getString("userId") ?: ""
+                val title = docSnap.getString("title") ?: reportTitle ?: "Reporte de Soporte"
+                if (userId.isNotBlank() && userId != "anonimo") {
+                    val messageMap = hashMapOf<String, Any>(
+                        "title" to "Respuesta de Soporte: $title",
+                        "content" to replyText,
+                        "timestamp" to Timestamp.now(),
+                        "isRead" to false,
+                        "tag" to "SUPPORT",
+                        "sender" to author,
+                        "reportId" to reportId
+                    )
+                    db.collection("users").document(userId).collection("messages").add(messageMap).await()
+
+                    val userRef = db.collection("users").document(userId)
+                    val userSnap = userRef.get().await()
+                    val unreadCount = userSnap.getLong("unreadMessagesCount") ?: 0L
+                    userRef.update(
+                        "hasUnreadMessages", true,
+                        "unreadMessagesCount", unreadCount + 1
+                    ).await()
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "No se pudo enviar mensaje a la bandeja del usuario: ${e.message}")
+            }
+
             true
         } catch (e: Exception) {
             Log.e(TAG, "Error enviando respuesta de soporte: ${e.message}")

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.font.FontWeight
@@ -162,6 +163,11 @@ fun UserInboxDialog(
         }
     }
 
+    var showSupportDialog by remember { mutableStateOf(false) }
+    if (showSupportDialog) {
+        SupportReportDialog(onDismiss = { showSupportDialog = false })
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -189,6 +195,20 @@ fun UserInboxDialog(
                         Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray)
                     }
                 }
+
+                Spacer(modifier = Modifier.height(6.dp))
+                OutlinedButton(
+                    onClick = { showSupportDialog = true },
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF0EA5E9)),
+                    border = BorderStroke(1.dp, Color(0xFF0EA5E9).copy(alpha = 0.6f)),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Enviar Reporte o Mensaje de Soporte", color = Color(0xFF0EA5E9), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
 
                 val unreadCount = messages.count { (it["isRead"] as? Boolean) == false }
                 if (messages.isNotEmpty()) {

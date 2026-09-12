@@ -1256,6 +1256,18 @@ private fun UnifiedReportAdminCard(
                                 }
                             }
                         }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        OutlinedButton(
+                            onClick = onReplyClick,
+                            modifier = Modifier.fillMaxWidth().height(32.dp),
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan)
+                        ) {
+                            Icon(Icons.Default.Reply, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Seguir Respondiendo / Nueva Réplica", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             } else {

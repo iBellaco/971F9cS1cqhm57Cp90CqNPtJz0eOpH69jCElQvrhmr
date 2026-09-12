@@ -239,7 +239,7 @@ fun AdminDashboardDialog(
                             Spacer(modifier = Modifier.height(16.dp))
                             Text("Panel de Moderación", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("Abre 'OCR y Soporte' en la parte superior para moderar los aportes de la comunidad.", color = TextSecondary, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Text("Abre 'Soporte' en la parte superior para moderar los aportes de la comunidad.", color = TextSecondary, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         }
                     }
                 }
@@ -335,7 +335,7 @@ private fun AdminDashboardHeader(
                 ) {
                     Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                     Spacer(modifier = Modifier.width(3.dp))
-                    Text("OCR y Soporte", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Text("Soporte", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón Broadcast

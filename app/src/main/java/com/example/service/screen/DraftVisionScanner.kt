@@ -939,24 +939,42 @@ object DraftVisionScanner {
         // PASO 4: RESOLUCIÓN Y ASIGNACIÓN DETERMINISTA DE CARRILES (ZERO-CONFUSION)
         // -----------------------------------------------------------------------------------------
         
-        if (isPreparationPhase && !isLastPickVisualRecognized) {
-            val tenthTurn = pickSequence.last()
-            val targetSlotIdx = tenthTurn.slotIndex
-            val targetIsAlly = tenthTurn.isAlly
-            val matched = GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, targetIsAlly)
-            if (matched != null) {
-                isLastPickVisualRecognized = true
-                lastPickVisualChampion = matched
-                lastPickVisualConfidence = 1.0f
-                if (targetIsAlly) {
-                    allySlots[targetSlotIdx].champion = matched
-                    allySlots[targetSlotIdx].confidencePercent = 100
-                } else {
-                    enemySlots[targetSlotIdx].champion = matched
-                    enemySlots[targetSlotIdx].confidencePercent = 100
-                }
-                AppLogger.d(TAG, "Gemini identificó 10º pick en Fase de Preparación: ${matched.name}")
+        // -----------------------------------------------------------------------------------------
+        // PASO 4: ESCANEO Y CONFIRMACIÓN DEL 10º PICK (ÚLTIMO CAMPEÓN / FUENTE VERDADERA)
+        // 1. Detectar si soy primera selección (effectiveFirstPick) -> Si es true, el rival selecciona último (Slot 5 Rival). Si es false, mi equipo selecciona último (Slot 5 Aliado).
+        // 2. Los cuadros de abajo escanean la última imagen vista (50% probabilidad).
+        // 3. Al desaparecer los cuadros inferiores o al validar, se escanea la parte superior (círculos superiores / fuente verdadera).
+        // 4. Si coincide con el de abajo, se confirma. Si no coincide o abajo desapareció, se reemplaza por el de la parte superior como fuente verdadera.
+        // -----------------------------------------------------------------------------------------
+        val lastPickTurn = pickSequence.last()
+        val targetSlotIdx = lastPickTurn.slotIndex
+        val targetIsAlly = lastPickTurn.isAlly
+        val bottomSlot = if (targetIsAlly) allySlots[targetSlotIdx] else enemySlots[targetSlotIdx]
+        val bottomSlotCandidate = bottomSlot.champion
+
+        val topBarMatched = GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, targetIsAlly)
+        if (topBarMatched != null) {
+            isLastPickVisualRecognized = true
+            lastPickVisualChampion = topBarMatched
+            lastPickVisualConfidence = 1.0f
+
+            if (bottomSlotCandidate != null && bottomSlotCandidate.id == topBarMatched.id) {
+                AppLogger.d(TAG, "10º Pick confirmado: Cuadro inferior y círculo superior coinciden en ${topBarMatched.name}")
+            } else {
+                AppLogger.d(TAG, "10º Pick fuente verdadera superior aplicada: ${topBarMatched.name} (Bottom previo: ${bottomSlotCandidate?.name})")
             }
+
+            if (targetIsAlly) {
+                allySlots[targetSlotIdx].champion = topBarMatched
+                allySlots[targetSlotIdx].confidencePercent = 100
+            } else {
+                enemySlots[targetSlotIdx].champion = topBarMatched
+                enemySlots[targetSlotIdx].confidencePercent = 100
+            }
+        } else if (bottomSlotCandidate != null) {
+            lastPickVisualChampion = bottomSlotCandidate
+            lastPickVisualConfidence = 0.5f
+            AppLogger.d(TAG, "10º Pick usando candidato inferior (50% prob): ${bottomSlotCandidate.name}")
         }
         
         // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados
