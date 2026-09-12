@@ -98,6 +98,7 @@ data class DraftScanResult(
     val enemySpellsBySlot: Map<Int, List<String>> = emptyMap(),
     val allySummonerNamesByRole: Map<LaneRole, String> = emptyMap(),
     val allySpellsByRole: Map<LaneRole, List<String>> = emptyMap(),
+    val isLegendaryRanked: Boolean = false,
     val isSuccessful: Boolean,
     val statusMessage: String
 )
@@ -257,9 +258,17 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS (IGNORA EL OVERLAY CENTRAL 0.28..0.72)
         // -----------------------------------------------------------------------------------------
+        var isLegendaryRanked = false
         try {
             val inputImage = InputImage.fromBitmap(bitmap, 0)
             val visionText = recognizer.process(inputImage).await()
+
+            // Detección proactiva de Clasificatoria Legendaria en pantalla completa
+            isLegendaryRanked = DraftValidationLayer.isLegendaryRankedDraft(visionText.text)
+            if (isLegendaryRanked) {
+                AppLogger.d(TAG, "Clasificatoria Legendaria detectada en pantalla (Nombres anónimos). Búsqueda de invocadores desactivada.")
+                allySummonerNamesCache.clear()
+            }
 
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
@@ -409,13 +418,17 @@ object DraftVisionScanner {
             }
 
             userExplicitlyConfirmed = false
-            val currentUserNameClean = try {
-                val u1 = com.example.util.SubscriptionManager.userName.value.trim().lowercase(Locale.ROOT).replace(" ", "")
-                val u2 = com.example.util.AuthManager.getAuth()?.currentUser?.displayName?.trim()?.lowercase(Locale.ROOT)?.replace(" ", "") ?: ""
-                val u3 = try { if (context != null) com.example.data.AccountProfileManager.getActiveProfile(context).name.trim().lowercase(Locale.ROOT).replace(" ", "") else "" } catch (_: Exception) { "" }
-                listOf(u1, u2, u3, "diego", "yo", "tu").filter { it.isNotBlank() }
-            } catch (_: Exception) {
-                listOf("diego", "yo", "tu")
+            val currentUserNameClean = if (!isLegendaryRanked) {
+                try {
+                    val u1 = com.example.util.SubscriptionManager.userName.value.trim().lowercase(Locale.ROOT).replace(" ", "")
+                    val u2 = com.example.util.AuthManager.getAuth()?.currentUser?.displayName?.trim()?.lowercase(Locale.ROOT)?.replace(" ", "") ?: ""
+                    val u3 = try { if (context != null) com.example.data.AccountProfileManager.getActiveProfile(context).name.trim().lowercase(Locale.ROOT).replace(" ", "") else "" } catch (_: Exception) { "" }
+                    listOf(u1, u2, u3, "diego", "yo", "tu").filter { it.isNotBlank() }
+                } catch (_: Exception) {
+                    listOf("diego", "yo", "tu")
+                }
+            } else {
+                emptyList()
             }
 
             // Procesar textos aliados: Detección de Línea, Nombre de Invocador y Campeón
@@ -467,12 +480,12 @@ object DraftVisionScanner {
                         // Comprobar si este slot contiene la etiqueta del usuario "(TÚ)" / "(TU)" / "(YOU)" / "(VOCÊ)" o coincide con su nombre
                         val lineNorm = DraftValidationLayer.normalize(line).lowercase(Locale.ROOT)
                         val lineCompressed = lineNorm.replace(" ", "")
-                        val isUserTag = lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
+                        val isUserTag = !isLegendaryRanked && (lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
                                         lineNorm == "voce" || lineNorm == "(voce)" ||
                                         lineNorm.startsWith("(tu) ") || lineNorm.endsWith(" (tu)") ||
                                         lineNorm.startsWith("(you) ") || lineNorm.endsWith(" (you)") ||
                                         lineNorm.contains(" tú ") || lineNorm.contains("(tú)") ||
-                                        currentUserNameClean.any { it.length >= 3 && lineCompressed == it }
+                                        currentUserNameClean.any { it.length >= 3 && lineCompressed == it })
 
                         if (isUserTag || hasYellowGoldText) {
                             userSlotIndex = i
@@ -483,11 +496,11 @@ object DraftVisionScanner {
                                     rect = safeBox,
                                     isAlly = true,
                                     slotIndex = i,
-                                    tag = "¡TU SLOT!",
+                                    tag = if (isLegendaryRanked) "¡TU SLOT (DORADO)!" else "¡TU SLOT!",
                                     color = android.graphics.Color.YELLOW
                                 )
                             )
-                            AppLogger.d(TAG, "Slot del usuario confirmado en Slot Aliado $i ('$line') [Yellow=$hasYellowGoldText]")
+                            AppLogger.d(TAG, "Slot del usuario confirmado en Slot Aliado $i ('$line') [Yellow=$hasYellowGoldText, Legendary=$isLegendaryRanked]")
                         }
 
                         // A) Rol / Línea explícito (ej: "Línea Central", "Carril de Barón", etc.)
@@ -528,8 +541,8 @@ object DraftVisionScanner {
                             continue
                         }
 
-                        // C) Nombre de invocador (siempre que no sea rol ni campeón)
-                        if (line.length in 1..28 && !DraftValidationLayer.isNoiseText(line) && !line.matches(Regex("^[0-9\\s:.,%#-]+$"))) {
+                        // C) Nombre de invocador (SOLO SI NO ES CLASIFICATORIA LEGENDARIA)
+                        if (!isLegendaryRanked && line.length in 1..28 && !DraftValidationLayer.isNoiseText(line) && !line.matches(Regex("^[0-9\\s:.,%#-]+$"))) {
                             if (ChampionNameResolver.findChampionInText(line, allChamps) == null) {
                                 summonerCandidates.add(line)
                             }
@@ -559,54 +572,56 @@ object DraftVisionScanner {
                     slot.explicitRole = allySlotRolesCache[i]
                 }
 
-                // Filtrar y limpiar candidatos a nombre de invocador estrictamente (descartando roles, ruido, chat y texto UI)
+                // Filtrar y limpiar candidatos a nombre de invocador estrictamente (SOLO SI NO ES CLASIFICATORIA LEGENDARIA)
                 val validSummonerLines = mutableListOf<String>()
-                for (cand in summonerCandidates) {
-                    val cleanedCand = cand.replace(Regex("^\\d+\\s*[\\).:-]?\\s*"), "").trim()
-                    val trimmed = if (cleanedCand.length >= 2) cleanedCand else cand.trim()
-                    if (trimmed.length < 2 || trimmed.length > 25) continue
-                    if (DraftValidationLayer.isNoiseText(trimmed)) continue
-                    val lLower = trimmed.lowercase(Locale.ROOT)
-                    if (lLower.contains(":") || lLower.contains("beta") || lLower.contains("porcentaje") || lLower.contains("victorias") || lLower.contains("bora") || lLower.contains("...") || lLower.contains("confirmar") || lLower.contains("detener") || lLower.contains("asistente")) continue
-                    if (trimmed.matches(Regex("^[0-9\\s:.,%#-]+$"))) continue
-                    if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
-                    if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
-                    
-                    val exactRoleWords = setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "solo", "lane", "apoyo")
-                    if (exactRoleWords.any { lLower.contains(it) }) continue
+                if (!isLegendaryRanked) {
+                    for (cand in summonerCandidates) {
+                        val cleanedCand = cand.replace(Regex("^\\d+\\s*[\\).:-]?\\s*"), "").trim()
+                        val trimmed = if (cleanedCand.length >= 2) cleanedCand else cand.trim()
+                        if (trimmed.length < 2 || trimmed.length > 25) continue
+                        if (DraftValidationLayer.isNoiseText(trimmed)) continue
+                        val lLower = trimmed.lowercase(Locale.ROOT)
+                        if (lLower.contains(":") || lLower.contains("beta") || lLower.contains("porcentaje") || lLower.contains("victorias") || lLower.contains("bora") || lLower.contains("...") || lLower.contains("confirmar") || lLower.contains("detener") || lLower.contains("asistente")) continue
+                        if (trimmed.matches(Regex("^[0-9\\s:.,%#-]+$"))) continue
+                        if (DraftValidationLayer.parseRoleFromText(trimmed) != null) continue
+                        if (ChampionNameResolver.findChampionInText(trimmed, allChamps) != null) continue
+                        
+                        val exactRoleWords = setOf("calle", "carril", "dragon", "dragón", "baron", "barón", "central", "jungla", "soporte", "adc", "duo", "dúo", "top", "mid", "sup", "jungle", "solo", "lane", "apoyo")
+                        if (exactRoleWords.any { lLower.contains(it) }) continue
 
-                    if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
-                    if (!validSummonerLines.contains(trimmed)) {
-                        validSummonerLines.add(trimmed)
+                        if (slot.champion != null && trimmed.equals(slot.champion?.name, ignoreCase = true)) continue
+                        if (!validSummonerLines.contains(trimmed)) {
+                            validSummonerLines.add(trimmed)
+                        }
                     }
-                }
 
-                var bestSummoner: String? = null
-                if (validSummonerLines.isNotEmpty()) {
-                    val filtered = validSummonerLines.filter { line ->
-                        val lLower = line.lowercase(Locale.ROOT)
-                        !DraftValidationLayer.isNoiseText(line) &&
-                        ChampionNameResolver.findChampionInText(line, allChamps) == null &&
-                        DraftValidationLayer.parseRoleFromText(line) == null &&
-                        !lLower.equals("tu", true) && !lLower.equals("(tu)", true) && !lLower.equals("you", true) && !lLower.equals("(you)", true)
+                    var bestSummoner: String? = null
+                    if (validSummonerLines.isNotEmpty()) {
+                        val filtered = validSummonerLines.filter { line ->
+                            val lLower = line.lowercase(Locale.ROOT)
+                            !DraftValidationLayer.isNoiseText(line) &&
+                            ChampionNameResolver.findChampionInText(line, allChamps) == null &&
+                            DraftValidationLayer.parseRoleFromText(line) == null &&
+                            !lLower.equals("tu", true) && !lLower.equals("(tu)", true) && !lLower.equals("you", true) && !lLower.equals("(you)", true)
+                        }
+                        if (filtered.isNotEmpty()) {
+                            bestSummoner = filtered.maxByOrNull { it.length } ?: filtered.first()
+                        }
                     }
-                    if (filtered.isNotEmpty()) {
-                        bestSummoner = filtered.maxByOrNull { it.length } ?: filtered.first()
-                    }
-                }
 
-                if (!bestSummoner.isNullOrBlank()) {
-                    allySummonerNamesCache[i] = bestSummoner!!
-                    textDiagnosticsList.add(
-                        TextBlockDiagnostic(
-                            text = bestSummoner!!,
-                            rect = Rect(0, 0, 10, 10),
-                            isAlly = true,
-                            slotIndex = i,
-                            tag = "INVOCADOR",
-                            color = android.graphics.Color.argb(255, 120, 180, 255)
+                    if (!bestSummoner.isNullOrBlank()) {
+                        allySummonerNamesCache[i] = bestSummoner!!
+                        textDiagnosticsList.add(
+                            TextBlockDiagnostic(
+                                text = bestSummoner!!,
+                                rect = Rect(0, 0, 10, 10),
+                                isAlly = true,
+                                slotIndex = i,
+                                tag = "INVOCADOR",
+                                color = android.graphics.Color.argb(255, 120, 180, 255)
+                            )
                         )
-                    )
+                    }
                 }
             }
 
@@ -1070,9 +1085,11 @@ object DraftVisionScanner {
         val enemyChampsList = finalEnemiesMap.values.toList()
         val total = allyChampsList.size + enemyChampsList.size
 
-        val hasDraftActivity = total > 0 || allySummonerNamesCache.isNotEmpty() || userDetectedLane != null || detectedFirstPick != null
+        val hasDraftActivity = total > 0 || allySummonerNamesCache.isNotEmpty() || userDetectedLane != null || detectedFirstPick != null || isLegendaryRanked
 
         val statusMsg = when {
+            isLegendaryRanked && total == 0 -> "🛡️ Clasificatoria Legendaria (Nombres anónimos)"
+            isLegendaryRanked -> "🛡️ Clasificatoria Legendaria • $total picks detectados"
             total == 0 && allySummonerNamesCache.isNotEmpty() -> "Invocadores aliados detectados (${allySummonerNamesCache.size}/5)"
             total == 0 -> "Esperando selección en directo..."
             isLastPickVisualRecognized -> "10/10 Completo • 10º Pick detectado por imagen (${lastPickVisualChampion?.name})"
@@ -1113,6 +1130,7 @@ object DraftVisionScanner {
             enemySpellsBySlot = emptyMap(),
             allySummonerNamesByRole = allySummonerNamesByRole,
             allySpellsByRole = allySpellsByRole,
+            isLegendaryRanked = isLegendaryRanked,
             isSuccessful = hasDraftActivity,
             statusMessage = statusMsg
         )

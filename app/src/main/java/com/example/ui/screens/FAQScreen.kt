@@ -67,7 +67,7 @@ fun FAQScreen(
             ),
             Pair(
                 "¿Cómo puedo personalizar los temas visuales de la aplicación?",
-                "Puedes cambiar el aspecto de la app desde tu perfil o ajustes seleccionando entre varios temas visuales inspirados en las regiones de Runaterra. Así adaptas los colores, acentos y la interfaz completa al estilo de tu campeón favorito."
+                "Puedes cambiar el estilo visual de la app desde tu perfil o ajustes seleccionando entre varios temas de color inspirados en las regiones de Runaterra. Así adaptas la interfaz y los acentos cromáticos al diseño de tu preferencia."
             ),
             Pair(
                 "¿Cómo puedo cambiar mi avatar en la aplicación?",

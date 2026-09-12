@@ -11,6 +11,18 @@ object AuthManager {
     private val _isAdminClaim = MutableStateFlow(false)
     val isAdminClaim: StateFlow<Boolean> = _isAdminClaim.asStateFlow()
 
+    const val GUEST_READER_EMAIL = "coach.guest.reader@gmail.com"
+
+    fun isUserSignedIn(): Boolean {
+        val user = getAuth()?.currentUser ?: return false
+        return !user.isAnonymous && user.email != GUEST_READER_EMAIL
+    }
+
+    fun isGuestOrUnauthenticated(user: com.google.firebase.auth.FirebaseUser?): Boolean {
+        if (user == null) return true
+        return user.isAnonymous || user.email == GUEST_READER_EMAIL
+    }
+
     init {
         setupAuthListeners()
     }
@@ -20,7 +32,7 @@ object AuthManager {
 
         auth.addIdTokenListener(FirebaseAuth.IdTokenListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
-            if (user != null && !user.isAnonymous) {
+            if (user != null && !isGuestOrUnauthenticated(user)) {
                 user.getIdToken(false).addOnSuccessListener { result ->
                     val claims = result.claims
                     val isAdmin = claims["admin"] == true
@@ -35,7 +47,7 @@ object AuthManager {
 
         auth.addAuthStateListener(FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
-            if (user != null && !user.isAnonymous) {
+            if (user != null && !isGuestOrUnauthenticated(user)) {
                 user.getIdToken(false).addOnSuccessListener { result ->
                     val claims = result.claims
                     val isAdmin = claims["admin"] == true
@@ -68,12 +80,12 @@ object AuthManager {
 
     fun refreshClaims(onComplete: (Boolean) -> Unit = {}) {
         val user = getAuth()?.currentUser
-        if (user == null || user.isAnonymous) {
+        if (isGuestOrUnauthenticated(user)) {
             _isAdminClaim.value = false
             onComplete(false)
             return
         }
-        user.getIdToken(true).addOnSuccessListener { result ->
+        user!!.getIdToken(true).addOnSuccessListener { result ->
             val isAdmin = result.claims["admin"] == true
             _isAdminClaim.value = isAdmin
             onComplete(isAdmin)
@@ -88,7 +100,7 @@ object AuthManager {
 
     fun isCurrentUserEmailVerified(): Boolean {
         val user = getAuth()?.currentUser ?: return false
-        if (user.isAnonymous) return false
+        if (isGuestOrUnauthenticated(user)) return false
         return user.isEmailVerified
     }
 }

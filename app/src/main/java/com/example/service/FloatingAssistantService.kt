@@ -959,17 +959,21 @@ private fun FloatingOverlayContent(
                             }
 
                             // Sincronizar nombres de invocador aliados y hechizos
-                            defaultRoles.forEachIndexed { idx, role ->
-                                val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
-                                if (!sName.isNullOrBlank()) {
-                                    val current = state.allySummonerNames[idx]
-                                    if (current.isNullOrBlank() || sName.length > current.length || (sName.contains(" ") && !current.contains(" "))) {
-                                        state.allySummonerNames[idx] = sName
+                            if (result.isLegendaryRanked) {
+                                state.allySummonerNames.clear()
+                            } else {
+                                defaultRoles.forEachIndexed { idx, role ->
+                                    val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
+                                    if (!sName.isNullOrBlank()) {
+                                        val current = state.allySummonerNames[idx]
+                                        if (current.isNullOrBlank() || sName.length > current.length || (sName.contains(" ") && !current.contains(" "))) {
+                                            state.allySummonerNames[idx] = sName
+                                        }
                                     }
-                                }
-                                val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
-                                if (!spells.isNullOrEmpty()) {
-                                    state.allySpells[idx] = spells
+                                    val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
+                                    if (!spells.isNullOrEmpty()) {
+                                        state.allySpells[idx] = spells
+                                    }
                                 }
                             }
                             state.enemySpells.clear()
@@ -1053,17 +1057,21 @@ private fun FloatingOverlayContent(
                         }
 
                         // Sincronizar nombres de invocador aliados y hechizos
-                        defaultRoles.forEachIndexed { idx, role ->
-                            val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
-                            if (!sName.isNullOrBlank()) {
-                                val current = state.allySummonerNames[idx]
-                                if (current.isNullOrBlank() || sName.length > current.length || (sName.contains(" ") && !current.contains(" "))) {
-                                    state.allySummonerNames[idx] = sName
+                        if (result.isLegendaryRanked) {
+                            state.allySummonerNames.clear()
+                        } else {
+                            defaultRoles.forEachIndexed { idx, role ->
+                                val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
+                                if (!sName.isNullOrBlank()) {
+                                    val current = state.allySummonerNames[idx]
+                                    if (current.isNullOrBlank() || sName.length > current.length || (sName.contains(" ") && !current.contains(" "))) {
+                                        state.allySummonerNames[idx] = sName
+                                    }
                                 }
-                            }
-                            val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
-                            if (!spells.isNullOrEmpty()) {
-                                state.allySpells[idx] = spells
+                                val spells = result.allySpellsByRole[role] ?: result.allySpellsBySlot[idx]
+                                if (!spells.isNullOrEmpty()) {
+                                    state.allySpells[idx] = spells
+                                }
                             }
                         }
                         state.enemySpells.clear()

@@ -350,7 +350,7 @@ fun MainDraftingScreen(
 
                         // User Avatar Profile button
                         val authUser = com.example.util.AuthManager.getAuth()?.currentUser
-                        if (authUser != null && !authUser.isAnonymous) {
+                        if (authUser != null && !com.example.util.AuthManager.isGuestOrUnauthenticated(authUser)) {
                             IconButton(
                                 onClick = onNavigateToLogin,
                                 modifier = Modifier
@@ -374,6 +374,8 @@ fun MainDraftingScreen(
             },
         ) { innerPadding ->
             val notices by com.example.data.AppNoticeManager.notices.collectAsState()
+            val globalAnnouncement by com.example.data.GlobalAnnouncementManager.currentAnnouncement.collectAsState()
+            var showGlobalAnnouncementModal by remember { mutableStateOf(false) }
 
             Column(
                 modifier = Modifier
@@ -385,6 +387,22 @@ fun MainDraftingScreen(
             ) {
                 Spacer(modifier = Modifier.height(6.dp))
 
+                // Banner de comunicado / alerta global activa en tiempo real
+                if (globalAnnouncement != null && globalAnnouncement!!.active) {
+                    com.example.ui.components.GlobalAnnouncementBanner(
+                        announcement = globalAnnouncement!!,
+                        onClick = { showGlobalAnnouncementModal = true },
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                }
+
+                if (showGlobalAnnouncementModal && globalAnnouncement != null) {
+                    com.example.ui.components.GlobalAnnouncementDialog(
+                        announcement = globalAnnouncement!!,
+                        onDismiss = { showGlobalAnnouncementModal = false }
+                    )
+                }
+
                 // 1. Paneles de Avisos separados por categoría (Importantes, Ofertas, Publicidad, etc.)
                 // Cada tipo de anuncio tiene su propio panel independiente; si hay varios del mismo tipo se agrupan.
                 val activeNotices = notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }
@@ -392,6 +410,7 @@ fun MainDraftingScreen(
                 // Sincronizar anuncios desde la nube al cargar la pantalla
                 LaunchedEffect(Unit) {
                     com.example.data.AppNoticeManager.syncFromCloud(context)
+                    com.example.data.GlobalAnnouncementManager.refreshFromCloud(context)
                 }
 
                 val streamerIntervalValue by com.example.data.AppNoticeManager.streamerIntervalValue.collectAsState()

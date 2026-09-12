@@ -137,7 +137,8 @@ fun NoticeMediaViewer(
     modifier: Modifier = Modifier,
     isFullscreen: Boolean = false,
     onExpand: (() -> Unit)? = null,
-    onClose: (() -> Unit)? = null
+    onClose: (() -> Unit)? = null,
+    onImageClick: (() -> Unit)? = null
 ) {
     if (mediaUrl.isBlank()) return
     val context = LocalContext.current
@@ -339,7 +340,9 @@ fun NoticeMediaViewer(
                 modifier = Modifier
                     .fillMaxSize()
                     .then(
-                        if (!isFullscreen && onExpand != null) {
+                        if (onImageClick != null) {
+                            Modifier.clickable { onImageClick() }
+                        } else if (!isFullscreen && onExpand != null) {
                             Modifier.clickable { onExpand() }
                         } else Modifier
                     )
@@ -608,6 +611,25 @@ fun NoticeMediaFullscreenDialog(
                 .background(Color.Black)
                 .padding(12.dp)
         ) {
+            val openLinkAction: () -> Unit = {
+                if (externalUrl.isNotBlank()) {
+                    try {
+                        if (noticeId.isNotBlank()) {
+                            com.example.data.AppNoticeAnalyticsManager.recordClick(context, noticeId)
+                        }
+                        val cleanUrl = if (!externalUrl.startsWith("http://") && !externalUrl.startsWith("https://")) {
+                            "https://${externalUrl.trim()}"
+                        } else {
+                            externalUrl.trim()
+                        }
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(cleanUrl)).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
+                    } catch (_: Exception) {}
+                }
+            }
+
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -619,23 +641,34 @@ fun NoticeMediaFullscreenDialog(
                         .weight(1f)
                         .then(
                             if (!isVideo && externalUrl.isNotBlank()) {
-                                Modifier.clickable {
-                                    try {
-                                        if (noticeId.isNotBlank()) {
-                                            com.example.data.AppNoticeAnalyticsManager.recordClick(context, noticeId)
-                                        }
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl.trim()))
-                                        context.startActivity(intent)
-                                    } catch (_: Exception) {}
-                                }
+                                Modifier.clickable { openLinkAction() }
                             } else Modifier
                         )
                 ) {
                     NoticeMediaViewer(
                         mediaUrl = mediaUrl,
                         modifier = Modifier.fillMaxSize(),
-                        isFullscreen = true
+                        isFullscreen = true,
+                        onImageClick = if (!isVideo && externalUrl.isNotBlank()) openLinkAction else null
                     )
+
+                    if (!isVideo && externalUrl.isNotBlank()) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 12.dp)
+                                .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(20.dp))
+                                .border(1.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(20.dp))
+                                .clickable { openLinkAction() }
+                                .padding(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.TouchApp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(15.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Toca la imagen para abrir enlace", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
@@ -645,65 +678,29 @@ fun NoticeMediaFullscreenDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // ROTATE BUTTON ONLY IF IT IS A VIDEO
-                        if (isVideo) {
-                            Button(
-                                onClick = { isLandscape = !isLandscape },
-                                colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                            ) {
-                                Icon(
-                                    if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
-                                    contentDescription = "Rotar Pantalla",
-                                    tint = HextechCyan,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
-                                    color = HextechCyan,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                    if (isVideo) {
+                        Button(
+                            onClick = { isLandscape = !isLandscape },
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                        ) {
+                            Icon(
+                                if (isLandscape) Icons.Default.ScreenLockPortrait else Icons.Default.ScreenRotation,
+                                contentDescription = "Rotar Pantalla",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = if (isLandscape) "Modo Vertical" else "Rotar Pantalla",
+                                color = HextechCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
-
-                        // OPTIONAL REDIRECTION BUTTON IF externalUrl IS CONFIGURED
-                        if (externalUrl.isNotBlank()) {
-                            Button(
-                                onClick = {
-                                    try {
-                                        if (noticeId.isNotBlank()) {
-                                            com.example.data.AppNoticeAnalyticsManager.recordClick(context, noticeId)
-                                        }
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(externalUrl.trim()))
-                                        context.startActivity(intent)
-                                    } catch (_: Exception) {}
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.OpenInBrowser,
-                                    contentDescription = "Visitar Enlace",
-                                    tint = HextechDarkBg,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "Visitar Enlace ↗",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp,
-                                    color = HextechDarkBg
-                                )
-                            }
-                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
                     }
 
                     Button(

@@ -113,13 +113,13 @@ object DeviceAndSessionManager {
     // Limpia slots huérfanos o resetea dispositivos registrados para dejar solo el teléfono actual
     fun resetDeviceSlots(context: Context, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null || user.isAnonymous) {
+        if (AuthManager.isGuestOrUnauthenticated(user)) {
             onError("Usuario no logueado")
             return
         }
         val currentDeviceId = getDeviceId(context)
         val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(user.uid)
+        val userRef = db.collection("users").document(user!!.uid)
         userRef.update("registeredDevices", listOf(currentDeviceId))
             .addOnSuccessListener { onSuccess() }
             .addOnFailureListener { e -> onError(e.message ?: "Error al resetear dispositivos") }
@@ -128,7 +128,7 @@ object DeviceAndSessionManager {
     // Registrar sesión y dispositivo en Firestore de manera segura y sin desconexiones accidentales
     fun registerDeviceAndSession(context: Context, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null || user.isAnonymous) {
+        if (AuthManager.isGuestOrUnauthenticated(user)) {
             onError("Usuario no logueado")
             return
         }
@@ -139,7 +139,7 @@ object DeviceAndSessionManager {
         lastLocalLoginTimestamp = loginTimestamp
 
         val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(user.uid)
+        val userRef = db.collection("users").document(user!!.uid)
 
         userRef.get().addOnSuccessListener { snapshot ->
             val dbRole = snapshot.getString("role") ?: "free"
@@ -180,7 +180,7 @@ object DeviceAndSessionManager {
 
     fun handleSessionChanged(remoteSessionToken: String?, remoteDeviceId: String?, remoteTimestamp: Long = 0L, context: Context) {
         val user = AuthManager.getAuth()?.currentUser ?: return
-        if (user.isAnonymous) return
+        if (AuthManager.isGuestOrUnauthenticated(user)) return
         val isAdmin = AuthManager.isCurrentUserAdmin()
         
         // Administradores nunca se desconectan por concurrencia

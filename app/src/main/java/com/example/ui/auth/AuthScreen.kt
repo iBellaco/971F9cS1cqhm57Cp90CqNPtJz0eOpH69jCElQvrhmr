@@ -86,13 +86,14 @@ fun AuthFlowContainer(
     }
     
     // Check if user is already authenticated
-    if (currentUser != null && !currentUser!!.isAnonymous) {
+    if (currentUser != null && !AuthManager.isGuestOrUnauthenticated(currentUser)) {
         AuthenticatedProfilePanel(
             user = currentUser!!,
             onSignOut = {
                 auth?.signOut()
                 currentUser = null
                 viewModel.resetSuccessState()
+                com.example.util.GuestAuthHelper.ensureAuth()
             }
         )
         return

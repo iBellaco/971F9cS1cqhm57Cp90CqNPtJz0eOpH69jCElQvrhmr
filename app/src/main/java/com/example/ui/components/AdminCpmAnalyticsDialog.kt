@@ -50,6 +50,13 @@ fun AdminCpmAnalyticsDialog(
     val metricsMap by AppNoticeAnalyticsManager.metricsMap.collectAsState()
     val baseCpmRate by AppNoticeAnalyticsManager.baseCpmRate.collectAsState()
     val startDateMs by AppNoticeAnalyticsManager.trackingStartDate.collectAsState()
+    val isSyncing by AppNoticeAnalyticsManager.isSyncing.collectAsState()
+    val lastSyncTime by AppNoticeAnalyticsManager.lastSyncTime.collectAsState()
+
+    LaunchedEffect(Unit) {
+        AppNoticeAnalyticsManager.syncFromCloud(context)
+        AppNoticeManager.syncFromCloud(context)
+    }
 
     var showEditCpmDialog by remember { mutableStateOf(false) }
     var showResetConfirmDialog by remember { mutableStateOf(false) }
@@ -337,22 +344,53 @@ fun AdminCpmAnalyticsDialog(
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF00FF66)
                             )
-                            Text(
-                                text = "Período desde: $formattedStartDate • Avisos Propios",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = TextMuted,
-                                fontSize = 11.sp
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .background(Color(0xFF00FF66), CircleShape)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = if (isSyncing) "Sincronizando con la nube..." else "Sincronizado en tiempo real • Multidispositivo",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isSyncing) HextechGold else TextSecondary,
+                                    fontSize = 10.5.sp
+                                )
+                            }
                         }
                     }
 
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier
-                            .size(36.dp)
-                            .background(Color.White.copy(alpha = 0.05f), CircleShape)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        IconButton(
+                            onClick = {
+                                AppNoticeAnalyticsManager.syncFromCloud(context) { success ->
+                                    if (success) {
+                                        Toast.makeText(context, "Métricas sincronizadas en tiempo real", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                AppNoticeManager.syncFromCloud(context)
+                            },
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                        ) {
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = "Actualizar métricas",
+                                tint = if (isSyncing) HextechGold else HextechCyan,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary)
+                        }
                     }
                 }
 

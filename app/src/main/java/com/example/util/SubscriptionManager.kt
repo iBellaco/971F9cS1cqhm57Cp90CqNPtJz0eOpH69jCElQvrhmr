@@ -54,7 +54,7 @@ object SubscriptionManager {
     init {
         com.example.util.AuthManager.getAuth()?.addAuthStateListener {
             val user = it.currentUser
-            if (user == null || user.isAnonymous) {
+            if (AuthManager.isGuestOrUnauthenticated(user)) {
                 _userRole.value = "free"
                 _userName.value = ""
                 _isPremium.value = false
@@ -118,7 +118,7 @@ object SubscriptionManager {
         val auth = AuthManager.getAuth()
         val user = auth?.currentUser
 
-        if (user == null || user.isAnonymous) {
+        if (AuthManager.isGuestOrUnauthenticated(user)) {
             _userRole.value = "free"
             _userName.value = ""
             _isPremium.value = false
@@ -132,7 +132,7 @@ object SubscriptionManager {
             return
         }
 
-        startHeartbeat(user.uid)
+        startHeartbeat(user!!.uid)
 
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(user.uid)
@@ -274,7 +274,7 @@ object SubscriptionManager {
         onError: (String) -> Unit = {}
     ) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null || user.isAnonymous) {
+        if (AuthManager.isGuestOrUnauthenticated(user)) {
             onError("Inicia sesión para cambiar de avatar")
             return
         }
@@ -285,7 +285,7 @@ object SubscriptionManager {
         }
 
         val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(user.uid)
+        val userRef = db.collection("users").document(user!!.uid)
         
         userRef.set(hashMapOf("avatarId" to avatarId), SetOptions.merge())
             .addOnSuccessListener {
@@ -300,7 +300,7 @@ object SubscriptionManager {
 
     fun changeRankBorder(borderId: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null || user.isAnonymous) {
+        if (AuthManager.isGuestOrUnauthenticated(user)) {
             onError("Inicia sesión para cambiar de marco")
             return
         }
@@ -309,7 +309,7 @@ object SubscriptionManager {
             return
         }
         val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(user.uid)
+        val userRef = db.collection("users").document(user!!.uid)
         userRef.set(hashMapOf("rankBorder" to borderId), SetOptions.merge())
             .addOnSuccessListener { _currentRankBorder.value = borderId; onSuccess() }
             .addOnFailureListener { onError("Error al actualizar el marco: ${it.message}") }
@@ -366,7 +366,7 @@ object SubscriptionManager {
 
     suspend fun addBlueEssence(amount: Long) {
         val user = AuthManager.getAuth()?.currentUser ?: return
-        if (user.isAnonymous) return
+        if (AuthManager.isGuestOrUnauthenticated(user)) return
         val db = FirebaseFirestore.getInstance()
         try {
             val userRef = db.collection("users").document(user.uid)

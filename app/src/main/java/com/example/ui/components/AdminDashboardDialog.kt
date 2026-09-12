@@ -58,6 +58,10 @@ import com.example.util.AuthManager
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextDecoration
+import java.util.UUID
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -298,6 +302,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var isSavingCloud by remember { mutableStateOf(false) }
 
     var editingIndex by remember { mutableStateOf<Int?>(null) }
+    var editingNoticeId by remember { mutableStateOf<String?>(null) }
     var title by remember { mutableStateOf("") }
     var content by remember { mutableStateOf("") }
     var videoUrl by remember { mutableStateOf("") }
@@ -313,6 +318,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     val isExpandedUrlValid = remember(expandedImageUrl) { NoticeMediaUtils.isValidNoticeMedia(expandedImageUrl) }
     val coroutineScope = rememberCoroutineScope()
     var isProcessingMedia by remember { mutableStateOf(false) }
+    var showManualVideoUrlInput by remember { mutableStateOf(false) }
+    var showManualExpandedUrlInput by remember { mutableStateOf(false) }
 
     val clipboardManager = remember { context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager }
     fun copyToClipboard(label: String, text: String) {
@@ -524,11 +531,72 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis
                                     )
+                                    // Visual Media Indicators
+                                    Row(
+                                        modifier = Modifier.padding(top = 4.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (notice.videoUrl.isNotBlank()) {
+                                            Surface(
+                                                color = HextechCyan.copy(alpha = 0.15f),
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(0.5.dp, HextechCyan.copy(alpha = 0.4f))
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        if (notice.videoUrl.contains("video") || notice.videoUrl.endsWith(".mp4")) Icons.Default.Videocam else Icons.Default.Image,
+                                                        contentDescription = null,
+                                                        tint = HextechCyan,
+                                                        modifier = Modifier.size(10.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(3.dp))
+                                                    Text("Horizontal", color = HextechCyan, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                        if (notice.expandedImageUrl.isNotBlank()) {
+                                            Surface(
+                                                color = HextechGold.copy(alpha = 0.15f),
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.4f))
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(Icons.Default.PhoneAndroid, contentDescription = null, tint = HextechGold, modifier = Modifier.size(10.dp))
+                                                    Spacer(modifier = Modifier.width(3.dp))
+                                                    Text("Vertical", color = HextechGold, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                        if (notice.externalUrl.isNotBlank()) {
+                                            Surface(
+                                                color = Color(0xFF3399FF).copy(alpha = 0.15f),
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(0.5.dp, Color(0xFF3399FF).copy(alpha = 0.4f))
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(Icons.Default.OpenInBrowser, contentDescription = null, tint = Color(0xFF3399FF), modifier = Modifier.size(10.dp))
+                                                    Spacer(modifier = Modifier.width(3.dp))
+                                                    Text("Enlace", color = Color(0xFF3399FF), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     IconButton(
                                         onClick = {
                                             editingIndex = index
+                                            editingNoticeId = notice.id
                                             title = notice.title
                                             content = notice.content
                                             videoUrl = notice.videoUrl
@@ -545,6 +613,15 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                     }
                                     IconButton(
                                         onClick = {
+                                            if (editingIndex == index) {
+                                                editingIndex = null
+                                                editingNoticeId = null
+                                                title = ""
+                                                content = ""
+                                                videoUrl = ""
+                                                expandedImageUrl = ""
+                                                externalUrl = ""
+                                            }
                                             noticesList = noticesList.filterIndexed { i, _ -> i != index }
                                         },
                                         modifier = Modifier.size(28.dp)
@@ -561,12 +638,37 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 Divider(color = HextechCardBorder)
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Text(
-                    text = if (editingIndex != null) "✏️ Editando Anuncio #${editingIndex!! + 1}" else "➕ Agregar Nuevo Anuncio:",
-                    color = HextechGold,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (editingIndex != null) "✏️ Editando Anuncio #${editingIndex!! + 1}" else "➕ Agregar Nuevo Anuncio:",
+                        color = HextechGold,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (editingIndex != null) {
+                        TextButton(
+                            onClick = {
+                                editingIndex = null
+                                editingNoticeId = null
+                                title = ""
+                                content = ""
+                                videoUrl = ""
+                                expandedImageUrl = ""
+                                externalUrl = ""
+                            },
+                            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null, tint = DangerRed, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Cancelar", color = DangerRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Tag selector
@@ -679,74 +781,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("1. Multimedia Horizontal (Panel de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                val isHorizontalUploaded = videoUrl.startsWith("data:image/") || videoUrl.startsWith("file://") || videoUrl.startsWith("content://") || videoUrl.length > 200
-                if (isHorizontalUploaded) {
-                    Surface(
-                        color = HextechSurfaceVariant,
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Icon(
-                                    if (videoUrl.contains("video") || videoUrl.endsWith(".mp4")) Icons.Default.Videocam else Icons.Default.Image,
-                                    contentDescription = null,
-                                    tint = HextechCyan,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(
-                                        text = if (videoUrl.contains("video") || videoUrl.endsWith(".mp4")) "Video local cargado correctamente" else "Imagen subida correctamente",
-                                        color = HextechCyan,
-                                        fontSize = 11.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = "Multimedia lista para sincronizar y previsualizar",
-                                        color = TextMuted,
-                                        fontSize = 9.5.sp
-                                    )
-                                }
-                            }
-                            IconButton(
-                                onClick = { videoUrl = "" },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(Icons.Default.Close, contentDescription = "Quitar archivo", tint = DangerRed, modifier = Modifier.size(16.dp))
-                            }
-                        }
-                    }
-                } else {
-                    OutlinedTextField(
-                        value = videoUrl,
-                        onValueChange = { videoUrl = it },
-                        label = { Text("URL YouTube o Imagen/Video Horizontal") },
-                        singleLine = true,
-                        maxLines = 1,
-                        isError = !isUrlValid,
-                        supportingText = {
-                            if (!isUrlValid) {
-                                Text("Enlace inválido. Solo URLs de YouTube o archivos de galería.", color = DangerRed, fontSize = 10.sp)
-                            } else {
-                                Text("Se muestra en la tarjeta del panel de inicio (Horizontal)", color = TextMuted, fontSize = 10.sp)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
+
                 val horizontalMediaPickerLauncher = rememberLauncherForActivityResult(
                     contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
                 ) { uri: android.net.Uri? ->
@@ -773,67 +808,272 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         }
                     }
                 }
-                Button(
-                    onClick = { horizontalMediaPickerLauncher.launch("*/*") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                    shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
-                ) {
-                    Icon(Icons.Default.AttachFile, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Subir Multimedia Horizontal desde Galería", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+
+                if (videoUrl.isNotBlank()) {
+                    Surface(
+                        color = HextechSurfaceVariant,
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            val isVideo = videoUrl.contains("video") || videoUrl.endsWith(".mp4") || NoticeMediaUtils.isYouTubeUrl(videoUrl)
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(135.dp)
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color.Black),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (isVideo) {
+                                    NoticeMediaViewer(
+                                        mediaUrl = videoUrl,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    val decodedBytes = remember(videoUrl) {
+                                        if (videoUrl.startsWith("data:image/")) {
+                                            com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(videoUrl)
+                                        } else null
+                                    }
+                                    AsyncImage(
+                                        model = decodedBytes ?: videoUrl,
+                                        contentDescription = "Vista previa multimedia horizontal",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = if (isVideo) "🎬 Video Horizontal Configurado" else "🖼️ Imagen Horizontal Configurada",
+                                        color = HextechCyan,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Visible en la tarjeta de novedades en el inicio.",
+                                        color = TextMuted,
+                                        fontSize = 9.5.sp
+                                    )
+                                }
+
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Button(
+                                        onClick = { horizontalMediaPickerLauncher.launch("*/*") },
+                                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                                        shape = RoundedCornerShape(6.dp),
+                                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                        modifier = Modifier.height(28.dp)
+                                    ) {
+                                        Icon(Icons.Default.Edit, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Cambiar", color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+
+                                    Button(
+                                        onClick = { videoUrl = "" },
+                                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                                        shape = RoundedCornerShape(6.dp),
+                                        border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
+                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                        modifier = Modifier.height(28.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = null, tint = DangerRed, modifier = Modifier.size(12.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Quitar", color = DangerRed, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+
+                            if (showManualVideoUrlInput) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                OutlinedTextField(
+                                    value = videoUrl,
+                                    onValueChange = { videoUrl = it },
+                                    label = { Text("Editar enlace o URL") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = "Editar URL o enlace web",
+                                    color = HextechCyan.copy(alpha = 0.8f),
+                                    fontSize = 10.sp,
+                                    textDecoration = TextDecoration.Underline,
+                                    modifier = Modifier
+                                        .padding(top = 4.dp)
+                                        .clickable { showManualVideoUrlInput = true }
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = videoUrl,
+                        onValueChange = { videoUrl = it },
+                        label = { Text("URL YouTube o Imagen/Video Horizontal") },
+                        singleLine = true,
+                        maxLines = 1,
+                        isError = !isUrlValid,
+                        supportingText = {
+                            if (!isUrlValid) {
+                                Text("Enlace inválido. Solo URLs de YouTube o archivos de galería.", color = DangerRed, fontSize = 10.sp)
+                            } else {
+                                Text("Se muestra en la tarjeta del panel de inicio (Horizontal)", color = TextMuted, fontSize = 10.sp)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Button(
+                        onClick = { horizontalMediaPickerLauncher.launch("*/*") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                    ) {
+                        Icon(Icons.Default.AttachFile, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Subir Multimedia Horizontal desde Galería", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 // 2. Vertical Expanded Image (Fullscreen)
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("2. Imagen Vertical (Vista Ampliada):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                val isVerticalUploaded = expandedImageUrl.startsWith("data:image/") || expandedImageUrl.startsWith("file://") || expandedImageUrl.startsWith("content://") || expandedImageUrl.length > 200
-                if (isVerticalUploaded) {
+
+                val verticalImagePickerLauncher = rememberLauncherForActivityResult(
+                    contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+                ) { uri: android.net.Uri? ->
+                    uri?.let { pickedUri ->
+                        coroutineScope.launch {
+                            isProcessingMedia = true
+                            try {
+                                val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
+                                expandedImageUrl = cloudDataUrl
+                                Toast.makeText(context, "Imagen vertical subida correctamente", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                expandedImageUrl = pickedUri.toString()
+                            } finally {
+                                isProcessingMedia = false
+                            }
+                        }
+                    }
+                }
+
+                if (expandedImageUrl.isNotBlank()) {
                     Surface(
                         color = HextechSurfaceVariant,
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    Icons.Default.Image,
-                                    contentDescription = null,
-                                    tint = HextechGold,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
+                                val decodedVerticalBytes = remember(expandedImageUrl) {
+                                    if (expandedImageUrl.startsWith("data:image/")) {
+                                        com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(expandedImageUrl)
+                                    } else null
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .width(75.dp)
+                                        .height(110.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(Color.Black)
+                                        .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    AsyncImage(
+                                        model = decodedVerticalBytes ?: expandedImageUrl,
+                                        contentDescription = "Vista previa vertical",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Imagen vertical subida correctamente",
+                                        text = "📱 Imagen Vertical Configurada",
                                         color = HextechGold,
                                         fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "Se observará en pantalla completa al pulsar 'Ampliar'",
+                                        text = "Se mostrará a pantalla completa al pulsar 'Ampliar' o al tocar la imagen.",
                                         color = TextMuted,
                                         fontSize = 9.5.sp
                                     )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Button(
+                                            onClick = { verticalImagePickerLauncher.launch("image/*") },
+                                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                                            shape = RoundedCornerShape(6.dp),
+                                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
+                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                            modifier = Modifier.height(28.dp)
+                                        ) {
+                                            Icon(Icons.Default.Edit, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("Cambiar", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        }
+
+                                        Button(
+                                            onClick = { expandedImageUrl = "" },
+                                            colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
+                                            shape = RoundedCornerShape(6.dp),
+                                            border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
+                                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                            modifier = Modifier.height(28.dp)
+                                        ) {
+                                            Icon(Icons.Default.Close, contentDescription = null, tint = DangerRed, modifier = Modifier.size(12.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("Quitar", color = DangerRed, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
                                 }
                             }
-                            IconButton(
-                                onClick = { expandedImageUrl = "" },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(Icons.Default.Close, contentDescription = "Quitar archivo", tint = DangerRed, modifier = Modifier.size(16.dp))
+
+                            if (showManualExpandedUrlInput) {
+                                Spacer(modifier = Modifier.height(6.dp))
+                                OutlinedTextField(
+                                    value = expandedImageUrl,
+                                    onValueChange = { expandedImageUrl = it },
+                                    label = { Text("Editar URL vertical manualmente") },
+                                    singleLine = true,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                            } else {
+                                Text(
+                                    text = "Editar URL o enlace web",
+                                    color = HextechGold.copy(alpha = 0.8f),
+                                    fontSize = 10.sp,
+                                    textDecoration = TextDecoration.Underline,
+                                    modifier = Modifier
+                                        .padding(top = 4.dp)
+                                        .clickable { showManualExpandedUrlInput = true }
+                                )
                             }
                         }
                     }
@@ -855,36 +1095,18 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(8.dp)
                     )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                val verticalImagePickerLauncher = rememberLauncherForActivityResult(
-                    contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
-                ) { uri: android.net.Uri? ->
-                    uri?.let { pickedUri ->
-                        coroutineScope.launch {
-                            isProcessingMedia = true
-                            try {
-                                val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
-                                expandedImageUrl = cloudDataUrl
-                                Toast.makeText(context, "Imagen vertical subida correctamente", Toast.LENGTH_SHORT).show()
-                            } catch (e: Exception) {
-                                expandedImageUrl = pickedUri.toString()
-                            } finally {
-                                isProcessingMedia = false
-                            }
-                        }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Button(
+                        onClick = { verticalImagePickerLauncher.launch("image/*") },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+                    ) {
+                        Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
-                }
-                Button(
-                    onClick = { verticalImagePickerLauncher.launch("image/*") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
-                    shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
-                ) {
-                    Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
 
                 if (isProcessingMedia) {
@@ -966,7 +1188,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             Toast.makeText(context, "URL multimedia inválida", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
+                        val targetId = editingNoticeId ?: if (editingIndex != null) noticesList[editingIndex!!].id else UUID.randomUUID().toString()
                         val newNotice = com.example.data.AppNotice(
+                            id = targetId,
                             title = title.ifBlank { "Aviso Oficial" },
                             content = content,
                             videoUrl = videoUrl,
@@ -980,6 +1204,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         if (editingIndex != null) {
                             noticesList = noticesList.toMutableList().apply { set(editingIndex!!, newNotice) }
                             editingIndex = null
+                            editingNoticeId = null
                         } else {
                             noticesList = noticesList + newNotice
                         }
@@ -988,6 +1213,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         videoUrl = ""
                         expandedImageUrl = ""
                         externalUrl = ""
+                        editingNoticeId = null
+                        showManualVideoUrlInput = false
+                        showManualExpandedUrlInput = false
                         Toast.makeText(context, "Anuncio guardado en la lista", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -3033,6 +3261,10 @@ fun AdminBroadcastAnnouncementDialog(
     var message by remember { mutableStateOf("") }
     var isUrgent by remember { mutableStateOf(false) }
     var isPublishing by remember { mutableStateOf(false) }
+    var isDeactivating by remember { mutableStateOf(false) }
+
+    val activeAnnouncement by com.example.data.GlobalAnnouncementManager.currentAnnouncement.collectAsState()
+    val scrollState = rememberScrollState()
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -3044,12 +3276,99 @@ fun AdminBroadcastAnnouncementDialog(
             }
         },
         text = {
-            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 Text(
-                    "Este anuncio se guardará en la configuración de la app para todos los usuarios activos.",
+                    "Este anuncio se enviará en tiempo real a todos los dispositivos (con o sin sesión iniciada).",
                     color = TextSecondary,
                     fontSize = 12.sp
                 )
+
+                // Si hay un anuncio activo actualmente, mostrar ficha con opción de desactivarlo
+                if (activeAnnouncement != null && activeAnnouncement!!.active) {
+                    val activeAnn = activeAnnouncement!!
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, if (activeAnn.isUrgent) DangerRed else HextechGold.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(if (activeAnn.isUrgent) DangerRed else Color(0xFF22C55E))
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = if (activeAnn.isUrgent) "ACTIVO (URGENTE)" else "ACTIVO EN DISPOSITIVOS",
+                                        color = if (activeAnn.isUrgent) DangerRed else Color(0xFF22C55E),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Text(
+                                    text = activeAnn.getFormattedDate(),
+                                    color = TextMuted,
+                                    fontSize = 10.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = activeAnn.title,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                            Text(
+                                text = activeAnn.message,
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(
+                                onClick = {
+                                    isDeactivating = true
+                                    com.example.data.GlobalAnnouncementManager.deactivateAnnouncement(context) { success, err ->
+                                        isDeactivating = false
+                                        if (success) {
+                                            Toast.makeText(context, "Anuncio global desactivado", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Error al desactivar: $err", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                },
+                                enabled = !isDeactivating,
+                                colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.85f)),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(34.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    if (isDeactivating) "Desactivando..." else "Desactivar Anuncio Actual",
+                                    color = Color.White,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.1f), modifier = Modifier.padding(vertical = 4.dp))
+                }
 
                 OutlinedTextField(
                     value = title,
@@ -3092,24 +3411,20 @@ fun AdminBroadcastAnnouncementDialog(
                         return@Button
                     }
                     isPublishing = true
-                    val announcementData = hashMapOf(
-                        "title" to title.trim(),
-                        "message" to message.trim(),
-                        "isUrgent" to isUrgent,
-                        "timestamp" to System.currentTimeMillis(),
-                        "active" to true
-                    )
-                    FirebaseFirestore.getInstance().collection("system_config").document("announcement")
-                        .set(announcementData, SetOptions.merge())
-                        .addOnSuccessListener {
-                            isPublishing = false
-                            Toast.makeText(context, "¡Anuncio global publicado!", Toast.LENGTH_SHORT).show()
+                    com.example.data.GlobalAnnouncementManager.publishAnnouncement(
+                        context = context,
+                        title = title,
+                        message = message,
+                        isUrgent = isUrgent
+                    ) { success, err ->
+                        isPublishing = false
+                        if (success) {
+                            Toast.makeText(context, "¡Anuncio global publicado a todos los dispositivos!", Toast.LENGTH_SHORT).show()
                             onDismiss()
+                        } else {
+                            Toast.makeText(context, "Error al publicar: $err", Toast.LENGTH_LONG).show()
                         }
-                        .addOnFailureListener { e ->
-                            isPublishing = false
-                            Toast.makeText(context, "Error al publicar: ${e.message}", Toast.LENGTH_LONG).show()
-                        }
+                    }
                 },
                 enabled = !isPublishing,
                 colors = ButtonDefaults.buttonColors(containerColor = HextechGold)

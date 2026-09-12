@@ -96,8 +96,9 @@ open class WildRiftApp : Application(), ImageLoaderFactory {
         try {
             com.example.data.AppNoticeManager.init(this)
             com.example.data.AppNoticeAnalyticsManager.init(this)
+            com.example.data.GlobalAnnouncementManager.init(this)
         } catch (e: Exception) {
-            AppLogger.e("WildRiftApp", "Error inicializando gestor de avisos y analíticas", e)
+            AppLogger.e("WildRiftApp", "Error inicializando gestores de avisos, analíticas y anuncios", e)
         }
 
 

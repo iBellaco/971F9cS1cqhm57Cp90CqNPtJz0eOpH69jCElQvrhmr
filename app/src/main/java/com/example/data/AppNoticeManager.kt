@@ -98,51 +98,20 @@ object AppNoticeManager {
 
     private fun ensureAuthAndSync(context: Context) {
         val appContext = context.applicationContext
-        try {
-            val auth = FirebaseAuth.getInstance()
-            val currentUser = auth.currentUser
-            if (currentUser == null) {
-                if (isAuthenticatingAnonymously) return
-                isAuthenticatingAnonymously = true
-                auth.signInAnonymously()
-                    .addOnSuccessListener {
-                        isAuthenticatingAnonymously = false
-                        Log.d(TAG, "Sesión de invitado/anónima iniciada con éxito para sincronización multi-dispositivo.")
-                        attachFirestoreListener(appContext, force = true)
-                        syncFromCloud(appContext)
-                    }
-                    .addOnFailureListener { e ->
-                        isAuthenticatingAnonymously = false
-                        Log.w(TAG, "Inicio anónimo no disponible (${e.message}). Intentando sincronización directa...")
-                        attachFirestoreListener(appContext, force = true)
-                        syncFromCloud(appContext)
-                    }
-            } else {
-                attachFirestoreListener(appContext, force = false)
-                syncFromCloud(appContext)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Excepción en ensureAuthAndSync: ${e.message}")
-            attachFirestoreListener(appContext, force = false)
-            syncFromCloud(appContext)
+        com.example.util.GuestAuthHelper.ensureAuth {
+            attachFirestoreListener(appContext, force = true)
+            executeCloudFetch(appContext, null)
         }
     }
 
     fun syncFromCloud(context: Context, onComplete: ((Boolean) -> Unit)? = null) {
         val appContext = context.applicationContext
-        try {
-            val auth = FirebaseAuth.getInstance()
-            if (auth.currentUser == null) {
-                // Asegurar credenciales anónimas primero para evitar PERMISSION_DENIED en dispositivos sin login
-                auth.signInAnonymously()
-                    .addOnCompleteListener {
-                        executeCloudFetch(appContext, onComplete)
-                    }
-                return
+        val auth = try { FirebaseAuth.getInstance() } catch (_: Exception) { null }
+        if (auth?.currentUser == null) {
+            com.example.util.GuestAuthHelper.ensureAuth {
+                executeCloudFetch(appContext, onComplete)
             }
-            executeCloudFetch(appContext, onComplete)
-        } catch (e: Exception) {
-            Log.e(TAG, "Excepción en syncFromCloud: ${e.message}")
+        } else {
             executeCloudFetch(appContext, onComplete)
         }
     }
@@ -229,13 +198,10 @@ object AppNoticeManager {
                             firestoreListener?.remove()
                         } catch (_: Exception) {}
                         firestoreListener = null
-                        // Si falló por falta de autenticación y no hay usuario, reintentar autenticar anónimamente
-                        try {
-                            val auth = FirebaseAuth.getInstance()
-                            if (auth.currentUser == null) {
-                                ensureAuthAndSync(context)
-                            }
-                        } catch (_: Exception) {}
+                        // Si falló por falta de autenticación y no hay usuario, reintentar asegurar credenciales
+                        com.example.util.GuestAuthHelper.ensureAuth {
+                            attachFirestoreListener(context, force = false)
+                        }
                         return@addSnapshotListener
                     }
                     if (snapshot != null && snapshot.exists()) {

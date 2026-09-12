@@ -332,7 +332,7 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         AppThemeManager.init(this)
         com.example.util.SubscriptionManager.init(this)
         val currentAuthUser = com.example.util.AuthManager.getAuth()?.currentUser
-        if (currentAuthUser != null && !currentAuthUser.isAnonymous) {
+        if (currentAuthUser != null && !com.example.util.AuthManager.isGuestOrUnauthenticated(currentAuthUser)) {
             com.example.util.DeviceAndSessionManager.registerDeviceAndSession(this, onError = { msg -> 
                 if (msg.contains("Límite de dispositivos", ignoreCase = true)) {
                     android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()
@@ -341,6 +341,11 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
             })
         }
         askNotificationPermission()
+        com.example.data.GlobalAnnouncementManager.init(this)
+        if (intent.getBooleanExtra("extra_open_global_announcement", false)) {
+            com.example.data.GlobalAnnouncementManager.showAnnouncementModal()
+            intent.removeExtra("extra_open_global_announcement")
+        }
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
         windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
@@ -365,6 +370,11 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
     override fun onResume() {
         super.onResume()
         com.example.util.SubscriptionManager.init(this)
+        com.example.data.GlobalAnnouncementManager.init(this)
+        if (intent.getBooleanExtra("extra_open_global_announcement", false)) {
+            com.example.data.GlobalAnnouncementManager.showAnnouncementModal()
+            intent.removeExtra("extra_open_global_announcement")
+        }
     }
 
     override fun onStop() {
@@ -662,6 +672,7 @@ fun DraftingApp() {
         mutableStateOf(
             when {
                 !isLanguageSet -> AppScreen.LANGUAGE_SELECTION
+                !hasAcceptedLegal -> AppScreen.LANGUAGE_SELECTION
                 !hasSeenOnboarding -> AppScreen.ONBOARDING
                 else -> AppScreen.MAIN
             }
@@ -674,6 +685,8 @@ fun DraftingApp() {
     var autofillRole by remember { mutableStateOf(com.example.util.UserPreferences.getAutofillRole(context)) }
     val activeUpdateInfo by AppUpdateManager.updateInfo.collectAsStateWithLifecycle()
     val isBanned by com.example.util.SubscriptionManager.isBanned.collectAsStateWithLifecycle()
+    val currentGlobalAnnouncement by com.example.data.GlobalAnnouncementManager.currentAnnouncement.collectAsStateWithLifecycle()
+    val isAnnouncementVisible by com.example.data.GlobalAnnouncementManager.isAnnouncementVisible.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         // Inicializar listado maestro de campeones desde assets JSON
@@ -681,6 +694,8 @@ fun DraftingApp() {
 
         // Ejecuta la sincronización en segundo plano al arrancar la app para traer los datos desde la nube
         com.example.data.sync.MetaCrawlerSyncService.syncPatchData(context)
+        com.example.data.GlobalAnnouncementManager.init(context)
+        com.example.data.GlobalAnnouncementManager.refreshFromCloud(context)
         if (isLanguageSet) {
             AppUpdateManager.checkForUpdates(context)
         }
@@ -715,7 +730,7 @@ fun DraftingApp() {
             }
         }
 
-    BackHandler(enabled = showLegalDialog && !hasAcceptedLegal) {
+    BackHandler(enabled = !hasAcceptedLegal) {
         (context as? android.app.Activity)?.finishAffinity()
     }
 
@@ -824,6 +839,20 @@ fun DraftingApp() {
             onDismiss = {
                 // Si la cierran en vez de aceptar se cierra la aplicación y no la pueden usar
                 (context as? android.app.Activity)?.finishAffinity()
+            }
+        )
+    }
+
+    // Modal de Comunicado / Anuncio Global Oficial
+    if (hasAcceptedLegal && isAnnouncementVisible && currentGlobalAnnouncement != null && currentGlobalAnnouncement!!.active) {
+        com.example.ui.components.GlobalAnnouncementDialog(
+            announcement = currentGlobalAnnouncement!!,
+            onDismiss = {
+                com.example.data.GlobalAnnouncementManager.dismissAnnouncement(
+                    context = context,
+                    announcementId = currentGlobalAnnouncement!!.id,
+                    timestamp = currentGlobalAnnouncement!!.timestamp
+                )
             }
         )
     }

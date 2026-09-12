@@ -46,9 +46,7 @@ object DraftValidationLayer {
         if (norm.length < 2) return true
         // Descartar números puros o temporizadores de draft (ej: "18", "25", "30", "0:15", "100%")
         if (norm.matches(Regex("^[0-9\\s:.,%#-]+$"))) return true
-        if (norm.startsWith("jugador ") || norm.startsWith("player ") || norm.startsWith("jogador ") ||
-            norm.matches(Regex("^(jugador|player|jogador)\\s*\\d+$")) ||
-            norm.matches(Regex("^(jugador|player|jogador)\\s*[a-z0-9]*$"))) return true
+        if (norm.startsWith("jugador") || norm.startsWith("player") || norm.startsWith("jogador")) return true
         
         // Descartar frases compuestas o menciones de orden de selección o interfaz
         if (norm.contains("primera") || norm.contains("segunda") ||
@@ -56,6 +54,8 @@ object DraftValidationLayer {
             norm.contains("eleccion") || norm.contains("escolha") ||
             norm.contains("pick") || norm.contains("orden") ||
             norm.contains("primer") || norm.contains("segundo") ||
+            norm.contains("legendaria") || norm.contains("lendaria") ||
+            norm.contains("legendary") ||
             norm.contains("buscando oponentes") || norm.contains("combatamos juntos")) {
             return true
         }
@@ -74,6 +74,25 @@ object DraftValidationLayer {
         "inho", "inha", "zinho", "zinha", "ano", "ana", "zera", "god",
         "king", "pro", "boy", "girl", "99", "69", "777", "123", "01"
     )
+
+    /**
+     * Determina si la pantalla actual corresponde a una Selección de Clasificatoria Legendaria
+     * (Legendary Ranked / Fila Lendária) en Wild Rift, donde todos los nombres de invocador
+     * están estrictamente anonimizados (ej: "Jugador en cla...", "Jogador na cla...").
+     */
+    fun isLegendaryRankedDraft(fullOcrText: String): Boolean {
+        val norm = normalize(fullOcrText).lowercase(Locale.ROOT)
+        if (norm.contains("clasificatoria legendaria") ||
+            norm.contains("clasificatoria legend") ||
+            norm.contains("fila lendaria") ||
+            norm.contains("fila lendária") ||
+            norm.contains("legendary ranked") ||
+            norm.contains("legendary queue")) {
+            return true
+        }
+        val anonMatches = Regex("(jugador\\s*en\\s*cla|jogador\\s*na\\s*cla|player\\s*in\\s*leg)").findAll(norm).count()
+        return anonMatches >= 2
+    }
 
     /**
      * Determina si un texto corresponde a un nombre de invocador y NO a un campeón.
