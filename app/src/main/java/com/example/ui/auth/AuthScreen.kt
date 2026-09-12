@@ -57,6 +57,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import com.example.ui.theme.AppTheme
 import com.example.ui.theme.AppThemeManager
+import com.example.ui.components.RoleBadge
+import com.example.ui.components.RoleBadgeSize
 import com.example.data.AvatarCatalog
 import com.example.ui.components.UserAvatarView
 import coil.compose.AsyncImage
@@ -907,27 +909,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             )
                         }
                         
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(
-                                    when {
-                                        userRole == "admin" || userRole == "moderador" -> com.example.ui.theme.DangerRed.copy(alpha = rolePulseAlpha)
-                                        isExpiringSoon -> com.example.ui.theme.DangerRed
-                                        isPremium -> com.example.ui.theme.HextechGold.copy(alpha = rolePulseAlpha)
-                                        else -> com.example.ui.theme.HextechSurface
-                                    }
-                                )
-                                .padding(horizontal = 10.dp, vertical = 5.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = if (isExpiringSoon) "EXPIRA PRONTO" else userRole.replace("_", " ").uppercase(),
-                                color = if (userRole == "free") com.example.ui.theme.TextPrimary else com.example.ui.theme.HextechDarkBg,
-                                fontSize = 10.5.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
-                            )
-                        }
+                        RoleBadge(
+                            role = userRole,
+                            isPremiumActive = isPremium,
+                            isBanned = (userRole == "banned"),
+                            isExpiringSoon = isExpiringSoon,
+                            size = RoleBadgeSize.NORMAL
+                        )
                     }
                     // Expiring soon alert banner & CTA
                     if (isExpiringSoon) {

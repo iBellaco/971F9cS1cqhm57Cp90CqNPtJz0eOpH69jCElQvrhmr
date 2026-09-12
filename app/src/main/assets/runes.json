@@ -1,5 +1,13 @@
 [
   {
+    "id": "fortalecimiento",
+    "name": "Fortalecimiento",
+    "tree": "Precisión",
+    "type": "Clave",
+    "description": "Daño adicional contra campeones\n\nAl asestar 3 ataques consecutivos a un campeón enemigo, le inflige daño adaptable adicional y potencia el daño que infliges un 8% hasta que abandonas el combate con campeones.\nDaño adaptable: 40–165\nEnfriamiento: 4 s\nLa amplificación de daño solo surtirá efecto contra campeones.",
+    "iconUrl": "file:///android_asset/runes/fortalecimiento.webp"
+  },
+  {
     "id": "conqueror",
     "name": "Conquistador",
     "tree": "Precisión / Dominación",

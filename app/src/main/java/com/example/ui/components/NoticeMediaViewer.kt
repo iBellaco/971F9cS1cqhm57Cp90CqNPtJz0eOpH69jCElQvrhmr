@@ -51,6 +51,7 @@ import coil.compose.AsyncImage
 import com.example.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object NoticeMediaUtils {
     val pauseAndMuteTrigger = kotlinx.coroutines.flow.MutableStateFlow(0)
@@ -59,16 +60,53 @@ object NoticeMediaUtils {
         pauseAndMuteTrigger.value++
     }
 
+    /**
+     * Extrae de forma exhaustiva el ID de video de YouTube para URLs estándar,
+     * cortas (youtu.be), shorts, live, embeds y con parámetros adicionales (si, feature, etc.).
+     */
     fun extractYouTubeVideoId(url: String): String? {
         if (url.isBlank()) return null
         val trimmed = url.trim()
 
+        // 1. Extracción mediante Uri nativo de Android
+        try {
+            val uri = Uri.parse(trimmed)
+            val host = uri.host?.lowercase() ?: ""
+            if (host.contains("youtu.be")) {
+                val segment = uri.pathSegments.firstOrNull { it.isNotBlank() }
+                if (!segment.isNullOrBlank()) {
+                    val cleanId = segment.substringBefore("?").substringBefore("&")
+                    if (cleanId.matches(Regex("^[a-zA-Z0-9_-]{11}$"))) {
+                        return cleanId
+                    }
+                }
+            } else if (host.contains("youtube.com") || host.contains("youtube-nocookie.com")) {
+                val vParam = uri.getQueryParameter("v")
+                if (!vParam.isNullOrBlank() && vParam.matches(Regex("^[a-zA-Z0-9_-]{11}$"))) {
+                    return vParam
+                }
+                val segments = uri.pathSegments
+                val keyIndex = segments.indexOfFirst {
+                    it.equals("embed", true) || it.equals("shorts", true) || it.equals("live", true) || it.equals("v", true)
+                }
+                if (keyIndex != -1 && keyIndex + 1 < segments.size) {
+                    val candidate = segments[keyIndex + 1].substringBefore("?").substringBefore("&")
+                    if (candidate.matches(Regex("^[a-zA-Z0-9_-]{11}$"))) {
+                        return candidate
+                    }
+                }
+            }
+        } catch (_: Exception) {}
+
+        // 2. Extracción de patrones Regex avanzados
         val patterns = listOf(
-            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/watch\\?.*v=([a-zA-Z0-9_-]{11})"),
+            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/watch\\?.*?[?&]v=([a-zA-Z0-9_-]{11})"),
+            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/watch\\?v=([a-zA-Z0-9_-]{11})"),
             Regex("(?:https?://)?(?:www\\.|m\\.)?youtu\\.be/([a-zA-Z0-9_-]{11})"),
-            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/embed/([a-zA-Z0-9_-]{11})"),
+            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube(?:-nocookie)?\\.com/embed/([a-zA-Z0-9_-]{11})"),
             Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/shorts/([a-zA-Z0-9_-]{11})"),
-            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/live/([a-zA-Z0-9_-]{11})")
+            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/live/([a-zA-Z0-9_-]{11})"),
+            Regex("(?:https?://)?(?:www\\.|m\\.)?youtube\\.com/v/([a-zA-Z0-9_-]{11})")
         )
 
         for (pattern in patterns) {
@@ -91,12 +129,25 @@ object NoticeMediaUtils {
                extractYouTubeVideoId(trimmed) != null
     }
 
+    /**
+     * Identifica servicios de video basados en web como Vimeo, Streamable o Dailymotion
+     * que se reproducen mediante WebView en lugar de VideoView.
+     */
+    fun isWebVideoUrl(url: String): Boolean {
+        val trimmed = url.trim().lowercase()
+        return trimmed.contains("vimeo.com") ||
+               trimmed.contains("streamable.com") ||
+               trimmed.contains("dailymotion.com") ||
+               trimmed.contains("twitch.tv") ||
+               (isYouTubeUrl(url) && extractYouTubeVideoId(url) == null)
+    }
+
     fun isVideo(context: Context, url: String): Boolean {
         if (url.isBlank()) return false
         val trimmed = url.trim().lowercase()
         if (trimmed.startsWith("data:image/")) return false
         if (trimmed.startsWith("data:video/")) return true
-        if (isYouTubeUrl(url)) return true
+        if (isYouTubeUrl(url) || isWebVideoUrl(url)) return true
 
         val cleanUrl = trimmed.substringBefore("?").substringBefore("#")
         val videoExtensions = listOf(".mp4", ".mkv", ".webm", ".mov", ".3gp", ".avi", ".m4v", ".ts")
@@ -126,7 +177,7 @@ object NoticeMediaUtils {
     }
 
     fun isLocalVideo(context: Context, url: String): Boolean {
-        return isVideo(context, url) && !isYouTubeUrl(url)
+        return isVideo(context, url) && !isYouTubeUrl(url) && !isWebVideoUrl(url)
     }
 
     fun isValidNoticeMedia(url: String): Boolean {
@@ -159,11 +210,12 @@ fun NoticeMediaViewer(
 ) {
     if (mediaUrl.isBlank()) return
     val context = LocalContext.current
-    val trimmedUrl = mediaUrl.trim()
+    val normalizedUrl = remember(mediaUrl) { com.example.util.NoticeMediaStorageManager.normalizeVideoUrl(mediaUrl.trim()) }
 
-    val isYt = remember(trimmedUrl) { NoticeMediaUtils.isYouTubeUrl(trimmedUrl) }
-    val ytVideoId = remember(trimmedUrl) { NoticeMediaUtils.extractYouTubeVideoId(trimmedUrl) }
-    val isVideo = remember(trimmedUrl) { NoticeMediaUtils.isVideo(context, trimmedUrl) }
+    val isYt = remember(normalizedUrl) { NoticeMediaUtils.isYouTubeUrl(normalizedUrl) }
+    val ytVideoId = remember(normalizedUrl) { NoticeMediaUtils.extractYouTubeVideoId(normalizedUrl) }
+    val isWebVideo = remember(normalizedUrl) { NoticeMediaUtils.isWebVideoUrl(normalizedUrl) }
+    val isVideo = remember(normalizedUrl) { NoticeMediaUtils.isVideo(context, normalizedUrl) }
 
     val containerModifier = if (isFullscreen) {
         modifier.fillMaxSize()
@@ -333,23 +385,30 @@ fun NoticeMediaViewer(
                     }
                 }
             }
+        } else if (isWebVideo || (isYt && ytVideoId == null)) {
+            // Reproductor web embebido para servicios como Vimeo, Streamable o URLs web de video
+            NoticeWebVideoPlayer(
+                webUrl = normalizedUrl,
+                isFullscreen = isFullscreen,
+                onExpand = onExpand
+            )
         } else if (isVideo) {
             // Reproductor universal de video (Local, Caché en disco, Base64 o Nube)
             LocalGalleryVideoPlayer(
-                videoUriString = trimmedUrl,
+                videoUriString = normalizedUrl,
                 isFullscreen = isFullscreen,
                 onExpand = onExpand
             )
         } else {
             // Image rendering (from Gallery, Base64 Data URL, or Image URL)
-            val imageModel = remember(trimmedUrl) {
-                if (trimmedUrl.startsWith("data:image/")) {
-                    com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(trimmedUrl) ?: trimmedUrl
-                } else if (trimmedUrl.startsWith("file://")) {
-                    val path = Uri.parse(trimmedUrl).path ?: ""
+            val imageModel = remember(normalizedUrl) {
+                if (normalizedUrl.startsWith("data:image/")) {
+                    com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(normalizedUrl) ?: normalizedUrl
+                } else if (normalizedUrl.startsWith("file://")) {
+                    val path = Uri.parse(normalizedUrl).path ?: ""
                     java.io.File(path)
                 } else {
-                    trimmedUrl
+                    normalizedUrl
                 }
             }
 
@@ -391,6 +450,118 @@ fun NoticeMediaViewer(
 }
 
 @Composable
+fun NoticeWebVideoPlayer(
+    webUrl: String,
+    isFullscreen: Boolean,
+    onExpand: (() -> Unit)? = null
+) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var webViewInstance by remember { mutableStateOf<WebView?>(null) }
+    var isBuffering by remember { mutableStateOf(true) }
+
+    DisposableEffect(lifecycleOwner, webUrl) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> {
+                    try {
+                        webViewInstance?.onResume()
+                        webViewInstance?.resumeTimers()
+                    } catch (_: Exception) {}
+                }
+                Lifecycle.Event.ON_PAUSE -> {
+                    try {
+                        webViewInstance?.onPause()
+                        webViewInstance?.pauseTimers()
+                    } catch (_: Exception) {}
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    try {
+                        webViewInstance?.destroy()
+                    } catch (_: Exception) {}
+                }
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AndroidView(
+            factory = { ctx ->
+                WebView(ctx).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    settings.apply {
+                        javaScriptEnabled = true
+                        domStorageEnabled = true
+                        databaseEnabled = true
+                        mediaPlaybackRequiresUserGesture = false
+                        loadWithOverviewMode = true
+                        useWideViewPort = true
+                        allowFileAccess = true
+                        allowContentAccess = true
+                        setSupportZoom(false)
+                        mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                        userAgentString = "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.70 Mobile Safari/537.36"
+                    }
+                    webChromeClient = object : WebChromeClient() {
+                        override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                            if (newProgress >= 80) isBuffering = false
+                        }
+                    }
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            isBuffering = false
+                        }
+                    }
+                    loadUrl(webUrl)
+                    webViewInstance = this
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        if (isBuffering) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = HextechCyan,
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
+        if (!isFullscreen && onExpand != null) {
+            IconButton(
+                onClick = onExpand,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(6.dp)
+                    .size(28.dp)
+                    .background(Color.Black.copy(alpha = 0.65f), CircleShape)
+            ) {
+                Icon(
+                    Icons.Default.Fullscreen,
+                    contentDescription = "Pantalla Completa",
+                    tint = HextechCyan,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun LocalGalleryVideoPlayer(
     videoUriString: String,
     isFullscreen: Boolean,
@@ -407,21 +578,26 @@ fun LocalGalleryVideoPlayer(
     var mediaPlayerRef by remember { mutableStateOf<android.media.MediaPlayer?>(null) }
     val themePrimary = MaterialTheme.colorScheme.primary
 
-    // Resolver ruta efectiva (Caché local, Base64 decodificado, archivo local o streaming cloud)
+    // Resolver ruta efectiva (Caché local en disco con OkHttp, Base64 decodificado, archivo local o streaming cloud)
     val effectiveUriString by produceState<String?>(initialValue = null, key1 = videoUriString, key2 = retryKey) {
-        val trimmed = videoUriString.trim()
+        val trimmed = com.example.util.NoticeMediaStorageManager.normalizeVideoUrl(videoUriString.trim())
         if (trimmed.startsWith("data:video/")) {
             val f = com.example.util.NoticeMediaStorageManager.saveBase64VideoToCache(context, trimmed)
             value = f?.absolutePath ?: trimmed
         } else if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
             val cached = com.example.util.NoticeMediaStorageManager.getCachedVideoFile(context, trimmed)
-            if (cached != null) {
+            if (cached != null && cached.exists() && cached.length() > 5000) {
                 value = cached.absolutePath
             } else {
                 value = trimmed
-                // Descargar en segundo plano para próximas reproducciones
+                // Descargar y cachear en segundo plano para reproducción instantánea y offline
                 kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                    com.example.util.NoticeMediaStorageManager.cacheVideoFromUrl(context, trimmed)
+                    val downloaded = com.example.util.NoticeMediaStorageManager.cacheVideoFromUrl(context, trimmed)
+                    if (downloaded != null && downloaded.exists() && downloaded.length() > 5000) {
+                        withContext(kotlinx.coroutines.Dispatchers.Main) {
+                            value = downloaded.absolutePath
+                        }
+                    }
                 }
             }
         } else if (trimmed.startsWith("file://") || trimmed.startsWith("/")) {
@@ -432,7 +608,7 @@ fun LocalGalleryVideoPlayer(
             } else {
                 hasError = true
                 isBuffering = false
-                errorMessage = "Archivo guardado localmente en otro teléfono. Súbelo a la nube desde el panel de avisos."
+                errorMessage = "El archivo de video local no se encuentra disponible."
                 value = null
             }
         } else {
@@ -523,7 +699,11 @@ fun LocalGalleryVideoPlayer(
                     if (target.startsWith("/")) {
                         videoView.setVideoPath(target)
                     } else {
-                        videoView.setVideoURI(Uri.parse(target))
+                        val headers = mapOf(
+                            "User-Agent" to "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.70 Mobile Safari/537.36",
+                            "Accept" to "*/*"
+                        )
+                        videoView.setVideoURI(Uri.parse(target), headers)
                     }
 
                     videoView.setOnPreparedListener { mp ->
@@ -537,13 +717,34 @@ fun LocalGalleryVideoPlayer(
                         if (isPlaying) {
                             videoView.start()
                         } else {
-                            videoView.start()
                             videoView.pause()
-                            videoView.seekTo(1)
                         }
                     }
 
-                    videoView.setOnErrorListener { _, _, _ ->
+                    videoView.setOnInfoListener { _, what, _ ->
+                        if (what == android.media.MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+                            isBuffering = true
+                        } else if (what == android.media.MediaPlayer.MEDIA_INFO_BUFFERING_END ||
+                                   what == android.media.MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                            isBuffering = false
+                        }
+                        true
+                    }
+
+                    videoView.setOnErrorListener { _, what, extra ->
+                        android.util.Log.w("NoticeMediaViewer", "Error VideoView what=$what, extra=$extra para $target")
+                        val trimmed = com.example.util.NoticeMediaStorageManager.normalizeVideoUrl(videoUriString.trim())
+                        val cached = com.example.util.NoticeMediaStorageManager.getCachedVideoFile(ctx, trimmed)
+                        if (cached != null && cached.exists() && cached.length() > 5000 && target != cached.absolutePath) {
+                            try {
+                                videoView.setVideoPath(cached.absolutePath)
+                                videoView.start()
+                                hasError = false
+                                isBuffering = false
+                                return@setOnErrorListener true
+                            } catch (_: Exception) {}
+                        }
+
                         isBuffering = false
                         hasError = true
                         errorMessage = "Error al reproducir video. Verifica conexión o enlace."
@@ -622,6 +823,13 @@ fun LocalGalleryVideoPlayer(
                         hasError = false
                         isBuffering = true
                         retryKey++
+                        // Forzar descarga OkHttp en segundo plano de inmediato al reintentar
+                        val trimmed = com.example.util.NoticeMediaStorageManager.normalizeVideoUrl(videoUriString.trim())
+                        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
+                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                                com.example.util.NoticeMediaStorageManager.cacheVideoFromUrl(context, trimmed)
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
                     border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f)),

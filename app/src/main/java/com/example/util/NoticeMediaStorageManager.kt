@@ -13,23 +13,65 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.storage.FirebaseStorage
-
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 object NoticeMediaStorageManager {
     private const val TAG = "NoticeMediaStorage"
     private const val MEDIA_DIR = "notice_media"
     private const val VIDEO_CACHE_DIR = "notice_video_cache"
 
+    private val okHttpClient by lazy {
+        OkHttpClient.Builder()
+            .followRedirects(true)
+            .followSslRedirects(true)
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .build()
+    }
+
     /**
-     * Obtiene el archivo de video en caché local si ya fue descargado previamente.
+     * Normaliza URLs comunes de videos para permitir su descarga y reproducción directa
+     */
+    fun normalizeVideoUrl(rawUrl: String): String {
+        val trimmed = rawUrl.trim()
+        if (trimmed.isBlank()) return trimmed
+
+        // Google Drive: convertir enlaces compartidos a descarga directa
+        val driveMatch = Regex("drive\\.google\\.com/file/d/([a-zA-Z0-9_-]+)").find(trimmed)
+            ?: Regex("drive\\.google\\.com/open\\?id=([a-zA-Z0-9_-]+)").find(trimmed)
+        if (driveMatch != null) {
+            val fileId = driveMatch.groupValues[1]
+            return "https://drive.google.com/uc?export=download&id=$fileId"
+        }
+
+        // Dropbox: cambiar dl=0 a dl=1 o raw=1 para obtener el flujo binario
+        if (trimmed.contains("dropbox.com", ignoreCase = true)) {
+            if (trimmed.contains("dl=0")) {
+                return trimmed.replace("dl=0", "dl=1")
+            }
+            if (!trimmed.contains("dl=1") && !trimmed.contains("raw=1")) {
+                val sep = if (trimmed.contains("?")) "&" else "?"
+                return "$trimmed${sep}dl=1"
+            }
+        }
+
+        return trimmed
+    }
+
+    /**
+     * Obtiene el archivo de video en caché local si ya fue descargado previamente y es válido.
      */
     fun getCachedVideoFile(context: Context, url: String): File? {
         try {
+            val normalized = normalizeVideoUrl(url)
             val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
             if (!dir.exists()) return null
-            val key = "vid_" + url.hashCode().toString().replace("-", "n") + ".mp4"
+            val key = "vid_" + normalized.hashCode().toString().replace("-", "n") + ".mp4"
             val file = File(dir, key)
             if (file.exists() && file.length() > 5000) {
                 return file
@@ -39,38 +81,67 @@ object NoticeMediaStorageManager {
     }
 
     /**
-     * Descarga y almacena en caché un video en segundo plano para reproducción instantánea y offline.
+     * Descarga y almacena en caché un video en segundo plano para reproducción instantánea y offline
+     * utilizando OkHttp con redirecciones automáticas y User-Agent de navegador móvil.
      */
     suspend fun cacheVideoFromUrl(context: Context, url: String): File? = withContext(Dispatchers.IO) {
-        val trimmed = url.trim()
-        if (!trimmed.startsWith("http://", ignoreCase = true) && !trimmed.startsWith("https://", ignoreCase = true)) {
+        val normalized = normalizeVideoUrl(url)
+        if (!normalized.startsWith("http://", ignoreCase = true) && !normalized.startsWith("https://", ignoreCase = true)) {
             return@withContext null
         }
         try {
             val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
             if (!dir.exists()) dir.mkdirs()
-            val key = "vid_" + trimmed.hashCode().toString().replace("-", "n") + ".mp4"
+            val key = "vid_" + normalized.hashCode().toString().replace("-", "n") + ".mp4"
             val file = File(dir, key)
             if (file.exists() && file.length() > 5000) {
                 return@withContext file
             }
+
             val tempFile = File(dir, "$key.tmp")
-            val connection = java.net.URL(trimmed).openConnection() as java.net.HttpURLConnection
-            connection.connectTimeout = 12000
-            connection.readTimeout = 25000
-            connection.instanceFollowRedirects = true
-            connection.connect()
-            if (connection.responseCode in 200..299) {
-                connection.inputStream.use { input ->
-                    FileOutputStream(tempFile).use { output ->
-                        input.copyTo(output)
+            val request = Request.Builder()
+                .url(normalized)
+                .header("User-Agent", "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.70 Mobile Safari/537.36")
+                .header("Accept", "*/*")
+                .header("Connection", "keep-alive")
+                .build()
+
+            val response = okHttpClient.newCall(request).execute()
+            if (response.isSuccessful) {
+                val body = response.body
+                if (body != null) {
+                    val contentType = response.header("Content-Type", "") ?: ""
+                    // Si el servidor devuelve HTML en vez de archivo de video (ej. página web o error), no guardar como mp4
+                    if (contentType.contains("text/html", ignoreCase = true)) {
+                        Log.w(TAG, "La URL devolvió una página HTML en lugar de un stream de video: $contentType")
+                        response.close()
+                        return@withContext null
+                    }
+
+                    body.byteStream().use { input ->
+                        FileOutputStream(tempFile).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+
+                    if (tempFile.exists() && tempFile.length() > 5000) {
+                        // Verificar que los primeros bytes no sean etiquetas HTML
+                        val preview = ByteArray(64)
+                        val readBytes = tempFile.inputStream().use { it.read(preview) }
+                        val prefix = if (readBytes > 0) String(preview, 0, readBytes).trim().lowercase() else ""
+                        if (prefix.startsWith("<!doctype") || prefix.startsWith("<html")) {
+                            tempFile.delete()
+                            Log.w(TAG, "El archivo descargado contiene HTML, descartando del caché de video.")
+                            return@withContext null
+                        }
+
+                        tempFile.renameTo(file)
+                        Log.d(TAG, "Video descargado y almacenado en caché: ${file.absolutePath} (${file.length() / 1024} KB)")
+                        return@withContext file
                     }
                 }
-                if (tempFile.exists() && tempFile.length() > 5000) {
-                    tempFile.renameTo(file)
-                    Log.d(TAG, "Video descargado y almacenado en caché: ${file.absolutePath} (${file.length() / 1024} KB)")
-                    return@withContext file
-                }
+            } else {
+                Log.w(TAG, "Fallo HTTP al descargar video: ${response.code} en $normalized")
             }
         } catch (e: Exception) {
             Log.w(TAG, "No se pudo almacenar en caché el video: ${e.message}")

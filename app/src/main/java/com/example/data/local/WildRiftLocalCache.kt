@@ -144,9 +144,9 @@ object WildRiftLocalCache {
                         }
                     }
 
-                val hasOutdatedKeystones = filteredRunes.any { it.id == "empowerment" }
+                val hasMissingKeystones = filteredRunes.none { it.id == "fortalecimiento" }
                 val hasKeystones = filteredRunes.any { it.category.trim().equals("Clave", ignoreCase = true) || it.category.trim().contains("Clave", ignoreCase = true) }
-                if (hasOutdatedKeystones || filteredRunes.isEmpty() || !hasKeystones) {
+                if (hasMissingKeystones || filteredRunes.isEmpty() || !hasKeystones) {
                     WildRiftRepository.runes = WildRiftSpellsAndRunes.runes
                     saveToLocalCache(context, runes = WildRiftSpellsAndRunes.runes)
                 } else {

@@ -333,6 +333,13 @@ object WildRiftSpellsAndRunes {
             description = "Daño adicional, amplificación de acumulaciones\n\nAl infligir daño a un campeón que tenga menos del 50% de vida, le infliges daño adaptable y cosechas su alma, lo que aumenta permanentemente el daño de Cosecha oscura en 11.\nDaño de Cosecha oscura: 35 + 11 por alma + 10% adicional DA + 5% PH.\n(20 s de enfriamiento. Se reinicia a 1 s con asesinatos o asistencias)."
         ),
         RuneItem(
+            id = "fortalecimiento",
+            name = "Fortalecimiento",
+            category = "Clave",
+            iconUrl = "file:///android_asset/runes/fortalecimiento.webp",
+            description = "Daño adicional contra campeones\n\nAl asestar 3 ataques consecutivos a un campeón enemigo, le inflige daño adaptable adicional y potencia el daño que infliges un 8% hasta que abandonas el combate con campeones.\nDaño adaptable: 40–165\nEnfriamiento: 4 s\nLa amplificación de daño solo surtirá efecto contra campeones."
+        ),
+        RuneItem(
             id = "electrocute",
             name = "Electrocutar",
             category = "Clave",

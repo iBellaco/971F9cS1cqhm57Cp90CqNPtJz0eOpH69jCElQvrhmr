@@ -53,6 +53,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.data.AvatarCatalog
 import com.example.model.AvatarItem
+import com.example.model.AppUserRole
 import com.example.ui.theme.*
 import com.example.util.AuthManager
 import com.google.firebase.firestore.FieldValue
@@ -1898,22 +1899,27 @@ fun EnhancedUserAdminCard(
     val isOnline = if (explicitOnline == false) false else (lastActiveTimestamp > 0L && now - lastActiveTimestamp < 10 * 60 * 1000L)
 
     val isPremiumActive = when {
-        role == "admin" -> true
-        role == "premium" -> premiumUntil == null || premiumUntil == 0L || premiumUntil > now
+        role == "admin" || role == "moderador" -> true
+        role in listOf("premium", "creador_vip", "streamer", "river") -> premiumUntil == null || premiumUntil == 0L || premiumUntil > now
         else -> false
+    }
+
+    val cardBorderColor = when {
+        role == "admin" -> HextechGold.copy(alpha = 0.6f)
+        isBanned -> DangerRed.copy(alpha = 0.5f)
+        role == "moderador" -> Color(0xFF10B981).copy(alpha = 0.5f)
+        role == "creador_vip" -> Color(0xFFA855F7).copy(alpha = 0.5f)
+        role == "streamer" -> Color(0xFFEC4899).copy(alpha = 0.5f)
+        role == "river" -> Color(0xFF06B6D4).copy(alpha = 0.5f)
+        isPremiumActive -> HextechCyan.copy(alpha = 0.4f)
+        else -> HextechCardBorder
     }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = HextechSurfaceBg,
         shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            if (role == "admin") HextechGold.copy(alpha = 0.6f)
-            else if (isPremiumActive) HextechCyan.copy(alpha = 0.4f)
-            else if (isBanned) DangerRed.copy(alpha = 0.5f)
-            else HextechCardBorder
-        )
+        border = androidx.compose.foundation.BorderStroke(1.dp, cardBorderColor)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             // Fila superior: Avatar + Info Usuario + Badge de Rol + Estado de Conexión
@@ -2201,31 +2207,6 @@ fun EnhancedUserAdminCard(
     }
 }
 
-@Composable
-private fun RoleBadge(role: String, isPremiumActive: Boolean, isBanned: Boolean) {
-    val (text, bg, textColor) = when {
-        isBanned -> Triple("BANEADO", DangerRed.copy(alpha = 0.2f), DangerRed)
-        role == "admin" -> Triple("👑 ADMIN", HextechGold.copy(alpha = 0.25f), HextechGold)
-        isPremiumActive -> Triple("⭐ PREMIUM", HextechCyan.copy(alpha = 0.2f), HextechCyan)
-        else -> Triple("GRATIS", Color.White.copy(alpha = 0.1f), TextSecondary)
-    }
-
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(bg)
-            .border(0.5.dp, textColor.copy(alpha = 0.4f), RoundedCornerShape(4.dp))
-            .padding(horizontal = 5.dp, vertical = 2.dp)
-    ) {
-        Text(
-            text = text,
-            color = textColor,
-            fontSize = 9.sp,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
 private fun formatLastConnection(lastActiveTimestamp: Long, isOnline: Boolean, currentTimestamp: Long = System.currentTimeMillis()): String {
     if (isOnline) {
         if (lastActiveTimestamp > 0L) {
@@ -2316,6 +2297,9 @@ fun UserDetailManagementDialog(
     val avatarId = user["avatarId"] as? String ?: "default_poro"
     val rankBorder = user["rankBorder"] as? String ?: "NONE"
 
+    var roleToConfirm by remember { mutableStateOf<AppUserRole?>(null) }
+    var isChangingRole by remember { mutableStateOf(false) }
+
     var isProcessing by remember { mutableStateOf(false) }
     var customDaysInput by remember { mutableStateOf("") }
     var showCustomDaysDialog by remember { mutableStateOf(false) }
@@ -2327,8 +2311,8 @@ fun UserDetailManagementDialog(
     var currentDeviceCount by remember { mutableStateOf(registeredDevices.size) }
 
     val isPremiumActive = when {
-        currentRole == "admin" -> true
-        currentRole == "premium" -> currentPremiumUntil == null || currentPremiumUntil == 0L || currentPremiumUntil!! > System.currentTimeMillis()
+        currentRole == "admin" || currentRole == "moderador" -> true
+        currentRole in listOf("premium", "creador_vip", "streamer", "river") -> currentPremiumUntil == null || currentPremiumUntil == 0L || currentPremiumUntil!! > System.currentTimeMillis()
         else -> false
     }
 
@@ -2364,12 +2348,21 @@ fun UserDetailManagementDialog(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text(
-                                text = currentName,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = HextechGold
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = currentName,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = HextechGold
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                RoleBadge(
+                                    role = currentRole,
+                                    isPremiumActive = isPremiumActive,
+                                    isBanned = currentBanned,
+                                    size = RoleBadgeSize.NORMAL
+                                )
+                            }
                             Text(
                                 text = email.ifBlank { "UID: $uid" },
                                 style = MaterialTheme.typography.bodySmall,
@@ -2575,6 +2568,176 @@ fun UserDetailManagementDialog(
                                         Icon(Icons.Default.RemoveCircleOutline, contentDescription = null, modifier = Modifier.size(13.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text("Quitar Premium", fontSize = 11.sp)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // SECCIÓN: GESTIÓN Y ASIGNACIÓN DE ROL DE USUARIO
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            Icons.Default.Badge,
+                                            contentDescription = null,
+                                            tint = HextechGold,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "Gestión y Cambio de Rol",
+                                            fontWeight = FontWeight.Bold,
+                                            color = HextechGold,
+                                            fontSize = 13.sp
+                                        )
+                                    }
+
+                                    // Badge animado del rol actual
+                                    RoleBadge(
+                                        role = currentRole,
+                                        isPremiumActive = isPremiumActive,
+                                        isBanned = currentBanned,
+                                        size = RoleBadgeSize.NORMAL
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "Asigna o modifica el rango del usuario en la plataforma. Por directivas de seguridad institucional, la asignación de rol Administrador está excluida.",
+                                    color = TextSecondary,
+                                    fontSize = 11.5.sp,
+                                    lineHeight = 15.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                if (currentRole == "admin") {
+                                    Surface(
+                                        color = HextechGold.copy(alpha = 0.12f),
+                                        shape = RoundedCornerShape(8.dp),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f)),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                Icons.Default.AdminPanelSettings,
+                                                contentDescription = null,
+                                                tint = HextechGold,
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "Esta cuenta posee el rango de Administrador Maestro protegido. Por directiva de seguridad, no se puede alterar ni degradar su rol desde este panel.",
+                                                color = HextechGold,
+                                                fontSize = 11.5.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    // Lista de roles asignables (EXCLUYENDO ADMIN)
+                                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        AppUserRole.assignableRoles.forEach { targetRole ->
+                                            val isSelected = (currentRole.equals(targetRole.id, ignoreCase = true) && (!currentBanned || targetRole == AppUserRole.BANNED))
+                                            
+                                            Surface(
+                                                onClick = {
+                                                    if (!isSelected && !isChangingRole) {
+                                                        roleToConfirm = targetRole
+                                                    }
+                                                },
+                                                enabled = !isSelected && !isChangingRole,
+                                                color = if (isSelected) targetRole.primaryColor.copy(alpha = 0.15f) else HextechDarkBg,
+                                                shape = RoundedCornerShape(8.dp),
+                                                border = androidx.compose.foundation.BorderStroke(
+                                                    width = if (isSelected) 1.2.dp else 0.8.dp,
+                                                    color = if (isSelected) targetRole.primaryColor else HextechCardBorder
+                                                ),
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Row(
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        modifier = Modifier.weight(1f)
+                                                    ) {
+                                                        Text(
+                                                            text = targetRole.emoji,
+                                                            fontSize = 15.sp,
+                                                            modifier = Modifier.padding(end = 8.dp)
+                                                        )
+                                                        Column {
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Text(
+                                                                    text = targetRole.displayName,
+                                                                    color = if (isSelected) targetRole.primaryColor else TextPrimary,
+                                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                                                    fontSize = 12.sp
+                                                                )
+                                                                if (isSelected) {
+                                                                    Spacer(modifier = Modifier.width(6.dp))
+                                                                    Text(
+                                                                        text = "• ACTIVO",
+                                                                        color = targetRole.primaryColor,
+                                                                        fontSize = 10.sp,
+                                                                        fontWeight = FontWeight.ExtraBold
+                                                                    )
+                                                                }
+                                                            }
+                                                            Text(
+                                                                text = targetRole.description,
+                                                                color = TextMuted,
+                                                                fontSize = 10.5.sp,
+                                                                maxLines = 1,
+                                                                overflow = TextOverflow.Ellipsis
+                                                            )
+                                                        }
+                                                    }
+
+                                                    if (isSelected) {
+                                                        Icon(
+                                                            Icons.Default.CheckCircle,
+                                                            contentDescription = null,
+                                                            tint = targetRole.primaryColor,
+                                                            modifier = Modifier.size(16.dp)
+                                                        )
+                                                    } else {
+                                                        Surface(
+                                                            color = targetRole.primaryColor.copy(alpha = 0.12f),
+                                                            shape = RoundedCornerShape(4.dp),
+                                                            border = androidx.compose.foundation.BorderStroke(0.5.dp, targetRole.primaryColor.copy(alpha = 0.4f))
+                                                        ) {
+                                                            Text(
+                                                                text = "Asignar",
+                                                                color = targetRole.primaryColor,
+                                                                fontSize = 10.5.sp,
+                                                                fontWeight = FontWeight.Bold,
+                                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -2927,6 +3090,142 @@ fun UserDetailManagementDialog(
                     Text("Cancelar", color = TextMuted)
                 }
             }
+        )
+    }
+
+    // Diálogo de Confirmación para Cambio de Rol
+    if (roleToConfirm != null) {
+        val target = roleToConfirm!!
+        AlertDialog(
+            onDismissRequest = { if (!isChangingRole) roleToConfirm = null },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.ManageAccounts,
+                        contentDescription = null,
+                        tint = target.primaryColor,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "¿Cambiar rol a ${target.displayName}?",
+                        color = HextechGold,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "¿Confirmas asignar este nuevo rol al usuario '$currentName'?",
+                        color = TextPrimary,
+                        fontSize = 13.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Surface(
+                        color = HextechDarkBg,
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, target.primaryColor.copy(alpha = 0.5f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "NUEVO ROL ASIGNADO",
+                                color = TextMuted,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            RoleBadge(
+                                role = target.id,
+                                isPremiumActive = target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER, AppUserRole.CREATOR, AppUserRole.RIVER),
+                                isBanned = (target == AppUserRole.BANNED),
+                                size = RoleBadgeSize.LARGE
+                            )
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(
+                                text = target.description,
+                                color = TextSecondary,
+                                fontSize = 11.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    if (target == AppUserRole.BANNED) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "⚠️ Al asignar el rol Baneado, la cuenta del usuario será suspendida de inmediato y no podrá utilizar los servicios de la app.",
+                            color = DangerRed,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    } else if (target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER, AppUserRole.RIVER)) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "✨ Este rango incluye acceso activo a las herramientas y ventajas del Pase Hextech.",
+                            color = HextechCyan,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        isChangingRole = true
+                        updateUserRoleInCloud(context, uid, target.id) { newRole, isBanned ->
+                            isChangingRole = false
+                            roleToConfirm = null
+                            currentRole = newRole
+                            currentBanned = isBanned
+                            if (newRole in listOf("premium", "moderador", "creador_vip", "streamer", "river")) {
+                                currentPremiumUntil = 0L
+                            }
+                            onUserUpdated(user.toMutableMap().apply {
+                                put("role", newRole)
+                                put("banned", isBanned)
+                                if (newRole in listOf("premium", "moderador", "creador_vip", "streamer", "river")) {
+                                    put("premiumUntil", 0L)
+                                }
+                            })
+                            onReloadAll()
+                        }
+                    },
+                    enabled = !isChangingRole,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (target == AppUserRole.BANNED) DangerRed else HextechGold
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    if (isChangingRole) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechDarkBg, strokeWidth = 2.dp)
+                    } else {
+                        Text(
+                            text = "Confirmar y Asignar",
+                            color = if (target == AppUserRole.BANNED) Color.White else HextechDarkBg,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { if (!isChangingRole) roleToConfirm = null },
+                    enabled = !isChangingRole
+                ) {
+                    Text("Cancelar", color = TextSecondary)
+                }
+            },
+            containerColor = HextechSurfaceBg,
+            shape = RoundedCornerShape(14.dp)
         )
     }
 }
@@ -3679,21 +3978,49 @@ private fun revokeAllExclusiveAvatarsFromUser(
         }
 }
 
-private fun toggleUserAdminRole(
+private fun updateUserRoleInCloud(
     context: Context,
     uid: String,
-    newRole: String,
-    onSuccess: () -> Unit
+    targetRoleId: String,
+    onSuccess: (newRole: String, isBanned: Boolean) -> Unit
 ) {
+    if (targetRoleId == "admin") {
+        Toast.makeText(context, "Operación denegada: No se puede asignar el rol de Administrador por directivas de seguridad.", Toast.LENGTH_LONG).show()
+        return
+    }
+
     val db = FirebaseFirestore.getInstance()
+    val isBanned = (targetRoleId == "banned")
+    val updatePayload = hashMapOf<String, Any>(
+        "role" to targetRoleId,
+        "banned" to isBanned,
+        "last_role_update" to System.currentTimeMillis()
+    )
+
+    if (isBanned) {
+        updatePayload["bannedTimestamp"] = System.currentTimeMillis()
+        updatePayload["sessionToken"] = ""
+    } else {
+        updatePayload["bannedTimestamp"] = 0L
+    }
+
+    // Si el rol es de acceso premium / vitalicio por defecto
+    if (targetRoleId in listOf("premium", "moderador", "creador_vip", "streamer", "river")) {
+        updatePayload["premiumUntil"] = 0L
+        updatePayload["is_premium"] = true
+    } else if (targetRoleId == "free") {
+        updatePayload["is_premium"] = false
+    }
+
     db.collection("users").document(uid)
-        .update("role", newRole)
+        .set(updatePayload, SetOptions.merge())
         .addOnSuccessListener {
-            Toast.makeText(context, "Rol actualizado a $newRole", Toast.LENGTH_SHORT).show()
-            onSuccess()
+            val roleName = AppUserRole.fromId(targetRoleId).displayName
+            Toast.makeText(context, "Rol actualizado a $roleName", Toast.LENGTH_SHORT).show()
+            onSuccess(targetRoleId, isBanned)
         }
         .addOnFailureListener { e ->
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Error al actualizar rol: ${e.message}", Toast.LENGTH_LONG).show()
         }
 }
 
