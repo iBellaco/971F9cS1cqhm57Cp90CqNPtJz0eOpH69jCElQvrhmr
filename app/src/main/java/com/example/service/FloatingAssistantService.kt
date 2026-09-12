@@ -1741,6 +1741,7 @@ private fun FloatingOverlayContent(
                                     onCheckedChange = { isChecked -> 
                                         if (isChecked) {
                                             autoScanEnabled = true
+                                            DraftVisionScanner.resetSlotMemory()
                                             if (screenCaptureManager?.isReady() != true) {
                                                 scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Toca aquí para activarlo."
                                                 try {

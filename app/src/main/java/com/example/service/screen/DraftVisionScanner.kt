@@ -175,6 +175,7 @@ object DraftVisionScanner {
     private val allySlotRolesCache = mutableMapOf<Int, LaneRole>()
     // Memoria persistente de los nombres de invocador aliados (0..4)
     private val allySummonerNamesCache = mutableMapOf<Int, String>()
+    private var confirmedLegendaryRanked = false
 
     // Filtros de estabilización temporal (anti-parpadeo y anti-oscilación)
     private class SlotTemporalFilter {
@@ -200,6 +201,7 @@ object DraftVisionScanner {
     fun resetSlotMemory() {
         allySlotRolesCache.clear()
         allySummonerNamesCache.clear()
+        confirmedLegendaryRanked = false
         allySlotFilters.forEach { it.reset() }
         enemySlotFilters.forEach { it.reset() }
         AppLogger.d(TAG, "Memoria de roles e invocadores reiniciada")
@@ -266,7 +268,15 @@ object DraftVisionScanner {
             val visionText = recognizer.process(inputImage).await()
 
             // Detección proactiva de Clasificatoria Legendaria en pantalla completa
-            isLegendaryRanked = DraftValidationLayer.isLegendaryRankedDraft(visionText.text)
+            if (confirmedLegendaryRanked) {
+                isLegendaryRanked = true
+            } else {
+                isLegendaryRanked = DraftValidationLayer.isLegendaryRankedDraft(visionText.text)
+                if (isLegendaryRanked) {
+                    confirmedLegendaryRanked = true
+                    AppLogger.d(TAG, "Clasificatoria Legendaria confirmada. Se mantendra para esta sesion.")
+                }
+            }
             if (isLegendaryRanked) {
                 AppLogger.d(TAG, "Clasificatoria Legendaria detectada en pantalla (Nombres anónimos). Búsqueda de invocadores desactivada.")
                 allySummonerNamesCache.clear()
@@ -452,7 +462,7 @@ object DraftVisionScanner {
             var autonomousUserSlot = -1
             try {
                 // Exploramos el borde izquierdo y el area del avatar (aprox 12% del ancho) buscando pixeles dorados de Wild Rift
-                val searchMarginX = (width * 0.12f).toInt().coerceAtLeast(1)
+                val searchMarginX = (width * 0.03f).toInt().coerceAtLeast(1)
                 
                 // Mantenemos un conteo de pixeles dorados por slot
                 val goldCounts = IntArray(5)
