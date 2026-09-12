@@ -225,8 +225,8 @@ object SubscriptionManager {
                     _blueEssence.value = blueEs
                     
                     val isPrem = when {
-                        isAdminClaim || role == "admin" -> true
-                        role == "premium" -> {
+                        isAdminClaim || role == "admin" || role == "moderador" -> true
+                        role == "premium" || role == "creador_vip" || role == "streamer" || role == "river" -> {
                             until == null || until == 0L || until > System.currentTimeMillis()
                         }
                         else -> false
@@ -261,7 +261,7 @@ object SubscriptionManager {
     }
 
     fun canEquipAvatar(avatarId: String): Boolean {
-        if (_isPremium.value || _userRole.value == "admin") return true
+        if (_isPremium.value || _userRole.value == "admin" || _userRole.value == "moderador") return true
         if (_unlockedAvatars.value.contains(avatarId)) return true
         val avatar = AvatarCatalog.avatars.find { it.id == avatarId }
         if (avatar != null && (avatar.isDefault || avatar.rarity.equals("común", true) || avatar.rarity.equals("comun", true))) return true
@@ -347,7 +347,7 @@ object SubscriptionManager {
     }
 
     fun isExpiringSoon(): Boolean {
-        if (_userRole.value == "admin") return false
+        if (_userRole.value == "admin" || _userRole.value == "moderador") return false
         if (!_isPremium.value) return false
         val until = _premiumUntil.value ?: return false
         if (until == 0L) return false
@@ -358,6 +358,7 @@ object SubscriptionManager {
 
     fun getRemainingPremiumTimeFormatted(): String {
         if (_userRole.value == "admin") return "Acceso Administrador (Vitalicio)"
+        if (_userRole.value == "moderador") return "Acceso Moderador (Vitalicio)"
         if (!_isPremium.value) return "Sin suscripción activa"
         val until = _premiumUntil.value ?: return "Activo (Permanente)"
         if (until == 0L) return "Activo (Permanente)"

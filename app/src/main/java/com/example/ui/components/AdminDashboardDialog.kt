@@ -79,7 +79,7 @@ fun AdminDashboardDialog(
 ) {
     val context = LocalContext.current
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
-    val isAdmin = userRole == "admin" || AuthManager.isCurrentUserAdmin()
+    val isAdmin = userRole == "admin" || userRole == "moderador" || AuthManager.isCurrentUserAdmin()
 
     if (!isAdmin) {
         LaunchedEffect(Unit) { onDismiss() }
@@ -133,7 +133,8 @@ fun AdminDashboardDialog(
                     onOpenFeedbackAndSupport = { showReportsPanel = true },
                     onOpenBroadcast = { showBroadcastDialog = true },
                     onOpenNotice = { showNoticeConfigDialog = true },
-                    onOpenCpmAnalytics = { showCpmAnalyticsDialog = true }
+                    onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
+                    isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
 
                 // Panel principal de gestión
@@ -142,10 +143,25 @@ fun AdminDashboardDialog(
                         .fillMaxSize()
                         .weight(1f)
                 ) {
-                    EnhancedUserManagementPanel(
+                    if (userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()) {
+                        EnhancedUserManagementPanel(
                         isMinimized = isMonitoringMinimized,
                         onToggleMinimize = { isMonitoringMinimized = !isMonitoringMinimized }
                     )
+                    } else {
+                        // Moderador View
+                        Column(
+                            modifier = Modifier.fillMaxSize().padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(64.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("Panel de Moderación", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("Abre 'OCR y Soporte' en la parte superior para moderar los aportes de la comunidad.", color = TextSecondary, fontSize = 14.sp, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        }
+                    }
                 }
             }
         }
@@ -158,7 +174,8 @@ private fun AdminDashboardHeader(
     onOpenFeedbackAndSupport: () -> Unit,
     onOpenBroadcast: () -> Unit,
     onOpenNotice: () -> Unit,
-    onOpenCpmAnalytics: () -> Unit = {}
+    onOpenCpmAnalytics: () -> Unit = {},
+    isFullAdmin: Boolean = true
 ) {
     Surface(
         color = HextechSurfaceBg,
@@ -802,7 +819,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                     Toast.makeText(context, "Imagen subida correctamente", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                videoUrl = pickedUri.toString()
+                                Toast.makeText(context, "Error en la nube: ${e.message}", Toast.LENGTH_LONG).show()
+                                videoUrl = ""
                             } finally {
                                 isProcessingMedia = false
                             }

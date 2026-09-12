@@ -64,8 +64,7 @@ object NoticeMediaStorageManager {
             downloadUrl.toString()
         } catch (e: Exception) {
             Log.e(TAG, "Error subiendo video a Firebase Storage: ${e.message}")
-            // Si falla, intentamos hacer fallback al almacenamiento local
-            saveMediaToInternalStorage(context, uri, isVideo = true)
+            throw Exception("Firebase Storage no habilitado o sin reglas. Debes habilitarlo en tu consola de Firebase.")
         }
     }
 

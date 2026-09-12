@@ -1343,28 +1343,6 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
-                                // Botón Insecto (Depuración y Calibrador de Escáner)
-                                Surface(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clickable {
-                                            showCalibrationPanel = !showCalibrationPanel
-                                            com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = showCalibrationPanel
-                                        },
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = if (showCalibrationPanel) HextechCyan.copy(alpha = 0.25f) else Color(0xFF1E293B),
-                                    border = BorderStroke(1.dp, if (showCalibrationPanel) HextechCyan else HextechGold.copy(alpha = 0.6f))
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.BugReport,
-                                            contentDescription = "Calibrador y Depuración de Escáner",
-                                            tint = if (showCalibrationPanel) HextechCyan else HextechGold,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                }
-
                                 // Botón Minimizar (a Burbuja flotante)
                                 Surface(
                                     modifier = Modifier

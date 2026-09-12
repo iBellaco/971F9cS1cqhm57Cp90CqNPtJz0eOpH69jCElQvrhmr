@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 
@@ -600,7 +601,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            val isUserPremium = isPremium || userRole == "admin" || AuthManager.isCurrentUserAdmin()
+            val isUserPremium = isPremium || userRole == "admin" || userRole == "moderador" || userRole == "creador_vip" || userRole == "streamer" || userRole == "river" || AuthManager.isCurrentUserAdmin()
             if (isUserPremium) {
                 // Quick Theme Selector Strip: Instant 1-tap live theme transformation with horizontal scroll!
                 Column(
@@ -824,24 +825,34 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(10.dp))
 
             // Premium Status Card & Expiration Indicator
+            val infiniteTransition = rememberInfiniteTransition(label = "rolePulse")
+            val rolePulseAlpha by infiniteTransition.animateFloat(
+                initialValue = 0.6f,
+                targetValue = 1f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "rolePulseAlpha"
+            )
+            
+            val roleContainerColor = when {
+                userRole == "admin" || userRole == "moderador" -> com.example.ui.theme.HextechGold.copy(alpha = 0.12f)
+                isExpiringSoon -> com.example.ui.theme.DangerRed.copy(alpha = 0.12f)
+                isPremium -> com.example.ui.theme.HextechGold.copy(alpha = 0.1f)
+                else -> com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f)
+            }
+            
+            val roleBorderColor = when {
+                userRole == "admin" || userRole == "moderador" -> com.example.ui.theme.HextechGold.copy(alpha = rolePulseAlpha)
+                isExpiringSoon -> com.example.ui.theme.DangerRed
+                isPremium -> com.example.ui.theme.HextechGold.copy(alpha = rolePulseAlpha)
+                else -> com.example.ui.theme.TextMuted.copy(alpha = 0.5f)
+            }
+
             Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = when {
-                        userRole == "admin" -> com.example.ui.theme.HextechGold.copy(alpha = 0.12f)
-                        isExpiringSoon -> com.example.ui.theme.DangerRed.copy(alpha = 0.12f)
-                        isPremium -> com.example.ui.theme.HextechGold.copy(alpha = 0.1f)
-                        else -> com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f)
-                    }
-                ),
-                border = BorderStroke(
-                    1.2.dp,
-                    when {
-                        userRole == "admin" -> com.example.ui.theme.HextechGold
-                        isExpiringSoon -> com.example.ui.theme.DangerRed
-                        isPremium -> com.example.ui.theme.HextechGold
-                        else -> com.example.ui.theme.TextMuted.copy(alpha = 0.5f)
-                    }
-                ),
+                colors = CardDefaults.cardColors(containerColor = roleContainerColor),
+                border = BorderStroke(1.2.dp, roleBorderColor),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp)
             ) {
@@ -865,13 +876,17 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 Text(
                                     text = when {
                                         userRole == "admin" -> "👑 Administrador"
+                                        userRole == "moderador" -> "🛡️ Moderador"
+                                        userRole == "streamer" || userRole == "river" -> "📹 Streamer"
+                                        userRole == "creador_vip" -> "✨ Creador VIP"
+                                        userRole == "creador" -> "🎨 Creador"
                                         isExpiringSoon -> "⚠️ Suscripción por Vencer"
                                         isPremium -> "🌟 Suscripción Activa"
                                         else -> "Plan Gratuito"
                                     },
                                     color = when {
                                         isExpiringSoon -> com.example.ui.theme.DangerRed
-                                        isPremium -> com.example.ui.theme.HextechGold
+                                        isPremium || userRole == "admin" || userRole == "moderador" || userRole == "creador" -> com.example.ui.theme.HextechGold
                                         else -> com.example.ui.theme.TextPrimary
                                     },
                                     fontSize = 15.sp,
@@ -882,6 +897,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             Text(
                                 text = when {
                                     userRole == "admin" -> "Acceso vitalicio ilimitado a todas las funciones"
+                                    userRole == "moderador" -> "Acceso a panel de soporte y OCR"
                                     isPremium -> "⏳ $remainingFormatted"
                                     else -> "Funciones básicas limitadas"
                                 },
@@ -896,9 +912,9 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
                                     when {
-                                        userRole == "admin" -> com.example.ui.theme.DangerRed
+                                        userRole == "admin" || userRole == "moderador" -> com.example.ui.theme.DangerRed.copy(alpha = rolePulseAlpha)
                                         isExpiringSoon -> com.example.ui.theme.DangerRed
-                                        isPremium -> com.example.ui.theme.HextechGold
+                                        isPremium -> com.example.ui.theme.HextechGold.copy(alpha = rolePulseAlpha)
                                         else -> com.example.ui.theme.HextechSurface
                                     }
                                 )
@@ -906,14 +922,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = if (isExpiringSoon) "EXPIRA PRONTO" else userRole.uppercase(),
+                                text = if (isExpiringSoon) "EXPIRA PRONTO" else userRole.replace("_", " ").uppercase(),
                                 color = if (userRole == "free") com.example.ui.theme.TextPrimary else com.example.ui.theme.HextechDarkBg,
                                 fontSize = 10.5.sp,
                                 fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold
                             )
                         }
                     }
-
                     // Expiring soon alert banner & CTA
                     if (isExpiringSoon) {
                         Spacer(modifier = Modifier.height(10.dp))
@@ -1037,7 +1052,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(14.dp))
             
-            if (userRole == "admin") {
+            if (userRole == "admin" || userRole == "moderador") {
                 val adminInteractionSource = remember { MutableInteractionSource() }
                 val adminPressed by adminInteractionSource.collectIsPressedAsState()
                 val adminScale by animateFloatAsState(
@@ -1050,7 +1065,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 )
                 Button(
                     onClick = { showAdminDashboard = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.DangerRed),
+                    colors = ButtonDefaults.buttonColors(containerColor = if (userRole == "admin") com.example.ui.theme.DangerRed else com.example.ui.theme.HextechCyan),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
@@ -1058,9 +1073,9 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     interactionSource = adminInteractionSource,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(imageVector = Icons.Default.AdminPanelSettings, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
+                    Icon(imageVector = if (userRole == "admin") Icons.Default.AdminPanelSettings else Icons.Default.SupportAgent, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Panel de Administración", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(if (userRole == "admin") "Panel de Administración" else "Panel de Moderador", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
