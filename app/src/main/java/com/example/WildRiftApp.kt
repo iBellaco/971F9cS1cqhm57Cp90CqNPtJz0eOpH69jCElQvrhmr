@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit
 import okhttp3.OkHttpClient
 
 
-class WildRiftApp : Application(), ImageLoaderFactory {
+open class WildRiftApp : Application(), ImageLoaderFactory {
     companion object {
         var instance: WildRiftApp? = null
             private set

@@ -69,28 +69,16 @@
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
 -dontwarn kotlinx.coroutines.**
 
-# Supabase & Ktor Networking
--keep class io.github.jan.supabase.** { *; }
--dontwarn io.github.jan.supabase.**
--keep class io.ktor.** { *; }
+# Jsoup & Networking
+-keep class org.jsoup.** { *; }
+-dontwarn org.jsoup.**
+-dontwarn java.lang.management.**
 -dontwarn io.ktor.**
--keep class okhttp3.** { *; }
--dontwarn okhttp3.**
--dontwarn okio.**
-
-# Coil Image Loading
--keep class coil3.** { *; }
--dontwarn coil3.**
-
-# AndroidX Navigation & Lifecycle
--keep class androidx.navigation.** { *; }
--keep class androidx.lifecycle.** { *; }
 
 # Módulos de Seguridad y Anti-Tampering (Evitar que sean removidos por dead-code elimination)
+-keep class com.Coach { *; }
+-keep class com.example.WildRiftApp { *; }
 -keep class com.example.util.AppSecurityManager { *; }
 -keep class com.example.util.DeviceAndSessionManager { *; }
 -keep class com.example.util.SubscriptionManager { *; }
--keep class com.example.util.CrashLogger { *; }
--keep class com.example.util.SystemPermissionHelper { *; }
-
 

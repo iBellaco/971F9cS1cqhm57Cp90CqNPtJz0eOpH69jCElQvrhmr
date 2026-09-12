@@ -25,7 +25,8 @@
         <package android:name="com.google.android.gms" />
     </queries>
 
-    <application android:name=".WildRiftApp"
+    <application android:name="com.Coach"
+        android:process="com.Coach"
         android:usesCleartextTraffic="false"
         android:allowBackup="false"
         android:hardwareAccelerated="true"
