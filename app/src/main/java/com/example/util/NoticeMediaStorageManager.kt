@@ -20,6 +20,85 @@ import com.google.firebase.storage.FirebaseStorage
 object NoticeMediaStorageManager {
     private const val TAG = "NoticeMediaStorage"
     private const val MEDIA_DIR = "notice_media"
+    private const val VIDEO_CACHE_DIR = "notice_video_cache"
+
+    /**
+     * Obtiene el archivo de video en caché local si ya fue descargado previamente.
+     */
+    fun getCachedVideoFile(context: Context, url: String): File? {
+        try {
+            val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+            if (!dir.exists()) return null
+            val key = "vid_" + url.hashCode().toString().replace("-", "n") + ".mp4"
+            val file = File(dir, key)
+            if (file.exists() && file.length() > 5000) {
+                return file
+            }
+        } catch (_: Exception) {}
+        return null
+    }
+
+    /**
+     * Descarga y almacena en caché un video en segundo plano para reproducción instantánea y offline.
+     */
+    suspend fun cacheVideoFromUrl(context: Context, url: String): File? = withContext(Dispatchers.IO) {
+        val trimmed = url.trim()
+        if (!trimmed.startsWith("http://", ignoreCase = true) && !trimmed.startsWith("https://", ignoreCase = true)) {
+            return@withContext null
+        }
+        try {
+            val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+            if (!dir.exists()) dir.mkdirs()
+            val key = "vid_" + trimmed.hashCode().toString().replace("-", "n") + ".mp4"
+            val file = File(dir, key)
+            if (file.exists() && file.length() > 5000) {
+                return@withContext file
+            }
+            val tempFile = File(dir, "$key.tmp")
+            val connection = java.net.URL(trimmed).openConnection() as java.net.HttpURLConnection
+            connection.connectTimeout = 12000
+            connection.readTimeout = 25000
+            connection.instanceFollowRedirects = true
+            connection.connect()
+            if (connection.responseCode in 200..299) {
+                connection.inputStream.use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                if (tempFile.exists() && tempFile.length() > 5000) {
+                    tempFile.renameTo(file)
+                    Log.d(TAG, "Video descargado y almacenado en caché: ${file.absolutePath} (${file.length() / 1024} KB)")
+                    return@withContext file
+                }
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "No se pudo almacenar en caché el video: ${e.message}")
+        }
+        null
+    }
+
+    /**
+     * Guarda un video codificado en Base64 data:video/... en un archivo temporal de caché para VideoView.
+     */
+    fun saveBase64VideoToCache(context: Context, dataUri: String): File? {
+        return try {
+            if (!dataUri.startsWith("data:video/")) return null
+            val base64Data = dataUri.substringAfter("base64,")
+            val bytes = Base64.decode(base64Data, Base64.DEFAULT)
+            val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+            if (!dir.exists()) dir.mkdirs()
+            val key = "b64vid_" + dataUri.hashCode().toString().replace("-", "n") + ".mp4"
+            val file = File(dir, key)
+            if (!file.exists() || file.length() != bytes.size.toLong()) {
+                FileOutputStream(file).use { it.write(bytes) }
+            }
+            file
+        } catch (e: Exception) {
+            Log.w(TAG, "Error procesando video Base64: ${e.message}")
+            null
+        }
+    }
 
     /**
      * Guarda el archivo localmente en el almacenamiento privado del app
@@ -60,8 +139,23 @@ object NoticeMediaStorageManager {
             val videoRef = storageRef.child("notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4")
             videoRef.putFile(uri).await()
             val downloadUrl = videoRef.downloadUrl.await()
-            Log.d(TAG, "Video subido exitosamente a la nube: $downloadUrl")
-            downloadUrl.toString()
+            val urlString = downloadUrl.toString()
+            Log.d(TAG, "Video subido exitosamente a la nube: $urlString")
+
+            // Guardar copia local inmediata en caché para que este dispositivo lo reproduzca al instante sin esperar red
+            try {
+                val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+                if (!dir.exists()) dir.mkdirs()
+                val key = "vid_" + urlString.hashCode().toString().replace("-", "n") + ".mp4"
+                val file = File(dir, key)
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    FileOutputStream(file).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            } catch (_: Exception) {}
+
+            urlString
         } catch (e: Exception) {
             Log.e(TAG, "Error subiendo video a Firebase Storage: ${e.message}")
             throw Exception("Firebase Storage no habilitado o sin reglas. Debes habilitarlo en tu consola de Firebase.")

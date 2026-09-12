@@ -9,6 +9,7 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -173,6 +174,7 @@ object AppNoticeManager {
                 }
                 _notices.value = parsedNotices
                 saveNoticesToPrefs(context, parsedNotices)
+                preloadMedia(context, parsedNotices)
                 Log.d(TAG, "Sincronizados exitosamente ${parsedNotices.size} anuncios desde Firestore para todos los dispositivos.")
             }
         } catch (e: Exception) {
@@ -278,10 +280,59 @@ object AppNoticeManager {
                 }
                 if (loaded.isNotEmpty()) {
                     _notices.value = loaded
+                    preloadMedia(context, loaded)
                 }
             }
         } catch (e: Exception) {
             Log.w(TAG, "Error cargando desde almacenamiento local: ${e.message}")
+        }
+    }
+
+    /**
+     * Precarga en segundo plano todas las imágenes y videos para que los anuncios
+     * carguen a máxima velocidad (0ms de espera) al ser vistos por el usuario.
+     */
+    fun preloadMedia(context: Context, list: List<AppNotice>) {
+        val appContext = context.applicationContext
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            try {
+                val imageLoader = coil.Coil.imageLoader(appContext)
+                for (notice in list) {
+                    if (!notice.isEnabled) continue
+                    val vUrl = notice.videoUrl.trim()
+                    val expUrl = notice.expandedImageUrl.trim()
+                    if (vUrl.isNotBlank()) {
+                        if (com.example.ui.components.NoticeMediaUtils.isVideo(appContext, vUrl)) {
+                            if (vUrl.startsWith("http://", ignoreCase = true) || vUrl.startsWith("https://", ignoreCase = true)) {
+                                com.example.util.NoticeMediaStorageManager.cacheVideoFromUrl(appContext, vUrl)
+                            }
+                        } else {
+                            val model: Any = if (vUrl.startsWith("data:image/")) {
+                                com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(vUrl) ?: vUrl
+                            } else vUrl
+                            val req = coil.request.ImageRequest.Builder(appContext)
+                                .data(model)
+                                .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
+                                .diskCachePolicy(coil.request.CachePolicy.ENABLED)
+                                .build()
+                            imageLoader.enqueue(req)
+                        }
+                    }
+                    if (expUrl.isNotBlank()) {
+                        val expModel: Any = if (expUrl.startsWith("data:image/")) {
+                            com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(expUrl) ?: expUrl
+                        } else expUrl
+                        val req = coil.request.ImageRequest.Builder(appContext)
+                            .data(expModel)
+                            .memoryCachePolicy(coil.request.CachePolicy.ENABLED)
+                            .diskCachePolicy(coil.request.CachePolicy.ENABLED)
+                            .build()
+                        imageLoader.enqueue(req)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error en precarga de medios: ${e.message}")
+            }
         }
     }
 
