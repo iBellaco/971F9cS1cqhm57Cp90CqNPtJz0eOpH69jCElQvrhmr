@@ -68,7 +68,7 @@ fun AdminCpmAnalyticsDialog(
     val totalImpressions = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalImpressions() }
     val totalClicks = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalClicks() }
     val totalFullscreen = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalFullscreenViews() }
-    val totalRevenue = remember(totalImpressions, baseCpmRate) { AppNoticeAnalyticsManager.getTotalRevenue(baseCpmRate) }
+    val totalRevenue = remember(totalImpressions, baseCpmRate, notices) { AppNoticeAnalyticsManager.getTotalRevenue(baseCpmRate, notices) }
     val overallCtr = remember(totalImpressions, totalClicks) { AppNoticeAnalyticsManager.getOverallCtr() }
 
     // Recomendación dinámica inteligente recalculada en tiempo real
@@ -768,7 +768,12 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                 val tagTotalImps = noticesInTag.sumOf { (metricsMap[it.id]?.impressions ?: 0L) }
                                 val tagTotalClicks = noticesInTag.sumOf { (metricsMap[it.id]?.clicks ?: 0L) }
                                 val tagTotalFullscreen = noticesInTag.sumOf { (metricsMap[it.id]?.fullscreenViews ?: 0L) }
-                                val tagRevenue = noticesInTag.sumOf { (metricsMap[it.id]?.calculateRevenue(baseCpmRate) ?: 0.0) }
+                                val tagRevenue = noticesInTag.sumOf { 
+                                    val mult = if (it.videoUrl.isNotBlank()) {
+                                        if (it.videoUrl.contains("video") || it.videoUrl.endsWith(".mp4") || it.videoUrl.contains("youtube")) 2.5 else 1.5
+                                    } else 1.0
+                                    (metricsMap[it.id]?.calculateRevenue(baseCpmRate, mult) ?: 0.0) 
+                                }
                                 val tagCtr = if (tagTotalImps > 0) (tagTotalClicks.toDouble() / tagTotalImps.toDouble()) * 100.0 else 0.0
 
                                 val tagColor = when {
@@ -907,7 +912,10 @@ private fun NoticeAnalyticsItemCard(
     baseCpm: Double,
     onEditCustomCpm: () -> Unit
 ) {
-    val revenue = metrics.calculateRevenue(baseCpm)
+    val mediaMultiplier = if (notice.videoUrl.isNotBlank()) {
+        if (notice.videoUrl.contains("video") || notice.videoUrl.endsWith(".mp4") || notice.videoUrl.contains("youtube")) 2.5 else 1.5
+    } else 1.0
+    val revenue = metrics.calculateRevenue(baseCpm, mediaMultiplier)
 
     fun getTagColor(tag: String): Color {
         val l = tag.lowercase(Locale.ROOT)
@@ -1023,7 +1031,9 @@ private fun NoticeAnalyticsItemCard(
                 // Ingresos Generados
                 Column(horizontalAlignment = Alignment.End) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(if (metrics.customCpmRate != null) "Generado (CPM ★)" else "Generado", color = TextMuted, fontSize = 9.sp)
+                        val label = if (metrics.customCpmRate != null) "Generado (CPM ★)" else "Generado"
+                        val multLabel = if (mediaMultiplier > 1.0) " [x${mediaMultiplier}]" else ""
+                        Text(label + multLabel, color = TextMuted, fontSize = 9.sp)
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = Icons.Default.Edit,

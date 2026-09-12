@@ -13,6 +13,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.util.UUID
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.storage.FirebaseStorage
+
 
 object NoticeMediaStorageManager {
     private const val TAG = "NoticeMediaStorage"
@@ -49,6 +52,23 @@ object NoticeMediaStorageManager {
      * Escala la imagen para un peso ligero (~30KB-70KB) que se sincroniza perfectamente
      * en Firebase Firestore a través de TODOS los dispositivos (Multidispositivo) sin volverse negra.
      */
+    
+    suspend fun uploadVideoToCloud(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
+        try {
+            Log.d(TAG, "Iniciando subida de video a Firebase Storage...")
+            val storageRef = FirebaseStorage.getInstance().reference
+            val videoRef = storageRef.child("notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4")
+            videoRef.putFile(uri).await()
+            val downloadUrl = videoRef.downloadUrl.await()
+            Log.d(TAG, "Video subido exitosamente a la nube: $downloadUrl")
+            downloadUrl.toString()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error subiendo video a Firebase Storage: ${e.message}")
+            // Si falla, intentamos hacer fallback al almacenamiento local
+            saveMediaToInternalStorage(context, uri, isVideo = true)
+        }
+    }
+
     suspend fun convertImageToCloudDataUrl(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
         try {
             // 1. Guardar primero copia permanente en disco local

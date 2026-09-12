@@ -27,8 +27,8 @@ data class NoticeMetrics(
     val ctr: Double
         get() = if (impressions > 0) (clicks.toDouble() / impressions.toDouble()) * 100.0 else 0.0
 
-    fun calculateRevenue(globalCpmRate: Double): Double {
-        val effectiveCpm = customCpmRate ?: globalCpmRate
+    fun calculateRevenue(globalCpmRate: Double, mediaMultiplier: Double = 1.0): Double {
+        val effectiveCpm = (customCpmRate ?: globalCpmRate) * mediaMultiplier
         return (impressions.toDouble() / 1000.0) * effectiveCpm
     }
 }
@@ -638,8 +638,15 @@ object AppNoticeAnalyticsManager {
     fun getTotalClicks(): Long = _metricsMap.value.values.sumOf { it.clicks }
     fun getTotalFullscreenViews(): Long = _metricsMap.value.values.sumOf { it.fullscreenViews }
 
-    fun getTotalRevenue(globalCpmRate: Double = _baseCpmRate.value): Double {
-        return _metricsMap.value.values.sumOf { it.calculateRevenue(globalCpmRate) }
+    fun getTotalRevenue(globalCpmRate: Double = _baseCpmRate.value, notices: List<AppNotice>? = null): Double {
+        return _metricsMap.value.values.sumOf { metrics -> 
+            val notice = notices?.find { it.id == metrics.noticeId }
+            val mediaMultiplier = if (notice != null && notice.videoUrl.isNotBlank()) {
+                if (notice.videoUrl.contains("video") || notice.videoUrl.endsWith(".mp4") || notice.videoUrl.contains("youtube")) 2.5 // Video 10s = 2.5x base CPM
+                else 1.5 // Image = 1.5x base CPM
+            } else 1.0 // Plain text = 1x base CPM
+            metrics.calculateRevenue(globalCpmRate, mediaMultiplier)
+        }
     }
 
     fun getOverallCtr(): Double {
@@ -656,7 +663,7 @@ object AppNoticeAnalyticsManager {
         val totalClicks = getTotalClicks()
         val totalFullscreen = getTotalFullscreenViews()
         val cpm = _baseCpmRate.value
-        val totalRev = getTotalRevenue(cpm)
+        val totalRev = getTotalRevenue(cpm, notices)
         val overallCtr = getOverallCtr()
         val dynamicRec = calculateRecommendedCpm()
 
@@ -676,7 +683,11 @@ object AppNoticeAnalyticsManager {
 
         for (n in notices) {
             val m = _metricsMap.value[n.id] ?: NoticeMetrics(n.id)
-            val rev = m.calculateRevenue(cpm)
+            val mediaMultiplier = if (n.videoUrl.isNotBlank()) {
+                if (n.videoUrl.contains("video") || n.videoUrl.endsWith(".mp4") || n.videoUrl.contains("youtube")) 2.5
+                else 1.5
+            } else 1.0
+            val rev = m.calculateRevenue(cpm, mediaMultiplier)
             sb.append("\n[${n.tag.uppercase()}] ${n.title}\n")
             sb.append("  - Imp. Unicas: ${m.impressions}\n")
             sb.append("  - Clics Unicos: ${m.clicks} (CTR: ${String.format(Locale.US, "%.2f", m.ctr)}%)\n")

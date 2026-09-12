@@ -14,6 +14,8 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.VideoView
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.ui.draw.scale
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -458,6 +460,24 @@ fun LocalGalleryVideoPlayer(
                     }
                 }
 
+                fun updateMatrix(viewWidth: Int, viewHeight: Int) {
+                    try {
+                        val mp = mediaPlayerRef ?: return
+                        val videoWidth = mp.videoWidth.toFloat()
+                        val videoHeight = mp.videoHeight.toFloat()
+                        if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
+                            val scaleX = viewWidth / videoWidth
+                            val scaleY = viewHeight / videoHeight
+                            val scale = minOf(scaleX, scaleY)
+                            val scaledWidth = scale * videoWidth
+                            val scaledHeight = scale * videoHeight
+                            val matrix = android.graphics.Matrix()
+                            matrix.setScale(scaledWidth / viewWidth.toFloat(), scaledHeight / viewHeight.toFloat(), viewWidth / 2f, viewHeight / 2f)
+                            textureView.setTransform(matrix)
+                        }
+                    } catch (_: Exception) {}
+                }
+
                 textureView.surfaceTextureListener = object : android.view.TextureView.SurfaceTextureListener {
                     override fun onSurfaceTextureAvailable(surface: android.graphics.SurfaceTexture, width: Int, height: Int) {
                         try {
@@ -487,22 +507,7 @@ fun LocalGalleryVideoPlayer(
                                     val vol = if (isMuted) 0f else 1f
                                     preparedMp.setVolume(vol, vol)
                                     
-                                    val videoWidth = preparedMp.videoWidth.toFloat()
-                                    val videoHeight = preparedMp.videoHeight.toFloat()
-                                    val viewWidth = textureView.width.toFloat()
-                                    val viewHeight = textureView.height.toFloat()
-                                    
-                                    if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
-                                        val scaleX = viewWidth / videoWidth
-                                        val scaleY = viewHeight / videoHeight
-                                        val scale = minOf(scaleX, scaleY)
-                                        val scaledWidth = scale * videoWidth
-                                        val scaledHeight = scale * videoHeight
-                                        
-                                        val matrix = android.graphics.Matrix()
-                                        matrix.setScale(scaledWidth / viewWidth, scaledHeight / viewHeight, viewWidth / 2f, viewHeight / 2f)
-                                        textureView.setTransform(matrix)
-                                    }
+                                    updateMatrix(textureView.width, textureView.height)
                                     
                                     if (isPlaying) {
                                         preparedMp.start()
@@ -513,6 +518,9 @@ fun LocalGalleryVideoPlayer(
                                         preparedMp.seekTo(1)
                                     }
                                 }
+                                mp.setOnVideoSizeChangedListener { _, _, _ ->
+                                    updateMatrix(textureView.width, textureView.height)
+                                }
                                 mp.prepareAsync()
                             }
                         } catch (e: Exception) {
@@ -520,7 +528,9 @@ fun LocalGalleryVideoPlayer(
                         }
                     }
 
-                    override fun onSurfaceTextureSizeChanged(surface: android.graphics.SurfaceTexture, width: Int, height: Int) {}
+                    override fun onSurfaceTextureSizeChanged(surface: android.graphics.SurfaceTexture, width: Int, height: Int) {
+                        updateMatrix(width, height)
+                    }
 
                     override fun onSurfaceTextureDestroyed(surface: android.graphics.SurfaceTexture): Boolean {
                         try {
@@ -700,10 +710,20 @@ fun NoticeMediaFullscreenDialog(
                     )
 
                     if (!isVideo && externalUrl.isNotBlank()) {
+                        val infiniteTransition = rememberInfiniteTransition()
+                        val pulseScale by infiniteTransition.animateFloat(
+                            initialValue = 1f,
+                            targetValue = 1.05f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1000, easing = LinearEasing),
+                                repeatMode = RepeatMode.Reverse
+                            )
+                        )
                         Box(
                             modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = 12.dp)
+                                .align(Alignment.BottomStart)
+                                .padding(start = 12.dp, bottom = 12.dp)
+                                .scale(pulseScale)
                                 .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(20.dp))
                                 .border(1.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(20.dp))
                                 .clickable { openLinkAction() }

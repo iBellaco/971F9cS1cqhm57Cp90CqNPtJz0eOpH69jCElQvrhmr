@@ -20,8 +20,8 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 317
-    versionName = "1.0.0.1"
+    versionCode = 319
+    versionName = "1.0.0.3"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: System.getenv("GEMINI_API_KEY") ?: ""
     buildConfigField("String", "GEMINI_API_KEY", "\"${geminiKey}\"")
@@ -103,6 +103,7 @@ dependencies {
   implementation(platform(libs.firebase.bom))
   implementation(libs.firebase.auth)
   implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
   implementation(libs.firebase.appcheck.playintegrity)
   implementation(libs.kotlinx.serialization.json)
   implementation(platform(libs.androidx.compose.bom))
