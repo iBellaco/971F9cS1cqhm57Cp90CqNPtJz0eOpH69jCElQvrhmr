@@ -35,8 +35,8 @@ jobs:
           echo "----------------------------------------"
           
           # gh release list devuelve los releases ordenados del más nuevo al más antiguo.
-          # Usamos awk 'NR>1 {print $3}' para omitir la fila 1 (el más reciente) y obtener los tags de los anteriores.
-          OLD_TAGS=$(echo "$RELEASES" | awk 'NR>1 {print $3}')
+          # Usamos awk -F '\t' 'NR>1 {print $3}' para omitir la fila 1 (el más reciente) y obtener los tags de los anteriores.
+          OLD_TAGS=$(echo "$RELEASES" | awk -F '\t' 'NR>1 {print $3}')
           
           if [ -z "$OLD_TAGS" ]; then
             echo "✅ Solo existe 1 release (el más reciente). No hay nada que eliminar."
