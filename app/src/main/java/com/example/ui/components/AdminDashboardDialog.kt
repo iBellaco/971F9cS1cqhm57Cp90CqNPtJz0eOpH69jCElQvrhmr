@@ -6,7 +6,9 @@ import com.example.data.sync.BestBuildWrScraper
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -80,7 +82,7 @@ fun AdminDashboardDialog(
 ) {
     val context = LocalContext.current
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
-    val isAdmin = userRole == "admin" || userRole == "moderador" || AuthManager.isCurrentUserAdmin()
+    val isAdmin = userRole == "admin" || AuthManager.isCurrentUserAdmin()
 
     if (!isAdmin) {
         LaunchedEffect(Unit) { onDismiss() }
@@ -330,6 +332,17 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var titleColor by remember { mutableStateOf("#FFD700") }
     var contentColor by remember { mutableStateOf("#CCCCCC") }
     var isEnabled by remember { mutableStateOf(true) }
+    var budgetText by remember { mutableStateOf("") }
+
+    // Carga instantánea y sincronización reactiva de anuncios
+    LaunchedEffect(Unit) {
+        com.example.data.AppNoticeManager.syncFromCloud(context)
+    }
+    LaunchedEffect(currentNotices) {
+        if (editingIndex == null && title.isBlank() && content.isBlank()) {
+            noticesList = currentNotices
+        }
+    }
 
     val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad")
     val isUrlValid = remember(videoUrl) { NoticeMediaUtils.isValidNoticeMedia(videoUrl) }
@@ -346,22 +359,148 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
         Toast.makeText(context, "Copiado al portapapeles: $text", Toast.LENGTH_SHORT).show()
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Announcement, contentDescription = null, tint = HextechGold)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Gestor de Noticias y Avisos", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            }
-        },
-        text = {
+    val hasFilledFields = title.isNotBlank() ||
+        content.isNotBlank() ||
+        videoUrl.isNotBlank() ||
+        expandedImageUrl.isNotBlank() ||
+        externalUrl.isNotBlank() ||
+        budgetText.isNotBlank() ||
+        editingIndex != null
+
+    fun attemptDismiss() {
+        if (hasFilledFields) {
+            Toast.makeText(
+                context,
+                "No puedes salir mientras haya campos con información. Guarda el anuncio o límpialos para evitar cierres accidentales.",
+                Toast.LENGTH_LONG
+            ).show()
+        } else {
+            onDismiss()
+        }
+    }
+
+    Dialog(
+        onDismissRequest = { attemptDismiss() },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    ) {
+        BackHandler(enabled = true) {
+            attemptDismiss()
+        }
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = HextechDarkBg
+        ) {
             Column(
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
             ) {
-                Text("Administra los avisos y anuncios oficiales que se muestran en la pantalla de inicio:", color = TextSecondary, fontSize = 12.sp)
+                // Barra superior fija / cabecera completa
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = HextechSurface,
+                    shadowElevation = 6.dp,
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.Announcement, contentDescription = null, tint = HextechGold, modifier = Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text("Gestor de Anuncios y Noticias", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text(
+                                    if (hasFilledFields) "Edición activa (salida bloqueada contra pérdidas)" else "Pantalla completa • Gestión de avisos oficiales",
+                                    color = if (hasFilledFields) HextechGold else TextSecondary,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                        IconButton(
+                            onClick = { attemptDismiss() },
+                            colors = IconButtonDefaults.iconButtonColors(
+                                containerColor = if (hasFilledFields) HextechGold.copy(alpha = 0.15f) else HextechSurfaceVariant
+                            )
+                        ) {
+                            Icon(
+                                imageVector = if (hasFilledFields) Icons.Default.Lock else Icons.Default.Close,
+                                contentDescription = "Cerrar",
+                                tint = if (hasFilledFields) HextechGold else TextSecondary
+                            )
+                        }
+                    }
+                }
+
+                // Banner de advertencia de protección si hay campos llenos
+                if (hasFilledFields) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = HextechGold.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Shield, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    "Protección activa: Hay campos con información. Guarda o vacía los campos para poder salir.",
+                                    color = HextechGold,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                            TextButton(
+                                onClick = {
+                                    editingIndex = null
+                                    editingNoticeId = null
+                                    title = ""
+                                    content = ""
+                                    videoUrl = ""
+                                    expandedImageUrl = ""
+                                    externalUrl = ""
+                                    showManualVideoUrlInput = false
+                                    showManualExpandedUrlInput = false
+                                    Toast.makeText(context, "Campos limpiados. Salida desbloqueada.", Toast.LENGTH_SHORT).show()
+                                },
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Icon(Icons.Default.DeleteSweep, contentDescription = null, tint = DangerRed, modifier = Modifier.size(14.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Limpiar campos", color = DangerRed, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+
+                // Contenido desplazable
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Text("Administra los avisos y anuncios oficiales que se muestran en la pantalla de inicio:", color = TextSecondary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Banner to open CPM & Monetization metrics
@@ -608,6 +747,22 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                                 }
                                             }
                                         }
+                                        if (notice.budget > 0) {
+                                            Surface(
+                                                color = Color(0xFF00FF66).copy(alpha = 0.15f),
+                                                shape = RoundedCornerShape(4.dp),
+                                                border = BorderStroke(0.5.dp, Color(0xFF00FF66).copy(alpha = 0.4f))
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(Icons.Default.AttachMoney, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(10.dp))
+                                                    Spacer(modifier = Modifier.width(2.dp))
+                                                    Text("$${String.format(Locale.US, "%.2f", notice.budget)}", color = Color(0xFF00FF66), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -624,6 +779,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                             titleColor = notice.titleColor
                                             contentColor = notice.contentColor
                                             isEnabled = notice.isEnabled
+                                            budgetText = if (notice.budget > 0) String.format(Locale.US, "%.2f", notice.budget) else ""
                                         },
                                         modifier = Modifier.size(28.dp)
                                     ) {
@@ -639,6 +795,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                                 videoUrl = ""
                                                 expandedImageUrl = ""
                                                 externalUrl = ""
+                                                budgetText = ""
                                             }
                                             noticesList = noticesList.filterIndexed { i, _ -> i != index }
                                         },
@@ -807,21 +964,30 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         coroutineScope.launch {
                             isProcessingMedia = true
                             try {
-                                val mime = context.contentResolver.getType(pickedUri) ?: ""
-                                val isVideo = mime.startsWith("video/")
+                                val isVideo = com.example.util.NoticeMediaStorageManager.isUriVideo(context, pickedUri)
                                 if (isVideo) {
-                                    Toast.makeText(context, "Subiendo video a la nube, por favor espera...", Toast.LENGTH_LONG).show()
-                                    val cloudVideoUrl = com.example.util.NoticeMediaStorageManager.uploadVideoToCloud(context, pickedUri)
-                                    videoUrl = cloudVideoUrl
-                                    Toast.makeText(context, "Video subido y procesado correctamente", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Procesando video de galería...", Toast.LENGTH_SHORT).show()
+                                    val finalVideoUrl = com.example.util.NoticeMediaStorageManager.uploadOrSaveVideo(context, pickedUri)
+                                    videoUrl = finalVideoUrl
+                                    if (finalVideoUrl.startsWith("file://")) {
+                                        Toast.makeText(context, "Video guardado localmente en el dispositivo", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Video sincronizado exitosamente", Toast.LENGTH_SHORT).show()
+                                    }
                                 } else {
                                     val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
                                     videoUrl = cloudDataUrl
-                                    Toast.makeText(context, "Imagen subida correctamente", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Imagen guardada correctamente", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                Toast.makeText(context, "Error en la nube: ${e.message}", Toast.LENGTH_LONG).show()
-                                videoUrl = ""
+                                android.util.Log.e("AdminDashboard", "Error procesando multimedia: ${e.message}")
+                                try {
+                                    val fallbackPath = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = true)
+                                    videoUrl = fallbackPath
+                                    Toast.makeText(context, "Video guardado localmente en el dispositivo", Toast.LENGTH_SHORT).show()
+                                } catch (_: Exception) {
+                                    Toast.makeText(context, "No se pudo procesar el archivo seleccionado", Toast.LENGTH_SHORT).show()
+                                }
                             } finally {
                                 isProcessingMedia = false
                             }
@@ -837,7 +1003,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(10.dp)) {
-                            val isVideo = videoUrl.contains("video") || videoUrl.endsWith(".mp4") || NoticeMediaUtils.isYouTubeUrl(videoUrl)
+                            val isVideo = NoticeMediaUtils.isVideo(context, videoUrl)
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -855,6 +1021,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                     val decodedBytes = remember(videoUrl) {
                                         if (videoUrl.startsWith("data:image/")) {
                                             com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(videoUrl)
+                                        } else if (videoUrl.startsWith("file://")) {
+                                            val path = Uri.parse(videoUrl).path ?: ""
+                                            java.io.File(path)
                                         } else null
                                     }
                                     AsyncImage(
@@ -983,11 +1152,23 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         coroutineScope.launch {
                             isProcessingMedia = true
                             try {
-                                val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
-                                expandedImageUrl = cloudDataUrl
-                                Toast.makeText(context, "Imagen vertical subida correctamente", Toast.LENGTH_SHORT).show()
+                                val isVideo = com.example.util.NoticeMediaStorageManager.isUriVideo(context, pickedUri)
+                                if (isVideo) {
+                                    val finalVideoUrl = com.example.util.NoticeMediaStorageManager.uploadOrSaveVideo(context, pickedUri)
+                                    expandedImageUrl = finalVideoUrl
+                                    Toast.makeText(context, "Video vertical configurado correctamente", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
+                                    expandedImageUrl = cloudDataUrl
+                                    Toast.makeText(context, "Imagen vertical subida correctamente", Toast.LENGTH_SHORT).show()
+                                }
                             } catch (e: Exception) {
-                                expandedImageUrl = pickedUri.toString()
+                                try {
+                                    val localPath = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = false)
+                                    expandedImageUrl = localPath
+                                } catch (_: Exception) {
+                                    expandedImageUrl = pickedUri.toString()
+                                }
                             } finally {
                                 isProcessingMedia = false
                             }
@@ -1007,10 +1188,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val decodedVerticalBytes = remember(expandedImageUrl) {
-                                    if (expandedImageUrl.startsWith("data:image/")) {
-                                        com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(expandedImageUrl)
-                                    } else null
+                                val isVerticalVideo = remember(expandedImageUrl) {
+                                    NoticeMediaUtils.isVideo(context, expandedImageUrl)
                                 }
                                 Box(
                                     modifier = Modifier
@@ -1021,12 +1200,27 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                         .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    AsyncImage(
-                                        model = decodedVerticalBytes ?: expandedImageUrl,
-                                        contentDescription = "Vista previa vertical",
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = ContentScale.Crop
-                                    )
+                                    if (isVerticalVideo) {
+                                        NoticeMediaViewer(
+                                            mediaUrl = expandedImageUrl,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    } else {
+                                        val decodedVerticalBytes = remember(expandedImageUrl) {
+                                            if (expandedImageUrl.startsWith("data:image/")) {
+                                                com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(expandedImageUrl)
+                                            } else if (expandedImageUrl.startsWith("file://")) {
+                                                val path = Uri.parse(expandedImageUrl).path ?: ""
+                                                java.io.File(path)
+                                            } else null
+                                        }
+                                        AsyncImage(
+                                            model = decodedVerticalBytes ?: expandedImageUrl,
+                                            contentDescription = "Vista previa vertical",
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.width(10.dp))
@@ -1157,7 +1351,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             Icon(Icons.Default.CloudSync, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "☁️ MULTIDISPOSITIVO ACTIVO (Firebase Cloud Sync)",
+                                text = "☁️ MULTIDISPOSITIVO ACTIVO (Sincronización en la nube)",
                                 color = HextechGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
@@ -1183,6 +1377,29 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     supportingText = {
                         Text("Si se define, al ampliar la imagen se podrá abrir este enlace web externamente.", color = TextMuted, fontSize = 10.sp)
                     },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp)
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("4. 💰 Presupuesto de Campaña / Anuncio (USD - Opcional):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = budgetText,
+                    onValueChange = { input ->
+                        if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}\$"))) {
+                            budgetText = input
+                        }
+                    },
+                    label = { Text("Presupuesto en USD (ej. 50.00)") },
+                    placeholder = { Text("0.00") },
+                    leadingIcon = {
+                        Icon(Icons.Default.AttachMoney, contentDescription = null, tint = HextechGold)
+                    },
+                    supportingText = {
+                        Text("Monitorea el gasto y saldo restante de este anuncio en el panel de analíticas CPM.", color = TextMuted, fontSize = 10.sp)
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -1219,7 +1436,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             tag = selectedTag,
                             titleColor = titleColor,
                             contentColor = contentColor,
-                            isEnabled = isEnabled
+                            isEnabled = isEnabled,
+                            budget = budgetText.toDoubleOrNull() ?: 0.0
                         )
                         if (editingIndex != null) {
                             noticesList = noticesList.toMutableList().apply { set(editingIndex!!, newNotice) }
@@ -1233,6 +1451,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         videoUrl = ""
                         expandedImageUrl = ""
                         externalUrl = ""
+                        budgetText = ""
                         editingNoticeId = null
                         showManualVideoUrlInput = false
                         showManualExpandedUrlInput = false
@@ -1323,48 +1542,81 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     }
                 }
             }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    if (isSavingCloud) return@Button
-                    isSavingCloud = true
-                    val intVal = intervalValueText.toIntOrNull() ?: 10
-                    com.example.data.AppNoticeManager.saveAllNoticesAndInterval(
-                        context = context,
-                        newNotices = noticesList,
-                        intervalValue = intVal,
-                        intervalUnit = intervalUnit
-                    ) { success, errorMsg ->
-                        isSavingCloud = false
-                        if (success) {
-                            Toast.makeText(context, "✅ ¡Anuncios sincronizados en la nube para todos los celulares!", Toast.LENGTH_LONG).show()
-                            onDismiss()
-                        } else {
-                            Toast.makeText(context, "⚠️ Guardado localmente. Error en la nube: $errorMsg", Toast.LENGTH_LONG).show()
-                            onDismiss()
+
+            // Barra inferior fija de acciones
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = HextechSurface,
+                    shadowElevation = 8.dp,
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = { attemptDismiss() },
+                            enabled = !isSavingCloud,
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, if (hasFilledFields) HextechGold.copy(alpha = 0.5f) else TextMuted),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = if (hasFilledFields) HextechGold else TextSecondary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = if (hasFilledFields) Icons.Default.Lock else Icons.Default.Close,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(if (hasFilledFields) "Cerrar (Bloqueado)" else "Cerrar", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+
+                        Button(
+                            onClick = {
+                                if (isSavingCloud) return@Button
+                                isSavingCloud = true
+                                val intVal = intervalValueText.toIntOrNull() ?: 10
+                                com.example.data.AppNoticeManager.saveAllNoticesAndInterval(
+                                    context = context,
+                                    newNotices = noticesList,
+                                    intervalValue = intVal,
+                                    intervalUnit = intervalUnit
+                                ) { success, errorMsg ->
+                                    isSavingCloud = false
+                                    if (success) {
+                                        Toast.makeText(context, "✅ ¡Anuncios sincronizados en la nube para todos los celulares!", Toast.LENGTH_LONG).show()
+                                        onDismiss()
+                                    } else {
+                                        Toast.makeText(context, "⚠️ Guardado localmente. Error en la nube: $errorMsg", Toast.LENGTH_LONG).show()
+                                        onDismiss()
+                                    }
+                                }
+                            },
+                            enabled = !isSavingCloud,
+                            modifier = Modifier.weight(1.5f),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
+                        ) {
+                            if (isSavingCloud) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechDarkBg, strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Sincronizando...", fontWeight = FontWeight.Bold)
+                            } else {
+                                Icon(Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text("Publicar Todos", fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
-                },
-                enabled = !isSavingCloud,
-                colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
-            ) {
-                if (isSavingCloud) {
-                    CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechDarkBg, strokeWidth = 2.dp)
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Sincronizando...", fontWeight = FontWeight.Bold)
-                } else {
-                    Text("Publicar Todos", fontWeight = FontWeight.Bold)
                 }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !isSavingCloud) {
-                Text("Cancelar", color = TextMuted)
-            }
-        },
-        containerColor = HextechSurface
-    )
+        }
+    }
 }
 
 enum class UserFilterTab(val label: String) {
@@ -1900,7 +2152,7 @@ fun EnhancedUserAdminCard(
 
     val isPremiumActive = when {
         role == "admin" || role == "moderador" -> true
-        role in listOf("premium", "creador_vip", "streamer", "river") -> premiumUntil == null || premiumUntil == 0L || premiumUntil > now
+        role in listOf("premium", "creador_vip", "streamer") -> premiumUntil == null || premiumUntil == 0L || premiumUntil > now
         else -> false
     }
 
@@ -1910,7 +2162,6 @@ fun EnhancedUserAdminCard(
         role == "moderador" -> Color(0xFF10B981).copy(alpha = 0.5f)
         role == "creador_vip" -> Color(0xFFA855F7).copy(alpha = 0.5f)
         role == "streamer" -> Color(0xFFEC4899).copy(alpha = 0.5f)
-        role == "river" -> Color(0xFF06B6D4).copy(alpha = 0.5f)
         isPremiumActive -> HextechCyan.copy(alpha = 0.4f)
         else -> HextechCardBorder
     }
@@ -1949,30 +2200,28 @@ fun EnhancedUserAdminCard(
 
                 // Datos de Usuario
                 Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = name,
-                            fontWeight = FontWeight.Bold,
-                            color = if (role == "admin") HextechGold else TextPrimary,
-                            fontSize = 14.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .weight(1f, fill = false)
-                                .clickable {
-                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    clipboard.setPrimaryClip(ClipData.newPlainText("Usuario", name))
-                                    Toast.makeText(context, "Usuario copiado: $name", Toast.LENGTH_SHORT).show()
-                                }
-                        )
+                    Text(
+                        text = name,
+                        fontWeight = FontWeight.Bold,
+                        color = if (role == "admin") HextechGold else TextPrimary,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .clickable {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("Usuario", name))
+                                Toast.makeText(context, "Usuario copiado: $name", Toast.LENGTH_SHORT).show()
+                            }
+                    )
 
-                        Spacer(modifier = Modifier.width(6.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
 
-                        // Role Badge
-                        RoleBadge(role = role, isPremiumActive = isPremiumActive, isBanned = isBanned)
-                    }
+                    // Role Badge debajo del usuario
+                    RoleBadge(role = role, isPremiumActive = isPremiumActive, isBanned = isBanned)
 
                     if (email.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = email,
                             color = TextSecondary,
@@ -2312,7 +2561,7 @@ fun UserDetailManagementDialog(
 
     val isPremiumActive = when {
         currentRole == "admin" || currentRole == "moderador" -> true
-        currentRole in listOf("premium", "creador_vip", "streamer", "river") -> currentPremiumUntil == null || currentPremiumUntil == 0L || currentPremiumUntil!! > System.currentTimeMillis()
+        currentRole in listOf("premium", "creador_vip", "streamer") -> currentPremiumUntil == null || currentPremiumUntil == 0L || currentPremiumUntil!! > System.currentTimeMillis()
         else -> false
     }
 
@@ -2348,21 +2597,19 @@ fun UserDetailManagementDialog(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = currentName,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = HextechGold
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                RoleBadge(
-                                    role = currentRole,
-                                    isPremiumActive = isPremiumActive,
-                                    isBanned = currentBanned,
-                                    size = RoleBadgeSize.NORMAL
-                                )
-                            }
+                            Text(
+                                text = currentName,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = HextechGold
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            RoleBadge(
+                                role = currentRole,
+                                isPremiumActive = isPremiumActive,
+                                isBanned = currentBanned,
+                                size = RoleBadgeSize.NORMAL
+                            )
                             Text(
                                 text = email.ifBlank { "UID: $uid" },
                                 style = MaterialTheme.typography.bodySmall,
@@ -3145,7 +3392,7 @@ fun UserDetailManagementDialog(
                             Spacer(modifier = Modifier.height(6.dp))
                             RoleBadge(
                                 role = target.id,
-                                isPremiumActive = target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER, AppUserRole.CREATOR, AppUserRole.RIVER),
+                                isPremiumActive = target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER, AppUserRole.CREATOR),
                                 isBanned = (target == AppUserRole.BANNED),
                                 size = RoleBadgeSize.LARGE
                             )
@@ -3167,7 +3414,7 @@ fun UserDetailManagementDialog(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
-                    } else if (target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER, AppUserRole.RIVER)) {
+                    } else if (target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER)) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "✨ Este rango incluye acceso activo a las herramientas y ventajas del Pase Hextech.",
@@ -3186,13 +3433,13 @@ fun UserDetailManagementDialog(
                             roleToConfirm = null
                             currentRole = newRole
                             currentBanned = isBanned
-                            if (newRole in listOf("premium", "moderador", "creador_vip", "streamer", "river")) {
+                            if (newRole in listOf("premium", "moderador", "creador_vip", "streamer")) {
                                 currentPremiumUntil = 0L
                             }
                             onUserUpdated(user.toMutableMap().apply {
                                 put("role", newRole)
                                 put("banned", isBanned)
-                                if (newRole in listOf("premium", "moderador", "creador_vip", "streamer", "river")) {
+                                if (newRole in listOf("premium", "moderador", "creador_vip", "streamer")) {
                                     put("premiumUntil", 0L)
                                 }
                             })
@@ -4005,7 +4252,7 @@ private fun updateUserRoleInCloud(
     }
 
     // Si el rol es de acceso premium / vitalicio por defecto
-    if (targetRoleId in listOf("premium", "moderador", "creador_vip", "streamer", "river")) {
+    if (targetRoleId in listOf("premium", "moderador", "creador_vip", "streamer")) {
         updatePayload["premiumUntil"] = 0L
         updatePayload["is_premium"] = true
     } else if (targetRoleId == "free") {

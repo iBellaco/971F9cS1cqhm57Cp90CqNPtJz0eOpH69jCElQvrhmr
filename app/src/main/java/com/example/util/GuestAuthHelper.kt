@@ -59,7 +59,13 @@ object GuestAuthHelper {
                     dispatchCallbacks()
                 }
                 .addOnFailureListener { anonErr ->
-                    Log.w(TAG, "Inicio anónimo no disponible (${anonErr.message}). Iniciando con credenciales de lectura de respaldo...")
+                    val anonMsg = anonErr.message.orEmpty()
+                    if (anonMsg.contains("API key", ignoreCase = true)) {
+                        Log.w(TAG, "Clave de servicio no válida para autenticación en la nube. Continuando en modo local.")
+                        dispatchCallbacks()
+                        return@addOnFailureListener
+                    }
+                    Log.w(TAG, "Inicio anónimo no disponible ($anonMsg). Iniciando con credenciales de lectura de respaldo...")
                     // 2. Intento secundario: Credencial de invitado de lectura universal
                     auth.signInWithEmailAndPassword(GUEST_EMAIL, GUEST_PASS)
                         .addOnSuccessListener {
@@ -67,14 +73,20 @@ object GuestAuthHelper {
                             dispatchCallbacks()
                         }
                         .addOnFailureListener { loginErr ->
-                            Log.w(TAG, "Cuenta de invitado de respaldo no encontrada (${loginErr.message}). Registrando lector público...")
+                            val loginMsg = loginErr.message.orEmpty()
+                            if (loginMsg.contains("API key", ignoreCase = true)) {
+                                Log.w(TAG, "Clave no válida en inicio secundario. Continuando en modo local.")
+                                dispatchCallbacks()
+                                return@addOnFailureListener
+                            }
+                            Log.w(TAG, "Cuenta de invitado de respaldo no encontrada ($loginMsg). Registrando lector público...")
                             auth.createUserWithEmailAndPassword(GUEST_EMAIL, GUEST_PASS)
                                 .addOnSuccessListener {
                                     Log.d(TAG, "Cuenta de lectura de respaldo creada y autenticada.")
                                     dispatchCallbacks()
                                 }
                                 .addOnFailureListener { createErr ->
-                                    Log.e(TAG, "Fallo total en autenticación de invitado: ${createErr.message}")
+                                    Log.w(TAG, "Fallo en autenticación de invitado ($createErr). Continuando en modo local.")
                                     dispatchCallbacks()
                                 }
                         }

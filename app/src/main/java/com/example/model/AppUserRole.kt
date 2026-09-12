@@ -50,14 +50,6 @@ enum class AppUserRole(
         secondaryColor = Color(0xFFD97706),
         description = "Colaborador de contenido, diseño y tácticas"
     ),
-    RIVER(
-        id = "river",
-        displayName = "River",
-        emoji = "🌊",
-        primaryColor = Color(0xFF06B6D4),
-        secondaryColor = Color(0xFF0891B2),
-        description = "Miembro especial y táctico del ecosistema"
-    ),
     PREMIUM(
         id = "premium",
         displayName = "Premium",
@@ -92,7 +84,6 @@ enum class AppUserRole(
                 "vip", "creador_vip", "creator_vip" -> CREATOR_VIP
                 "streamer", "live" -> STREAMER
                 "creador", "creator" -> CREATOR
-                "river" -> RIVER
                 "premium", "pro" -> PREMIUM
                 "banned", "suspendido", "bloqueado" -> BANNED
                 else -> FREE
@@ -108,7 +99,6 @@ enum class AppUserRole(
             CREATOR_VIP,
             STREAMER,
             CREATOR,
-            RIVER,
             BANNED
         )
     }

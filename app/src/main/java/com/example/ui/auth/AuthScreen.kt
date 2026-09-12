@@ -192,6 +192,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showPlansDialog by remember { mutableStateOf(false) }
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
+    var showSupportPanel by remember { mutableStateOf(false) }
     var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
     val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
@@ -237,6 +238,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     if (showAdminDashboard) {
         com.example.ui.components.AdminDashboardDialog(
             onDismiss = { showAdminDashboard = false }
+        )
+    }
+
+    if (showSupportPanel) {
+        com.example.ui.components.AdminFeedbackBottomSheet(
+            onDismiss = { showSupportPanel = false }
         )
     }
 
@@ -464,6 +471,19 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 letterSpacing = 0.3.sp
             )
 
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Rol visualizado directamente debajo del usuario, únicamente el rol sin tanto contexto
+            RoleBadge(
+                role = userRole,
+                isPremiumActive = isPremium,
+                isBanned = (userRole == "banned"),
+                isExpiringSoon = isExpiringSoon,
+                size = RoleBadgeSize.NORMAL
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             // Avatar Title & Region subtitle
             Text(
                 text = "${equippedAvatar.title} • ${equippedAvatar.region}",
@@ -603,7 +623,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            val isUserPremium = isPremium || userRole == "admin" || userRole == "moderador" || userRole == "creador_vip" || userRole == "streamer" || userRole == "river" || AuthManager.isCurrentUserAdmin()
+            val isUserPremium = isPremium || userRole == "admin" || userRole == "moderador" || userRole == "creador_vip" || userRole == "streamer" || AuthManager.isCurrentUserAdmin()
             if (isUserPremium) {
                 // Quick Theme Selector Strip: Instant 1-tap live theme transformation with horizontal scroll!
                 Column(
@@ -826,135 +846,57 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Premium Status Card & Expiration Indicator
-            val infiniteTransition = rememberInfiniteTransition(label = "rolePulse")
-            val rolePulseAlpha by infiniteTransition.animateFloat(
-                initialValue = 0.6f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(1200, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "rolePulseAlpha"
-            )
-            
-            val roleContainerColor = when {
-                userRole == "admin" || userRole == "moderador" -> com.example.ui.theme.HextechGold.copy(alpha = 0.12f)
-                isExpiringSoon -> com.example.ui.theme.DangerRed.copy(alpha = 0.12f)
-                isPremium -> com.example.ui.theme.HextechGold.copy(alpha = 0.1f)
-                else -> com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f)
-            }
-            
-            val roleBorderColor = when {
-                userRole == "admin" || userRole == "moderador" -> com.example.ui.theme.HextechGold.copy(alpha = rolePulseAlpha)
-                isExpiringSoon -> com.example.ui.theme.DangerRed
-                isPremium -> com.example.ui.theme.HextechGold.copy(alpha = rolePulseAlpha)
-                else -> com.example.ui.theme.TextMuted.copy(alpha = 0.5f)
-            }
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = roleContainerColor),
-                border = BorderStroke(1.2.dp, roleBorderColor),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (isExpiringSoon) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = null,
-                                        tint = com.example.ui.theme.DangerRed,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                }
-                                Text(
-                                    text = when {
-                                        userRole == "admin" -> "👑 Administrador"
-                                        userRole == "moderador" -> "🛡️ Moderador"
-                                        userRole == "streamer" || userRole == "river" -> "📹 Streamer"
-                                        userRole == "creador_vip" -> "✨ Creador VIP"
-                                        userRole == "creador" -> "🎨 Creador"
-                                        isExpiringSoon -> "⚠️ Suscripción por Vencer"
-                                        isPremium -> "🌟 Suscripción Activa"
-                                        else -> "Plan Gratuito"
-                                    },
-                                    color = when {
-                                        isExpiringSoon -> com.example.ui.theme.DangerRed
-                                        isPremium || userRole == "admin" || userRole == "moderador" || userRole == "creador" -> com.example.ui.theme.HextechGold
-                                        else -> com.example.ui.theme.TextPrimary
-                                    },
-                                    fontSize = 15.sp,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(2.dp))
+            // Alerta de suscripción por vencer (si aplica)
+            if (isExpiringSoon) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(com.example.ui.theme.DangerRed.copy(alpha = 0.15f))
+                        .border(1.dp, com.example.ui.theme.DangerRed.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
+                        .padding(12.dp)
+                ) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = com.example.ui.theme.DangerRed,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = when {
-                                    userRole == "admin" -> "Acceso vitalicio ilimitado a todas las funciones"
-                                    userRole == "moderador" -> "Acceso a panel de soporte y OCR"
-                                    isPremium -> "⏳ $remainingFormatted"
-                                    else -> "Funciones básicas limitadas"
-                                },
-                                color = if (isExpiringSoon) com.example.ui.theme.DangerRed.copy(alpha = 0.9f) else com.example.ui.theme.TextSecondary,
-                                fontSize = 12.sp,
-                                fontWeight = if (isExpiringSoon) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal
+                                text = "Suscripción por Vencer ($remainingFormatted)",
+                                color = com.example.ui.theme.DangerRed,
+                                fontSize = 13.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                             )
                         }
-                        
-                        RoleBadge(
-                            role = userRole,
-                            isPremiumActive = isPremium,
-                            isBanned = (userRole == "banned"),
-                            isExpiringSoon = isExpiringSoon,
-                            size = RoleBadgeSize.NORMAL
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Renueva tu pase para mantener tus herramientas y temas activos.",
+                            color = com.example.ui.theme.TextSecondary,
+                            fontSize = 11.5.sp
                         )
-                    }
-                    // Expiring soon alert banner & CTA
-                    if (isExpiringSoon) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(com.example.ui.theme.DangerRed.copy(alpha = 0.15f))
-                                .border(1.dp, com.example.ui.theme.DangerRed.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                                .padding(10.dp)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = { showPlansDialog = true },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = com.example.ui.theme.DangerRed,
+                                contentColor = androidx.compose.ui.graphics.Color.White
+                            ),
+                            modifier = Modifier.fillMaxWidth().height(36.dp),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(0.dp)
                         ) {
-                            Column {
-                                Text(
-                                    text = "⚡ ¡Tu pase está a punto de finalizar! Quedan $remainingFormatted. Renueva ahora para no perder tus avatares, temas y asistente de drafting.",
-                                    color = com.example.ui.theme.DangerRed,
-                                    fontSize = 11.5.sp,
-                                    lineHeight = 16.sp
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(
-                                    onClick = { showPlansDialog = true },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = com.example.ui.theme.DangerRed,
-                                        contentColor = androidx.compose.ui.graphics.Color.White
-                                    ),
-                                    modifier = Modifier.fillMaxWidth().height(36.dp),
-                                    shape = RoundedCornerShape(6.dp),
-                                    contentPadding = PaddingValues(0.dp)
-                                ) {
-                                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(15.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        "Renovar / Extender Suscripción",
-                                        fontSize = 11.5.sp,
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                    )
-                                }
-                            }
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(15.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                "Renovar / Extender Suscripción",
+                                fontSize = 11.5.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            )
                         }
                     }
                 }
@@ -1052,7 +994,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     label = "adminBtnScale"
                 )
                 Button(
-                    onClick = { showAdminDashboard = true },
+                    onClick = {
+                        if (userRole == "admin") {
+                            showAdminDashboard = true
+                        } else {
+                            showSupportPanel = true
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = if (userRole == "admin") com.example.ui.theme.DangerRed else com.example.ui.theme.HextechCyan),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1061,9 +1009,17 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     interactionSource = adminInteractionSource,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(imageVector = if (userRole == "admin") Icons.Default.AdminPanelSettings else Icons.Default.SupportAgent, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
+                    Icon(
+                        imageVector = if (userRole == "admin") Icons.Default.AdminPanelSettings else Icons.Default.SupportAgent,
+                        contentDescription = null,
+                        tint = com.example.ui.theme.HextechDarkBg
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(if (userRole == "admin") "Panel de Administración" else "Panel de Moderador", color = com.example.ui.theme.HextechDarkBg, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    Text(
+                        text = if (userRole == "admin") "Panel de Administración" else "Panel de Soporte",
+                        color = com.example.ui.theme.HextechDarkBg,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }

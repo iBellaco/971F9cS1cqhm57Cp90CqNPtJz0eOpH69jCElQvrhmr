@@ -667,6 +667,7 @@ object AppNoticeAnalyticsManager {
         val overallCtr = getOverallCtr()
         val dynamicRec = calculateRecommendedCpm()
 
+        val totalBudget = notices.sumOf { it.budget }
         val sb = StringBuilder()
         sb.append("REPORTE DE MONETIZACION Y CPM - WILD RIFT COACH\n")
         sb.append("====================================================\n")
@@ -677,6 +678,7 @@ object AppNoticeAnalyticsManager {
         sb.append("Impresiones Unicas Totales: $totalImps (1x disp/dia)\n")
         sb.append("Clics Unicos Totales: $totalClicks (CTR: ${String.format(Locale.US, "%.2f", overallCtr)}%)\n")
         sb.append("Pantalla Completa: $totalFullscreen vistas\n")
+        sb.append("Presupuesto Total de Anuncios: $${String.format(Locale.US, "%.2f", totalBudget)} USD\n")
         sb.append("Ingresos Estimados Totales: $${String.format(Locale.US, "%.2f", totalRev)} USD\n")
         sb.append("====================================================\n")
         sb.append("DESGLOSE POR ANUNCIO / CAMPANA:\n")
@@ -688,7 +690,10 @@ object AppNoticeAnalyticsManager {
                 else 1.5
             } else 1.0
             val rev = m.calculateRevenue(cpm, mediaMultiplier)
+            val budgetStr = if (n.budget > 0) "$${String.format(Locale.US, "%.2f", n.budget)} USD" else "Sin asignar"
+            val spentPct = if (n.budget > 0) " (${String.format(Locale.US, "%.1f", (rev / n.budget) * 100.0)}% consumido)" else ""
             sb.append("\n[${n.tag.uppercase()}] ${n.title}\n")
+            sb.append("  - Presupuesto: $budgetStr$spentPct\n")
             sb.append("  - Imp. Unicas: ${m.impressions}\n")
             sb.append("  - Clics Unicos: ${m.clicks} (CTR: ${String.format(Locale.US, "%.2f", m.ctr)}%)\n")
             sb.append("  - Fullscreen: ${m.fullscreenViews}\n")

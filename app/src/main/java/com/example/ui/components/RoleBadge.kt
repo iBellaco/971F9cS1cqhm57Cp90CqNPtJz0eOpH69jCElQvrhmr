@@ -66,7 +66,6 @@ fun RoleBadge(
         role.equals("creador_vip", ignoreCase = true) -> AppUserRole.CREATOR_VIP
         role.equals("streamer", ignoreCase = true) -> AppUserRole.STREAMER
         role.equals("creador", ignoreCase = true) -> AppUserRole.CREATOR
-        role.equals("river", ignoreCase = true) -> AppUserRole.RIVER
         role.equals("premium", ignoreCase = true) -> AppUserRole.PREMIUM
         isPremiumActive -> AppUserRole.PREMIUM
         else -> AppUserRole.fromId(role)

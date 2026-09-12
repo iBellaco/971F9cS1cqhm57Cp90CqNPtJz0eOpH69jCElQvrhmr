@@ -202,8 +202,8 @@ fun AdminFeedbackBottomSheet(
 ) {
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
     
-    // Explicit UI navigation logic verification
-    if (userRole != "admin") {
+    // Explicit UI navigation logic verification: permitido para admin y moderador
+    if (userRole != "admin" && userRole != "moderador" && !com.example.util.AuthManager.isCurrentUserAdmin()) {
         LaunchedEffect(Unit) {
             onDismiss()
         }

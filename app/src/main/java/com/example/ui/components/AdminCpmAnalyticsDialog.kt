@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,6 +65,13 @@ fun AdminCpmAnalyticsDialog(
     var showRecommendationInfoDialog by remember { mutableStateOf(false) }
     var cpmInputText by remember { mutableStateOf(String.format(Locale.US, "%.2f", baseCpmRate)) }
     var selectedTagFilter by remember { mutableStateOf("TODAS") }
+
+    // Presupuestos de anuncios
+    var showEditBudgetDialog by remember { mutableStateOf(false) }
+    var editingBudgetNoticeId by remember { mutableStateOf<String?>(null) }
+    var editingBudgetNoticeTitle by remember { mutableStateOf("") }
+    var budgetInputText by remember { mutableStateOf("") }
+    val totalCampaignBudget = remember(notices) { notices.sumOf { it.budget } }
 
     val totalImpressions = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalImpressions() }
     val totalClicks = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalClicks() }
@@ -376,99 +384,198 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
         )
     }
 
+    if (showEditBudgetDialog && editingBudgetNoticeId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showEditBudgetDialog = false
+                editingBudgetNoticeId = null
+            },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Presupuesto de Campaña", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "Anuncio: \"$editingBudgetNoticeTitle\"",
+                        color = TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = budgetInputText,
+                        onValueChange = { input ->
+                            if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}\$"))) {
+                                budgetInputText = input
+                            }
+                        },
+                        label = { Text("Presupuesto en USD ($)") },
+                        placeholder = { Text("0.00") },
+                        leadingIcon = {
+                            Icon(Icons.Default.AttachMoney, contentDescription = null, tint = Color(0xFF00FF66))
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Permite calcular el saldo restante, porcentaje de consumo y monitorear el gasto de este anuncio publicitario en tiempo real.",
+                        color = TextMuted,
+                        fontSize = 10.sp
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val parsed = budgetInputText.toDoubleOrNull() ?: 0.0
+                        AppNoticeManager.updateNoticeBudget(context, editingBudgetNoticeId!!, parsed)
+                        Toast.makeText(context, "Presupuesto de anuncio guardado: $${String.format(Locale.US, "%.2f", parsed)} USD", Toast.LENGTH_SHORT).show()
+                        showEditBudgetDialog = false
+                        editingBudgetNoticeId = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66), contentColor = HextechDarkBg)
+                ) {
+                    Text("Guardar", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showEditBudgetDialog = false
+                    editingBudgetNoticeId = null
+                }) {
+                    Text("Cancelar", color = TextSecondary)
+                }
+            },
+            containerColor = HextechDarkBg
+        )
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = false
+        )
     ) {
+        BackHandler(enabled = true) {
+            onDismiss()
+        }
+
         Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             color = HextechDarkBg
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
             ) {
-                // Header
-                Row(
+                // Header en barra fija superior
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    color = HextechSurface,
+                    shadowElevation = 6.dp,
+                    border = BorderStroke(1.dp, Color(0xFF00FF66).copy(alpha = 0.3f))
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Brush.linearGradient(listOf(Color(0xFF00FF66), Color(0xFF009933)))),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.TrendingUp,
-                                contentDescription = null,
-                                tint = HextechDarkBg,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Column {
-                            Text(
-                                text = "Métricas de Monetización & CPM",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF00FF66)
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(6.dp)
-                                        .background(Color(0xFF00FF66), CircleShape)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(Brush.linearGradient(listOf(Color(0xFF00FF66), Color(0xFF009933)))),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.TrendingUp,
+                                    contentDescription = null,
+                                    tint = HextechDarkBg,
+                                    modifier = Modifier.size(24.dp)
                                 )
-                                Spacer(modifier = Modifier.width(5.dp))
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
                                 Text(
-                                    text = if (isSyncing) "Sincronizando con la nube..." else "Sincronizado en tiempo real • Multidispositivo",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (isSyncing) HextechGold else TextSecondary,
-                                    fontSize = 10.5.sp
+                                    text = "Métricas de Monetización & CPM",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF00FF66),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(6.dp)
+                                            .background(Color(0xFF00FF66), CircleShape)
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = if (isSyncing) "Sincronizando con la nube..." else "Sincronizado en tiempo real • Multidispositivo",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (isSyncing) HextechGold else TextSecondary,
+                                        fontSize = 10.5.sp
+                                    )
+                                }
+                            }
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            IconButton(
+                                onClick = {
+                                    AppNoticeAnalyticsManager.syncFromCloud(context) { success ->
+                                        if (success) {
+                                            Toast.makeText(context, "Métricas sincronizadas en tiempo real", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    AppNoticeManager.syncFromCloud(context)
+                                },
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                            ) {
+                                Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = "Actualizar métricas",
+                                    tint = if (isSyncing) HextechGold else HextechCyan,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+
+                            IconButton(
+                                onClick = onDismiss,
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .background(Color.White.copy(alpha = 0.05f), CircleShape)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary)
                             }
                         }
                     }
-
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        IconButton(
-                            onClick = {
-                                AppNoticeAnalyticsManager.syncFromCloud(context) { success ->
-                                    if (success) {
-                                        Toast.makeText(context, "Métricas sincronizadas en tiempo real", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                                AppNoticeManager.syncFromCloud(context)
-                            },
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(Color.White.copy(alpha = 0.05f), CircleShape)
-                        ) {
-                            Icon(
-                                Icons.Default.Refresh,
-                                contentDescription = "Actualizar métricas",
-                                tint = if (isSyncing) HextechGold else HextechCyan,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-
-                        IconButton(
-                            onClick = onDismiss,
-                            modifier = Modifier
-                                .size(36.dp)
-                                .background(Color.White.copy(alpha = 0.05f), CircleShape)
-                        ) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextPrimary)
-                        }
-                    }
                 }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(horizontal = 14.dp, vertical = 8.dp)
+                ) {
 
                 Spacer(modifier = Modifier.height(14.dp))
 
@@ -590,29 +697,29 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // 4 KPI Mini-Cards
+                        // 4 KPI Mini-Cards con Presupuesto y Consumo
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // Ingresos Estimados
+                            // Presupuesto Total
                             KpiCard(
                                 modifier = Modifier.weight(1f),
-                                label = "Ingresos Est.",
-                                value = "$${String.format(Locale.US, "%.0f", totalRevenue)}",
-                                subtext = "USD con CPM actual",
+                                label = "Presupuesto Total",
+                                value = "$${String.format(Locale.US, "%.2f", totalCampaignBudget)}",
+                                subtext = if (totalCampaignBudget > 0) "${String.format(Locale.US, "%.1f", (totalRevenue / totalCampaignBudget) * 100.0)}% consumido" else "Sin asignar",
                                 accentColor = Color(0xFF00FF66),
-                                icon = Icons.Default.AttachMoney
+                                icon = Icons.Default.AccountBalanceWallet
                             )
 
-                            // Impresiones Únicas
+                            // Consumo / Ingresos Estimados
                             KpiCard(
                                 modifier = Modifier.weight(1f),
-                                label = "Impresiones Únicas",
-                                value = String.format(Locale.US, "%,d", totalImpressions),
-                                subtext = "1 x disp / día",
-                                accentColor = HextechCyan,
-                                icon = Icons.Default.Visibility
+                                label = "Consumo / Gasto",
+                                value = "$${String.format(Locale.US, "%.2f", totalRevenue)}",
+                                subtext = "USD con CPM actual",
+                                accentColor = HextechGold,
+                                icon = Icons.Default.AttachMoney
                             )
                         }
 
@@ -622,24 +729,24 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            // Impresiones Únicas
+                            KpiCard(
+                                modifier = Modifier.weight(1f),
+                                label = "Impresiones Únicas",
+                                value = String.format(Locale.US, "%,d", totalImpressions),
+                                subtext = "1 x disp / día",
+                                accentColor = HextechCyan,
+                                icon = Icons.Default.Visibility
+                            )
+
                             // Clics Únicos y CTR
                             KpiCard(
                                 modifier = Modifier.weight(1f),
                                 label = "Clics Únicos",
                                 value = "${totalClicks} únicos",
                                 subtext = "${String.format(Locale.US, "%.2f", overallCtr)}% CTR",
-                                accentColor = HextechGold,
-                                icon = Icons.Default.TouchApp
-                            )
-
-                            // Fullscreen
-                            KpiCard(
-                                modifier = Modifier.weight(1f),
-                                label = "Pantalla Completa",
-                                value = "${totalFullscreen}",
-                                subtext = "Ampliaciones",
                                 accentColor = Color(0xFFCC66FF),
-                                icon = Icons.Default.Fullscreen
+                                icon = Icons.Default.TouchApp
                             )
                         }
                     }
@@ -768,6 +875,7 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                 val tagTotalImps = noticesInTag.sumOf { (metricsMap[it.id]?.impressions ?: 0L) }
                                 val tagTotalClicks = noticesInTag.sumOf { (metricsMap[it.id]?.clicks ?: 0L) }
                                 val tagTotalFullscreen = noticesInTag.sumOf { (metricsMap[it.id]?.fullscreenViews ?: 0L) }
+                                val tagTotalBudget = noticesInTag.sumOf { it.budget }
                                 val tagRevenue = noticesInTag.sumOf { 
                                     val mult = if (it.videoUrl.isNotBlank()) {
                                         if (it.videoUrl.contains("video") || it.videoUrl.endsWith(".mp4") || it.videoUrl.contains("youtube")) 2.5 else 1.5
@@ -814,16 +922,16 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                                 )
                                                 Spacer(modifier = Modifier.width(6.dp))
                                                 Text(
-                                                    text = "(${noticesInTag.size} anuncios)",
+                                                    text = "(${noticesInTag.size})",
                                                     color = TextMuted,
                                                     fontSize = 10.sp
                                                 )
                                             }
 
                                             Text(
-                                                text = "Total: $${String.format(Locale.US, "%.0f", tagRevenue)} USD",
+                                                text = if (tagTotalBudget > 0) "Presup: $${String.format(Locale.US, "%.0f", tagTotalBudget)} • Gasto: $${String.format(Locale.US, "%.0f", tagRevenue)} USD" else "Gasto: $${String.format(Locale.US, "%.0f", tagRevenue)} USD",
                                                 color = Color(0xFF00FF66),
-                                                fontSize = 11.sp,
+                                                fontSize = 10.5.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
                                         }
@@ -834,19 +942,19 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
                                             Text(
-                                                text = "👁️ ${String.format(Locale.US, "%,d", tagTotalImps)} imp. únicas",
+                                                text = "👁️ ${String.format(Locale.US, "%,d", tagTotalImps)} imp.",
                                                 color = HextechCyan,
-                                                fontSize = 9.5.sp
+                                                fontSize = 9.sp
                                             )
                                             Text(
-                                                text = "🖱️ $tagTotalClicks clics únicos (${String.format(Locale.US, "%.1f", tagCtr)}%)",
+                                                text = "🖱️ $tagTotalClicks clics (${String.format(Locale.US, "%.1f", tagCtr)}%)",
                                                 color = HextechGold,
-                                                fontSize = 9.5.sp
+                                                fontSize = 9.sp
                                             )
                                             Text(
                                                 text = "📱 $tagTotalFullscreen full",
                                                 color = Color(0xFFCC66FF),
-                                                fontSize = 9.5.sp
+                                                fontSize = 9.sp
                                             )
                                         }
                                     }
@@ -863,9 +971,53 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                         editingNoticeId = notice.id
                                         cpmInputText = if (metrics.customCpmRate != null) String.format(Locale.US, "%.2f", metrics.customCpmRate) else ""
                                         showEditCpmDialog = true
+                                    },
+                                    onEditBudget = {
+                                        editingBudgetNoticeId = notice.id
+                                        editingBudgetNoticeTitle = notice.title
+                                        budgetInputText = if (notice.budget > 0) String.format(Locale.US, "%.2f", notice.budget) else ""
+                                        showEditBudgetDialog = true
                                     }
                                 )
                             }
+                        }
+                    }
+                }
+                }
+
+                // Barra inferior fija de acciones
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = HextechSurface,
+                    shadowElevation = 8.dp,
+                    border = BorderStroke(1.dp, Color(0xFF00FF66).copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = { copyReport() },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Copiar Reporte", fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        }
+
+                        Button(
+                            onClick = onDismiss,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66), contentColor = HextechDarkBg),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Cerrar Panel", fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
                         }
                     }
                 }
@@ -910,7 +1062,8 @@ private fun NoticeAnalyticsItemCard(
     notice: AppNotice,
     metrics: NoticeMetrics,
     baseCpm: Double,
-    onEditCustomCpm: () -> Unit
+    onEditCustomCpm: () -> Unit,
+    onEditBudget: () -> Unit
 ) {
     val mediaMultiplier = if (notice.videoUrl.isNotBlank()) {
         if (notice.videoUrl.contains("video") || notice.videoUrl.endsWith(".mp4") || notice.videoUrl.contains("youtube")) 2.5 else 1.5
@@ -989,6 +1142,125 @@ private fun NoticeAnalyticsItemCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Presupuesto de Campaña y Consumo
+            Surface(
+                color = HextechSurfaceVariant.copy(alpha = 0.7f),
+                shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(0.8.dp, if (notice.budget > 0) Color(0xFF00FF66).copy(alpha = 0.35f) else Color.White.copy(alpha = 0.1f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.AccountBalanceWallet,
+                                contentDescription = null,
+                                tint = if (notice.budget > 0) Color(0xFF00FF66) else HextechGold,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                text = "Presupuesto:",
+                                color = TextSecondary,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = if (notice.budget > 0) "$${String.format(Locale.US, "%.2f", notice.budget)} USD" else "Sin asignar",
+                                color = if (notice.budget > 0) Color(0xFF00FF66) else TextMuted,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .clickable { onEditBudget() },
+                            color = HextechGold.copy(alpha = 0.15f),
+                            border = BorderStroke(0.8.dp, HextechGold.copy(alpha = 0.5f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = "Editar presupuesto", tint = HextechGold, modifier = Modifier.size(10.dp))
+                                Spacer(modifier = Modifier.width(3.dp))
+                                Text("Presupuesto", color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    val spentRatio = if (notice.budget > 0) (revenue / notice.budget) else 0.0
+                    val spentPercent = spentRatio * 100.0
+                    val remaining = notice.budget - revenue
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Gasto: $${String.format(Locale.US, "%.2f", revenue)} USD",
+                            color = HextechGold,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        if (notice.budget > 0) {
+                            Text(
+                                text = if (remaining >= 0) "Saldo: $${String.format(Locale.US, "%.2f", remaining)} USD" else "Excedido por $${String.format(Locale.US, "%.2f", -remaining)} USD",
+                                color = if (remaining >= 0) HextechCyan else DangerRed,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    if (notice.budget > 0) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        val progressFloat = spentRatio.toFloat().coerceIn(0f, 1f)
+                        val barColor = when {
+                            spentPercent >= 100.0 -> DangerRed
+                            spentPercent >= 80.0 -> HextechGold
+                            else -> Color(0xFF00FF66)
+                        }
+                        LinearProgressIndicator(
+                            progress = progressFloat,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .clip(RoundedCornerShape(2.dp)),
+                            color = barColor,
+                            trackColor = Color.White.copy(alpha = 0.08f)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "${String.format(Locale.US, "%.1f", spentPercent)}% consumido",
+                                color = barColor,
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            if (spentPercent >= 100.0) {
+                                Text("Presupuesto agotado", color = DangerRed, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             // Metrics Grid for this notice
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -1031,7 +1303,7 @@ private fun NoticeAnalyticsItemCard(
                 // Ingresos Generados
                 Column(horizontalAlignment = Alignment.End) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        val label = if (metrics.customCpmRate != null) "Generado (CPM ★)" else "Generado"
+                        val label = if (metrics.customCpmRate != null) "Tarifa (CPM ★)" else "Tarifa CPM"
                         val multLabel = if (mediaMultiplier > 1.0) " [x${mediaMultiplier}]" else ""
                         Text(label + multLabel, color = TextMuted, fontSize = 9.sp)
                         Spacer(modifier = Modifier.width(4.dp))
@@ -1045,7 +1317,7 @@ private fun NoticeAnalyticsItemCard(
                         )
                     }
                     Text(
-                        "$${String.format(Locale.US, "%.0f", revenue)}",
+                        "$${String.format(Locale.US, "%.2f", metrics.customCpmRate ?: baseCpm)}",
                         color = Color(0xFF00FF66),
                         fontSize = 11.5.sp,
                         fontWeight = FontWeight.Bold

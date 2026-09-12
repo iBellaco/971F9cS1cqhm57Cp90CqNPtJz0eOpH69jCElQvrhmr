@@ -24,7 +24,8 @@ data class AppNotice(
     val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad"
     val titleColor: String = "#FFD700",
     val contentColor: String = "#CCCCCC",
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
+    val budget: Double = 0.0 // Presupuesto asignado a este anuncio en USD
 )
 
 object AppNoticeManager {
@@ -67,14 +68,33 @@ object AppNoticeManager {
 
     fun init(context: Context) {
         val appContext = context.applicationContext
-        // 1. Cargar caché local de inmediato (garantiza arranque instantáneo)
+        // 1. Cargar caché local de inmediato (garantiza arranque instantáneo en 0ms)
         loadFromLocalStorage(appContext)
 
-        // 2. Monitorear cambios de sesión/autenticación para mantener listener activo
+        // 2. Intentar leer caché local de Firestore de inmediato (0ms de latencia)
+        fetchFromFirestoreCache(appContext)
+
+        // 3. Monitorear cambios de sesión/autenticación para mantener listener activo
         setupAuthStateListener(appContext)
 
-        // 3. Conectar y sincronizar garantizando acceso en la nube (autenticación anónima transparente si no hay usuario)
+        // 4. Conectar y sincronizar garantizando acceso inmediato sin bloqueos
         ensureAuthAndSync(appContext)
+    }
+
+    private fun fetchFromFirestoreCache(appContext: Context) {
+        try {
+            val db = FirebaseFirestore.getInstance()
+            db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_NOTICES)
+                .get(com.google.firebase.firestore.Source.CACHE)
+                .addOnSuccessListener { snapshot ->
+                    if (snapshot != null && snapshot.exists()) {
+                        processFirestoreSnapshot(appContext, snapshot)
+                    }
+                }
+                .addOnFailureListener {
+                    // Si aún no está en caché de Firestore, se usará la caché local ya cargada
+                }
+        } catch (_: Exception) {}
     }
 
     private fun setupAuthStateListener(context: Context) {
@@ -99,22 +119,26 @@ object AppNoticeManager {
 
     private fun ensureAuthAndSync(context: Context) {
         val appContext = context.applicationContext
-        com.example.util.GuestAuthHelper.ensureAuth {
-            attachFirestoreListener(appContext, force = true)
-            executeCloudFetch(appContext, null)
+        // Iniciar Firestore y fetch de inmediato sin esperar autenticación
+        fetchFromFirestoreCache(appContext)
+        attachFirestoreListener(appContext, force = false)
+        executeCloudFetch(appContext, null)
+
+        // En segundo plano sin bloquear la UI ni la carga inicial
+        val auth = try { FirebaseAuth.getInstance() } catch (_: Exception) { null }
+        if (auth?.currentUser == null) {
+            com.example.util.GuestAuthHelper.ensureAuth {
+                attachFirestoreListener(appContext, force = true)
+                executeCloudFetch(appContext, null)
+            }
         }
     }
 
     fun syncFromCloud(context: Context, onComplete: ((Boolean) -> Unit)? = null) {
         val appContext = context.applicationContext
-        val auth = try { FirebaseAuth.getInstance() } catch (_: Exception) { null }
-        if (auth?.currentUser == null) {
-            com.example.util.GuestAuthHelper.ensureAuth {
-                executeCloudFetch(appContext, onComplete)
-            }
-        } else {
-            executeCloudFetch(appContext, onComplete)
-        }
+        // Inmediato desde caché y en paralelo desde la nube
+        fetchFromFirestoreCache(appContext)
+        executeCloudFetch(appContext, onComplete)
     }
 
     private fun executeCloudFetch(appContext: Context, onComplete: ((Boolean) -> Unit)?) {
@@ -168,7 +192,8 @@ object AppNoticeManager {
                             tag = map["tag"]?.toString() ?: "Anuncios importantes",
                             titleColor = map["titleColor"]?.toString() ?: "#FFD700",
                             contentColor = map["contentColor"]?.toString() ?: "#CCCCCC",
-                            isEnabled = (map["isEnabled"] as? Boolean) ?: true
+                            isEnabled = (map["isEnabled"] as? Boolean) ?: true,
+                            budget = (map["budget"] as? Number)?.toDouble() ?: 0.0
                         )
                     )
                 }
@@ -241,6 +266,7 @@ object AppNoticeManager {
                     put("titleColor", n.titleColor)
                     put("contentColor", n.contentColor)
                     put("isEnabled", n.isEnabled)
+                    put("budget", n.budget)
                 }
                 arr.put(obj)
             }
@@ -274,7 +300,8 @@ object AppNoticeManager {
                             tag = obj.optString("tag", "Anuncios importantes"),
                             titleColor = obj.optString("titleColor", "#C8AA6E"),
                             contentColor = obj.optString("contentColor", "#A09B8C"),
-                            isEnabled = obj.optBoolean("isEnabled", true)
+                            isEnabled = obj.optBoolean("isEnabled", true),
+                            budget = obj.optDouble("budget", 0.0)
                         )
                     )
                 }
@@ -363,7 +390,8 @@ object AppNoticeManager {
                     "tag" to n.tag,
                     "titleColor" to n.titleColor,
                     "contentColor" to n.contentColor,
-                    "isEnabled" to n.isEnabled
+                    "isEnabled" to n.isEnabled,
+                    "budget" to n.budget
                 )
             }
             val data = hashMapOf(
@@ -441,6 +469,16 @@ object AppNoticeManager {
             current.add(notice)
         }
         saveNotices(context, current)
+    }
+
+    fun updateNoticeBudget(context: Context, noticeId: String, newBudget: Double) {
+        val currentList = _notices.value.toMutableList()
+        val index = currentList.indexOfFirst { it.id == noticeId }
+        if (index != -1) {
+            val updated = currentList[index].copy(budget = newBudget.coerceAtLeast(0.0))
+            currentList[index] = updated
+            saveNotices(context, currentList)
+        }
     }
 }
 

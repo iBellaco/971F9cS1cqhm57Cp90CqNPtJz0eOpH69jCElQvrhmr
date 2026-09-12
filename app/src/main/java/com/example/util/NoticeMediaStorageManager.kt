@@ -18,6 +18,7 @@ import kotlinx.coroutines.tasks.await
 import com.google.firebase.storage.FirebaseStorage
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import android.media.MediaMetadataRetriever
 
 object NoticeMediaStorageManager {
     private const val TAG = "NoticeMediaStorage"
@@ -203,17 +204,56 @@ object NoticeMediaStorageManager {
      * en Firebase Firestore a través de TODOS los dispositivos (Multidispositivo) sin volverse negra.
      */
     
-    suspend fun uploadVideoToCloud(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
+    /**
+     * Determina con precisión si una URI seleccionada de la galería o explorador es un archivo de video.
+     */
+    fun isUriVideo(context: Context, uri: Uri): Boolean {
         try {
-            Log.d(TAG, "Iniciando subida de video a Firebase Storage...")
-            val storageRef = FirebaseStorage.getInstance().reference
-            val videoRef = storageRef.child("notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4")
+            val mime = context.contentResolver.getType(uri)
+            if (mime?.startsWith("video/", ignoreCase = true) == true) return true
+            if (mime?.startsWith("image/", ignoreCase = true) == true) return false
+        } catch (_: Exception) {}
+
+        val uriStr = uri.toString().lowercase()
+        val videoExtensions = listOf(".mp4", ".mkv", ".webm", ".mov", ".3gp", ".avi", ".m4v", ".ts")
+        if (videoExtensions.any { uriStr.endsWith(it) || uriStr.contains(it) }) return true
+
+        return try {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(context, uri)
+            val hasVideo = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+            retriever.release()
+            hasVideo == "yes"
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Intenta subir un archivo de video al almacenamiento remoto en la nube.
+     * Si no está disponible o falla, retorna null de forma segura sin arrojar excepciones.
+     */
+    suspend fun tryUploadVideoToCloud(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
+        try {
+            val storage = try {
+                FirebaseStorage.getInstance()
+            } catch (_: Exception) {
+                try {
+                    FirebaseStorage.getInstance("gs://wild-rift-drafting.firebasestorage.app")
+                } catch (_: Exception) {
+                    null
+                }
+            } ?: return@withContext null
+
+            val storageRef = storage.reference
+            val filename = "notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4"
+            val videoRef = storageRef.child(filename)
             videoRef.putFile(uri).await()
             val downloadUrl = videoRef.downloadUrl.await()
             val urlString = downloadUrl.toString()
             Log.d(TAG, "Video subido exitosamente a la nube: $urlString")
 
-            // Guardar copia local inmediata en caché para que este dispositivo lo reproduzca al instante sin esperar red
+            // Guardar copia local inmediata en caché para reproducción instantánea sin esperar red
             try {
                 val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
                 if (!dir.exists()) dir.mkdirs()
@@ -228,9 +268,32 @@ object NoticeMediaStorageManager {
 
             urlString
         } catch (e: Exception) {
-            Log.e(TAG, "Error subiendo video a Firebase Storage: ${e.message}")
-            throw Exception("Firebase Storage no habilitado o sin reglas. Debes habilitarlo en tu consola de Firebase.")
+            Log.w(TAG, "Almacenamiento remoto no disponible para video (${e.message}), se utilizará almacenamiento local.")
+            null
         }
+    }
+
+    /**
+     * Guarda el video de forma blindada: primero lo almacena permanentemente en el almacenamiento
+     * interno privado de la aplicación para garantizar que NUNCA falle ni se pierda.
+     * Luego intenta sincronizarlo en la nube si el servicio remoto está disponible.
+     */
+    suspend fun uploadOrSaveVideo(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
+        // 1. Guardar siempre en almacenamiento interno local permanente
+        val localPath = saveMediaToInternalStorage(context, uri, isVideo = true)
+
+        // 2. Intentar subir al servicio en la nube si está activo
+        val cloudUrl = tryUploadVideoToCloud(context, uri)
+        if (!cloudUrl.isNullOrBlank()) {
+            return@withContext cloudUrl
+        }
+
+        // 3. Si la nube no está habilitada o falla, retornar la ruta local permanente file://
+        localPath
+    }
+
+    suspend fun uploadVideoToCloud(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
+        uploadOrSaveVideo(context, uri)
     }
 
     suspend fun convertImageToCloudDataUrl(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
