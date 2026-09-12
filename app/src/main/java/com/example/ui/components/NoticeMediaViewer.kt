@@ -631,6 +631,9 @@ fun LocalGalleryVideoPlayer(
     var mediaPlayerRef by remember { mutableStateOf<android.media.MediaPlayer?>(null) }
     val themePrimary = MaterialTheme.colorScheme.primary
 
+    var currentPlayingTarget by remember { mutableStateOf<String?>(null) }
+    var videoViewInstance by remember { mutableStateOf<android.widget.VideoView?>(null) }
+
     // Resolver ruta efectiva (Caché local en disco con OkHttp, Base64 decodificado, archivo local o streaming cloud)
     val effectiveUriString by produceState<String?>(initialValue = null, key1 = videoUriString, key2 = retryKey) {
         val trimmed = com.example.util.NoticeMediaStorageManager.normalizeVideoUrl(videoUriString.trim())
@@ -732,6 +735,7 @@ fun LocalGalleryVideoPlayer(
                             ViewGroup.LayoutParams.MATCH_PARENT
                         )
                     }
+                    videoViewInstance = videoView
 
                     val frameLayout = FrameLayout(ctx).apply {
                         layoutParams = ViewGroup.LayoutParams(
@@ -749,6 +753,7 @@ fun LocalGalleryVideoPlayer(
                     }
 
                     val target = effectiveUriString!!
+                    currentPlayingTarget = target
                     if (target.startsWith("/")) {
                         videoView.setVideoPath(target)
                     } else {
@@ -788,8 +793,9 @@ fun LocalGalleryVideoPlayer(
                         android.util.Log.w("NoticeMediaViewer", "Error VideoView what=$what, extra=$extra para $target")
                         val trimmed = com.example.util.NoticeMediaStorageManager.normalizeVideoUrl(videoUriString.trim())
                         val cached = com.example.util.NoticeMediaStorageManager.getCachedVideoFile(ctx, trimmed)
-                        if (cached != null && cached.exists() && cached.length() > 5000 && target != cached.absolutePath) {
+                        if (cached != null && cached.exists() && cached.length() > 5000) {
                             try {
+                                currentPlayingTarget = cached.absolutePath
                                 videoView.setVideoPath(cached.absolutePath)
                                 videoView.start()
                                 hasError = false
@@ -798,9 +804,27 @@ fun LocalGalleryVideoPlayer(
                             } catch (_: Exception) {}
                         }
 
+                        // Forzar descarga OkHttp en segundo plano de inmediato si aún no terminó
+                        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
+                            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                                val downloaded = com.example.util.NoticeMediaStorageManager.cacheVideoFromUrl(ctx, trimmed)
+                                if (downloaded != null && downloaded.exists() && downloaded.length() > 5000) {
+                                    withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                        try {
+                                            currentPlayingTarget = downloaded.absolutePath
+                                            videoView.setVideoPath(downloaded.absolutePath)
+                                            videoView.start()
+                                            hasError = false
+                                            isBuffering = false
+                                        } catch (_: Exception) {}
+                                    }
+                                }
+                            }
+                        }
+
                         isBuffering = false
                         hasError = true
-                        errorMessage = "Error al reproducir video. Verifica conexión o enlace."
+                        errorMessage = "Cargando video..."
                         true
                     }
 
@@ -808,6 +832,21 @@ fun LocalGalleryVideoPlayer(
                 },
                 update = {
                     try {
+                        val target = effectiveUriString
+                        if (target != null && target != currentPlayingTarget) {
+                            currentPlayingTarget = target
+                            isBuffering = true
+                            if (target.startsWith("/")) {
+                                videoViewInstance?.setVideoPath(target)
+                            } else {
+                                val headers = mapOf(
+                                    "User-Agent" to "Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.6668.70 Mobile Safari/537.36",
+                                    "Accept" to "*/*"
+                                )
+                                videoViewInstance?.setVideoURI(Uri.parse(target), headers)
+                            }
+                        }
+
                         val vol = if (isMuted) 0f else 1f
                         mediaPlayerRef?.setVolume(vol, vol)
 

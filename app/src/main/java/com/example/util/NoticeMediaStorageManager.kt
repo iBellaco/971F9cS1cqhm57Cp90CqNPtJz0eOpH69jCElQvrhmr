@@ -304,45 +304,71 @@ object NoticeMediaStorageManager {
 
     /**
      * Intenta subir un archivo de video al almacenamiento remoto en la nube (Firebase Storage).
-     * Si no está disponible o tarda más de 12 segundos, retorna null de forma segura sin bloquear.
+     * Configura metadatos video/mp4 y guarda en caché local inmediata para visualización instantánea.
      */
     suspend fun tryUploadVideoToCloud(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
-        withTimeoutOrNull(12000L) {
+        withTimeoutOrNull(60000L) {
             try {
-                val storage = try {
-                    FirebaseStorage.getInstance()
-                } catch (_: Exception) {
-                    try {
-                        FirebaseStorage.getInstance("gs://wild-rift-drafting.firebasestorage.app")
-                    } catch (_: Exception) {
-                        null
+                // Guardar en archivo temporal seguro para lectura estable
+                val tempUploadFile = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.mp4")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    FileOutputStream(tempUploadFile).use { output ->
+                        input.copyTo(output)
                     }
-                } ?: return@withTimeoutOrNull null
+                }
 
-                val storageRef = storage.reference
+                if (!tempUploadFile.exists() || tempUploadFile.length() == 0L) {
+                    return@withTimeoutOrNull null
+                }
+
+                val storages = listOfNotNull(
+                    try { FirebaseStorage.getInstance("gs://wild-rift-drafting.firebasestorage.app") } catch (_: Exception) { null },
+                    try { FirebaseStorage.getInstance() } catch (_: Exception) { null },
+                    try { FirebaseStorage.getInstance("gs://wild-rift-drafting.appspot.com") } catch (_: Exception) { null }
+                )
+
+                if (storages.isEmpty()) {
+                    Log.w(TAG, "No se pudo instanciar FirebaseStorage.")
+                    return@withTimeoutOrNull null
+                }
+
+                var finalUrl: String? = null
                 val filename = "notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4"
-                val videoRef = storageRef.child(filename)
-                videoRef.putFile(uri).await()
-                val downloadUrl = videoRef.downloadUrl.await()
-                val urlString = downloadUrl.toString()
-                Log.d(TAG, "Video subido exitosamente a Firebase Storage: $urlString")
+                val metadata = com.google.firebase.storage.StorageMetadata.Builder()
+                    .setContentType("video/mp4")
+                    .setCustomMetadata("uploadedAt", System.currentTimeMillis().toString())
+                    .build()
 
-                // Guardar copia local inmediata en caché para reproducción instantánea sin esperar red
-                try {
-                    val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
-                    if (!dir.exists()) dir.mkdirs()
-                    val key = "vid_" + urlString.hashCode().toString().replace("-", "n") + ".mp4"
-                    val file = File(dir, key)
-                    context.contentResolver.openInputStream(uri)?.use { input ->
-                        FileOutputStream(file).use { output ->
-                            input.copyTo(output)
+                for (storage in storages) {
+                    try {
+                        val videoRef = storage.reference.child(filename)
+                        videoRef.putFile(Uri.fromFile(tempUploadFile), metadata).await()
+                        val downloadUrl = videoRef.downloadUrl.await().toString()
+                        if (downloadUrl.isNotBlank()) {
+                            finalUrl = downloadUrl
+                            Log.d(TAG, "Video subido exitosamente a Firebase Storage: $finalUrl")
+                            break
                         }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Intento de subida en bucket ${storage.app.name} falló: ${e.message}")
                     }
-                } catch (_: Exception) {}
+                }
 
-                urlString
+                if (finalUrl != null) {
+                    // Guardar copia inmediata en caché local
+                    try {
+                        val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+                        if (!dir.exists()) dir.mkdirs()
+                        val key = "vid_" + finalUrl.hashCode().toString().replace("-", "n") + ".mp4"
+                        val cachedFile = File(dir, key)
+                        tempUploadFile.copyTo(cachedFile, overwrite = true)
+                    } catch (_: Exception) {}
+                }
+
+                try { tempUploadFile.delete() } catch (_: Exception) {}
+                finalUrl
             } catch (e: Exception) {
-                Log.w(TAG, "Firebase Storage no disponible para video (${e.message})")
+                Log.w(TAG, "Error subiendo video a Firebase Storage: ${e.message}")
                 null
             }
         }
@@ -427,28 +453,29 @@ object NoticeMediaStorageManager {
     /**
      * Guarda el video de forma blindada:
      * 1. Almacena copia permanente en disco local para reproducción instantánea (0ms).
-     * 2. Intenta subirlo a almacenamiento remoto (Supabase / Firebase Storage) si está configurado.
-     * 3. Si es ultra-ligero (< 100KB), genera Data URL Base64.
-     * 4. Si todo lo anterior falla o es local, retorna la ruta permanente local file://.
+     * 2. Intenta subirlo a Firebase Storage con metadatos video/mp4 (prioritario para sincronización global).
+     * 3. Si no está disponible, intenta Supabase Storage si estuviera configurado.
+     * 4. Si es ligero (< 500KB), genera Data URL Base64 para que se replique en Firestore en todos los dispositivos.
+     * 5. Si todo lo anterior falla, retorna la ruta local permanente file://.
      */
     suspend fun uploadOrSaveVideo(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
-        // 1. Guardar siempre en almacenamiento interno local permanente
+        // 1. Guardar siempre copia permanente en almacenamiento local privado
         val localPath = saveMediaToInternalStorage(context, uri, isVideo = true)
 
-        // 2. Intentar subir a Supabase Storage si está disponible
-        val supabaseUrl = tryUploadVideoToSupabase(context, uri)
-        if (!supabaseUrl.isNullOrBlank()) {
-            return@withContext supabaseUrl
-        }
-
-        // 3. Intentar subir a Firebase Storage si está disponible
+        // 2. Intentar subir primero a Firebase Storage (almacenamiento en la nube multidispositivo)
         val cloudUrl = tryUploadVideoToCloud(context, uri)
         if (!cloudUrl.isNullOrBlank()) {
             return@withContext cloudUrl
         }
 
-        // 4. Si es ultra-ligero (< 100KB), generar Data URL Base64
-        val dataUrl = convertVideoToDataUrl(context, uri, maxBytes = 100_000)
+        // 3. Intentar subir a Supabase Storage como almacenamiento secundario si está disponible
+        val supabaseUrl = tryUploadVideoToSupabase(context, uri)
+        if (!supabaseUrl.isNullOrBlank()) {
+            return@withContext supabaseUrl
+        }
+
+        // 4. Si es video compacto (< 500KB), generar Data URL Base64 para sincronización instantánea en la nube
+        val dataUrl = convertVideoToDataUrl(context, uri, maxBytes = 500_000)
         if (!dataUrl.isNullOrBlank()) {
             return@withContext dataUrl
         }

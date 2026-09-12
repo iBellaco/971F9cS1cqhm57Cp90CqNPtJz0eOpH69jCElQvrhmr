@@ -880,13 +880,27 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             fontSize = 11.5.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
+                        val renewInteractionSource = remember { MutableInteractionSource() }
+                        val renewPressed by renewInteractionSource.collectIsPressedAsState()
+                        val renewScale by animateFloatAsState(
+                            targetValue = if (renewPressed) 0.95f else 1f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            ),
+                            label = "renewBtnScale"
+                        )
                         Button(
                             onClick = { showPlansDialog = true },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = com.example.ui.theme.DangerRed,
                                 contentColor = androidx.compose.ui.graphics.Color.White
                             ),
-                            modifier = Modifier.fillMaxWidth().height(36.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(36.dp)
+                                .scale(renewScale),
+                            interactionSource = renewInteractionSource,
                             shape = RoundedCornerShape(6.dp),
                             contentPadding = PaddingValues(0.dp)
                         ) {

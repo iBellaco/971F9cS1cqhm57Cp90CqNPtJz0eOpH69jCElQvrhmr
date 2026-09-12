@@ -1,7 +1,12 @@
 package com.example.ui.components
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,9 +21,12 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -246,12 +254,25 @@ private fun PremiumPlanCard(
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
+                    val subInteractionSource = remember { MutableInteractionSource() }
+                    val subPressed by subInteractionSource.collectIsPressedAsState()
+                    val subScale by animateFloatAsState(
+                        targetValue = if (subPressed) 0.94f else 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        ),
+                        label = "subScale"
+                    )
+
                     Button(
                         onClick = onSubscribe,
                         colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp),
+                            .height(54.dp)
+                            .scale(subScale),
+                        interactionSource = subInteractionSource,
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(

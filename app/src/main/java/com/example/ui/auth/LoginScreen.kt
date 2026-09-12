@@ -73,7 +73,7 @@ fun LoginScreen(
                 color = HextechCyan,
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier
-                    .clickable { onNavigateToForgot() }
+                    .tactileClickable { onNavigateToForgot() }
                     .padding(8.dp)
             )
         }
@@ -111,7 +111,7 @@ fun LoginScreen(
                 color = HextechCyan,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier
-                    .clickable { onNavigateToRegister() }
+                    .tactileClickable { onNavigateToRegister() }
                     .padding(4.dp)
             )
         }

@@ -841,7 +841,7 @@ private fun FloatingOverlayContent(
     val isLoggedInAndPremium = isPremium && activeProfileId != null
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
     val currentAuthEmail = remember { com.example.util.AuthManager.getAuth()?.currentUser?.email }
-    val isAdmin = remember { com.example.util.AuthManager.isCurrentUserAdmin() }
+    val isAdmin = userRole == "admin" || userRole == "moderador" || com.example.util.AuthManager.isCurrentUserAdmin()
     val context = LocalContext.current
     var activeRole by state::activeRole
     var isFirstPick by state::isFirstPick
@@ -929,7 +929,7 @@ private fun FloatingOverlayContent(
                         val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick, activeRole)
                         if (result.isSuccessful) {
                             // Detección automática del orden de pick (Primera Selección vs Segunda Selección)
-                            if (result.detectedFirstPick != null && isFirstPick != result.detectedFirstPick) {
+                            if (result.detectedFirstPick != null) {
                                 isFirstPick = result.detectedFirstPick
                             }
 
@@ -954,6 +954,15 @@ private fun FloatingOverlayContent(
                                         if (enemies[idx] == null) newEnemiesAdded++
                                     }
                                 }
+                            }
+
+                            // Verificación complementaria en tiempo real: Si el rival ya tiene picks y aliados tienen 0, el rival es First Pick (nosotros = Counter Pick)
+                            val currentAllyPicks = allies.count { it != null }
+                            val currentEnemyPicks = enemies.count { it != null }
+                            if (currentEnemyPicks > 0 && currentAllyPicks == 0) {
+                                isFirstPick = false
+                            } else if (currentAllyPicks > 0 && currentEnemyPicks == 0) {
+                                isFirstPick = true
                             }
 
                             // Sincronizar nombres de invocador aliados y hechizos
@@ -1066,7 +1075,7 @@ private fun FloatingOverlayContent(
                 withContext(Dispatchers.Main) {
                     if (result.isSuccessful) {
                         // Sincronizar primera selección si se detectó
-                        if (result.detectedFirstPick != null && isFirstPick != result.detectedFirstPick) {
+                        if (result.detectedFirstPick != null) {
                             isFirstPick = result.detectedFirstPick
                         }
 
@@ -1084,6 +1093,15 @@ private fun FloatingOverlayContent(
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                 }
                             }
+                        }
+
+                        // Verificación complementaria: si el rival ya tiene picks y aliados no, rival eligió 1º
+                        val currentAllyPicks = allies.count { it != null }
+                        val currentEnemyPicks = enemies.count { it != null }
+                        if (currentEnemyPicks > 0 && currentAllyPicks == 0) {
+                            isFirstPick = false
+                        } else if (currentAllyPicks > 0 && currentEnemyPicks == 0) {
+                            isFirstPick = true
                         }
 
                         // Sincronizar nombres de invocador aliados y hechizos
@@ -1366,21 +1384,31 @@ private fun FloatingOverlayContent(
                                     // Botón de Depurado / Calibrador (EXCLUSIVO ADMINISTRADORES)
                                     Surface(
                                         modifier = Modifier
-                                            .size(28.dp)
+                                            .height(28.dp)
                                             .clickable {
                                                 showCalibrationPanel = !showCalibrationPanel
                                                 DraftVisionScanner.showCalibrationBoxes.value = showCalibrationPanel
                                             },
                                         shape = RoundedCornerShape(6.dp),
-                                        color = if (showCalibrationPanel) HextechCyan.copy(alpha = 0.25f) else Color(0xFF1E293B),
-                                        border = BorderStroke(1.dp, if (showCalibrationPanel) HextechCyan else HextechGold.copy(alpha = 0.6f))
+                                        color = if (showCalibrationPanel) HextechCyan.copy(alpha = 0.35f) else Color(0xFF1E293B),
+                                        border = BorderStroke(1.dp, if (showCalibrationPanel) HextechCyan else HextechGold)
                                     ) {
-                                        Box(contentAlignment = Alignment.Center) {
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                        ) {
                                             Icon(
                                                 imageVector = Icons.Default.BugReport,
                                                 contentDescription = "Depuración y Calibrador",
                                                 tint = if (showCalibrationPanel) HextechCyan else HextechGold,
-                                                modifier = Modifier.size(16.dp)
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                            Text(
+                                                text = "Depurar",
+                                                color = if (showCalibrationPanel) HextechCyan else HextechGold,
+                                                fontSize = 8.5.sp,
+                                                fontWeight = FontWeight.Bold
                                             )
                                         }
                                     }
@@ -2759,13 +2787,34 @@ private fun OverlayVersusDraftBoard(
                                         }
                                     }
                                     // 2. Estadísticas (WR, Ban, Pick)
-                                    Text(
-                                        text = "WR: ${String.format(java.util.Locale.US, "%.0f", allyChamp.winrate)}% · B: ${String.format(java.util.Locale.US, "%.0f", allyChamp.banRate)}% · P: ${String.format(java.util.Locale.US, "%.0f", allyChamp.pickRate)}%",
-                                        color = if (allyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        maxLines = 1
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        Text(
+                                            text = "W:${allyChamp.winrate.toInt()}%",
+                                            color = if (allyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "B:${allyChamp.banRate.toInt()}%",
+                                            color = Color(0xFFFFB86C),
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "P:${allyChamp.pickRate.toInt()}%",
+                                            color = HextechCyan,
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1
+                                        )
+                                    }
                                     // 3. Tier List
                                     Text(
                                         text = "Tier ${allyChamp.tier}",
@@ -2840,14 +2889,34 @@ private fun OverlayVersusDraftBoard(
                                         textAlign = TextAlign.End
                                     )
                                     // 2. Estadísticas (WR, Ban, Pick)
-                                    Text(
-                                        text = "WR: ${String.format(java.util.Locale.US, "%.0f", enemyChamp.winrate)}% · B: ${String.format(java.util.Locale.US, "%.0f", enemyChamp.banRate)}% · P: ${String.format(java.util.Locale.US, "%.0f", enemyChamp.pickRate)}%",
-                                        color = if (enemyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                        fontSize = 7.5.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        maxLines = 1,
-                                        textAlign = TextAlign.End
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        Text(
+                                            text = "W:${enemyChamp.winrate.toInt()}%",
+                                            color = if (enemyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "B:${enemyChamp.banRate.toInt()}%",
+                                            color = Color(0xFFFFB86C),
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Text(
+                                            text = "P:${enemyChamp.pickRate.toInt()}%",
+                                            color = HextechCyan,
+                                            fontSize = 7.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            maxLines = 1
+                                        )
+                                    }
                                     // 3. Tier List
                                     Text(
                                         text = "Tier ${enemyChamp.tier}",

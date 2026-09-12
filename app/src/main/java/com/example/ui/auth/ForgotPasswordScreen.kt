@@ -80,7 +80,7 @@ fun ForgotPasswordScreen(
                 color = HextechCyan,
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier
-                    .clickable { onNavigateToLogin() }
+                    .tactileClickable { onNavigateToLogin() }
                     .padding(8.dp)
             )
         }

@@ -902,13 +902,16 @@ object DraftVisionScanner {
         val totalAllyOcr = allySlots.count { it.champion != null }
         val totalEnemyOcr = enemySlots.count { it.champion != null }
 
-        // Inferencia determinista de Primera Selección por progreso si el OCR no leyó el banner superior
-        if (detectedFirstPick == null) {
+        // Inferencia determinista de Primera Selección por picks activos en pantalla
+        // (Si el rival tiene selecciones confirmadas y los aliados tienen 0, es certeza absoluta de que el rival seleccionó primero)
+        if (totalEnemyOcr >= 1 && totalAllyOcr == 0) {
+            detectedFirstPick = false
+            AppLogger.d(TAG, "Inferencia definitiva: Rival tiene $totalEnemyOcr picks y Aliados 0 -> Rival es Primera Selección (Aliados = 2ª Selección)")
+        } else if (totalAllyOcr >= 1 && totalEnemyOcr == 0) {
+            detectedFirstPick = true
+            AppLogger.d(TAG, "Inferencia definitiva: Aliados tienen $totalAllyOcr picks y Rival 0 -> Aliados = Primera Selección")
+        } else if (detectedFirstPick == null) {
             when {
-                // Ronda 1: (1, 0) -> Aliado eligió 1º | (0, 1) -> Rival eligió 1º
-                totalAllyOcr == 1 && totalEnemyOcr == 0 -> detectedFirstPick = true
-                totalEnemyOcr == 1 && totalAllyOcr == 0 -> detectedFirstPick = false
-
                 // Ronda 2: (1, 2) -> Aliado eligió 1º y Rival eligió 2 | (2, 1) -> Rival eligió 1º y Aliado eligió 2
                 totalAllyOcr == 1 && totalEnemyOcr == 2 -> detectedFirstPick = true
                 totalEnemyOcr == 1 && totalAllyOcr == 2 -> detectedFirstPick = false
@@ -927,7 +930,7 @@ object DraftVisionScanner {
             }
         }
 
-        val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: true
+        val effectiveFirstPick = detectedFirstPick ?: currentIsFirstPick ?: false
         val pickSequence = getDraftPickSequence(effectiveFirstPick)
 
         debugVisualMatches.value = emptyMap()
