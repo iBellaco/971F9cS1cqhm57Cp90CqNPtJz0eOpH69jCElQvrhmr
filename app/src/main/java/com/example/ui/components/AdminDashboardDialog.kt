@@ -295,6 +295,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     var noticesList by remember { mutableStateOf(currentNotices) }
     var intervalValueText by remember { mutableStateOf(currentIntervalVal.toString()) }
     var intervalUnit by remember { mutableStateOf(currentIntervalUnit) }
+    var isSavingCloud by remember { mutableStateOf(false) }
 
     var editingIndex by remember { mutableStateOf<Int?>(null) }
     var title by remember { mutableStateOf("") }
@@ -310,6 +311,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
     val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad")
     val isUrlValid = remember(videoUrl) { NoticeMediaUtils.isValidNoticeMedia(videoUrl) }
     val isExpandedUrlValid = remember(expandedImageUrl) { NoticeMediaUtils.isValidNoticeMedia(expandedImageUrl) }
+    val coroutineScope = rememberCoroutineScope()
+    var isProcessingMedia by remember { mutableStateOf(false) }
 
     val clipboardManager = remember { context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager }
     fun copyToClipboard(label: String, text: String) {
@@ -695,9 +698,27 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 val horizontalMediaPickerLauncher = rememberLauncherForActivityResult(
                     contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
                 ) { uri: android.net.Uri? ->
-                    uri?.let {
-                        videoUrl = it.toString()
-                        Toast.makeText(context, "Multimedia horizontal cargada", Toast.LENGTH_SHORT).show()
+                    uri?.let { pickedUri ->
+                        coroutineScope.launch {
+                            isProcessingMedia = true
+                            try {
+                                val mime = context.contentResolver.getType(pickedUri) ?: ""
+                                val isVideo = mime.startsWith("video/")
+                                if (isVideo) {
+                                    val permanentLocalUrl = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = true)
+                                    videoUrl = permanentLocalUrl
+                                    Toast.makeText(context, "✅ Video guardado de forma permanente en el dispositivo", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
+                                    videoUrl = cloudDataUrl
+                                    Toast.makeText(context, "✅ Imagen horizontal optimizada para Multidispositivo", Toast.LENGTH_SHORT).show()
+                                }
+                            } catch (e: Exception) {
+                                videoUrl = pickedUri.toString()
+                            } finally {
+                                isProcessingMedia = false
+                            }
+                        }
                     }
                 }
                 Button(
@@ -735,9 +756,19 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 val verticalImagePickerLauncher = rememberLauncherForActivityResult(
                     contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
                 ) { uri: android.net.Uri? ->
-                    uri?.let {
-                        expandedImageUrl = it.toString()
-                        Toast.makeText(context, "Imagen vertical ampliada cargada", Toast.LENGTH_SHORT).show()
+                    uri?.let { pickedUri ->
+                        coroutineScope.launch {
+                            isProcessingMedia = true
+                            try {
+                                val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
+                                expandedImageUrl = cloudDataUrl
+                                Toast.makeText(context, "✅ Imagen vertical optimizada para Multidispositivo", Toast.LENGTH_SHORT).show()
+                            } catch (e: Exception) {
+                                expandedImageUrl = pickedUri.toString()
+                            } finally {
+                                isProcessingMedia = false
+                            }
+                        }
                     }
                 }
                 Button(
@@ -750,6 +781,50 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("📱 Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+
+                if (isProcessingMedia) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(HextechSurfaceVariant, RoundedCornerShape(6.dp))
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechCyan, strokeWidth = 2.dp)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Optimizando multimedia para Multidispositivo...", color = HextechCyan, fontSize = 11.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = HextechGold.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(6.dp),
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f))
+                ) {
+                    Column(modifier = Modifier.padding(10.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CloudSync, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "☁️ MULTIDISPOSITIVO ACTIVO (Firebase Cloud Sync)",
+                                color = HextechGold,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "• Las imágenes de galería se convierten automáticamente al formato de nube para verse en CUALQUIER celular y no ponerse negras al reiniciar.\n• Para videos en múltiples celulares, usa enlaces de YouTube (o Shorts) o URLs web (.mp4). Los videos locales se guardan permanentemente en este celular.",
+                            color = TextSecondary,
+                            fontSize = 10.sp,
+                            lineHeight = 14.sp
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -900,18 +975,39 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
         confirmButton = {
             Button(
                 onClick = {
-                    com.example.data.AppNoticeManager.saveNotices(context, noticesList)
-                    com.example.data.AppNoticeManager.saveStreamerInterval(context, intervalValueText.toIntOrNull() ?: 10, intervalUnit)
-                    Toast.makeText(context, "¡Anuncios e intervalo de streamer guardados con éxito!", Toast.LENGTH_SHORT).show()
-                    onDismiss()
+                    if (isSavingCloud) return@Button
+                    isSavingCloud = true
+                    val intVal = intervalValueText.toIntOrNull() ?: 10
+                    com.example.data.AppNoticeManager.saveAllNoticesAndInterval(
+                        context = context,
+                        newNotices = noticesList,
+                        intervalValue = intVal,
+                        intervalUnit = intervalUnit
+                    ) { success, errorMsg ->
+                        isSavingCloud = false
+                        if (success) {
+                            Toast.makeText(context, "✅ ¡Anuncios sincronizados en la nube para todos los celulares!", Toast.LENGTH_LONG).show()
+                            onDismiss()
+                        } else {
+                            Toast.makeText(context, "⚠️ Guardado localmente. Error en la nube: $errorMsg", Toast.LENGTH_LONG).show()
+                            onDismiss()
+                        }
+                    }
                 },
+                enabled = !isSavingCloud,
                 colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
             ) {
-                Text("Publicar Todos", fontWeight = FontWeight.Bold)
+                if (isSavingCloud) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechDarkBg, strokeWidth = 2.dp)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Sincronizando...", fontWeight = FontWeight.Bold)
+                } else {
+                    Text("Publicar Todos", fontWeight = FontWeight.Bold)
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            TextButton(onClick = onDismiss, enabled = !isSavingCloud) {
                 Text("Cancelar", color = TextMuted)
             }
         },

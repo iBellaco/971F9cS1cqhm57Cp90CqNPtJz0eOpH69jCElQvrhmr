@@ -69,7 +69,7 @@ fun HextechOrbButton(
     isActive: Boolean,
     onToggle: () -> Unit,
     enabled: Boolean = true,
-    size: Dp = 250.dp,
+    size: Dp = 210.dp,
     modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "hextech_orb_anim")

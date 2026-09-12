@@ -55,6 +55,10 @@ fun MultiServerStatsDialog(
     val totalMatches = chinaMatches + globalMatches + naMatches
     val totalFormatted = String.format(java.util.Locale.US, "%.1f", totalMatches / 1_000_000.0) + " Millones"
 
+    val topCn = remember { com.example.data.WildRiftRepository.getTopChampionForServer("CN") }
+    val topGlobal = remember { com.example.data.WildRiftRepository.getTopChampionForServer("Global") }
+    val topNa = remember { com.example.data.WildRiftRepository.getTopChampionForServer("NA") }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -197,7 +201,7 @@ fun MultiServerStatsDialog(
                         flag = "🇨🇳",
                         serverName = tr("API China Tencent (lolm.qq.com)"),
                         matchesText = String.format(java.util.Locale.US, "%.1fM", chinaMatches / 1_000_000.0),
-                        metaTop = "Lee Sin (55.6% WR)",
+                        metaTop = "${topCn.first} (${String.format(java.util.Locale.US, "%.1f", topCn.second)}% WR)",
                         borderColor = HextechGold,
                         apiSource = "Tencent Super-Server API"
                     )
@@ -209,7 +213,7 @@ fun MultiServerStatsDialog(
                         flag = "🌍",
                         serverName = tr("Servidor Global (Meta Live)"),
                         matchesText = String.format(java.util.Locale.US, "%.1fM", globalMatches / 1_000_000.0),
-                        metaTop = "Ahri (53.8% WR)",
+                        metaTop = "${topGlobal.first} (${String.format(java.util.Locale.US, "%.1f", topGlobal.second)}% WR)",
                         borderColor = HextechCyan,
                         apiSource = "Global Cloud Sync"
                     )
@@ -221,7 +225,7 @@ fun MultiServerStatsDialog(
                         flag = "🇺🇸",
                         serverName = tr("Servidor Norteamérica (NA)"),
                         matchesText = String.format(java.util.Locale.US, "%.1fM", naMatches / 1_000_000.0),
-                        metaTop = "Lux (53.2% WR)",
+                        metaTop = "${topNa.first} (${String.format(java.util.Locale.US, "%.1f", topNa.second)}% WR)",
                         borderColor = Color(0xFF4A90E2),
                         apiSource = "Riot Americas Cache"
                     )

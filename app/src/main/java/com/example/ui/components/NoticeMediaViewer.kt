@@ -45,20 +45,14 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import com.example.ui.theme.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-
-object NoticeMediaPlaybackController {
-    private val _pauseTrigger = MutableStateFlow(0L)
-    val pauseTrigger: StateFlow<Long> = _pauseTrigger.asStateFlow()
-
-    fun pauseAndMuteAll() {
-        _pauseTrigger.value = System.currentTimeMillis()
-    }
-}
 
 object NoticeMediaUtils {
+    val pauseAndMuteTrigger = kotlinx.coroutines.flow.MutableStateFlow(0)
+
+    fun pauseAndMuteAll() {
+        pauseAndMuteTrigger.value++
+    }
+
     fun extractYouTubeVideoId(url: String): String? {
         if (url.isBlank()) return null
         val trimmed = url.trim()
@@ -94,10 +88,17 @@ object NoticeMediaUtils {
     fun isLocalVideo(context: Context, url: String): Boolean {
         if (url.isBlank()) return false
         val trimmed = url.trim().lowercase()
+        if (trimmed.startsWith("data:image/")) return false
 
         if (trimmed.endsWith(".mp4") || trimmed.endsWith(".mkv") || trimmed.endsWith(".webm") ||
             trimmed.endsWith(".mov") || trimmed.endsWith(".3gp") || trimmed.endsWith(".avi")) {
             return true
+        }
+
+        if (trimmed.startsWith("file://") || trimmed.startsWith("/")) {
+            val path = if (trimmed.startsWith("file://")) Uri.parse(url).path ?: "" else trimmed
+            val ext = java.io.File(path).extension.lowercase()
+            if (ext in listOf("mp4", "mkv", "webm", "mov", "3gp", "avi")) return true
         }
 
         if (trimmed.startsWith("content://")) {
@@ -114,9 +115,9 @@ object NoticeMediaUtils {
     fun isValidNoticeMedia(url: String): Boolean {
         if (url.isBlank()) return true
         val trimmed = url.trim()
-        if (trimmed.startsWith("content://") || trimmed.startsWith("file://")) return true
+        if (trimmed.startsWith("content://") || trimmed.startsWith("file://") || trimmed.startsWith("data:image/")) return true
         if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-            return isYouTubeUrl(trimmed)
+            return true
         }
         return false
     }
@@ -196,17 +197,6 @@ fun NoticeMediaViewer(
             // YouTube Player with Error 153 fix, modern WebView settings, and custom Chrome user agent
             var isYtMuted by remember { mutableStateOf(true) }
             val currentPrimaryColor = MaterialTheme.colorScheme.primary
-
-            val pauseTrigger by NoticeMediaPlaybackController.pauseTrigger.collectAsState()
-            LaunchedEffect(pauseTrigger) {
-                if (pauseTrigger > 0L) {
-                    isYtMuted = true
-                    try {
-                        webViewInstance?.evaluateJavascript("muteVideo();", null)
-                        webViewInstance?.evaluateJavascript("var iframe = document.getElementById('ytplayer'); if (iframe && iframe.contentWindow) { iframe.contentWindow.postMessage('{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}', '*'); }", null)
-                    } catch (_: Exception) {}
-                }
-            }
 
             Box(modifier = Modifier.fillMaxSize()) {
                 AndroidView(
@@ -333,7 +323,18 @@ fun NoticeMediaViewer(
                 onExpand = onExpand
             )
         } else {
-            // Image rendering (from Gallery or Image URL)
+            // Image rendering (from Gallery, Base64 Data URL, or Image URL)
+            val imageModel = remember(trimmedUrl) {
+                if (trimmedUrl.startsWith("data:image/")) {
+                    com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(trimmedUrl) ?: trimmedUrl
+                } else if (trimmedUrl.startsWith("file://")) {
+                    val path = Uri.parse(trimmedUrl).path ?: ""
+                    java.io.File(path)
+                } else {
+                    trimmedUrl
+                }
+            }
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -344,7 +345,7 @@ fun NoticeMediaViewer(
                     )
             ) {
                 AsyncImage(
-                    model = trimmedUrl,
+                    model = imageModel,
                     contentDescription = "Multimedia de Anuncio",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
@@ -383,16 +384,17 @@ fun LocalGalleryVideoPlayer(
     var mediaPlayerRef by remember { mutableStateOf<android.media.MediaPlayer?>(null) }
     val themePrimary = MaterialTheme.colorScheme.primary
 
-    val pauseTrigger by NoticeMediaPlaybackController.pauseTrigger.collectAsState()
+    val pauseTrigger by NoticeMediaUtils.pauseAndMuteTrigger.collectAsState()
     LaunchedEffect(pauseTrigger) {
-        if (pauseTrigger > 0L) {
+        if (pauseTrigger > 0) {
             isPlaying = false
             isMuted = true
             try {
-                mediaPlayerRef?.setVolume(0f, 0f)
-                if (videoViewRef?.isPlaying == true) {
-                    videoViewRef?.pause()
+                mediaPlayerRef?.let { mp ->
+                    mp.setVolume(0f, 0f)
+                    if (mp.isPlaying) mp.pause()
                 }
+                videoViewRef?.pause()
             } catch (_: Exception) {}
         }
     }
@@ -409,7 +411,18 @@ fun LocalGalleryVideoPlayer(
                             }
                         } catch (_: Exception) {
                             try {
-                                vv.setVideoURI(Uri.parse(videoUriString))
+                                if (videoUriString.startsWith("file://")) {
+                                    val filePath = Uri.parse(videoUriString).path
+                                    if (filePath != null && java.io.File(filePath).exists()) {
+                                        vv.setVideoPath(filePath)
+                                    } else {
+                                        vv.setVideoURI(Uri.parse(videoUriString))
+                                    }
+                                } else if (videoUriString.startsWith("/")) {
+                                    vv.setVideoPath(videoUriString)
+                                } else {
+                                    vv.setVideoURI(Uri.parse(videoUriString))
+                                }
                             } catch (_: Exception) {}
                         }
                     }
@@ -463,7 +476,18 @@ fun LocalGalleryVideoPlayer(
                     layoutParams = lp
 
                     try {
-                        setVideoURI(Uri.parse(videoUriString))
+                        if (videoUriString.startsWith("file://")) {
+                            val filePath = Uri.parse(videoUriString).path
+                            if (filePath != null && java.io.File(filePath).exists()) {
+                                setVideoPath(filePath)
+                            } else {
+                                setVideoURI(Uri.parse(videoUriString))
+                            }
+                        } else if (videoUriString.startsWith("/")) {
+                            setVideoPath(videoUriString)
+                        } else {
+                            setVideoURI(Uri.parse(videoUriString))
+                        }
                         setOnPreparedListener { mp ->
                             mediaPlayerRef = mp
                             mp.isLooping = true

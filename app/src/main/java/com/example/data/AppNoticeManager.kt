@@ -1,6 +1,10 @@
 package com.example.data
 
 import android.content.Context
+import android.util.Log
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,17 +19,23 @@ data class AppNotice(
     val videoUrl: String = "", // Multimedia horizontal para panel de inicio
     val expandedImageUrl: String = "", // Imagen vertical para vista ampliada
     val externalUrl: String = "", // Enlace web externo opcional al tocar la imagen ampliada
-    val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia"
+    val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad"
     val titleColor: String = "#FFD700",
     val contentColor: String = "#CCCCCC",
     val isEnabled: Boolean = true
 )
 
 object AppNoticeManager {
+    private const val TAG = "AppNoticeManager"
     private const val PREFS_NAME = "wild_rift_app_notices_prefs"
     private const val KEY_NOTICES_JSON = "notices_json_list"
     private const val KEY_INTERVAL_VALUE = "streamer_interval_value"
     private const val KEY_INTERVAL_UNIT = "streamer_interval_unit"
+
+    private const val FIRESTORE_COLLECTION = "system_config"
+    private const val FIRESTORE_DOC_NOTICES = "app_notices"
+
+    private var firestoreListener: ListenerRegistration? = null
 
     private val defaultNotices = listOf(
         AppNotice(
@@ -52,68 +62,115 @@ object AppNoticeManager {
     val streamerIntervalUnit: StateFlow<String> = _streamerIntervalUnit.asStateFlow()
 
     fun init(context: Context) {
-        try {
-            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            val jsonStr = prefs.getString(KEY_NOTICES_JSON, null)
-            val intVal = prefs.getInt(KEY_INTERVAL_VALUE, 10)
-            val intUnit = prefs.getString(KEY_INTERVAL_UNIT, "seconds") ?: "seconds"
-            _streamerIntervalValue.value = intVal
-            _streamerIntervalUnit.value = intUnit
+        val appContext = context.applicationContext
+        // 1. Cargar caché local de inmediato (garantiza arranque instantáneo)
+        loadFromLocalStorage(appContext)
 
-            if (!jsonStr.isNullOrBlank()) {
-                val arr = JSONArray(jsonStr)
-                val list = mutableListOf<AppNotice>()
-                for (i in 0 until arr.length()) {
-                    val obj = arr.getJSONObject(i)
-                    list.add(
-                        AppNotice(
-                            id = obj.optString("id", UUID.randomUUID().toString()),
-                            title = obj.optString("title", "Aviso"),
-                            content = obj.optString("content", ""),
-                            videoUrl = obj.optString("videoUrl", ""),
-                            expandedImageUrl = obj.optString("expandedImageUrl", ""),
-                            externalUrl = obj.optString("externalUrl", ""),
-                            tag = obj.optString("tag", "Anuncios importantes"),
-                            titleColor = obj.optString("titleColor", "#FFD700"),
-                            contentColor = obj.optString("contentColor", "#CCCCCC"),
-                            isEnabled = obj.optBoolean("isEnabled", true)
-                        )
-                    )
+        // 2. Conectar sincronización en tiempo real con Firebase Firestore
+        attachFirestoreListener(appContext)
+
+        // 3. Forzar descarga inmediata desde la nube
+        syncFromCloud(appContext)
+    }
+
+    fun syncFromCloud(context: Context, onComplete: ((Boolean) -> Unit)? = null) {
+        val appContext = context.applicationContext
+        try {
+            val db = FirebaseFirestore.getInstance()
+            db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_NOTICES)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    if (snapshot != null && snapshot.exists()) {
+                        processFirestoreSnapshot(appContext, snapshot)
+                        onComplete?.invoke(true)
+                    } else {
+                        Log.d(TAG, "Documento de anuncios en Firestore no encontrado.")
+                        onComplete?.invoke(false)
+                    }
                 }
-                if (list.isNotEmpty()) {
-                    _notices.value = list
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error forzando sincronización desde Firestore: ${e.message}")
+                    onComplete?.invoke(false)
                 }
-            }
         } catch (e: Exception) {
-            _notices.value = defaultNotices
+            Log.e(TAG, "Excepción en syncFromCloud: ${e.message}")
+            onComplete?.invoke(false)
         }
     }
 
-    fun saveStreamerInterval(context: Context, value: Int, unit: String) {
+    private fun processFirestoreSnapshot(context: Context, snapshot: com.google.firebase.firestore.DocumentSnapshot) {
+        try {
+            val rawList = snapshot.get("notices") as? List<*>
+            val intervalVal = snapshot.getLong("streamerIntervalValue")?.toInt()
+            val intervalUnit = snapshot.getString("streamerIntervalUnit")
+
+            if (intervalVal != null && !intervalUnit.isNullOrBlank()) {
+                _streamerIntervalValue.value = intervalVal
+                _streamerIntervalUnit.value = intervalUnit
+                saveIntervalToPrefs(context, intervalVal, intervalUnit)
+            }
+
+            if (rawList != null) {
+                val parsedNotices = mutableListOf<AppNotice>()
+                for (item in rawList) {
+                    val map = item as? Map<*, *> ?: continue
+                    parsedNotices.add(
+                        AppNotice(
+                            id = map["id"]?.toString() ?: UUID.randomUUID().toString(),
+                            title = map["title"]?.toString() ?: "Aviso",
+                            content = map["content"]?.toString() ?: "",
+                            videoUrl = map["videoUrl"]?.toString() ?: "",
+                            expandedImageUrl = map["expandedImageUrl"]?.toString() ?: "",
+                            externalUrl = map["externalUrl"]?.toString() ?: "",
+                            tag = map["tag"]?.toString() ?: "Anuncios importantes",
+                            titleColor = map["titleColor"]?.toString() ?: "#FFD700",
+                            contentColor = map["contentColor"]?.toString() ?: "#CCCCCC",
+                            isEnabled = (map["isEnabled"] as? Boolean) ?: true
+                        )
+                    )
+                }
+                _notices.value = parsedNotices
+                saveNoticesToPrefs(context, parsedNotices)
+                Log.d(TAG, "Sincronizados exitosamente ${parsedNotices.size} anuncios desde Firestore para todos los dispositivos.")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error procesando snapshot de Firestore: ${e.message}")
+        }
+    }
+
+    private fun attachFirestoreListener(context: Context) {
+        if (firestoreListener != null) return
+        try {
+            val db = FirebaseFirestore.getInstance()
+            firestoreListener = db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_NOTICES)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Log.w(TAG, "Error escuchando anuncios de Firestore: ${error.message}")
+                        return@addSnapshotListener
+                    }
+                    if (snapshot != null && snapshot.exists()) {
+                        processFirestoreSnapshot(context, snapshot)
+                    }
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "No se pudo iniciar listener de Firestore: ${e.message}")
+        }
+    }
+
+    private fun saveIntervalToPrefs(context: Context, value: Int, unit: String) {
         try {
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs.edit()
                 .putInt(KEY_INTERVAL_VALUE, value)
                 .putString(KEY_INTERVAL_UNIT, unit)
                 .apply()
-            _streamerIntervalValue.value = value
-            _streamerIntervalUnit.value = unit
         } catch (_: Exception) {}
     }
 
-    fun getStreamerIntervalMillis(context: Context): Long {
-        val value = _streamerIntervalValue.value.coerceAtLeast(1)
-        return when (_streamerIntervalUnit.value) {
-            "minutes" -> value * 60 * 1000L
-            "hours" -> value * 60 * 60 * 1000L
-            else -> value * 1000L
-        }
-    }
-
-    fun saveNotices(context: Context, newNotices: List<AppNotice>) {
+    private fun saveNoticesToPrefs(context: Context, list: List<AppNotice>) {
         try {
             val arr = JSONArray()
-            for (n in newNotices) {
+            for (n in list) {
                 val obj = JSONObject().apply {
                     put("id", n.id)
                     put("title", n.title)
@@ -130,10 +187,140 @@ object AppNoticeManager {
             }
             val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             prefs.edit().putString(KEY_NOTICES_JSON, arr.toString()).apply()
-            _notices.value = newNotices
+        } catch (_: Exception) {}
+    }
+
+    private fun loadFromLocalStorage(context: Context) {
+        try {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val intervalVal = prefs.getInt(KEY_INTERVAL_VALUE, 10)
+            val intervalUnit = prefs.getString(KEY_INTERVAL_UNIT, "seconds") ?: "seconds"
+            _streamerIntervalValue.value = intervalVal
+            _streamerIntervalUnit.value = intervalUnit
+
+            val jsonStr = prefs.getString(KEY_NOTICES_JSON, null)
+            if (!jsonStr.isNullOrBlank()) {
+                val arr = JSONArray(jsonStr)
+                val loaded = mutableListOf<AppNotice>()
+                for (i in 0 until arr.length()) {
+                    val obj = arr.getJSONObject(i)
+                    loaded.add(
+                        AppNotice(
+                            id = obj.optString("id", UUID.randomUUID().toString()),
+                            title = obj.optString("title", ""),
+                            content = obj.optString("content", ""),
+                            videoUrl = obj.optString("videoUrl", ""),
+                            expandedImageUrl = obj.optString("expandedImageUrl", ""),
+                            externalUrl = obj.optString("externalUrl", ""),
+                            tag = obj.optString("tag", "Anuncios importantes"),
+                            titleColor = obj.optString("titleColor", "#C8AA6E"),
+                            contentColor = obj.optString("contentColor", "#A09B8C"),
+                            isEnabled = obj.optBoolean("isEnabled", true)
+                        )
+                    )
+                }
+                if (loaded.isNotEmpty()) {
+                    _notices.value = loaded
+                }
+            }
         } catch (e: Exception) {
-            // Ignore
+            Log.w(TAG, "Error cargando desde almacenamiento local: ${e.message}")
         }
+    }
+
+    fun saveAllNoticesAndInterval(
+        context: Context,
+        newNotices: List<AppNotice>,
+        intervalValue: Int,
+        intervalUnit: String,
+        onComplete: ((success: Boolean, errorMsg: String?) -> Unit)? = null
+    ) {
+        val appContext = context.applicationContext
+        _notices.value = newNotices
+        _streamerIntervalValue.value = intervalValue
+        _streamerIntervalUnit.value = intervalUnit
+        saveNoticesToPrefs(appContext, newNotices)
+        saveIntervalToPrefs(appContext, intervalValue, intervalUnit)
+
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val listData = newNotices.map { n ->
+                mapOf(
+                    "id" to n.id,
+                    "title" to n.title,
+                    "content" to n.content,
+                    "videoUrl" to n.videoUrl,
+                    "expandedImageUrl" to n.expandedImageUrl,
+                    "externalUrl" to n.externalUrl,
+                    "tag" to n.tag,
+                    "titleColor" to n.titleColor,
+                    "contentColor" to n.contentColor,
+                    "isEnabled" to n.isEnabled
+                )
+            }
+            val data = hashMapOf(
+                "notices" to listData,
+                "streamerIntervalValue" to intervalValue,
+                "streamerIntervalUnit" to intervalUnit,
+                "updatedAt" to System.currentTimeMillis()
+            )
+            db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_NOTICES)
+                .set(data, SetOptions.merge())
+                .addOnSuccessListener {
+                    Log.d(TAG, "Anuncios e intervalo guardados y sincronizados exitosamente en Firestore para todos los dispositivos.")
+                    onComplete?.invoke(true, null)
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error guardando anuncios en Firestore: ${e.message}")
+                    onComplete?.invoke(false, e.localizedMessage ?: e.message)
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "Excepción al sincronizar anuncios con Firestore: ${e.message}")
+            onComplete?.invoke(false, e.localizedMessage ?: e.message)
+        }
+    }
+
+    private fun pushNoticesToFirestore(context: Context, noticesList: List<AppNotice>) {
+        saveAllNoticesAndInterval(
+            context = context,
+            newNotices = noticesList,
+            intervalValue = _streamerIntervalValue.value,
+            intervalUnit = _streamerIntervalUnit.value
+        )
+    }
+
+    fun saveStreamerInterval(context: Context, value: Int, unit: String) {
+        val appContext = context.applicationContext
+        _streamerIntervalValue.value = value
+        _streamerIntervalUnit.value = unit
+        saveIntervalToPrefs(appContext, value, unit)
+
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val data = hashMapOf(
+                "streamerIntervalValue" to value,
+                "streamerIntervalUnit" to unit,
+                "updatedAt" to System.currentTimeMillis()
+            )
+            db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_NOTICES)
+                .set(data, SetOptions.merge())
+        } catch (_: Exception) {}
+    }
+
+    fun getStreamerIntervalMillis(context: Context): Long {
+        val value = _streamerIntervalValue.value.coerceAtLeast(1)
+        return when (_streamerIntervalUnit.value) {
+            "minutes" -> value * 60 * 1000L
+            "hours" -> value * 60 * 60 * 1000L
+            else -> value * 1000L
+        }
+    }
+
+    fun saveNotices(context: Context, newNotices: List<AppNotice>) {
+        val appContext = context.applicationContext
+        _notices.value = newNotices
+        saveNoticesToPrefs(appContext, newNotices)
+        pushNoticesToFirestore(appContext, newNotices)
     }
 
     // For backward compatibility if single update is called
@@ -148,3 +335,4 @@ object AppNoticeManager {
         saveNotices(context, current)
     }
 }
+

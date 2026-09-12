@@ -82,3 +82,12 @@
 -keep class com.example.util.DeviceAndSessionManager { *; }
 -keep class com.example.util.SubscriptionManager { *; }
 
+# App Notices, Analytics and Media
+-keep class com.example.data.AppNotice** { *; }
+-keep class com.example.data.NoticeMetrics { *; }
+-keep class com.example.data.AppNoticeAnalyticsManager** { *; }
+-keep class com.example.ui.components.NoticeMediaUtils** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn retrofit2.**
+
