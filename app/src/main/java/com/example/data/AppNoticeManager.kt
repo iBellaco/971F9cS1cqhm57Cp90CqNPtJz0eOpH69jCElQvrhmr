@@ -2,6 +2,7 @@ package com.example.data
 
 import android.content.Context
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
@@ -36,6 +37,8 @@ object AppNoticeManager {
     private const val FIRESTORE_DOC_NOTICES = "app_notices"
 
     private var firestoreListener: ListenerRegistration? = null
+    private var authStateListener: FirebaseAuth.AuthStateListener? = null
+    private var isAuthenticatingAnonymously = false
 
     private val defaultNotices = listOf(
         AppNotice(
@@ -66,15 +69,85 @@ object AppNoticeManager {
         // 1. Cargar caché local de inmediato (garantiza arranque instantáneo)
         loadFromLocalStorage(appContext)
 
-        // 2. Conectar sincronización en tiempo real con Firebase Firestore
-        attachFirestoreListener(appContext)
+        // 2. Monitorear cambios de sesión/autenticación para mantener listener activo
+        setupAuthStateListener(appContext)
 
-        // 3. Forzar descarga inmediata desde la nube
-        syncFromCloud(appContext)
+        // 3. Conectar y sincronizar garantizando acceso en la nube (autenticación anónima transparente si no hay usuario)
+        ensureAuthAndSync(appContext)
+    }
+
+    private fun setupAuthStateListener(context: Context) {
+        if (authStateListener != null) return
+        try {
+            val auth = FirebaseAuth.getInstance()
+            authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+                val user = firebaseAuth.currentUser
+                Log.d(TAG, "Cambio de estado de autenticación detectado (uid=${user?.uid}, anon=${user?.isAnonymous})")
+                if (user == null) {
+                    ensureAuthAndSync(context)
+                } else {
+                    attachFirestoreListener(context, force = true)
+                    syncFromCloud(context)
+                }
+            }
+            auth.addAuthStateListener(authStateListener!!)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error inicializando AuthStateListener: ${e.message}")
+        }
+    }
+
+    private fun ensureAuthAndSync(context: Context) {
+        val appContext = context.applicationContext
+        try {
+            val auth = FirebaseAuth.getInstance()
+            val currentUser = auth.currentUser
+            if (currentUser == null) {
+                if (isAuthenticatingAnonymously) return
+                isAuthenticatingAnonymously = true
+                auth.signInAnonymously()
+                    .addOnSuccessListener {
+                        isAuthenticatingAnonymously = false
+                        Log.d(TAG, "Sesión de invitado/anónima iniciada con éxito para sincronización multi-dispositivo.")
+                        attachFirestoreListener(appContext, force = true)
+                        syncFromCloud(appContext)
+                    }
+                    .addOnFailureListener { e ->
+                        isAuthenticatingAnonymously = false
+                        Log.w(TAG, "Inicio anónimo no disponible (${e.message}). Intentando sincronización directa...")
+                        attachFirestoreListener(appContext, force = true)
+                        syncFromCloud(appContext)
+                    }
+            } else {
+                attachFirestoreListener(appContext, force = false)
+                syncFromCloud(appContext)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Excepción en ensureAuthAndSync: ${e.message}")
+            attachFirestoreListener(appContext, force = false)
+            syncFromCloud(appContext)
+        }
     }
 
     fun syncFromCloud(context: Context, onComplete: ((Boolean) -> Unit)? = null) {
         val appContext = context.applicationContext
+        try {
+            val auth = FirebaseAuth.getInstance()
+            if (auth.currentUser == null) {
+                // Asegurar credenciales anónimas primero para evitar PERMISSION_DENIED en dispositivos sin login
+                auth.signInAnonymously()
+                    .addOnCompleteListener {
+                        executeCloudFetch(appContext, onComplete)
+                    }
+                return
+            }
+            executeCloudFetch(appContext, onComplete)
+        } catch (e: Exception) {
+            Log.e(TAG, "Excepción en syncFromCloud: ${e.message}")
+            executeCloudFetch(appContext, onComplete)
+        }
+    }
+
+    private fun executeCloudFetch(appContext: Context, onComplete: ((Boolean) -> Unit)?) {
         try {
             val db = FirebaseFirestore.getInstance()
             db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_NOTICES)
@@ -93,7 +166,7 @@ object AppNoticeManager {
                     onComplete?.invoke(false)
                 }
         } catch (e: Exception) {
-            Log.e(TAG, "Excepción en syncFromCloud: ${e.message}")
+            Log.e(TAG, "Excepción en executeCloudFetch: ${e.message}")
             onComplete?.invoke(false)
         }
     }
@@ -138,7 +211,13 @@ object AppNoticeManager {
         }
     }
 
-    private fun attachFirestoreListener(context: Context) {
+    fun attachFirestoreListener(context: Context, force: Boolean = false) {
+        if (force) {
+            try {
+                firestoreListener?.remove()
+            } catch (_: Exception) {}
+            firestoreListener = null
+        }
         if (firestoreListener != null) return
         try {
             val db = FirebaseFirestore.getInstance()
@@ -146,6 +225,17 @@ object AppNoticeManager {
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Log.w(TAG, "Error escuchando anuncios de Firestore: ${error.message}")
+                        try {
+                            firestoreListener?.remove()
+                        } catch (_: Exception) {}
+                        firestoreListener = null
+                        // Si falló por falta de autenticación y no hay usuario, reintentar autenticar anónimamente
+                        try {
+                            val auth = FirebaseAuth.getInstance()
+                            if (auth.currentUser == null) {
+                                ensureAuthAndSync(context)
+                            }
+                        } catch (_: Exception) {}
                         return@addSnapshotListener
                     }
                     if (snapshot != null && snapshot.exists()) {
@@ -154,6 +244,7 @@ object AppNoticeManager {
                 }
         } catch (e: Exception) {
             Log.e(TAG, "No se pudo iniciar listener de Firestore: ${e.message}")
+            firestoreListener = null
         }
     }
 

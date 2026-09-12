@@ -20,7 +20,7 @@ object AuthManager {
 
         auth.addIdTokenListener(FirebaseAuth.IdTokenListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
-            if (user != null) {
+            if (user != null && !user.isAnonymous) {
                 user.getIdToken(false).addOnSuccessListener { result ->
                     val claims = result.claims
                     val isAdmin = claims["admin"] == true
@@ -35,7 +35,7 @@ object AuthManager {
 
         auth.addAuthStateListener(FirebaseAuth.AuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
-            if (user != null) {
+            if (user != null && !user.isAnonymous) {
                 user.getIdToken(false).addOnSuccessListener { result ->
                     val claims = result.claims
                     val isAdmin = claims["admin"] == true
@@ -68,7 +68,7 @@ object AuthManager {
 
     fun refreshClaims(onComplete: (Boolean) -> Unit = {}) {
         val user = getAuth()?.currentUser
-        if (user == null) {
+        if (user == null || user.isAnonymous) {
             _isAdminClaim.value = false
             onComplete(false)
             return
@@ -88,6 +88,7 @@ object AuthManager {
 
     fun isCurrentUserEmailVerified(): Boolean {
         val user = getAuth()?.currentUser ?: return false
+        if (user.isAnonymous) return false
         return user.isEmailVerified
     }
 }

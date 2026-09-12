@@ -86,7 +86,7 @@ fun AuthFlowContainer(
     }
     
     // Check if user is already authenticated
-    if (currentUser != null) {
+    if (currentUser != null && !currentUser!!.isAnonymous) {
         AuthenticatedProfilePanel(
             user = currentUser!!,
             onSignOut = {

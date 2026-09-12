@@ -331,7 +331,8 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         
         AppThemeManager.init(this)
         com.example.util.SubscriptionManager.init(this)
-        if (com.example.util.AuthManager.getAuth()?.currentUser != null) {
+        val currentAuthUser = com.example.util.AuthManager.getAuth()?.currentUser
+        if (currentAuthUser != null && !currentAuthUser.isAnonymous) {
             com.example.util.DeviceAndSessionManager.registerDeviceAndSession(this, onError = { msg -> 
                 if (msg.contains("Límite de dispositivos", ignoreCase = true)) {
                     android.widget.Toast.makeText(this, msg, android.widget.Toast.LENGTH_LONG).show()

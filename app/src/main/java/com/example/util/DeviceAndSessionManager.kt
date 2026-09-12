@@ -113,7 +113,7 @@ object DeviceAndSessionManager {
     // Limpia slots huérfanos o resetea dispositivos registrados para dejar solo el teléfono actual
     fun resetDeviceSlots(context: Context, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null) {
+        if (user == null || user.isAnonymous) {
             onError("Usuario no logueado")
             return
         }
@@ -128,7 +128,7 @@ object DeviceAndSessionManager {
     // Registrar sesión y dispositivo en Firestore de manera segura y sin desconexiones accidentales
     fun registerDeviceAndSession(context: Context, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null) {
+        if (user == null || user.isAnonymous) {
             onError("Usuario no logueado")
             return
         }
@@ -180,6 +180,7 @@ object DeviceAndSessionManager {
 
     fun handleSessionChanged(remoteSessionToken: String?, remoteDeviceId: String?, remoteTimestamp: Long = 0L, context: Context) {
         val user = AuthManager.getAuth()?.currentUser ?: return
+        if (user.isAnonymous) return
         val isAdmin = AuthManager.isCurrentUserAdmin()
         
         // Administradores nunca se desconectan por concurrencia

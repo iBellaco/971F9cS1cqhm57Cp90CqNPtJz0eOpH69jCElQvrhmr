@@ -350,7 +350,7 @@ fun MainDraftingScreen(
 
                         // User Avatar Profile button
                         val authUser = com.example.util.AuthManager.getAuth()?.currentUser
-                        if (authUser != null) {
+                        if (authUser != null && !authUser.isAnonymous) {
                             IconButton(
                                 onClick = onNavigateToLogin,
                                 modifier = Modifier
@@ -444,6 +444,7 @@ fun MainDraftingScreen(
                             isIgnoringBatteryOpt = SystemPermissionHelper.isIgnoringBatteryOptimizations(context)
                             hasOverlayPermission = SystemPermissionHelper.hasOverlayPermission(context)
                             hasStoragePermission = SystemPermissionHelper.hasStoragePermission(context)
+                            com.example.data.AppNoticeManager.syncFromCloud(context)
                         }
                     }
                     lifecycleOwner.lifecycle.addObserver(observer)

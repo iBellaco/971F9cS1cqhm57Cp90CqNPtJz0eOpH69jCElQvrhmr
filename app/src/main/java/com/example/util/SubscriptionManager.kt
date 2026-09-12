@@ -54,7 +54,7 @@ object SubscriptionManager {
     init {
         com.example.util.AuthManager.getAuth()?.addAuthStateListener {
             val user = it.currentUser
-            if (user == null) {
+            if (user == null || user.isAnonymous) {
                 _userRole.value = "free"
                 _userName.value = ""
                 _isPremium.value = false
@@ -118,7 +118,7 @@ object SubscriptionManager {
         val auth = AuthManager.getAuth()
         val user = auth?.currentUser
 
-        if (user == null) {
+        if (user == null || user.isAnonymous) {
             _userRole.value = "free"
             _userName.value = ""
             _isPremium.value = false
@@ -274,7 +274,7 @@ object SubscriptionManager {
         onError: (String) -> Unit = {}
     ) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null) {
+        if (user == null || user.isAnonymous) {
             onError("Inicia sesión para cambiar de avatar")
             return
         }
@@ -300,7 +300,7 @@ object SubscriptionManager {
 
     fun changeRankBorder(borderId: String, onSuccess: () -> Unit = {}, onError: (String) -> Unit = {}) {
         val user = AuthManager.getAuth()?.currentUser
-        if (user == null) {
+        if (user == null || user.isAnonymous) {
             onError("Inicia sesión para cambiar de marco")
             return
         }
@@ -366,6 +366,7 @@ object SubscriptionManager {
 
     suspend fun addBlueEssence(amount: Long) {
         val user = AuthManager.getAuth()?.currentUser ?: return
+        if (user.isAnonymous) return
         val db = FirebaseFirestore.getInstance()
         try {
             val userRef = db.collection("users").document(user.uid)
