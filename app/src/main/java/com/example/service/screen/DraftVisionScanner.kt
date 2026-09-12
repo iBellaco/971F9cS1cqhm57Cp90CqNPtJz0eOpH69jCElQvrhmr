@@ -175,7 +175,6 @@ object DraftVisionScanner {
     private val allySlotRolesCache = mutableMapOf<Int, LaneRole>()
     // Memoria persistente de los nombres de invocador aliados (0..4)
     private val allySummonerNamesCache = mutableMapOf<Int, String>()
-    private var confirmedLegendaryRanked = false
 
     // Filtros de estabilización temporal (anti-parpadeo y anti-oscilación)
     private class SlotTemporalFilter {
@@ -195,13 +194,14 @@ object DraftVisionScanner {
         }
     }
 
+    private var isLegendaryRankedCache = false
     private val allySlotFilters = Array(5) { SlotTemporalFilter() }
     private val enemySlotFilters = Array(5) { SlotTemporalFilter() }
 
     fun resetSlotMemory() {
+        isLegendaryRankedCache = false
         allySlotRolesCache.clear()
         allySummonerNamesCache.clear()
-        confirmedLegendaryRanked = false
         allySlotFilters.forEach { it.reset() }
         enemySlotFilters.forEach { it.reset() }
         AppLogger.d(TAG, "Memoria de roles e invocadores reiniciada")
@@ -268,15 +268,10 @@ object DraftVisionScanner {
             val visionText = recognizer.process(inputImage).await()
 
             // Detección proactiva de Clasificatoria Legendaria en pantalla completa
-            if (confirmedLegendaryRanked) {
-                isLegendaryRanked = true
-            } else {
-                isLegendaryRanked = DraftValidationLayer.isLegendaryRankedDraft(visionText.text)
-                if (isLegendaryRanked) {
-                    confirmedLegendaryRanked = true
-                    AppLogger.d(TAG, "Clasificatoria Legendaria confirmada. Se mantendra para esta sesion.")
-                }
+            if (!isLegendaryRankedCache) {
+                isLegendaryRankedCache = DraftValidationLayer.isLegendaryRankedDraft(visionText.text)
             }
+            isLegendaryRanked = isLegendaryRankedCache
             if (isLegendaryRanked) {
                 AppLogger.d(TAG, "Clasificatoria Legendaria detectada en pantalla (Nombres anónimos). Búsqueda de invocadores desactivada.")
                 allySummonerNamesCache.clear()
