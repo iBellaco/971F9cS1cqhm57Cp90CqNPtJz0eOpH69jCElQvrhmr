@@ -125,9 +125,9 @@ jobs:
           }
           EOF
 
-      - name: Build Debug APK
+      - name: Build Debug APK with R8 / ProGuard Obfuscation
         run: |
-          gradle :app:assembleDebug
+          gradle :app:assembleDebug -PenableDebugMinify=true
 
       - name: Verify APK
         run: |

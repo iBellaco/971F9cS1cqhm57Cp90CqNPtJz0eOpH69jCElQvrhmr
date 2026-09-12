@@ -53,13 +53,20 @@ fun AdminCpmAnalyticsDialog(
 
     var showEditCpmDialog by remember { mutableStateOf(false) }
     var showResetConfirmDialog by remember { mutableStateOf(false) }
+    var showRecommendationInfoDialog by remember { mutableStateOf(false) }
     var cpmInputText by remember { mutableStateOf(String.format(Locale.US, "%.2f", baseCpmRate)) }
+    var selectedTagFilter by remember { mutableStateOf("TODAS") }
 
     val totalImpressions = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalImpressions() }
     val totalClicks = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalClicks() }
     val totalFullscreen = remember(metricsMap) { AppNoticeAnalyticsManager.getTotalFullscreenViews() }
     val totalRevenue = remember(totalImpressions, baseCpmRate) { AppNoticeAnalyticsManager.getTotalRevenue(baseCpmRate) }
     val overallCtr = remember(totalImpressions, totalClicks) { AppNoticeAnalyticsManager.getOverallCtr() }
+
+    // Recomendación dinámica inteligente recalculada en tiempo real
+    val dynamicRec = remember(metricsMap, totalImpressions, totalClicks, totalFullscreen, overallCtr) {
+        AppNoticeAnalyticsManager.calculateRecommendedCpm()
+    }
 
     val formattedStartDate = remember(startDateMs) {
         val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -75,6 +82,69 @@ fun AdminCpmAnalyticsDialog(
         Toast.makeText(context, "Reporte CPM copiado al portapapeles", Toast.LENGTH_SHORT).show()
     }
 
+    if (showRecommendationInfoDialog) {
+        AlertDialog(
+            onDismissRequest = { showRecommendationInfoDialog = false },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Algoritmo de CPM Recomendado", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "El precio sugerido se calcula y actualiza dinámicamente según tus métricas reales y benchmarks globales de apps de eSports/gaming:",
+                        color = TextSecondary,
+                        fontSize = 12.sp
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Surface(
+                        color = HextechSurfaceVariant,
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp)) {
+                            Text("• Nivel / Calificación: ${dynamicRec.tierName}", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text("• CPM Recomendado Actual: $${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} USD", color = Color(0xFF00FF66), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text("• Rango sugerido de venta: $${String.format(Locale.US, "%.2f", dynamicRec.suggestedPriceRange.first)} - $${String.format(Locale.US, "%.2f", dynamicRec.suggestedPriceRange.second)} USD", color = HextechGold, fontSize = 11.5.sp)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text("• Benchmark Mercado Gaming: $${String.format(Locale.US, "%.2f", dynamicRec.marketBenchmarkMin)} - $${String.format(Locale.US, "%.2f", dynamicRec.marketBenchmarkMax)} USD", color = TextMuted, fontSize = 11.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("💡 Criterio del Sistema:", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(dynamicRec.reasoning, color = TextPrimary, fontSize = 11.5.sp, lineHeight = 15.sp)
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        AppNoticeAnalyticsManager.setBaseCpm(context, dynamicRec.recommendedCpm)
+                        showRecommendationInfoDialog = false
+                        Toast.makeText(context, "Tarifa fijada al precio recomendado: $${dynamicRec.recommendedCpm} USD", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                ) {
+                    Text("Aplicar Recomendado ($${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)})", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRecommendationInfoDialog = false }) {
+                    Text("Cerrar", color = TextSecondary)
+                }
+            },
+            containerColor = HextechDarkBg
+        )
+    }
+
     if (showResetConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showResetConfirmDialog = false },
@@ -83,7 +153,7 @@ fun AdminCpmAnalyticsDialog(
             },
             text = {
                 Text(
-                    "Esta acción restablecerá a 0 las impresiones, clics y vistas fullscreen de todos los avisos para iniciar un nuevo período de campaña o facturación.",
+                    "Esta acción restablecerá a 0 las impresiones y clics únicos diarios de todos los avisos para iniciar un nuevo período de campaña o facturación.",
                     color = TextSecondary,
                     fontSize = 13.sp
                 )
@@ -123,6 +193,41 @@ fun AdminCpmAnalyticsDialog(
                         fontSize = 12.sp
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    // Dynamic recommendation shortcut badge
+                    Surface(
+                        color = HextechGold.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                cpmInputText = String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Column {
+                                    Text("Recomendación Automática de la IA:", color = HextechGold, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Text(dynamicRec.tierName, color = HextechCyan, fontSize = 9.5.sp)
+                                }
+                            }
+                            Text(
+                                text = "Usar $${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} ↗",
+                                color = Color(0xFF00FF66),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.5.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
                         value = cpmInputText,
                         onValueChange = { cpmInputText = it },
@@ -142,7 +247,7 @@ fun AdminCpmAnalyticsDialog(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        listOf(1.00, 2.50, 5.00, 10.00).forEach { rate ->
+                        listOf(1.00, 2.50, dynamicRec.recommendedCpm, 5.00, 10.00).distinct().take(4).forEach { rate ->
                             Surface(
                                 modifier = Modifier
                                     .weight(1f)
@@ -155,7 +260,7 @@ fun AdminCpmAnalyticsDialog(
                             ) {
                                 Text(
                                     text = "$$rate",
-                                    color = HextechCyan,
+                                    color = if (rate == dynamicRec.recommendedCpm) Color(0xFF00FF66) else HextechCyan,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center,
@@ -253,6 +358,85 @@ fun AdminCpmAnalyticsDialog(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
+                // Dynamic Recommended CPM Intelligence Banner
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showRecommendationInfoDialog = true },
+                    color = HextechSurfaceVariant,
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.2.dp, Brush.horizontalGradient(listOf(HextechGold, Color(0xFF00FF66))))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(CircleShape)
+                                    .background(HextechGold.copy(alpha = 0.15f))
+                                    .border(1.dp, HextechGold, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "CPM Recomendado: $${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} USD",
+                                        color = Color(0xFF00FF66),
+                                        fontSize = 12.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Surface(
+                                        color = Color(0xFF00FF66).copy(alpha = 0.15f),
+                                        shape = RoundedCornerShape(4.dp)
+                                    ) {
+                                        Text(
+                                            text = "Auto-Actualizado",
+                                            color = Color(0xFF00FF66),
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = "${dynamicRec.tierName} • Rango: $${String.format(Locale.US, "%.2f", dynamicRec.suggestedPriceRange.first)} - $${String.format(Locale.US, "%.2f", dynamicRec.suggestedPriceRange.second)} USD (Toca para ver criterio)",
+                                    color = TextSecondary,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = HextechGold,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
                 // KPI Overview Banner Cards
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -285,7 +469,7 @@ fun AdminCpmAnalyticsDialog(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Text("CPM: $${String.format(Locale.US, "%.2f", baseCpmRate)}/1k ✎", color = HextechGold, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                    Text("CPM Actual: $${String.format(Locale.US, "%.2f", baseCpmRate)}/1k ✎", color = HextechGold, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -302,17 +486,17 @@ fun AdminCpmAnalyticsDialog(
                                 modifier = Modifier.weight(1f),
                                 label = "Ingresos Est.",
                                 value = "$${String.format(Locale.US, "%.2f", totalRevenue)}",
-                                subtext = "USD totales",
+                                subtext = "USD con CPM actual",
                                 accentColor = Color(0xFF00FF66),
                                 icon = Icons.Default.AttachMoney
                             )
 
-                            // Impresiones
+                            // Impresiones Únicas
                             KpiCard(
                                 modifier = Modifier.weight(1f),
-                                label = "Impresiones",
+                                label = "Impresiones Únicas",
                                 value = String.format(Locale.US, "%,d", totalImpressions),
-                                subtext = "Vistas en pantalla",
+                                subtext = "1 x disp / día",
                                 accentColor = HextechCyan,
                                 icon = Icons.Default.Visibility
                             )
@@ -324,11 +508,11 @@ fun AdminCpmAnalyticsDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            // Clics y CTR
+                            // Clics Únicos y CTR
                             KpiCard(
                                 modifier = Modifier.weight(1f),
-                                label = "Clics & CTR",
-                                value = "${totalClicks} clics",
+                                label = "Clics Únicos",
+                                value = "${totalClicks} únicos",
                                 subtext = "${String.format(Locale.US, "%.2f", overallCtr)}% CTR",
                                 accentColor = HextechGold,
                                 icon = Icons.Default.TouchApp
@@ -347,7 +531,7 @@ fun AdminCpmAnalyticsDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 // Action Toolbar (Copiar reporte / Reset / Info)
                 Row(
@@ -363,7 +547,7 @@ fun AdminCpmAnalyticsDialog(
                     ) {
                         Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Copiar Reporte", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Text("Copiar Reporte", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
 
                     Button(
@@ -375,46 +559,88 @@ fun AdminCpmAnalyticsDialog(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFFFF6666), modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Reiniciar", color = Color(0xFFFF6666), fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Text("Reiniciar", color = Color(0xFFFF6666), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                // Section Title: Desglose por Etiqueta y Anuncio
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "📋 Desglose por Etiqueta (${notices.size} anuncios)",
-                        color = HextechGold,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Fórmula: (Vistas / 1000) × CPM",
-                        color = TextMuted,
-                        fontSize = 10.sp
-                    )
+                // TAG NAVIGATION BAR (Scrollable Navigation Chips / Tabs)
+                val allTags = remember(notices) {
+                    val rawTags = notices.map { it.tag.trim().ifBlank { "General" } }.distinct()
+                    listOf("TODAS") + rawTags
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                ScrollableTabRow(
+                    selectedTabIndex = allTags.indexOf(selectedTagFilter).coerceAtLeast(0),
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = Color.Transparent,
+                    contentColor = HextechGold,
+                    edgePadding = 0.dp,
+                    divider = {}
+                ) {
+                    allTags.forEach { tagItem ->
+                        val isSelected = selectedTagFilter == tagItem
+                        val countInTag = if (tagItem == "TODAS") notices.size else notices.count { it.tag.trim().ifBlank { "General" }.equals(tagItem, ignoreCase = true) }
+                        
+                        Tab(
+                            selected = isSelected,
+                            onClick = { selectedTagFilter = tagItem },
+                            text = {
+                                Surface(
+                                    color = if (isSelected) HextechGold.copy(alpha = 0.2f) else HextechSurfaceVariant,
+                                    shape = RoundedCornerShape(16.dp),
+                                    border = BorderStroke(
+                                        width = if (isSelected) 1.5.dp else 1.dp,
+                                        color = if (isSelected) HextechGold else HextechCyan.copy(alpha = 0.3f)
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (tagItem != "TODAS") {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(6.dp)
+                                                    .clip(CircleShape)
+                                                    .background(if (isSelected) HextechGold else HextechCyan)
+                                            )
+                                            Spacer(modifier = Modifier.width(5.dp))
+                                        }
+                                        Text(
+                                            text = if (tagItem == "TODAS") "TODAS ($countInTag)" else "${tagItem.uppercase()} ($countInTag)",
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (isSelected) HextechGold else TextSecondary
+                                        )
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
 
-                // List of notices grouped by Tag
-                if (notices.isEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // List of notices grouped by Tag or filtered by tag navigation
+                val filteredNotices = remember(notices, selectedTagFilter) {
+                    if (selectedTagFilter == "TODAS") notices
+                    else notices.filter { it.tag.trim().ifBlank { "General" }.equals(selectedTagFilter, ignoreCase = true) }
+                }
+
+                if (filteredNotices.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No hay anuncios configurados actualmente", color = TextSecondary, fontSize = 12.sp)
+                        Text("No hay anuncios para la etiqueta seleccionada", color = TextSecondary, fontSize = 12.sp)
                     }
                 } else {
-                    val groupedNotices = remember(notices) {
-                        notices.groupBy { it.tag.trim().ifBlank { "General" } }
+                    val groupedNotices = remember(filteredNotices) {
+                        filteredNotices.groupBy { it.tag.trim().ifBlank { "General" } }
                     }
 
                     LazyColumn(
@@ -489,12 +715,12 @@ fun AdminCpmAnalyticsDialog(
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
                                             Text(
-                                                text = "👁️ ${String.format(Locale.US, "%,d", tagTotalImps)} imp.",
+                                                text = "👁️ ${String.format(Locale.US, "%,d", tagTotalImps)} imp. únicas",
                                                 color = HextechCyan,
                                                 fontSize = 9.5.sp
                                             )
                                             Text(
-                                                text = "🖱️ $tagTotalClicks clics (${String.format(Locale.US, "%.1f", tagCtr)}%)",
+                                                text = "🖱️ $tagTotalClicks clics únicos (${String.format(Locale.US, "%.1f", tagCtr)}%)",
                                                 color = HextechGold,
                                                 fontSize = 9.5.sp
                                             )
@@ -643,7 +869,7 @@ private fun NoticeAnalyticsItemCard(
             ) {
                 // Impresiones
                 Column(horizontalAlignment = Alignment.Start) {
-                    Text("Impresiones", color = TextMuted, fontSize = 9.sp)
+                    Text("Imp. Únicas", color = TextMuted, fontSize = 9.sp)
                     Text(
                         String.format(Locale.US, "%,d", metrics.impressions),
                         color = HextechCyan,
@@ -654,7 +880,7 @@ private fun NoticeAnalyticsItemCard(
 
                 // Clics / CTR
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Clics / CTR", color = TextMuted, fontSize = 9.sp)
+                    Text("Clics Únicos (CTR)", color = TextMuted, fontSize = 9.sp)
                     Text(
                         "${metrics.clicks} (${String.format(Locale.US, "%.1f", metrics.ctr)}%)",
                         color = HextechGold,

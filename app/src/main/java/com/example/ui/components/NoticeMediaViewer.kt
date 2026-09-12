@@ -45,6 +45,18 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import com.example.ui.theme.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+object NoticeMediaPlaybackController {
+    private val _pauseTrigger = MutableStateFlow(0L)
+    val pauseTrigger: StateFlow<Long> = _pauseTrigger.asStateFlow()
+
+    fun pauseAndMuteAll() {
+        _pauseTrigger.value = System.currentTimeMillis()
+    }
+}
 
 object NoticeMediaUtils {
     fun extractYouTubeVideoId(url: String): String? {
@@ -184,6 +196,17 @@ fun NoticeMediaViewer(
             // YouTube Player with Error 153 fix, modern WebView settings, and custom Chrome user agent
             var isYtMuted by remember { mutableStateOf(true) }
             val currentPrimaryColor = MaterialTheme.colorScheme.primary
+
+            val pauseTrigger by NoticeMediaPlaybackController.pauseTrigger.collectAsState()
+            LaunchedEffect(pauseTrigger) {
+                if (pauseTrigger > 0L) {
+                    isYtMuted = true
+                    try {
+                        webViewInstance?.evaluateJavascript("muteVideo();", null)
+                        webViewInstance?.evaluateJavascript("var iframe = document.getElementById('ytplayer'); if (iframe && iframe.contentWindow) { iframe.contentWindow.postMessage('{\"event\":\"command\",\"func\":\"pauseVideo\",\"args\":\"\"}', '*'); }", null)
+                    } catch (_: Exception) {}
+                }
+            }
 
             Box(modifier = Modifier.fillMaxSize()) {
                 AndroidView(
@@ -354,11 +377,25 @@ fun LocalGalleryVideoPlayer(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    var isMuted by remember { mutableStateOf(false) }
+    var isMuted by remember { mutableStateOf(true) }
     var isPlaying by remember { mutableStateOf(true) }
     var videoViewRef by remember { mutableStateOf<VideoView?>(null) }
     var mediaPlayerRef by remember { mutableStateOf<android.media.MediaPlayer?>(null) }
     val themePrimary = MaterialTheme.colorScheme.primary
+
+    val pauseTrigger by NoticeMediaPlaybackController.pauseTrigger.collectAsState()
+    LaunchedEffect(pauseTrigger) {
+        if (pauseTrigger > 0L) {
+            isPlaying = false
+            isMuted = true
+            try {
+                mediaPlayerRef?.setVolume(0f, 0f)
+                if (videoViewRef?.isPlaying == true) {
+                    videoViewRef?.pause()
+                }
+            } catch (_: Exception) {}
+        }
+    }
 
     // Lifecycle observer to seamlessly recover video playback when returning from background / closing overlay
     DisposableEffect(lifecycleOwner, videoUriString) {

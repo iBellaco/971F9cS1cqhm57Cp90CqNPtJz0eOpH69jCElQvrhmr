@@ -20,8 +20,8 @@ android {
     applicationId = "com.aistudio.wildriftdrafting.wrdftx"
     minSdk = 24
     targetSdk = 36
-    versionCode = 285
-    versionName = "1.9.23"
+    versionCode = 288
+    versionName = "1.9.26"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -62,6 +62,12 @@ android {
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
+      val enableMinify = project.findProperty("enableDebugMinify") == "true"
+      isMinifyEnabled = enableMinify
+      isShrinkResources = enableMinify
+      if (enableMinify) {
+        proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      }
       signingConfig = signingConfigs.getByName("debug")
     }
   }

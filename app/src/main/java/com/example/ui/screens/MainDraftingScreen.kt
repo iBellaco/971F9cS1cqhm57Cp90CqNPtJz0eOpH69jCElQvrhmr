@@ -227,6 +227,8 @@ fun MainDraftingScreen(
     }
 
     val toggleAssistant: () -> Unit = {
+        // Pausar y silenciar inmediatamente cualquier video en reproducción
+        com.example.ui.components.NoticeMediaPlaybackController.pauseAndMuteAll()
         if (isAssistantActive) {
             SystemPermissionHelper.stopFloatingService(context)
             isAssistantActive = false

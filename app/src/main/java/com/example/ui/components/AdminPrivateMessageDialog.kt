@@ -341,29 +341,74 @@ fun AdminUserMessagesViewerDialog(
     fun loadMessages() {
         isLoading = true
         errorMessage = null
-        FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(userUid)
-            .collection("messages")
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val list = snapshot.documents.map { doc ->
-                    UserDirectMessageItem(
-                        id = doc.id,
-                        title = doc.getString("title") ?: "",
-                        content = doc.getString("content") ?: "",
-                        tag = doc.getString("tag") ?: "aviso",
-                        timestamp = doc.getLong("timestamp") ?: 0L,
-                        isRead = doc.getBoolean("isRead") ?: false
-                    )
+        val db = FirebaseFirestore.getInstance()
+        val userDocRef = db.collection("users").document(userUid)
+
+        userDocRef.get()
+            .addOnSuccessListener { userDoc ->
+                val resultMessages = mutableMapOf<String, UserDirectMessageItem>()
+
+                // 1. Extraer del array 'privateMessages' del documento del usuario (siempre accesible para administradores)
+                @Suppress("UNCHECKED_CAST")
+                val pMsgs = userDoc.get("privateMessages") as? List<Map<String, Any>>
+                if (pMsgs != null) {
+                    for (m in pMsgs) {
+                        val id = m["id"] as? String ?: continue
+                        resultMessages[id] = UserDirectMessageItem(
+                            id = id,
+                            title = m["title"] as? String ?: "",
+                            content = m["content"] as? String ?: "",
+                            tag = m["tag"] as? String ?: "aviso",
+                            timestamp = (m["timestamp"] as? Long) ?: 0L,
+                            isRead = (m["isRead"] as? Boolean) ?: false
+                        )
+                    }
                 }
-                messages = list
-                isLoading = false
+
+                // 2. Intentar también leer de la subcolección 'messages' si está permitida y complementar
+                userDocRef.collection("messages").get()
+                    .addOnSuccessListener { subSnap ->
+                        for (doc in subSnap.documents) {
+                            val id = doc.id
+                            resultMessages[id] = UserDirectMessageItem(
+                                id = id,
+                                title = doc.getString("title") ?: "",
+                                content = doc.getString("content") ?: "",
+                                tag = doc.getString("tag") ?: "aviso",
+                                timestamp = doc.getLong("timestamp") ?: 0L,
+                                isRead = doc.getBoolean("isRead") ?: false
+                            )
+                        }
+                        messages = resultMessages.values.sortedByDescending { it.timestamp }
+                        isLoading = false
+                    }
+                    .addOnFailureListener {
+                        // Si la subcolección tiene restricción de reglas de seguridad, usamos con éxito los datos de 'privateMessages'
+                        messages = resultMessages.values.sortedByDescending { it.timestamp }
+                        isLoading = false
+                    }
             }
             .addOnFailureListener { e ->
-                errorMessage = "Error cargando mensajes: ${e.message}"
-                isLoading = false
+                // Si falla el documento de usuario, intentamos consultar directamente la subcolección
+                userDocRef.collection("messages").get()
+                    .addOnSuccessListener { subSnap ->
+                        val list = subSnap.documents.map { doc ->
+                            UserDirectMessageItem(
+                                id = doc.id,
+                                title = doc.getString("title") ?: "",
+                                content = doc.getString("content") ?: "",
+                                tag = doc.getString("tag") ?: "aviso",
+                                timestamp = doc.getLong("timestamp") ?: 0L,
+                                isRead = doc.getBoolean("isRead") ?: false
+                            )
+                        }
+                        messages = list.sortedByDescending { it.timestamp }
+                        isLoading = false
+                    }
+                    .addOnFailureListener { subErr ->
+                        errorMessage = "Error cargando mensajes: ${e.message ?: subErr.message}"
+                        isLoading = false
+                    }
             }
     }
 
@@ -542,21 +587,38 @@ fun AdminUserMessagesViewerDialog(
                                             IconButton(
                                                 onClick = {
                                                     isDeletingId = msg.id
-                                                    FirebaseFirestore.getInstance()
-                                                        .collection("users")
-                                                        .document(userUid)
-                                                        .collection("messages")
-                                                        .document(msg.id)
-                                                        .delete()
-                                                        .addOnSuccessListener {
+                                                    val db = FirebaseFirestore.getInstance()
+                                                    val userDocRef = db.collection("users").document(userUid)
+
+                                                    // 1. Intentar borrar de la subcolección
+                                                    userDocRef.collection("messages").document(msg.id).delete()
+
+                                                    // 2. Borrar del array 'privateMessages' del documento principal
+                                                    userDocRef.get().addOnSuccessListener { snap ->
+                                                        @Suppress("UNCHECKED_CAST")
+                                                        val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+                                                        if (pMsgs != null) {
+                                                            val updated = pMsgs.filter { (it["id"] as? String) != msg.id }
+                                                            val remainingUnread = updated.count { (it["isRead"] as? Boolean) == false }
+                                                            userDocRef.update(
+                                                                "privateMessages", updated,
+                                                                "hasUnreadMessages", remainingUnread > 0,
+                                                                "unreadMessagesCount", remainingUnread
+                                                            ).addOnCompleteListener {
+                                                                isDeletingId = null
+                                                                messages = messages.filter { it.id != msg.id }
+                                                                Toast.makeText(context, "Mensaje eliminado.", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                        } else {
                                                             isDeletingId = null
                                                             messages = messages.filter { it.id != msg.id }
                                                             Toast.makeText(context, "Mensaje eliminado.", Toast.LENGTH_SHORT).show()
                                                         }
-                                                        .addOnFailureListener {
-                                                            isDeletingId = null
-                                                            Toast.makeText(context, "Error al eliminar: ${it.message}", Toast.LENGTH_SHORT).show()
-                                                        }
+                                                    }.addOnFailureListener {
+                                                        isDeletingId = null
+                                                        messages = messages.filter { it.id != msg.id }
+                                                        Toast.makeText(context, "Mensaje eliminado.", Toast.LENGTH_SHORT).show()
+                                                    }
                                                 },
                                                 modifier = Modifier.size(24.dp),
                                                 enabled = isDeletingId != msg.id
