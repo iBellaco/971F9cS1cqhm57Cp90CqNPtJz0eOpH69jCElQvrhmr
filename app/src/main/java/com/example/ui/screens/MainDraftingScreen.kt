@@ -54,6 +54,7 @@ import androidx.compose.material.icons.filled.Label
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
@@ -384,7 +385,8 @@ fun MainDraftingScreen(
             ) {
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // 1. Panel de Noticias / Avisos con rotación automática y etiqueta interna por anuncio
+                // 1. Paneles de Avisos separados por categoría (Importantes, Ofertas, Publicidad, etc.)
+                // Cada tipo de anuncio tiene su propio panel independiente; si hay varios del mismo tipo se agrupan.
                 val activeNotices = notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }
 
                 // Sincronizar anuncios desde la nube al cargar la pantalla
@@ -404,273 +406,24 @@ fun MainDraftingScreen(
                     }
                 }
 
-                fun getTagColor(tag: String): Color {
-                    val l = tag.lowercase(Locale.ROOT)
-                    return when {
-                        l.contains("importante") -> HextechGold
-                        l.contains("publicidad") -> Color(0xFF00FF66)
-                        l.contains("oferta") -> HextechCyan
-                        l.contains("mantenimiento") -> Color(0xFFFF3333)
-                        l.contains("noticia") -> Color(0xFFCC66FF)
-                        l.contains("streamer") -> Color(0xFFFF66CC)
-                        else -> HextechCyan
-                    }
+                val groupedNotices = remember(activeNotices) {
+                    val orderPriority = listOf("Anuncios importantes", "Ofertas", "Publicidad", "Mantenimiento", "Noticias", "Streamers")
+                    activeNotices.groupBy { normalizeNoticeTag(it.tag) }
+                        .toList()
+                        .sortedBy { (cat, _) ->
+                            val idx = orderPriority.indexOf(cat)
+                            if (idx >= 0) idx else 99
+                        }
                 }
 
-                fun getTagIcon(tag: String): androidx.compose.ui.graphics.vector.ImageVector {
-                    val l = tag.lowercase(Locale.ROOT)
-                    return when {
-                        l.contains("importante") || l.contains("aviso") -> Icons.Default.Campaign
-                        l.contains("oferta") || l.contains("descuento") -> Icons.Default.LocalOffer
-                        l.contains("publicidad") || l.contains("promo") -> Icons.Default.Storefront
-                        l.contains("mantenimiento") -> Icons.Default.Build
-                        l.contains("noticia") -> Icons.Default.Article
-                        l.contains("streamer") -> Icons.Default.LiveTv
-                        else -> Icons.Default.Label
-                    }
+                groupedNotices.forEach { (catTag, noticeList) ->
+                    NoticeCategoryCard(
+                        categoryTag = catTag,
+                        noticeList = noticeList,
+                        intervalMillis = intervalMillis,
+                        context = context
+                    )
                 }
-
-                if (activeNotices.isNotEmpty()) {
-                    var currentIndex by remember(activeNotices.size) { mutableStateOf(0) }
-                    var isPinned by remember { mutableStateOf(false) }
-                    var isFullscreenMedia by remember { mutableStateOf(false) }
-                    var slideDirection by remember { mutableStateOf(1) } // 1: der->izq, -1: izq->der
-                    var autoTimerTrigger by remember { mutableStateOf(0) }
-
-                    // Temporizador de rotación automática entre anuncios: se pausa si está fijado o en pantalla completa
-                    LaunchedEffect(activeNotices.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
-                        if (activeNotices.size > 1 && !isPinned && !isFullscreenMedia) {
-                            while (true) {
-                                kotlinx.coroutines.delay(intervalMillis)
-                                if (!isFullscreenMedia && !isPinned) {
-                                    slideDirection = 1
-                                    currentIndex = (currentIndex + 1) % activeNotices.size
-                                }
-                            }
-                        }
-                    }
-
-                    val safeIndex = currentIndex.coerceIn(0, (activeNotices.size - 1).coerceAtLeast(0))
-                    val currentNotice = activeNotices[safeIndex]
-                    val noticeTag = currentNotice.tag.ifBlank { "Anuncios importantes" }
-                    val tagColor = getTagColor(noticeTag)
-                    val tagIcon = getTagIcon(noticeTag)
-
-                    LaunchedEffect(currentNotice.id) {
-                        com.example.data.AppNoticeAnalyticsManager.recordImpression(context, currentNotice.id, currentNotice.tag)
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp)
-                    ) {
-                        // Tarjeta Unificada de Anuncio con su propia etiqueta interna y controles
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(14.dp))
-                                .border(1.2.dp, tagColor.copy(alpha = 0.8f), RoundedCornerShape(14.dp)),
-                            colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
-                        ) {
-                            Column(modifier = Modifier.padding(14.dp)) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    // Etiqueta interna propia del anuncio actual
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            imageVector = tagIcon,
-                                            contentDescription = null,
-                                            tint = tagColor,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(
-                                            text = noticeTag,
-                                            color = tagColor,
-                                            fontSize = 13.5.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                        // Botón de Fijar / Desfijar anuncio
-                                        IconButton(
-                                            onClick = {
-                                                isPinned = !isPinned
-                                                if (isPinned) {
-                                                    Toast.makeText(context, "📌 Publicación fijada. No cambiará automáticamente.", Toast.LENGTH_SHORT).show()
-                                                } else {
-                                                    Toast.makeText(context, "Fijación desactivada.", Toast.LENGTH_SHORT).show()
-                                                }
-                                            },
-                                            modifier = Modifier.size(28.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.PushPin,
-                                                contentDescription = if (isPinned) "Desfijar publicación" else "Fijar publicación",
-                                                tint = if (isPinned) tagColor else tagColor.copy(alpha = 0.4f),
-                                                modifier = Modifier.size(17.dp)
-                                            )
-                                        }
-
-                                        if (activeNotices.size > 1) {
-                                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                                // Anterior manual
-                                                IconButton(
-                                                    onClick = {
-                                                        if (isPinned) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
-                                                        } else {
-                                                            slideDirection = -1
-                                                            currentIndex = if (currentIndex > 0) currentIndex - 1 else activeNotices.size - 1
-                                                            autoTimerTrigger++
-                                                        }
-                                                    },
-                                                    modifier = Modifier.size(28.dp)
-                                                ) {
-                                                    Text(
-                                                        text = "<",
-                                                        color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
-                                                        fontSize = 13.sp,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                }
-                                                Surface(
-                                                    color = tagColor.copy(alpha = if (isPinned) 0.3f else 0.2f),
-                                                    shape = RoundedCornerShape(4.dp),
-                                                    border = BorderStroke(1.dp, tagColor.copy(alpha = if (isPinned) 0.8f else 0.4f)),
-                                                    modifier = Modifier.clickable {
-                                                        if (isPinned) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
-                                                        }
-                                                    }
-                                                ) {
-                                                    Text(
-                                                        text = "${if (isPinned) "📌 " else "🔄 "}${safeIndex + 1}/${activeNotices.size}",
-                                                        color = tagColor,
-                                                        fontSize = 9.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                                    )
-                                                }
-                                                // Siguiente manual
-                                                IconButton(
-                                                    onClick = {
-                                                        if (isPinned) {
-                                                            Toast.makeText(
-                                                                context,
-                                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
-                                                                Toast.LENGTH_SHORT
-                                                            ).show()
-                                                        } else {
-                                                            slideDirection = 1
-                                                            currentIndex = (currentIndex + 1) % activeNotices.size
-                                                            autoTimerTrigger++
-                                                        }
-                                                    },
-                                                    modifier = Modifier.size(28.dp)
-                                                ) {
-                                                    Text(
-                                                        text = ">",
-                                                        color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
-                                                        fontSize = 13.sp,
-                                                        fontWeight = FontWeight.Bold
-                                                    )
-                                                }
-                                            }
-                                        } else if (isPinned) {
-                                            Surface(
-                                                color = tagColor.copy(alpha = 0.2f),
-                                                shape = RoundedCornerShape(4.dp),
-                                                border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
-                                            ) {
-                                                Text(
-                                                    text = "📌 Fijo",
-                                                    color = tagColor,
-                                                    fontSize = 9.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                    // Contenido animado al transicionar entre anuncios
-                                    AnimatedContent(
-                                        targetState = currentNotice,
-                                        transitionSpec = {
-                                            if (slideDirection >= 0) {
-                                                (slideInHorizontally(animationSpec = tween(350)) { width -> width } + fadeIn(animationSpec = tween(350)))
-                                                    .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> -width } + fadeOut(animationSpec = tween(350)))
-                                            } else {
-                                                (slideInHorizontally(animationSpec = tween(350)) { width -> -width } + fadeIn(animationSpec = tween(350)))
-                                                    .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> width } + fadeOut(animationSpec = tween(350)))
-                                            }.using(
-                                                SizeTransform(clip = false)
-                                            )
-                                        },
-                                        label = "NoticeAnimatedContent"
-                                    ) { noticeItem ->
-                                        Column(modifier = Modifier.fillMaxWidth()) {
-                                            Text(
-                                                text = noticeItem.title,
-                                                color = try { Color(android.graphics.Color.parseColor(noticeItem.titleColor)) } catch (_: Exception) { HextechGold },
-                                                fontSize = 13.5.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            if (noticeItem.content.isNotBlank()) {
-                                                Spacer(modifier = Modifier.height(4.dp))
-                                                Text(
-                                                    text = noticeItem.content,
-                                                    color = try { Color(android.graphics.Color.parseColor(noticeItem.contentColor)) } catch (_: Exception) { TextSecondary },
-                                                    fontSize = 12.sp,
-                                                    lineHeight = 16.sp
-                                                )
-                                            }
-
-                                            if (noticeItem.videoUrl.isNotBlank()) {
-                                                Spacer(modifier = Modifier.height(8.dp))
-                                                com.example.ui.components.NoticeMediaViewer(
-                                                    mediaUrl = noticeItem.videoUrl,
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .aspectRatio(985f / 425f),
-                                                    onExpand = {
-                                                        com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)
-                                                        isFullscreenMedia = true
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
-
-                                    // Modal de pantalla completa para contenido multimedia
-                                    if (isFullscreenMedia) {
-                                        val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
-                                        com.example.ui.components.NoticeMediaFullscreenDialog(
-                                            mediaUrl = mediaToExpand,
-                                            externalUrl = currentNotice.externalUrl,
-                                            noticeId = currentNotice.id,
-                                            onDismiss = { isFullscreenMedia = false }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
 
 
                 
@@ -1044,7 +797,277 @@ fun MainDraftingScreen(
             PrivacyPolicyDialog(onDismiss = { showPrivacyPolicyDialog = false })
         }
     }
+}
 
+fun normalizeNoticeTag(tag: String): String {
+    val clean = tag.trim()
+    val lower = clean.lowercase(Locale.ROOT)
+    return when {
+        lower.contains("importante") || lower.contains("aviso") -> "Anuncios importantes"
+        lower.contains("oferta") || lower.contains("descuento") -> "Ofertas"
+        lower.contains("publicidad") || lower.contains("promo") -> "Publicidad"
+        lower.contains("mantenimiento") -> "Mantenimiento"
+        lower.contains("noticia") -> "Noticias"
+        lower.contains("streamer") -> "Streamers"
+        clean.isNotBlank() -> clean
+        else -> "Anuncios importantes"
+    }
+}
 
+fun getNoticeTagColor(tag: String): Color {
+    val l = tag.lowercase(Locale.ROOT)
+    return when {
+        l.contains("importante") || l.contains("aviso") -> HextechGold
+        l.contains("publicidad") || l.contains("promo") -> Color(0xFF00FF66)
+        l.contains("oferta") || l.contains("descuento") -> HextechCyan
+        l.contains("mantenimiento") -> Color(0xFFFF3333)
+        l.contains("noticia") -> Color(0xFFCC66FF)
+        l.contains("streamer") -> Color(0xFFFF66CC)
+        else -> HextechCyan
+    }
+}
 
+fun getNoticeTagIcon(tag: String): androidx.compose.ui.graphics.vector.ImageVector {
+    val l = tag.lowercase(Locale.ROOT)
+    return when {
+        l.contains("importante") || l.contains("aviso") -> Icons.Default.Campaign
+        l.contains("oferta") || l.contains("descuento") -> Icons.Default.LocalOffer
+        l.contains("publicidad") || l.contains("promo") -> Icons.Default.Storefront
+        l.contains("mantenimiento") -> Icons.Default.Build
+        l.contains("noticia") -> Icons.Default.Article
+        l.contains("streamer") -> Icons.Default.LiveTv
+        else -> Icons.Default.Label
+    }
+}
+
+@Composable
+fun NoticeCategoryCard(
+    categoryTag: String,
+    noticeList: List<com.example.data.AppNotice>,
+    intervalMillis: Long,
+    context: android.content.Context
+) {
+    if (noticeList.isEmpty()) return
+
+    var currentIndex by remember(noticeList.size) { mutableStateOf(0) }
+    var isPinned by remember { mutableStateOf(false) }
+    var isFullscreenMedia by remember { mutableStateOf(false) }
+    var slideDirection by remember { mutableStateOf(1) }
+    var autoTimerTrigger by remember { mutableStateOf(0) }
+
+    val safeIndex = currentIndex.coerceIn(0, (noticeList.size - 1).coerceAtLeast(0))
+    val currentNotice = noticeList[safeIndex]
+
+    val tagColor = getNoticeTagColor(categoryTag)
+    val tagIcon = getNoticeTagIcon(categoryTag)
+
+    // Registro de impresiones analíticas
+    LaunchedEffect(currentNotice.id) {
+        com.example.data.AppNoticeAnalyticsManager.recordImpression(context, currentNotice.id, currentNotice.tag)
+    }
+
+    // Rotación automática activa únicamente si hay múltiples avisos en esta misma categoría
+    LaunchedEffect(noticeList.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
+        if (noticeList.size > 1 && !isPinned && !isFullscreenMedia) {
+            while (true) {
+                kotlinx.coroutines.delay(intervalMillis)
+                if (!isFullscreenMedia && !isPinned) {
+                    slideDirection = 1
+                    currentIndex = (currentIndex + 1) % noticeList.size
+                }
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp)
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .border(1.2.dp, tagColor.copy(alpha = 0.8f), RoundedCornerShape(14.dp)),
+            colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f))
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                // Encabezado del panel
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = tagIcon,
+                            contentDescription = null,
+                            tint = tagColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = categoryTag,
+                            color = tagColor,
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // Si hay varios avisos del mismo tipo, se muestran controles para alternar y fijar
+                        if (noticeList.size > 1) {
+                            IconButton(
+                                onClick = {
+                                    isPinned = !isPinned
+                                    if (isPinned) {
+                                        Toast.makeText(context, "📌 Publicación fijada. No cambiará automáticamente.", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Fijación desactivada.", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PushPin,
+                                    contentDescription = if (isPinned) "Desfijar publicación" else "Fijar publicación",
+                                    tint = if (isPinned) tagColor else tagColor.copy(alpha = 0.4f),
+                                    modifier = Modifier.size(17.dp)
+                                )
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                IconButton(
+                                    onClick = {
+                                        if (isPinned) {
+                                            Toast.makeText(
+                                                context,
+                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            slideDirection = -1
+                                            currentIndex = if (currentIndex > 0) currentIndex - 1 else noticeList.size - 1
+                                            autoTimerTrigger++
+                                        }
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Text(
+                                        text = "<",
+                                        color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Surface(
+                                    color = tagColor.copy(alpha = if (isPinned) 0.3f else 0.2f),
+                                    shape = RoundedCornerShape(4.dp),
+                                    border = BorderStroke(1.dp, tagColor.copy(alpha = if (isPinned) 0.8f else 0.4f)),
+                                    modifier = Modifier.clickable {
+                                        if (isPinned) {
+                                            Toast.makeText(
+                                                context,
+                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                ) {
+                                    Text(
+                                        text = "${if (isPinned) "📌 " else "🔄 "}${safeIndex + 1}/${noticeList.size}",
+                                        color = tagColor,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        if (isPinned) {
+                                            Toast.makeText(
+                                                context,
+                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            slideDirection = 1
+                                            currentIndex = (currentIndex + 1) % noticeList.size
+                                            autoTimerTrigger++
+                                        }
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Text(
+                                        text = ">",
+                                        color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                AnimatedContent(
+                    targetState = currentNotice,
+                    transitionSpec = {
+                        if (slideDirection >= 0) {
+                            (slideInHorizontally(animationSpec = tween(350)) { width -> width } + fadeIn(animationSpec = tween(350)))
+                                .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> -width } + fadeOut(animationSpec = tween(350)))
+                        } else {
+                            (slideInHorizontally(animationSpec = tween(350)) { width -> -width } + fadeIn(animationSpec = tween(350)))
+                                .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> width } + fadeOut(animationSpec = tween(350)))
+                        }.using(SizeTransform(clip = false))
+                    },
+                    label = "NoticeAnimatedContent_${categoryTag}"
+                ) { noticeItem ->
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            text = noticeItem.title,
+                            color = try { Color(android.graphics.Color.parseColor(noticeItem.titleColor)) } catch (_: Exception) { HextechGold },
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (noticeItem.content.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = noticeItem.content,
+                                color = try { Color(android.graphics.Color.parseColor(noticeItem.contentColor)) } catch (_: Exception) { TextSecondary },
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
+                        }
+
+                        if (noticeItem.videoUrl.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            com.example.ui.components.NoticeMediaViewer(
+                                mediaUrl = noticeItem.videoUrl,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(985f / 425f),
+                                onExpand = {
+                                    com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)
+                                    isFullscreenMedia = true
+                                }
+                            )
+                        }
+                    }
+                }
+
+                if (isFullscreenMedia) {
+                    val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
+                    com.example.ui.components.NoticeMediaFullscreenDialog(
+                        mediaUrl = mediaToExpand,
+                        externalUrl = currentNotice.externalUrl,
+                        noticeId = currentNotice.id,
+                        onDismiss = { isFullscreenMedia = false }
+                    )
+                }
+            }
+        }
+    }
 }

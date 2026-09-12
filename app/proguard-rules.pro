@@ -91,3 +91,20 @@
 -dontwarn okio.**
 -dontwarn retrofit2.**
 
+# AndroidX WorkManager (Keep Workers, InputMergers, and reflection constructors)
+-keep class androidx.work.** { *; }
+-keep class * extends androidx.work.ListenableWorker {
+    public <init>(android.content.Context, androidx.work.WorkerParameters);
+}
+-keep class * extends androidx.work.InputMerger {
+    public <init>();
+}
+-keep class androidx.work.OverwritingInputMerger {
+    public <init>();
+}
+-keep class androidx.work.ArrayCreatingInputMerger {
+    public <init>();
+}
+-keep class com.example.service.** { *; }
+-dontwarn androidx.work.**
+

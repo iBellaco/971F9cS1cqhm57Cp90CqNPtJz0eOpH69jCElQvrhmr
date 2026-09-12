@@ -55,9 +55,18 @@ fun MultiServerStatsDialog(
     val totalMatches = chinaMatches + globalMatches + naMatches
     val totalFormatted = String.format(java.util.Locale.US, "%.1f", totalMatches / 1_000_000.0) + " Millones"
 
-    val topCn = remember { com.example.data.WildRiftRepository.getTopChampionForServer("CN") }
-    val topGlobal = remember { com.example.data.WildRiftRepository.getTopChampionForServer("Global") }
-    val topNa = remember { com.example.data.WildRiftRepository.getTopChampionForServer("NA") }
+    val currentRegion by com.example.data.sync.ChineseMetaSyncService.currentRegion.collectAsState()
+    val currentTier by com.example.data.sync.ChineseMetaSyncService.currentTier.collectAsState()
+
+    val topCn = remember(currentRegion, currentTier) {
+        com.example.data.WildRiftRepository.getTopChampionsForServer("CN", count = 3, tencentTier = currentTier)
+    }
+    val topGlobal = remember(currentRegion, currentTier) {
+        com.example.data.WildRiftRepository.getTopChampionsForServer("Global", count = 3)
+    }
+    val topNa = remember(currentRegion, currentTier) {
+        com.example.data.WildRiftRepository.getTopChampionsForServer("NA", count = 3)
+    }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -201,7 +210,7 @@ fun MultiServerStatsDialog(
                         flag = "🇨🇳",
                         serverName = tr("API China Tencent (lolm.qq.com)"),
                         matchesText = String.format(java.util.Locale.US, "%.1fM", chinaMatches / 1_000_000.0),
-                        metaTop = "${topCn.first} (${String.format(java.util.Locale.US, "%.1f", topCn.second)}% WR)",
+                        topChampions = topCn,
                         borderColor = HextechGold,
                         apiSource = "Tencent Super-Server API"
                     )
@@ -213,7 +222,7 @@ fun MultiServerStatsDialog(
                         flag = "🌍",
                         serverName = tr("Servidor Global (Meta Live)"),
                         matchesText = String.format(java.util.Locale.US, "%.1fM", globalMatches / 1_000_000.0),
-                        metaTop = "${topGlobal.first} (${String.format(java.util.Locale.US, "%.1f", topGlobal.second)}% WR)",
+                        topChampions = topGlobal,
                         borderColor = HextechCyan,
                         apiSource = "Global Cloud Sync"
                     )
@@ -225,7 +234,7 @@ fun MultiServerStatsDialog(
                         flag = "🇺🇸",
                         serverName = tr("Servidor Norteamérica (NA)"),
                         matchesText = String.format(java.util.Locale.US, "%.1fM", naMatches / 1_000_000.0),
-                        metaTop = "${topNa.first} (${String.format(java.util.Locale.US, "%.1f", topNa.second)}% WR)",
+                        topChampions = topNa,
                         borderColor = Color(0xFF4A90E2),
                         apiSource = "Riot Americas Cache"
                     )
@@ -251,7 +260,7 @@ fun ServerStatCard(
     flag: String,
     serverName: String,
     matchesText: String,
-    metaTop: String,
+    topChampions: List<com.example.model.Champion>,
     borderColor: Color,
     apiSource: String
 ) {
@@ -269,10 +278,10 @@ fun ServerStatCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
                 modifier = Modifier.weight(1f)
             ) {
-                Text(text = flag, fontSize = 24.sp)
+                Text(text = flag, fontSize = 24.sp, modifier = Modifier.padding(top = 2.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
@@ -281,14 +290,30 @@ fun ServerStatCard(
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = tr("Meta #1: ") + metaTop,
-                        color = HextechCyan,
-                        fontSize = 11.5.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    if (topChampions.isEmpty()) {
+                        Text(
+                            text = tr("Cargando datos..."),
+                            color = HextechCyan,
+                            fontSize = 11.5.sp
+                        )
+                    } else {
+                        topChampions.take(3).forEachIndexed { index, champ ->
+                            val rankNumber = index + 1
+                            val rankColor = when (rankNumber) {
+                                1 -> HextechGold
+                                2 -> HextechCyan
+                                else -> TextPrimary.copy(alpha = 0.85f)
+                            }
+                            Text(
+                                text = "Meta #$rankNumber: ${champ.name} (${String.format(java.util.Locale.US, "%.2f", champ.winrate)}% WR)",
+                                color = rankColor,
+                                fontSize = 11.5.sp,
+                                fontWeight = if (rankNumber == 1) FontWeight.Bold else FontWeight.Medium
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(3.dp))
                     Text(
                         text = apiSource,
                         color = TextSecondary,
@@ -296,7 +321,7 @@ fun ServerStatCard(
                     )
                 }
             }
-            Column(horizontalAlignment = Alignment.End) {
+            Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(start = 8.dp)) {
                 Text(
                     text = matchesText,
                     color = HextechGold,

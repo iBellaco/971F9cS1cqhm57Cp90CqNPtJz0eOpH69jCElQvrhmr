@@ -677,23 +677,75 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
 
                 // 1. Horizontal Media (Home screen)
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("1. 🖼️/🎥 Multimedia Horizontal (Panel de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                Text("1. Multimedia Horizontal (Panel de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                OutlinedTextField(
-                    value = videoUrl,
-                    onValueChange = { videoUrl = it },
-                    label = { Text("URL YouTube o Imagen/Video Horizontal") },
-                    isError = !isUrlValid,
-                    supportingText = {
-                        if (!isUrlValid) {
-                            Text("Enlace inválido. Solo URLs de YouTube o archivos de galería.", color = DangerRed, fontSize = 10.sp)
-                        } else {
-                            Text("Se muestra en la tarjeta del panel de inicio (Horizontal)", color = TextMuted, fontSize = 10.sp)
+                val isHorizontalUploaded = videoUrl.startsWith("data:image/") || videoUrl.startsWith("file://") || videoUrl.startsWith("content://") || videoUrl.length > 200
+                if (isHorizontalUploaded) {
+                    Surface(
+                        color = HextechSurfaceVariant,
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    if (videoUrl.contains("video") || videoUrl.endsWith(".mp4")) Icons.Default.Videocam else Icons.Default.Image,
+                                    contentDescription = null,
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = if (videoUrl.contains("video") || videoUrl.endsWith(".mp4")) "Video local cargado correctamente" else "Imagen subida correctamente",
+                                        color = HextechCyan,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Multimedia lista para sincronizar y previsualizar",
+                                        color = TextMuted,
+                                        fontSize = 9.5.sp
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = { videoUrl = "" },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Quitar archivo", tint = DangerRed, modifier = Modifier.size(16.dp))
+                            }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                )
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = videoUrl,
+                        onValueChange = { videoUrl = it },
+                        label = { Text("URL YouTube o Imagen/Video Horizontal") },
+                        singleLine = true,
+                        maxLines = 1,
+                        isError = !isUrlValid,
+                        supportingText = {
+                            if (!isUrlValid) {
+                                Text("Enlace inválido. Solo URLs de YouTube o archivos de galería.", color = DangerRed, fontSize = 10.sp)
+                            } else {
+                                Text("Se muestra en la tarjeta del panel de inicio (Horizontal)", color = TextMuted, fontSize = 10.sp)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 val horizontalMediaPickerLauncher = rememberLauncherForActivityResult(
                     contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
@@ -707,11 +759,11 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 if (isVideo) {
                                     val permanentLocalUrl = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = true)
                                     videoUrl = permanentLocalUrl
-                                    Toast.makeText(context, "✅ Video guardado de forma permanente en el dispositivo", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Video guardado de forma permanente en el dispositivo", Toast.LENGTH_SHORT).show()
                                 } else {
                                     val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
                                     videoUrl = cloudDataUrl
-                                    Toast.makeText(context, "✅ Imagen horizontal optimizada para Multidispositivo", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Imagen subida correctamente", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
                                 videoUrl = pickedUri.toString()
@@ -730,28 +782,80 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 ) {
                     Icon(Icons.Default.AttachFile, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("📁 Subir Multimedia Horizontal desde Galería", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("Subir Multimedia Horizontal desde Galería", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
 
                 // 2. Vertical Expanded Image (Fullscreen)
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("2. 📱 Imagen Vertical (Vista Ampliada):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                Text("2. Imagen Vertical (Vista Ampliada):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                OutlinedTextField(
-                    value = expandedImageUrl,
-                    onValueChange = { expandedImageUrl = it },
-                    label = { Text("URL o Imagen Vertical Ampliada (Opcional)") },
-                    isError = !isExpandedUrlValid,
-                    supportingText = {
-                        if (!isExpandedUrlValid) {
-                            Text("Enlace inválido. Solo URLs de YouTube/Imágenes o archivos de galería.", color = DangerRed, fontSize = 10.sp)
-                        } else {
-                            Text("Imagen vertical que se observará al pulsar en 'Ampliar'", color = TextMuted, fontSize = 10.sp)
+                val isVerticalUploaded = expandedImageUrl.startsWith("data:image/") || expandedImageUrl.startsWith("file://") || expandedImageUrl.startsWith("content://") || expandedImageUrl.length > 200
+                if (isVerticalUploaded) {
+                    Surface(
+                        color = HextechSurfaceVariant,
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    Icons.Default.Image,
+                                    contentDescription = null,
+                                    tint = HextechGold,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = "Imagen vertical subida correctamente",
+                                        color = HextechGold,
+                                        fontSize = 11.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Se observará en pantalla completa al pulsar 'Ampliar'",
+                                        color = TextMuted,
+                                        fontSize = 9.5.sp
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = { expandedImageUrl = "" },
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Quitar archivo", tint = DangerRed, modifier = Modifier.size(16.dp))
+                            }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                )
+                    }
+                } else {
+                    OutlinedTextField(
+                        value = expandedImageUrl,
+                        onValueChange = { expandedImageUrl = it },
+                        label = { Text("URL o Imagen Vertical Ampliada (Opcional)") },
+                        singleLine = true,
+                        maxLines = 1,
+                        isError = !isExpandedUrlValid,
+                        supportingText = {
+                            if (!isExpandedUrlValid) {
+                                Text("Enlace inválido. Solo URLs de YouTube/Imágenes o archivos de galería.", color = DangerRed, fontSize = 10.sp)
+                            } else {
+                                Text("Imagen vertical que se observará al pulsar en 'Ampliar'", color = TextMuted, fontSize = 10.sp)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 val verticalImagePickerLauncher = rememberLauncherForActivityResult(
                     contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
@@ -762,7 +866,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             try {
                                 val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
                                 expandedImageUrl = cloudDataUrl
-                                Toast.makeText(context, "✅ Imagen vertical optimizada para Multidispositivo", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Imagen vertical subida correctamente", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 expandedImageUrl = pickedUri.toString()
                             } finally {
@@ -780,7 +884,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 ) {
                     Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("📱 Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
 
                 if (isProcessingMedia) {

@@ -20,8 +20,8 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 294
-    versionName = "1.9.32"
+    versionCode = 297
+    versionName = "1.9.35"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
@@ -62,9 +62,8 @@ android {
       signingConfig = signingConfigs.getByName("release")
     }
     debug {
-      isMinifyEnabled = true
-      isShrinkResources = true
-      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+      isMinifyEnabled = false
+      isShrinkResources = false
       signingConfig = signingConfigs.getByName("debug")
     }
   }
