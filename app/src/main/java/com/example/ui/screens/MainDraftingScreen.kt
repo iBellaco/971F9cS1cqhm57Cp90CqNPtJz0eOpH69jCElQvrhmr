@@ -1080,10 +1080,12 @@ fun NoticeCategoryCard(
 
                 if (isFullscreenMedia) {
                     val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
+                    val isVertical = currentNotice.expandedImageUrl.isNotBlank() && mediaToExpand == currentNotice.expandedImageUrl
                     com.example.ui.components.NoticeMediaFullscreenDialog(
                         mediaUrl = mediaToExpand,
                         externalUrl = currentNotice.externalUrl,
                         noticeId = currentNotice.id,
+                        isVertical = isVertical,
                         onDismiss = { isFullscreenMedia = false }
                     )
                 }

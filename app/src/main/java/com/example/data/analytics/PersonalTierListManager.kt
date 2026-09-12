@@ -104,15 +104,23 @@ object PersonalTierListManager {
     fun calculatePersonalTierList(
         drafts: List<SavedDraftEntity>,
         roleFilter: LaneRole? = null,
-        lang: String = "es"
+        lang: String = "es",
+        modeFilter: String = "ALL" // "ALL", "RANKED", "LEGENDARY"
     ): PersonalTierListResult {
+        // Filtramos drafts por modo (Normal vs Legendaria)
+        val modeFilteredDrafts = when (modeFilter.uppercase()) {
+            "LEGENDARY" -> drafts.filter { it.isLegendary }
+            "RANKED" -> drafts.filter { !it.isLegendary }
+            else -> drafts
+        }
+
         // Filtramos drafts si hay rol activo
         val activeDrafts = if (roleFilter != null) {
-            drafts.filter { draft ->
+            modeFilteredDrafts.filter { draft ->
                 val draftRole = try { LaneRole.valueOf(draft.userRole) } catch (_: Exception) { LaneRole.MID }
                 draftRole == roleFilter
             }
-        } else drafts
+        } else modeFilteredDrafts
 
         // Mapa de datos por campeón: Nombre del campeón (en minúsculas/normalizado) -> Lista de partidas
         val champDraftsMap = mutableMapOf<String, MutableList<SavedDraftEntity>>()

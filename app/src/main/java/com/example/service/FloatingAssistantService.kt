@@ -219,12 +219,6 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         super.onCreate()
         try {
             com.example.data.WildRiftRepository.initChampions(applicationContext)
-            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
-                com.example.service.screen.ChampionVisualMatcher.preloadSignatures(
-                    applicationContext,
-                    com.example.data.WildRiftRepository.champions
-                )
-            }
             screenCaptureManager = ScreenCaptureManager(this)
             savedStateRegistryController.performRestore(null)
             lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -802,6 +796,7 @@ class OverlayState {
     var activeRole by androidx.compose.runtime.mutableStateOf(LaneRole.MID)
     var isRoleManuallySelected by androidx.compose.runtime.mutableStateOf(false)
     var isFirstPick by androidx.compose.runtime.mutableStateOf(false)
+    var isLegendaryQueue by androidx.compose.runtime.mutableStateOf(false)
     var hasCalledGeminiFor10thPick by androidx.compose.runtime.mutableStateOf(false)
     var isCompactBubble by androidx.compose.runtime.mutableStateOf(false)
     var isScanning by androidx.compose.runtime.mutableStateOf(false)
@@ -850,6 +845,7 @@ private fun FloatingOverlayContent(
     val context = LocalContext.current
     var activeRole by state::activeRole
     var isFirstPick by state::isFirstPick
+    var isLegendaryQueue by state::isLegendaryQueue
     var isCompactBubble by state::isCompactBubble
     var showCalibrationPanel by remember { mutableStateOf(false) }
 
@@ -962,6 +958,7 @@ private fun FloatingOverlayContent(
 
                             // Sincronizar nombres de invocador aliados y hechizos
                             if (result.isLegendaryRanked) {
+                                isLegendaryQueue = true
                                 state.allySummonerNames.clear()
                             } else {
                                 defaultRoles.forEachIndexed { idx, role ->
@@ -1343,6 +1340,28 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
+                                // Toggle Clasificatoria Legendaria / Estándar
+                                Surface(
+                                    modifier = Modifier
+                                        .clickable { isLegendaryQueue = !isLegendaryQueue },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = if (isLegendaryQueue) Color(0xFF581C87).copy(alpha = 0.5f) else Color(0xFF1E293B),
+                                    border = BorderStroke(1.dp, if (isLegendaryQueue) Color(0xFFC084FC) else HextechGold.copy(alpha = 0.4f))
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 4.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = if (isLegendaryQueue) "🏆 " + tr("Legendaria") else "⚔️ " + tr("Clasificatoria"),
+                                            color = if (isLegendaryQueue) Color(0xFFE9D5FF) else HextechGold,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+
                                 if (isAdmin) {
                                     // Botón de Depurado / Calibrador (EXCLUSIVO ADMINISTRADORES)
                                     Surface(
@@ -1612,7 +1631,10 @@ private fun FloatingOverlayContent(
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             if (showCalibrationPanel) {
                                 DraftCalibrationPanel(
-                                    onDismiss = { showCalibrationPanel = false }
+                                    onDismiss = {
+                                        showCalibrationPanel = false
+                                        DraftVisionScanner.showCalibrationBoxes.value = false
+                                    }
                                 )
                             } else if (selectedChampionDetail != null) {
                                 com.example.ui.screens.ChampionDetailSheet(
@@ -1633,6 +1655,8 @@ private fun FloatingOverlayContent(
                                             },
                                             isFirstPick = isFirstPick,
                                             onFirstPickToggle = { isFirstPick = !isFirstPick },
+                                            isLegendaryQueue = isLegendaryQueue,
+                                            onToggleLegendaryQueue = { isLegendaryQueue = !isLegendaryQueue },
                                             isLoadingScreenMode = isLoadingScreenMode,
                                             onLoadingScreenModeToggle = { isLoadingScreenMode = !isLoadingScreenMode },
                                             allies = allies,
@@ -1776,33 +1800,6 @@ private fun FloatingOverlayContent(
             } // close AnimatedVisibility
         } // close Column
 
-    // Modal Calibrador y Depurador (EXCLUSIVO ADMINISTRADORES)
-    if (isAdmin && showCalibrationPanel) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.75f))
-                .clickable {
-                    showCalibrationPanel = false
-                    DraftVisionScanner.showCalibrationBoxes.value = false
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.92f)
-                    .clickable { /* prevent click through */ }
-            ) {
-                com.example.ui.components.DraftCalibrationPanel(
-                    onDismiss = {
-                        showCalibrationPanel = false
-                        DraftVisionScanner.showCalibrationBoxes.value = false
-                    }
-                )
-            }
-        }
-    }
-
     // Modal de selección de rol
     if (showRoleChangeDialog) {
         Box(
@@ -1871,6 +1868,7 @@ private fun FloatingOverlayContent(
         FloatingSaveMatchDialog(
             activeRole = activeRole,
             isFirstPick = isFirstPick,
+            isLegendary = isLegendaryQueue,
             allies = allies.filterNotNull(),
             enemies = enemies.filterNotNull(),
             analysis = analysis,
@@ -2104,6 +2102,7 @@ private fun FloatingOverlayContent(
 private fun FloatingSaveMatchDialog(
     activeRole: LaneRole,
     isFirstPick: Boolean,
+    isLegendary: Boolean = false,
     allies: List<Champion>,
     enemies: List<Champion>,
     analysis: com.example.model.DraftAnalysisResult,
@@ -2113,6 +2112,7 @@ private fun FloatingSaveMatchDialog(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var selectedResult by remember { mutableStateOf("PENDING") }
+    var isLegendaryMatch by remember(isLegendary) { mutableStateOf(isLegendary) }
     var notesText by remember { mutableStateOf("") }
     var isSaving by remember { mutableStateOf(false) }
 
@@ -2245,6 +2245,57 @@ private fun FloatingSaveMatchDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Selector de Tipo de Cola (Clasificatoria vs Legendaria)
+                Text(
+                    text = "🏆 " + tr("Tipo de Cola:"),
+                    color = TextPrimary,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (!isLegendaryMatch) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.dp, if (!isLegendaryMatch) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { isLegendaryMatch = false }
+                            .padding(vertical = 5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⚔️ " + tr("Clasificatoria"),
+                            color = if (!isLegendaryMatch) HextechCyan else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isLegendaryMatch) Color(0xFF9333EA).copy(alpha = 0.35f) else HextechSurface)
+                            .border(1.dp, if (isLegendaryMatch) Color(0xFFC084FC) else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { isLegendaryMatch = true }
+                            .padding(vertical = 5.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "🏆 " + tr("Legendaria"),
+                            color = if (isLegendaryMatch) Color(0xFFE9D5FF) else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = tr("Resultado de la Partida:"),
                     color = TextPrimary,
@@ -2362,6 +2413,7 @@ private fun FloatingSaveMatchDialog(
                                     context = context,
                                     myRole = activeRole,
                                     isFirstPick = isFirstPick,
+                                    isLegendary = isLegendaryMatch,
                                     allies = allySlots,
                                     enemies = enemies,
                                     analysis = analysis,
@@ -2405,6 +2457,8 @@ private fun FloatingDraftCoachView(
     onActiveRoleChange: (LaneRole) -> Unit,
     isFirstPick: Boolean,
     onFirstPickToggle: () -> Unit,
+    isLegendaryQueue: Boolean = false,
+    onToggleLegendaryQueue: (() -> Unit)? = null,
     isLoadingScreenMode: Boolean,
     onLoadingScreenModeToggle: () -> Unit,
     allies: androidx.compose.runtime.snapshots.SnapshotStateList<Champion?>,
@@ -2475,6 +2529,8 @@ private fun FloatingDraftCoachView(
             activeUserRole = activeRole,
             isFirstPick = isFirstPick,
             onToggleFirstPick = onFirstPickToggle,
+            isLegendary = isLegendaryQueue,
+            onToggleLegendary = onToggleLegendaryQueue,
             onPickChampionForRole = { isAlly, role ->
                 val index = defaultRoles.indexOf(role).coerceAtLeast(0)
                 onOpenChampionPicker(isAlly, index)
@@ -2524,6 +2580,8 @@ private fun OverlayVersusDraftBoard(
     activeUserRole: LaneRole?,
     isFirstPick: Boolean = true,
     onToggleFirstPick: (() -> Unit)? = null,
+    isLegendary: Boolean = false,
+    onToggleLegendary: (() -> Unit)? = null,
     onPickChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
     onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
 ) {
@@ -2542,14 +2600,15 @@ private fun OverlayVersusDraftBoard(
         border = BorderStroke(1.dp, HextechCardBorder)
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
-            // 0. Etiqueta condicional de Primera Selección (Solo si es primera selección; si no, no muestra nada)
-            if (isFirstPick) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 6.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+            // Etiquetas de Primera Selección y Clasificatoria Legendaria
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isFirstPick) {
                     Surface(
                         modifier = Modifier.clickable { onToggleFirstPick?.invoke() },
                         shape = RoundedCornerShape(12.dp),
@@ -2557,17 +2616,39 @@ private fun OverlayVersusDraftBoard(
                         border = BorderStroke(1.dp, AllyBlue.copy(alpha = 0.6f))
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = "⚡ " + tr("Primera Selección"),
                                 color = AllyBlue,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp
+                                fontSize = 9.5.sp
                             )
                         }
+                    }
+                    Spacer(modifier = Modifier.width(6.dp))
+                }
+
+                Surface(
+                    modifier = Modifier.clickable { onToggleLegendary?.invoke() },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isLegendary) Color(0xFFFF9800).copy(alpha = 0.2f) else HextechDarkBg,
+                    border = BorderStroke(
+                        1.dp,
+                        if (isLegendary) Color(0xFFFF9800) else HextechCardBorder.copy(alpha = 0.5f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isLegendary) "🏆 " + tr("Legendaria") else "⚔️ " + tr("Clasificatoria"),
+                            color = if (isLegendary) Color(0xFFFFB74D) else TextSecondary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.5.sp
+                        )
                     }
                 }
             }
@@ -2632,10 +2713,10 @@ private fun OverlayVersusDraftBoard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // LADO ALIADO (Avatar + Nombre del Campeón)
+                        // LADO ALIADO (Avatar + 1. Nombre -> 2. Stats (WR/Ban/Pick) -> 3. Tier List)
                         Row(
                             modifier = Modifier
-                                .weight(1.1f)
+                                .weight(1.3f)
                                 .clickable { onPickChampionForRole(true, role) },
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
@@ -2652,28 +2733,46 @@ private fun OverlayVersusDraftBoard(
                             Spacer(modifier = Modifier.width(6.dp))
 
                             if (allyChamp != null) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.Center
                                 ) {
-                                    Text(
-                                        text = allyChamp.name,
-                                        color = if (isMyRole) HextechCyan else TextPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 11.sp,
-                                        maxLines = 1,
-                                        softWrap = false,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    if (isMyRole) {
-                                        Spacer(modifier = Modifier.width(3.dp))
+                                    // 1. Nombre del Campeón
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            text = "(TÚ)",
-                                            color = HextechCyan,
-                                            fontWeight = FontWeight.ExtraBold,
-                                            fontSize = 7.5.sp
+                                            text = allyChamp.name,
+                                            color = if (isMyRole) HextechCyan else TextPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            maxLines = 1,
+                                            softWrap = false,
+                                            overflow = TextOverflow.Ellipsis
                                         )
+                                        if (isMyRole) {
+                                            Spacer(modifier = Modifier.width(3.dp))
+                                            Text(
+                                                text = "(TÚ)",
+                                                color = HextechCyan,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                fontSize = 7.5.sp
+                                            )
+                                        }
                                     }
+                                    // 2. Estadísticas (WR, Ban, Pick)
+                                    Text(
+                                        text = "WR: ${String.format(java.util.Locale.US, "%.0f", allyChamp.winrate)}% · B: ${String.format(java.util.Locale.US, "%.0f", allyChamp.banRate)}% · P: ${String.format(java.util.Locale.US, "%.0f", allyChamp.pickRate)}%",
+                                        color = if (allyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1
+                                    )
+                                    // 3. Tier List
+                                    Text(
+                                        text = "Tier ${allyChamp.tier}",
+                                        color = HextechGold,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             } else {
                                 Text(
@@ -2686,83 +2785,78 @@ private fun OverlayVersusDraftBoard(
                             }
                         }
 
-                        // CENTRO: ÍCONO Y ETIQUETA DEL ROL + ESTADÍSTICAS DE AMBOS CAMPEONES
+                        // CENTRO: ÍCONO Y ETIQUETA DEL ROL + VS
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center,
                             modifier = Modifier
-                                .padding(horizontal = 2.dp)
-                                .widthIn(min = 58.dp)
+                                .padding(horizontal = 4.dp)
+                                .widthIn(min = 40.dp)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = role.iconResId),
-                                    contentDescription = label,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Text(
-                                    text = label,
-                                    color = if (isMyRole) HextechCyan else TextSecondary,
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            // Estadísticas de Campeones en el Centro
-                            if (allyChamp != null || enemyChamp != null) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                    modifier = Modifier.padding(top = 1.dp)
-                                ) {
-                                    if (allyChamp != null) {
-                                        Text(
-                                            text = "${allyChamp.tier}·${String.format(java.util.Locale.US, "%.0f", allyChamp.winrate)}%",
-                                            color = if (allyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                            fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
-                                    }
-                                    if (allyChamp != null && enemyChamp != null) {
-                                        Text("•", color = HextechGold.copy(alpha = 0.6f), fontSize = 6.sp)
-                                    }
-                                    if (enemyChamp != null) {
-                                        Text(
-                                            text = "${String.format(java.util.Locale.US, "%.0f", enemyChamp.winrate)}%·${enemyChamp.tier}",
-                                            color = if (enemyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
-                                            fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.ExtraBold
-                                        )
-                                    }
-                                }
-                            }
+                            Image(
+                                painter = painterResource(id = role.iconResId),
+                                contentDescription = label,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = label,
+                                color = if (isMyRole) HextechCyan else TextSecondary,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "VS",
+                                color = HextechGold.copy(alpha = 0.7f),
+                                fontSize = 7.sp,
+                                fontWeight = FontWeight.Black
+                            )
                         }
 
-                        // LADO RIVAL (Nombre del Campeón + Avatar)
+                        // LADO RIVAL (1. Nombre -> 2. Stats (WR/Ban/Pick) -> 3. Tier List + Avatar)
                         Row(
                             modifier = Modifier
-                                .weight(1.1f)
+                                .weight(1.3f)
                                 .clickable { onPickChampionForRole(false, role) },
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.End
                         ) {
                             if (enemyChamp != null) {
-                                Text(
-                                    text = enemyChamp.name,
-                                    color = DangerRed,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 11.sp,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    overflow = TextOverflow.Ellipsis,
-                                    textAlign = TextAlign.End,
+                                Column(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .padding(end = 6.dp)
-                                )
+                                        .padding(end = 6.dp),
+                                    horizontalAlignment = Alignment.End,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    // 1. Nombre del Campeón
+                                    Text(
+                                        text = enemyChamp.name,
+                                        color = DangerRed,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                        overflow = TextOverflow.Ellipsis,
+                                        textAlign = TextAlign.End
+                                    )
+                                    // 2. Estadísticas (WR, Ban, Pick)
+                                    Text(
+                                        text = "WR: ${String.format(java.util.Locale.US, "%.0f", enemyChamp.winrate)}% · B: ${String.format(java.util.Locale.US, "%.0f", enemyChamp.banRate)}% · P: ${String.format(java.util.Locale.US, "%.0f", enemyChamp.pickRate)}%",
+                                        color = if (enemyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        maxLines = 1,
+                                        textAlign = TextAlign.End
+                                    )
+                                    // 3. Tier List
+                                    Text(
+                                        text = "Tier ${enemyChamp.tier}",
+                                        color = HextechGold,
+                                        fontSize = 7.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.End
+                                    )
+                                }
                             } else {
                                 Text(
                                     text = tr("+ Rival"),

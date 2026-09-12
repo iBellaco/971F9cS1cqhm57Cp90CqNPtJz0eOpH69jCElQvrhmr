@@ -404,15 +404,16 @@ object NoticeMediaStorageManager {
     }
 
     /**
-     * Convierte videos ligeros (< 2.5 MB) a Data URL Base64 para garantizar sincronización en la nube 100% confiable
-     * en todos los dispositivos sin depender de servicios de almacenamiento de terceros.
+     * Convierte videos ultra-ligeros (< 100 KB) a Data URL Base64 para sincronización ligera.
+     * Para videos mayores, se almacena en disco local permanente o en almacenamiento remoto
+     * evitando saturar el límite de tamaño de documento de 1MB.
      */
-    fun convertVideoToDataUrl(context: Context, uri: Uri, maxBytes: Int = 2_600_000): String? {
+    fun convertVideoToDataUrl(context: Context, uri: Uri, maxBytes: Int = 100_000): String? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
             val bytes = inputStream.use { it.readBytes() }
             if (bytes.isEmpty() || bytes.size > maxBytes) {
-                Log.d(TAG, "Video demasiado grande para Base64 (${bytes.size} bytes > $maxBytes bytes)")
+                Log.d(TAG, "Video de ${bytes.size} bytes: se utilizará almacenamiento en archivo local o remoto.")
                 return null
             }
             val b64 = Base64.encodeToString(bytes, Base64.NO_WRAP)
@@ -425,35 +426,34 @@ object NoticeMediaStorageManager {
 
     /**
      * Guarda el video de forma blindada:
-     * 1. Almacena copia permanente en disco local para reproducción en 0ms en este dispositivo.
-     * 2. Si el video es ligero (< 2.5MB), lo codifica en Data URL Base64 para sincronización multidispositivo instantánea.
-     * 3. Si es más pesado, intenta subirlo a Supabase Storage o Firebase Storage.
-     * 4. Si todo lo anterior falla, conserva la ruta local permanente.
+     * 1. Almacena copia permanente en disco local para reproducción instantánea (0ms).
+     * 2. Intenta subirlo a almacenamiento remoto (Supabase / Firebase Storage) si está configurado.
+     * 3. Si es ultra-ligero (< 100KB), genera Data URL Base64.
+     * 4. Si todo lo anterior falla o es local, retorna la ruta permanente local file://.
      */
     suspend fun uploadOrSaveVideo(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
         // 1. Guardar siempre en almacenamiento interno local permanente
         val localPath = saveMediaToInternalStorage(context, uri, isVideo = true)
 
-        // 2. Para videos compactos, Data URL Base64 ofrece sincronización en la nube 100% garantizada
-        val dataUrl = convertVideoToDataUrl(context, uri)
-        if (!dataUrl.isNullOrBlank()) {
-            Log.d(TAG, "Video sincronizado mediante Data URL Base64 multidispositivo.")
-            return@withContext dataUrl
-        }
-
-        // 3. Intentar subir a Supabase Storage
+        // 2. Intentar subir a Supabase Storage si está disponible
         val supabaseUrl = tryUploadVideoToSupabase(context, uri)
         if (!supabaseUrl.isNullOrBlank()) {
             return@withContext supabaseUrl
         }
 
-        // 4. Intentar subir a Firebase Storage
+        // 3. Intentar subir a Firebase Storage si está disponible
         val cloudUrl = tryUploadVideoToCloud(context, uri)
         if (!cloudUrl.isNullOrBlank()) {
             return@withContext cloudUrl
         }
 
-        // 5. Retornar la ruta local permanente file:// si no hubo conexión remota
+        // 4. Si es ultra-ligero (< 100KB), generar Data URL Base64
+        val dataUrl = convertVideoToDataUrl(context, uri, maxBytes = 100_000)
+        if (!dataUrl.isNullOrBlank()) {
+            return@withContext dataUrl
+        }
+
+        // 5. Retornar la ruta local permanente file://
         localPath
     }
 

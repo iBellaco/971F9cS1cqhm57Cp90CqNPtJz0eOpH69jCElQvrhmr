@@ -37,5 +37,6 @@ data class SavedDraftEntity(
     val directMatchupWarning: String = "",
     val notes: String = "",
     val accountProfileId: String = "default",
-    val accountProfileName: String = "Cuenta Principal"
+    val accountProfileName: String = "Cuenta Principal",
+    val isLegendary: Boolean = false
 )

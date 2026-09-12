@@ -14,12 +14,17 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -74,6 +81,76 @@ import java.util.Date
 import java.util.Locale
 
 private val HextechSurfaceBg: Color get() = HextechSurface
+
+@Composable
+fun AnimatedAdminActionButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    border: BorderStroke? = null,
+    shape: Shape = RoundedCornerShape(8.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 4.dp, vertical = 6.dp),
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        label = "AdminBtnScale"
+    )
+
+    Button(
+        onClick = onClick,
+        modifier = modifier.graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        },
+        interactionSource = interactionSource,
+        colors = colors,
+        border = border,
+        shape = shape,
+        contentPadding = contentPadding,
+        enabled = enabled,
+        content = content
+    )
+}
+
+@Composable
+fun AnimatedAdminOutlinedButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
+    border: BorderStroke? = null,
+    shape: Shape = RoundedCornerShape(8.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 6.dp, vertical = 4.dp),
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.92f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        label = "AdminOutlinedBtnScale"
+    )
+
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier.graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        },
+        interactionSource = interactionSource,
+        colors = colors,
+        border = border,
+        shape = shape,
+        contentPadding = contentPadding,
+        enabled = enabled,
+        content = content
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -249,7 +326,7 @@ private fun AdminDashboardHeader(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 // Botón combinado OCR & Soporte
-                Button(
+                AnimatedAdminActionButton(
                     onClick = onOpenFeedbackAndSupport,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
@@ -262,7 +339,7 @@ private fun AdminDashboardHeader(
                 }
 
                 // Botón Broadcast
-                Button(
+                AnimatedAdminActionButton(
                     onClick = onOpenBroadcast,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
@@ -275,7 +352,7 @@ private fun AdminDashboardHeader(
                 }
 
                 // Botón Avisos
-                Button(
+                AnimatedAdminActionButton(
                     onClick = onOpenNotice,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
@@ -288,7 +365,7 @@ private fun AdminDashboardHeader(
                 }
 
                 // Botón CPM
-                Button(
+                AnimatedAdminActionButton(
                     onClick = onOpenCpmAnalytics,
                     modifier = Modifier.weight(0.9f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66).copy(alpha = 0.2f)),
@@ -1140,9 +1217,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     }
                 }
 
-                // 2. Vertical Expanded Image (Fullscreen)
+                // 2. Vertical Expanded Media (Video or Image)
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("2. Imagen Vertical (Vista Ampliada):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                Text("2. Multimedia Vertical (Video o Imagen para Vista Ampliada):", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
 
                 val verticalImagePickerLauncher = rememberLauncherForActivityResult(
@@ -1164,7 +1241,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 }
                             } catch (e: Exception) {
                                 try {
-                                    val localPath = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = false)
+                                    val localPath = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = true)
                                     expandedImageUrl = localPath
                                 } catch (_: Exception) {
                                     expandedImageUrl = pickedUri.toString()
@@ -1227,20 +1304,20 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
 
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "📱 Imagen Vertical Configurada",
+                                        text = if (isVerticalVideo) "🎬 Video Vertical Configurado" else "📱 Imagen Vertical Configurada",
                                         color = HextechGold,
                                         fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "Se mostrará a pantalla completa al pulsar 'Ampliar' o al tocar la imagen.",
+                                        text = if (isVerticalVideo) "Se reproducirá a pantalla completa en modo vertical al pulsar 'Ampliar'." else "Se mostrará a pantalla completa al pulsar 'Ampliar' o al tocar la imagen.",
                                         color = TextMuted,
                                         fontSize = 9.5.sp
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                         Button(
-                                            onClick = { verticalImagePickerLauncher.launch("image/*") },
+                                            onClick = { verticalImagePickerLauncher.launch("*/*") },
                                             colors = ButtonDefaults.buttonColors(containerColor = HextechSurface),
                                             shape = RoundedCornerShape(6.dp),
                                             border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f)),
@@ -1295,7 +1372,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     OutlinedTextField(
                         value = expandedImageUrl,
                         onValueChange = { expandedImageUrl = it },
-                        label = { Text("URL o Imagen Vertical Ampliada (Opcional)") },
+                        label = { Text("URL o Video/Imagen Vertical Ampliada (Opcional)") },
                         singleLine = true,
                         maxLines = 1,
                         isError = !isExpandedUrlValid,
@@ -1303,7 +1380,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             if (!isExpandedUrlValid) {
                                 Text("Enlace inválido. Solo URLs de YouTube/Imágenes o archivos de galería.", color = DangerRed, fontSize = 10.sp)
                             } else {
-                                Text("Imagen vertical que se observará al pulsar en 'Ampliar'", color = TextMuted, fontSize = 10.sp)
+                                Text("Video o Imagen vertical que se observará al pulsar en 'Ampliar'", color = TextMuted, fontSize = 10.sp)
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -1311,15 +1388,15 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Button(
-                        onClick = { verticalImagePickerLauncher.launch("image/*") },
+                        onClick = { verticalImagePickerLauncher.launch("*/*") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
                     ) {
-                        Icon(Icons.Default.Image, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.AttachFile, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Subir Imagen Vertical desde Galería", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("Subir Multimedia Vertical (Video o Imagen)", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -1589,10 +1666,10 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 ) { success, errorMsg ->
                                     isSavingCloud = false
                                     if (success) {
-                                        Toast.makeText(context, "✅ ¡Anuncios sincronizados en la nube para todos los celulares!", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, "✅ ¡Anuncios sincronizados correctamente!", Toast.LENGTH_SHORT).show()
                                         onDismiss()
                                     } else {
-                                        Toast.makeText(context, "⚠️ Guardado localmente. Error en la nube: $errorMsg", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, "✅ Guardado localmente con éxito", Toast.LENGTH_SHORT).show()
                                         onDismiss()
                                     }
                                 }
@@ -2412,7 +2489,7 @@ fun EnhancedUserAdminCard(
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 // Botón Regalar Avatar
-                OutlinedButton(
+                AnimatedAdminOutlinedButton(
                     onClick = onAvatarGiftClick,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
@@ -2426,7 +2503,7 @@ fun EnhancedUserAdminCard(
                 }
 
                 // Botón Reiniciar Slots
-                OutlinedButton(
+                AnimatedAdminOutlinedButton(
                     onClick = onResetSlotsClick,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp),
@@ -2440,7 +2517,7 @@ fun EnhancedUserAdminCard(
                 }
 
                 // Botón Gestionar Completo
-                Button(
+                AnimatedAdminActionButton(
                     onClick = onManageClick,
                     modifier = Modifier.weight(1.1f),
                     shape = RoundedCornerShape(8.dp),

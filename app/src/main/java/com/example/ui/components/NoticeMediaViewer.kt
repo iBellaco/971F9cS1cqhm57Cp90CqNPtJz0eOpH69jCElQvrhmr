@@ -190,6 +190,53 @@ object NoticeMediaUtils {
         return false
     }
 
+    /**
+     * Detecta si un video o imagen tiene proporción vertical (alto >= ancho).
+     */
+    fun isMediaVertical(context: Context, url: String): Boolean {
+        if (url.isBlank()) return false
+        val trimmed = url.trim()
+
+        if (isVideo(context, trimmed)) {
+            val retriever = android.media.MediaMetadataRetriever()
+            try {
+                if (trimmed.startsWith("file://") || trimmed.startsWith("/")) {
+                    val path = if (trimmed.startsWith("file://")) Uri.parse(trimmed).path ?: "" else trimmed
+                    retriever.setDataSource(path)
+                } else if (trimmed.startsWith("content://")) {
+                    retriever.setDataSource(context, Uri.parse(trimmed))
+                } else if (trimmed.startsWith("data:video/")) {
+                    val cached = com.example.util.NoticeMediaStorageManager.saveBase64VideoToCache(context, trimmed)
+                    if (cached != null) retriever.setDataSource(cached.absolutePath)
+                } else if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                    val cached = com.example.util.NoticeMediaStorageManager.getCachedVideoFile(context, trimmed)
+                    if (cached != null && cached.exists()) {
+                        retriever.setDataSource(cached.absolutePath)
+                    } else {
+                        retriever.setDataSource(trimmed, HashMap())
+                    }
+                }
+                val widthStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                val heightStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                val rotationStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION) ?: "0"
+                retriever.release()
+
+                val w = widthStr?.toIntOrNull() ?: 0
+                val h = heightStr?.toIntOrNull() ?: 0
+                val rot = rotationStr.toIntOrNull() ?: 0
+                val isRotated = rot == 90 || rot == 270
+                val effectiveW = if (isRotated) h else w
+                val effectiveH = if (isRotated) w else h
+                if (effectiveW > 0 && effectiveH > 0) {
+                    return effectiveH >= effectiveW
+                }
+            } catch (_: Exception) {
+                try { retriever.release() } catch (_: Exception) {}
+            }
+        }
+        return false
+    }
+
     fun formatDurationMs(ms: Int): String {
         if (ms <= 0) return "00:00"
         val totalSeconds = ms / 1000
@@ -918,12 +965,16 @@ fun NoticeMediaFullscreenDialog(
     mediaUrl: String,
     externalUrl: String = "",
     noticeId: String = "",
+    isVertical: Boolean = false,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
     val trimmedUrl = mediaUrl.trim()
     val isVideo = remember(trimmedUrl) { NoticeMediaUtils.isVideo(context, trimmedUrl) }
+    val isVerticalMedia = remember(trimmedUrl, isVertical) {
+        isVertical || NoticeMediaUtils.isMediaVertical(context, trimmedUrl)
+    }
 
     // Control de rotación de pantalla
     var isLandscape by remember { mutableStateOf(false) }
@@ -1018,7 +1069,8 @@ fun NoticeMediaFullscreenDialog(
             }
 
             // 3. Botón flotante inferior izquierdo de rotación (Modo Horizontal / Vertical)
-            if (isVideo) {
+            // Solo se muestra si el video es horizontal. Si es un video vertical, se oculta la opción de rotación.
+            if (isVideo && !isVerticalMedia) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomStart)

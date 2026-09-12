@@ -1771,6 +1771,22 @@ private fun SavedDraftCard(
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    if (draft.isLegendary) {
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Surface(
+                            color = Color(0xFF9333EA).copy(alpha = 0.25f),
+                            shape = RoundedCornerShape(4.dp),
+                            border = BorderStroke(0.8.dp, Color(0xFFC084FC))
+                        ) {
+                            Text(
+                                text = "🏆 " + tr("Legendaria"),
+                                color = Color(0xFFE9D5FF),
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                            )
+                        }
+                    }
                     if (draft.accountProfileName.isNotBlank()) {
                         Spacer(modifier = Modifier.width(5.dp))
                         Surface(
@@ -2151,8 +2167,8 @@ private fun DraftDetailInnerContent(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = tr("Línea:") + " ${com.example.util.tr(roleObj.displayName)} • " + if (draft.isFirstPick) tr("Primer Pick") else tr("Counter Pick"),
-                        color = HextechGold,
+                        text = tr("Línea:") + " ${com.example.util.tr(roleObj.displayName)} • " + (if (draft.isFirstPick) tr("Primer Pick") else tr("Counter Pick")) + (if (draft.isLegendary) " • 🏆 " + tr("Legendaria") else " • ⚔️ " + tr("Clasificatoria")),
+                        color = if (draft.isLegendary) Color(0xFFC084FC) else HextechGold,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium
                     )

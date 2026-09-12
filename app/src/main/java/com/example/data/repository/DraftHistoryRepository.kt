@@ -49,7 +49,8 @@ object DraftHistoryRepository {
         notes: String = "",
         matchResult: String = "PENDING",
         accountProfileId: String? = null,
-        accountProfileName: String? = null
+        accountProfileName: String? = null,
+        isLegendary: Boolean = false
     ): Long {
         val activeProfile = AccountProfileManager.getActiveProfile(context)
         val profileId = accountProfileId ?: activeProfile.id
@@ -120,7 +121,8 @@ object DraftHistoryRepository {
             directMatchupWarning = analysis.directMatchupWarning ?: "",
             notes = notes,
             accountProfileId = profileId,
-            accountProfileName = profileName
+            accountProfileName = profileName,
+            isLegendary = isLegendary
         )
 
         val draftDao = AppDatabase.getDatabase(context).draftDao()

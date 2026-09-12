@@ -105,16 +105,18 @@ fun PersonalTierListView(
 ) {
     val currentLang = LocalLanguage.current
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
+    var selectedQueueMode by remember { mutableStateOf("ALL") } // "ALL", "RANKED", "LEGENDARY"
     var selectedChampionStats by remember { mutableStateOf<PersonalChampionStats?>(null) }
     var searchQuery by remember { mutableStateOf("") }
     var viewMode by remember { mutableStateOf("TIERS") } // "TIERS" or "TABLE"
     var isFiltersExpanded by rememberSaveable { mutableStateOf(!isOverlay) }
 
-    val tierData: PersonalTierListResult = remember(draftsList, selectedRoleFilter, currentLang) {
+    val tierData: PersonalTierListResult = remember(draftsList, selectedRoleFilter, selectedQueueMode, currentLang) {
         PersonalTierListManager.calculatePersonalTierList(
             drafts = draftsList,
             roleFilter = selectedRoleFilter,
-            lang = currentLang
+            lang = currentLang,
+            modeFilter = selectedQueueMode
         )
     }
 
@@ -255,6 +257,47 @@ fun PersonalTierListView(
                     }
                 }
             }
+
+            // Selector de Modo de Cola: Todas, Clasificatoria Estándar, Clasificatoria Legendaria
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FilterChip(
+                    selected = selectedQueueMode == "ALL",
+                    onClick = { selectedQueueMode = "ALL" },
+                    label = { Text("🌐 " + tr("Todas las Colas"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechGold,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+
+                FilterChip(
+                    selected = selectedQueueMode == "RANKED",
+                    onClick = { selectedQueueMode = "RANKED" },
+                    label = { Text("⚔️ " + tr("Clasificatoria Estándar"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = HextechCyan,
+                        selectedLabelColor = HextechDarkBg
+                    )
+                )
+
+                FilterChip(
+                    selected = selectedQueueMode == "LEGENDARY",
+                    onClick = { selectedQueueMode = "LEGENDARY" },
+                    label = { Text("🏆 " + tr("Clasificatoria Legendaria"), fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = Color(0xFF9333EA),
+                        selectedLabelColor = Color.White
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier
