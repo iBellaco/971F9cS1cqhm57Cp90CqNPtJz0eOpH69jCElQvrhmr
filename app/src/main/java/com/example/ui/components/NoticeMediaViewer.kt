@@ -383,7 +383,6 @@ fun LocalGalleryVideoPlayer(
     val lifecycleOwner = LocalLifecycleOwner.current
     var isMuted by remember { mutableStateOf(true) }
     var isPlaying by remember { mutableStateOf(true) }
-    var videoViewRef by remember { mutableStateOf<VideoView?>(null) }
     var mediaPlayerRef by remember { mutableStateOf<android.media.MediaPlayer?>(null) }
     val themePrimary = MaterialTheme.colorScheme.primary
 
@@ -397,80 +396,31 @@ fun LocalGalleryVideoPlayer(
                     mp.setVolume(0f, 0f)
                     if (mp.isPlaying) mp.pause()
                 }
-                videoViewRef?.pause()
             } catch (_: Exception) {}
         }
     }
 
-    // Lifecycle observer to seamlessly recover video playback when returning from background / closing overlay
-    DisposableEffect(lifecycleOwner, videoUriString) {
+    DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    videoViewRef?.let { vv ->
-                        try {
-                            vv.resume()
-                            if (isPlaying) {
-                                vv.start()
-                            } else {
-                                // Restore the frame if paused and surface was destroyed
-                                try {
-                                    val pos = vv.currentPosition
-                                    if (videoUriString.startsWith("file://")) {
-                                        val filePath = Uri.parse(videoUriString).path
-                                        if (filePath != null && java.io.File(filePath).exists()) {
-                                            vv.setVideoPath(filePath)
-                                        } else {
-                                            vv.setVideoURI(Uri.parse(videoUriString))
-                                        }
-                                    } else if (videoUriString.startsWith("/")) {
-                                        vv.setVideoPath(videoUriString)
-                                    } else {
-                                        vv.setVideoURI(Uri.parse(videoUriString))
-                                    }
-                                    vv.setOnPreparedListener { mp ->
-                                        mediaPlayerRef = mp
-                                        mp.isLooping = true
-                                        val vol = if (isMuted) 0f else 1f
-                                        mp.setVolume(vol, vol)
-                                        if (pos > 0) vv.seekTo(pos)
-                                        if (isPlaying) {
-                                            vv.start()
-                                        }
-                                    }
-                                } catch (_: Exception) {}
-                            }
-                        } catch (_: Exception) {
-                            try {
-                                if (videoUriString.startsWith("file://")) {
-                                    val filePath = Uri.parse(videoUriString).path
-                                    if (filePath != null && java.io.File(filePath).exists()) {
-                                        vv.setVideoPath(filePath)
-                                    } else {
-                                        vv.setVideoURI(Uri.parse(videoUriString))
-                                    }
-                                } else if (videoUriString.startsWith("/")) {
-                                    vv.setVideoPath(videoUriString)
-                                } else {
-                                    vv.setVideoURI(Uri.parse(videoUriString))
-                                }
-                            } catch (_: Exception) {}
-                        }
-                    }
-                }
                 Lifecycle.Event.ON_PAUSE -> {
-                    videoViewRef?.let { vv ->
-                        try {
-                            if (vv.isPlaying) {
-                                vv.pause()
-                            }
-                            vv.suspend()
-                        } catch (_: Exception) {}
-                    }
+                    try {
+                        if (mediaPlayerRef?.isPlaying == true) {
+                            mediaPlayerRef?.pause()
+                        }
+                    } catch (_: Exception) {}
+                }
+                Lifecycle.Event.ON_RESUME -> {
+                    try {
+                        if (isPlaying && mediaPlayerRef?.isPlaying == false) {
+                            mediaPlayerRef?.start()
+                        }
+                    } catch (_: Exception) {}
                 }
                 Lifecycle.Event.ON_DESTROY -> {
                     try {
-                        videoViewRef?.stopPlayback()
+                        mediaPlayerRef?.release()
+                        mediaPlayerRef = null
                     } catch (_: Exception) {}
                 }
                 else -> {}
@@ -480,7 +430,8 @@ fun LocalGalleryVideoPlayer(
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
             try {
-                videoViewRef?.stopPlayback()
+                mediaPlayerRef?.release()
+                mediaPlayerRef = null
             } catch (_: Exception) {}
         }
     }
@@ -498,51 +449,101 @@ fun LocalGalleryVideoPlayer(
                     setBackgroundColor(android.graphics.Color.BLACK)
                 }
 
-                val vv = VideoView(ctx).apply {
-                    val lp = FrameLayout.LayoutParams(
+                val textureView = android.view.TextureView(ctx).apply {
+                    layoutParams = FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     ).apply {
                         gravity = android.view.Gravity.CENTER
                     }
-                    layoutParams = lp
-
-                    try {
-                        if (videoUriString.startsWith("file://")) {
-                            val filePath = Uri.parse(videoUriString).path
-                            if (filePath != null && java.io.File(filePath).exists()) {
-                                setVideoPath(filePath)
-                            } else {
-                                setVideoURI(Uri.parse(videoUriString))
-                            }
-                        } else if (videoUriString.startsWith("/")) {
-                            setVideoPath(videoUriString)
-                        } else {
-                            setVideoURI(Uri.parse(videoUriString))
-                        }
-                        setOnPreparedListener { mp ->
-                            mediaPlayerRef = mp
-                            mp.isLooping = true
-                            val vol = if (isMuted) 0f else 1f
-                            mp.setVolume(vol, vol)
-                            if (isPlaying) {
-                                start()
-                            }
-                        }
-                        setOnErrorListener { _, _, _ -> true }
-                    } catch (_: Exception) {}
                 }
 
-                frameLayout.addView(vv)
-                videoViewRef = vv
+                textureView.surfaceTextureListener = object : android.view.TextureView.SurfaceTextureListener {
+                    override fun onSurfaceTextureAvailable(surface: android.graphics.SurfaceTexture, width: Int, height: Int) {
+                        try {
+                            if (mediaPlayerRef == null) {
+                                mediaPlayerRef = android.media.MediaPlayer()
+                            }
+                            val mp = mediaPlayerRef!!
+                            mp.setSurface(android.view.Surface(surface))
+                            
+                            if (!mp.isPlaying) {
+                                mp.reset()
+                                if (videoUriString.startsWith("file://")) {
+                                    val filePath = android.net.Uri.parse(videoUriString).path
+                                    if (filePath != null && java.io.File(filePath).exists()) {
+                                        mp.setDataSource(filePath)
+                                    } else {
+                                        mp.setDataSource(ctx, android.net.Uri.parse(videoUriString))
+                                    }
+                                } else if (videoUriString.startsWith("/")) {
+                                    mp.setDataSource(videoUriString)
+                                } else {
+                                    mp.setDataSource(ctx, android.net.Uri.parse(videoUriString))
+                                }
+                                
+                                mp.setOnPreparedListener { preparedMp ->
+                                    preparedMp.isLooping = true
+                                    val vol = if (isMuted) 0f else 1f
+                                    preparedMp.setVolume(vol, vol)
+                                    
+                                    val videoWidth = preparedMp.videoWidth.toFloat()
+                                    val videoHeight = preparedMp.videoHeight.toFloat()
+                                    val viewWidth = textureView.width.toFloat()
+                                    val viewHeight = textureView.height.toFloat()
+                                    
+                                    if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
+                                        val scaleX = viewWidth / videoWidth
+                                        val scaleY = viewHeight / videoHeight
+                                        val scale = minOf(scaleX, scaleY)
+                                        val scaledWidth = scale * videoWidth
+                                        val scaledHeight = scale * videoHeight
+                                        
+                                        val matrix = android.graphics.Matrix()
+                                        matrix.setScale(scaledWidth / viewWidth, scaledHeight / viewHeight, viewWidth / 2f, viewHeight / 2f)
+                                        textureView.setTransform(matrix)
+                                    }
+                                    
+                                    if (isPlaying) {
+                                        preparedMp.start()
+                                    } else {
+                                        // Draw the first frame if paused
+                                        preparedMp.start()
+                                        preparedMp.pause()
+                                        preparedMp.seekTo(1)
+                                    }
+                                }
+                                mp.prepareAsync()
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+
+                    override fun onSurfaceTextureSizeChanged(surface: android.graphics.SurfaceTexture, width: Int, height: Int) {}
+
+                    override fun onSurfaceTextureDestroyed(surface: android.graphics.SurfaceTexture): Boolean {
+                        try {
+                            mediaPlayerRef?.setSurface(null)
+                        } catch (_: Exception) {}
+                        return true
+                    }
+
+                    override fun onSurfaceTextureUpdated(surface: android.graphics.SurfaceTexture) {}
+                }
+
+                frameLayout.addView(textureView)
                 frameLayout
             },
             update = {
                 try {
+                    val vol = if (isMuted) 0f else 1f
+                    mediaPlayerRef?.setVolume(vol, vol)
+                    
                     if (isPlaying) {
-                        if (videoViewRef?.isPlaying == false) videoViewRef?.start()
+                        if (mediaPlayerRef?.isPlaying == false) mediaPlayerRef?.start()
                     } else {
-                        if (videoViewRef?.isPlaying == true) videoViewRef?.pause()
+                        if (mediaPlayerRef?.isPlaying == true) mediaPlayerRef?.pause()
                     }
                 } catch (_: Exception) {}
             },

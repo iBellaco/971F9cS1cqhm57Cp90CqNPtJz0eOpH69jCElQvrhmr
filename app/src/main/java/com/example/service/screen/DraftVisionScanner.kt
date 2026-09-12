@@ -437,12 +437,66 @@ object DraftVisionScanner {
                     val u1 = com.example.util.SubscriptionManager.userName.value.trim().lowercase(Locale.ROOT).replace(" ", "")
                     val u2 = com.example.util.AuthManager.getAuth()?.currentUser?.displayName?.trim()?.lowercase(Locale.ROOT)?.replace(" ", "") ?: ""
                     val u3 = try { if (context != null) com.example.data.AccountProfileManager.getActiveProfile(context).name.trim().lowercase(Locale.ROOT).replace(" ", "") else "" } catch (_: Exception) { "" }
-                    listOf(u1, u2, u3, "diego", "yo", "tu").filter { it.isNotBlank() }
+                    listOf(u1, u2, u3, "yo", "tu").filter { it.isNotBlank() }
                 } catch (_: Exception) {
-                    listOf("diego", "yo", "tu")
+                    listOf("yo", "tu")
                 }
             } else {
                 emptyList()
+            }
+
+
+            // -----------------------------------------------------------------------------------------
+            // DETECCION VISUAL AUTONOMA DEL USUARIO (Rastreo de la barra dorada / marco brillante del slot activo)
+            // -----------------------------------------------------------------------------------------
+            var autonomousUserSlot = -1
+            try {
+                // Exploramos el borde izquierdo y el area del avatar (aprox 12% del ancho) buscando pixeles dorados de Wild Rift
+                val searchMarginX = (width * 0.12f).toInt().coerceAtLeast(1)
+                
+                // Mantenemos un conteo de pixeles dorados por slot
+                val goldCounts = IntArray(5)
+                
+                for (i in 0..4) {
+                    val yCenter = (calib.allySlotYRatios[i] * height).toInt()
+                    val yTop = (yCenter - height * 0.05f).toInt().coerceAtLeast(0)
+                    val yBottom = (yCenter + height * 0.05f).toInt().coerceAtMost(height - 1)
+                    
+                    var yellowPixels = 0
+                    val step = 3
+                    for (y in yTop..yBottom step step) {
+                        for (x in 0..searchMarginX step step) {
+                            val px = bitmap.getPixel(x, y)
+                            val r = android.graphics.Color.red(px)
+                            val g = android.graphics.Color.green(px)
+                            val b = android.graphics.Color.blue(px)
+                            // Tolerancia estricta para el Dorado de la UI de Wild Rift (Rojo/Verde altos, Azul bajo)
+                            if (r > 160 && g > 130 && b < 100 && r > b * 1.5f && g > b * 1.2f) {
+                                yellowPixels++
+                            }
+                        }
+                    }
+                    goldCounts[i] = yellowPixels
+                }
+                
+                // El slot con mayor cantidad de pixeles dorados (y que supere un umbral minimo) es el nuestro
+                var maxGold = 0
+                var maxGoldIndex = -1
+                for (i in 0..4) {
+                    if (goldCounts[i] > maxGold) {
+                        maxGold = goldCounts[i]
+                        maxGoldIndex = i
+                    }
+                }
+                
+                if (maxGold > 15) { // Umbral minimo de pixeles de marco dorado encontrados
+                    autonomousUserSlot = maxGoldIndex
+                    userSlotIndex = autonomousUserSlot
+                    userExplicitlyConfirmed = true
+                    AppLogger.d(TAG, "Slot del usuario detectado AUTONOMAMENTE en Slot Aliado $autonomousUserSlot (Gold Score: $maxGold)")
+                }
+            } catch (e: Exception) {
+                AppLogger.e(TAG, "Error en deteccion visual autonoma", e)
             }
 
             // Procesar textos aliados: Detección de Línea, Nombre de Invocador y Campeón
@@ -453,6 +507,7 @@ object DraftVisionScanner {
                 var detectedRoleInSlot: LaneRole? = null
                 var detectedChampInSlot: Champion? = null
                 val summonerCandidates = mutableListOf<String>()
+                var isUnpickedTextPresent = false
 
                 for ((rawBlock, box) in entries) {
                     val safeBox = box ?: Rect(0, 0, 10, 10)
@@ -490,6 +545,13 @@ object DraftVisionScanner {
 
                     for (line in sublines) {
                         if (DraftValidationLayer.isNoiseText(line)) continue
+                        
+                        val lineLower = line.lowercase(Locale.ROOT)
+                        if (lineLower.contains("preselecci") || lineLower.contains("eligiendo") || 
+                            lineLower.contains("ayud") || lineLower.contains("bloque") || 
+                            lineLower.contains("esperando")) {
+                            isUnpickedTextPresent = true
+                        }
 
                         // Comprobar si este slot contiene la etiqueta del usuario "(TÚ)" / "(TU)" / "(YOU)" / "(VOCÊ)" o coincide con su nombre
                         val lineNorm = DraftValidationLayer.normalize(line).lowercase(Locale.ROOT)
@@ -564,8 +626,8 @@ object DraftVisionScanner {
                     }
                 }
 
-                // Si en este slot se detectó el texto de la línea (ej: "Línea Central"), significa que está en preselección (sin fijar)
-                if (detectedRoleInSlot != null && detectedChampInSlot == null) {
+                // Si en este slot se detectó texto indicando que aún no se elige, se invalida el campeón (es un hover)
+                if (isUnpickedTextPresent || (detectedRoleInSlot != null && detectedChampInSlot == null)) {
                     allyOcrChampions[i] = null
                     slot.champion = null
                     slot.isLikelyUnpicked = true
@@ -655,6 +717,7 @@ object DraftVisionScanner {
             for (i in 0..4) {
                 var detectedEnemyChamp: Champion? = null
                 var isWaitingPick = false
+                var isUnpickedTextPresent = false
 
                 for ((rawBlock, box) in enemySlotTexts[i].sortedBy { it.second?.top ?: 0 }) {
                     val safeBox = box ?: Rect(0, 0, 10, 10)
@@ -662,15 +725,18 @@ object DraftVisionScanner {
                     for (line in sublines) {
                         if (DraftValidationLayer.isNoiseText(line)) continue
                         val low = line.lowercase(Locale.ROOT)
-                        if (low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador")) {
+                        if (low.startsWith("jugador") || low.startsWith("player") || low.startsWith("jogador") || 
+                            low.contains("preselecci") || low.contains("eligiendo") || 
+                            low.contains("esperando") || low.contains("bloque") || low.contains("ayud")) {
                             isWaitingPick = true
+                            isUnpickedTextPresent = true
                             textDiagnosticsList.add(
                                 TextBlockDiagnostic(
                                     text = line,
                                     rect = safeBox,
                                     isAlly = false,
                                     slotIndex = i,
-                                    tag = "JUGADOR",
+                                    tag = "JUGADOR/HOVER",
                                     color = android.graphics.Color.DKGRAY
                                 )
                             )
@@ -696,11 +762,11 @@ object DraftVisionScanner {
                     }
                 }
 
-                if (isWaitingPick && detectedEnemyChamp == null) {
+                if (isWaitingPick || isUnpickedTextPresent || (isWaitingPick && detectedEnemyChamp == null)) {
                     enemyOcrChampions[i] = null
                     enemySlots[i].champion = null
                     enemySlots[i].isLikelyUnpicked = true
-                    enemySlotFilters[i].reset() // Limpiar inmediatamente si el slot es Jugador X
+                    enemySlotFilters[i].reset()
                 } else if (detectedEnemyChamp != null) {
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
