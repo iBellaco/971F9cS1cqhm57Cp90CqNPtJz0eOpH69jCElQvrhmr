@@ -59,9 +59,9 @@ object FeedbackRepository {
             val client = SupabaseClientManager.client
             val postgrest = client.postgrest
 
-            // 1. Purgar reportes antiguos automáticamente (> 7 días)
+            // 1. Purgar reportes que exceden el ciclo de retención (60 días máximo)
             try {
-                purgeOldReports(retentionDays)
+                purgeOldReports(60)
             } catch (e: Exception) {
                 Log.w(TAG, "No se pudo realizar la purga automática de reportes antiguos: ${e.message}")
             }
@@ -355,6 +355,63 @@ object FeedbackRepository {
         } catch (e: Exception) {
             Log.w(TAG, "Fallo al purgar reportes antiguos: ${e.message}")
             Result.failure(e)
+        }
+    }
+
+    /**
+     * Parsea fechas ISO-8601 a milisegundos de forma segura.
+     */
+    fun parseIsoToMillis(dateStr: String?): Long {
+        if (dateStr.isNullOrBlank()) return System.currentTimeMillis()
+        dateStr.toLongOrNull()?.let { return it }
+        return try {
+            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }
+            val clean = dateStr.substringBefore(".").substringBefore("+").substringBefore("Z")
+            sdf.parse(clean)?.time ?: System.currentTimeMillis()
+        } catch (_: Exception) {
+            System.currentTimeMillis()
+        }
+    }
+
+    /**
+     * Purga automáticamente los reportes expirados según la política de retención:
+     * - 30 días para mensajes ya leídos o solucionados.
+     * - 60 días para mensajes aún no leídos / pendientes.
+     */
+    suspend fun autoPurgeExpiredReports(context: Context): Int = withContext(Dispatchers.IO) {
+        try {
+            val result = getAllFeedbacks()
+            if (!result.isSuccess) return@withContext 0
+            val list = result.getOrNull() ?: return@withContext 0
+            val now = System.currentTimeMillis()
+            var purged = 0
+
+            for (report in list) {
+                val status = getReportStatus(context, report)
+                val isRead = status == STATUS_READ || status == STATUS_SOLVED || status == STATUS_ACCEPTED || status == STATUS_COMPLETED
+                val maxDays = if (isRead) 30 else 60
+                val maxLifespan = maxDays * 24L * 60 * 60 * 1000L
+                val createdMillis = parseIsoToMillis(report.createdAt)
+
+                if (now - createdMillis >= maxLifespan) {
+                    val id = report.id
+                    if (!id.isNullOrBlank()) {
+                        try {
+                            deleteFeedback(id)
+                            purged++
+                            Log.d(TAG, "Reporte expirado eliminado automáticamente (${maxDays}d): $id")
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Error eliminando reporte expirado $id: ${e.message}")
+                        }
+                    }
+                }
+            }
+            purged
+        } catch (e: Exception) {
+            Log.w(TAG, "Error durante autoPurgeExpiredReports: ${e.message}")
+            0
         }
     }
 }

@@ -13,7 +13,9 @@ data class FeedbackReport(
     @SerialName("device_info") val deviceInfo: String = "",
     @SerialName("created_at") val createdAt: String? = null,
     val status: String? = null,
-    @SerialName("is_completed") val isCompleted: Boolean? = null
+    @SerialName("is_completed") val isCompleted: Boolean? = null,
+    @SerialName("admin_reply") val adminReply: String? = null,
+    @SerialName("replied_at") val repliedAt: String? = null
 ) {
     val parsedEmail: String?
         get() {

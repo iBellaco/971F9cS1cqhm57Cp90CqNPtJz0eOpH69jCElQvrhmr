@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -31,11 +34,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.HeadsetMic
+import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Reply
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.Visibility
@@ -47,6 +56,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -71,6 +81,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.data.SupportReplyManager
 import com.example.data.remote.model.FeedbackReport
 import com.example.data.supabase.FeedbackRepository
 import com.example.ui.theme.DangerRed
@@ -110,7 +121,10 @@ data class UnifiedSupportReport(
     val device: String = "",
     val createdAtMillis: Long = System.currentTimeMillis(),
     val rawSupabaseReport: FeedbackReport? = null,
-    val isFirestoreDoc: Boolean = false
+    val isFirestoreDoc: Boolean = false,
+    val adminReply: String = "",
+    val repliedAtMillis: Long = 0L,
+    val repliedBy: String = ""
 )
 
 @Composable
@@ -125,10 +139,18 @@ fun AdminSupportReportsDialog(
     var selectedFilter by remember { mutableStateOf("ALL") } // "ALL", "PENDING", "READ", "SOLVED"
     var previewZoomBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var reportToDelete by remember { mutableStateOf<UnifiedSupportReport?>(null) }
+    var reportToReply by remember { mutableStateOf<UnifiedSupportReport?>(null) }
 
     fun loadAllReports() {
         isLoading = true
         coroutineScope.launch {
+            // Ejecutar purga automática de reportes expirados (30 días leídos, 60 días sin leer)
+            try {
+                SupportReplyManager.autoPurgeAllExpired(context)
+            } catch (e: Exception) {
+                Log.w(TAG, "Error durante auto-purga: ${e.message}")
+            }
+
             val combined = mutableListOf<UnifiedSupportReport>()
 
             // 1. Cargar desde Supabase (FeedbackRepository) - Fuente de datos primaria
@@ -164,6 +186,10 @@ fun AdminSupportReportsDialog(
                         }
 
                         val createdMillis = parseIsoDateToMillis(fb.createdAt)
+                        val localReply = SupportReplyManager.getLocalReply(context, id)
+                        val finalReply = if (!fb.adminReply.isNullOrBlank()) fb.adminReply else (localReply?.text ?: "")
+                        val repliedAt = if (!fb.repliedAt.isNullOrBlank()) parseIsoDateToMillis(fb.repliedAt) else (localReply?.timestampMillis ?: 0L)
+                        val repliedBy = localReply?.author ?: "Equipo Coach"
 
                         combined.add(
                             UnifiedSupportReport(
@@ -180,7 +206,10 @@ fun AdminSupportReportsDialog(
                                 device = cleanDev,
                                 createdAtMillis = createdMillis,
                                 rawSupabaseReport = fb,
-                                isFirestoreDoc = false
+                                isFirestoreDoc = false,
+                                adminReply = finalReply,
+                                repliedAtMillis = repliedAt,
+                                repliedBy = repliedBy
                             )
                         )
                     }
@@ -202,7 +231,22 @@ fun AdminSupportReportsDialog(
                                 val docId = doc.id
                                 val docTitle = doc.getString("title") ?: ""
                                 val existing = combined.find { it.id == docId || (docTitle.isNotBlank() && it.title == docTitle) }
-                                if (existing == null) {
+                                val docReply = doc.getString("adminReply") ?: ""
+                                val docRepliedAt = doc.getTimestamp("repliedAt")?.toDate()?.time ?: 0L
+                                val docRepliedBy = doc.getString("repliedBy") ?: ""
+                                val localReply = SupportReplyManager.getLocalReply(context, docId)
+                                val finalReply = if (docReply.isNotBlank()) docReply else (localReply?.text ?: "")
+                                val finalRepliedAt = if (docRepliedAt > 0L) docRepliedAt else (localReply?.timestampMillis ?: 0L)
+                                val finalRepliedBy = if (docRepliedBy.isNotBlank()) docRepliedBy else (localReply?.author ?: "Equipo Coach")
+
+                                if (existing != null) {
+                                    val idx = combined.indexOf(existing)
+                                    combined[idx] = existing.copy(
+                                        adminReply = if (finalReply.isNotBlank()) finalReply else existing.adminReply,
+                                        repliedAtMillis = if (finalRepliedAt > 0L) finalRepliedAt else existing.repliedAtMillis,
+                                        repliedBy = if (finalRepliedBy.isNotBlank()) finalRepliedBy else existing.repliedBy
+                                    )
+                                } else {
                                     val desc = doc.getString("description") ?: ""
                                     val userId = doc.getString("userId") ?: ""
                                     val userEmail = doc.getString("userEmail") ?: ""
@@ -234,7 +278,10 @@ fun AdminSupportReportsDialog(
                                             device = dev,
                                             createdAtMillis = ts,
                                             rawSupabaseReport = null,
-                                            isFirestoreDoc = true
+                                            isFirestoreDoc = true,
+                                            adminReply = finalReply,
+                                            repliedAtMillis = finalRepliedAt,
+                                            repliedBy = finalRepliedBy
                                         )
                                     )
                                 }
@@ -492,6 +539,34 @@ fun AdminSupportReportsDialog(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Aviso de política de auto-eliminación
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechSurfaceVariant)
+                            .border(0.8.dp, HextechGold.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.HourglassBottom,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Retención activa: 30 días para mensajes leídos y 60 días para mensajes pendientes.",
+                                color = HextechGold,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(10.dp))
 
                     // Contenido: Lista de reportes
@@ -536,6 +611,7 @@ fun AdminSupportReportsDialog(
                                     report = item,
                                     onImageClick = { bmp -> previewZoomBitmap = bmp },
                                     onSetStatus = { newStat -> updateReportStatus(item, newStat) },
+                                    onReplyClick = { reportToReply = item },
                                     onDelete = { reportToDelete = item }
                                 )
                             }
@@ -544,6 +620,33 @@ fun AdminSupportReportsDialog(
                 }
             }
         }
+    }
+
+    // Modal para responder al mensaje de soporte
+    if (reportToReply != null) {
+        val targetReport = reportToReply!!
+        SupportReplyDialog(
+            reportId = targetReport.id,
+            reportTitle = targetReport.title,
+            reportDescription = targetReport.description,
+            userEmail = targetReport.userEmail,
+            userName = targetReport.userName,
+            initialReply = targetReport.adminReply,
+            isFirestoreDoc = targetReport.isFirestoreDoc,
+            onDismiss = { reportToReply = null },
+            onReplySent = { replyText, markedAsRead ->
+                val idx = reportsList.indexOfFirst { it.id == targetReport.id }
+                if (idx != -1) {
+                    val updatedStatus = if (markedAsRead) FeedbackRepository.STATUS_READ else reportsList[idx].status
+                    reportsList[idx] = reportsList[idx].copy(
+                        adminReply = replyText,
+                        repliedAtMillis = System.currentTimeMillis(),
+                        status = updatedStatus
+                    )
+                }
+                reportToReply = null
+            }
+        )
     }
 
     // Modal de confirmación para eliminar reporte
@@ -664,11 +767,17 @@ private fun UnifiedReportAdminCard(
     report: UnifiedSupportReport,
     onImageClick: (Bitmap) -> Unit,
     onSetStatus: (String) -> Unit,
+    onReplyClick: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val context = LocalContext.current
     val isPending = report.status == FeedbackRepository.STATUS_PENDING || report.status.equals("PENDIENTE", ignoreCase = true)
     val isRead = report.status == FeedbackRepository.STATUS_READ || report.status.equals("LEIDO", ignoreCase = true) || report.status.equals("LEÍDO", ignoreCase = true)
     val isSolved = report.status == FeedbackRepository.STATUS_SOLVED || report.status.equals("SOLUCIONADO", ignoreCase = true) || report.status.equals("RESUELTO", ignoreCase = true) || report.status.equals("ACCEPTED", ignoreCase = true)
+
+    val countdown = remember(report.createdAtMillis, isRead, isSolved) {
+        SupportReplyManager.calculateCountdown(report.createdAtMillis, isRead || isSolved)
+    }
 
     val dateStr = remember(report.createdAtMillis) {
         try {
@@ -692,7 +801,7 @@ private fun UnifiedReportAdminCard(
         border = BorderStroke(1.dp, borderColor)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            // Fila Superior: Tipo + Estado actual + Fecha + Eliminar
+            // Fila Superior: Tipo + Estado actual + Contador auto-borrado + Fecha + Eliminar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -700,7 +809,7 @@ private fun UnifiedReportAdminCard(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     // Badge de Tipo
                     val typeLabel = when (report.type.uppercase()) {
@@ -719,7 +828,7 @@ private fun UnifiedReportAdminCard(
                         Text(
                             text = typeLabel,
                             color = HextechCyan,
-                            fontSize = 9.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -736,14 +845,52 @@ private fun UnifiedReportAdminCard(
                             .clip(RoundedCornerShape(6.dp))
                             .background(statusBg)
                             .border(1.dp, statusTextColor, RoundedCornerShape(6.dp))
-                            .padding(horizontal = 7.dp, vertical = 2.dp)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = statusText,
                             color = statusTextColor,
-                            fontSize = 9.5.sp,
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Black
                         )
+                    }
+
+                    // Badge de Contador de Auto-eliminación (30 días leídos, 60 días sin leer)
+                    val countdownBg = when {
+                        countdown.isExpired -> DangerRed.copy(alpha = 0.2f)
+                        countdown.remainingDays <= 3 -> Color(0xFFFF9800).copy(alpha = 0.2f)
+                        isRead || isSolved -> HextechCyan.copy(alpha = 0.15f)
+                        else -> HextechGold.copy(alpha = 0.15f)
+                    }
+                    val countdownColor = when {
+                        countdown.isExpired -> DangerRed
+                        countdown.remainingDays <= 3 -> Color(0xFFFF9800)
+                        isRead || isSolved -> HextechCyan
+                        else -> HextechGold
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(countdownBg)
+                            .border(0.8.dp, countdownColor, RoundedCornerShape(6.dp))
+                            .padding(horizontal = 5.dp, vertical = 2.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.HourglassBottom,
+                                contentDescription = null,
+                                tint = countdownColor,
+                                modifier = Modifier.size(10.dp)
+                            )
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text(
+                                text = countdown.displayText,
+                                color = countdownColor,
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
 
@@ -999,6 +1146,136 @@ private fun UnifiedReportAdminCard(
                         color = if (isSolved) HextechGreen else TextSecondary,
                         fontSize = 10.sp,
                         fontWeight = if (isSolved) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // 💬 SECCIÓN DE RESPUESTA DE SOPORTE AL USUARIO
+            if (report.adminReply.isNotBlank()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(HextechDarkBg)
+                        .border(1.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+                        .padding(10.dp)
+                ) {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Default.QuestionAnswer,
+                                    contentDescription = null,
+                                    tint = HextechCyan,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = "Respuesta de Soporte Coach:",
+                                    color = HextechCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            if (report.repliedAtMillis > 0L) {
+                                val replyDateStr = remember(report.repliedAtMillis) {
+                                    try {
+                                        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                                        sdf.format(Date(report.repliedAtMillis))
+                                    } catch (_: Exception) { "" }
+                                }
+                                Text(text = replyDateStr, color = TextMuted, fontSize = 9.sp)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = report.adminReply,
+                            color = TextPrimary,
+                            fontSize = 11.5.sp,
+                            lineHeight = 15.5.sp
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            OutlinedButton(
+                                onClick = onReplyClick,
+                                modifier = Modifier.height(28.dp),
+                                border = BorderStroke(0.8.dp, HextechCyan),
+                                shape = RoundedCornerShape(6.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Editar", color = HextechCyan, fontSize = 10.sp)
+                            }
+                            OutlinedButton(
+                                onClick = {
+                                    val clip = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    clip.setPrimaryClip(ClipData.newPlainText("Respuesta Soporte", report.adminReply))
+                                    Toast.makeText(context, "Respuesta copiada", Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier.height(28.dp),
+                                border = BorderStroke(0.8.dp, HextechCardBorder),
+                                shape = RoundedCornerShape(6.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Icon(Icons.Default.ContentCopy, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(12.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("Copiar", color = TextSecondary, fontSize = 10.sp)
+                            }
+                            if (report.userEmail.isNotBlank()) {
+                                OutlinedButton(
+                                    onClick = {
+                                        try {
+                                            val intent = SupportReplyManager.createEmailReplyIntent(
+                                                email = report.userEmail,
+                                                title = report.title,
+                                                replyText = report.adminReply
+                                            )
+                                            context.startActivity(intent)
+                                        } catch (_: Exception) {
+                                            Toast.makeText(context, "No hay aplicación de correo disponible", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    modifier = Modifier.height(28.dp),
+                                    border = BorderStroke(0.8.dp, HextechCyan.copy(alpha = 0.5f)),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp)
+                                ) {
+                                    Icon(Icons.Default.Email, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("Reenviar Correo", color = HextechCyan, fontSize = 10.sp)
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                Button(
+                    onClick = onReplyClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(34.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.18f)),
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 10.dp)
+                ) {
+                    Icon(Icons.Default.Reply, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Responder Mensaje de Soporte",
+                        color = HextechCyan,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

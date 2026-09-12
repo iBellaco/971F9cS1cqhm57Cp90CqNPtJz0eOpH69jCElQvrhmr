@@ -19,6 +19,8 @@ import com.google.firebase.storage.FirebaseStorage
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import android.media.MediaMetadataRetriever
+import android.provider.OpenableColumns
+import kotlinx.coroutines.withTimeoutOrNull
 
 object NoticeMediaStorageManager {
     private const val TAG = "NoticeMediaStorage"
@@ -187,10 +189,16 @@ object NoticeMediaStorageManager {
 
             context.contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(targetFile).use { output ->
-                    input.copyTo(output)
+                    val buffer = ByteArray(32768)
+                    var bytesRead: Int
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                    }
+                    output.flush()
                 }
             }
-            Log.d(TAG, "Media guardada permanentemente en almacenamiento interno: ${targetFile.absolutePath}")
+            try { targetFile.setReadable(true, false) } catch (_: Exception) {}
+            Log.d(TAG, "Media guardada permanentemente en almacenamiento interno: ${targetFile.absolutePath}, tamaño: ${targetFile.length()} bytes")
             "file://${targetFile.absolutePath}"
         } catch (e: Exception) {
             Log.e(TAG, "Error guardando en almacenamiento interno: ${e.message}")
@@ -199,25 +207,72 @@ object NoticeMediaStorageManager {
     }
 
     /**
-     * Convierte una imagen de la galería o archivo a un Data URL Base64 optimizado (data:image/jpeg;base64,...).
-     * Escala la imagen para un peso ligero (~30KB-70KB) que se sincroniza perfectamente
-     * en Firebase Firestore a través de TODOS los dispositivos (Multidispositivo) sin volverse negra.
-     */
-    
-    /**
-     * Determina con precisión si una URI seleccionada de la galería o explorador es un archivo de video.
+     * Determina con precisión blindada si una URI seleccionada de la galería o explorador es un archivo de video.
+     * Comprueba tipo MIME de ContentResolver, extensiones de nombre, encabezados/firmas binarias (magic bytes)
+     * y metadatos de medios.
      */
     fun isUriVideo(context: Context, uri: Uri): Boolean {
+        // 1. Tipo MIME directo
         try {
             val mime = context.contentResolver.getType(uri)
             if (mime?.startsWith("video/", ignoreCase = true) == true) return true
             if (mime?.startsWith("image/", ignoreCase = true) == true) return false
         } catch (_: Exception) {}
 
+        // 2. Nombre del archivo o parámetro de URI
         val uriStr = uri.toString().lowercase()
         val videoExtensions = listOf(".mp4", ".mkv", ".webm", ".mov", ".3gp", ".avi", ".m4v", ".ts")
         if (videoExtensions.any { uriStr.endsWith(it) || uriStr.contains(it) }) return true
 
+        // 3. Consultar nombre en ContentResolver
+        try {
+            context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIdx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (nameIdx != -1) {
+                        val name = cursor.getString(nameIdx)?.lowercase() ?: ""
+                        if (videoExtensions.any { name.endsWith(it) }) return true
+                        val imageExtensions = listOf(".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp")
+                        if (imageExtensions.any { name.endsWith(it) }) return false
+                    }
+                }
+            }
+        } catch (_: Exception) {}
+
+        // 4. Verificación de Magic Bytes en la cabecera del archivo
+        try {
+            context.contentResolver.openInputStream(uri)?.use { stream ->
+                val header = ByteArray(32)
+                val read = stream.read(header)
+                if (read >= 12) {
+                    // MP4 / MOV / 3GP: bytes 4..7 suelen ser "ftyp"
+                    val isFtyp = header[4] == 'f'.code.toByte() &&
+                            header[5] == 't'.code.toByte() &&
+                            header[6] == 'y'.code.toByte() &&
+                            header[7] == 'p'.code.toByte()
+                    if (isFtyp) return true
+
+                    // Matroska / WebM: 0x1A 0x45 0xDF 0xA3
+                    if (header[0] == 0x1A.toByte() && header[1] == 0x45.toByte() &&
+                        header[2] == 0xDF.toByte() && header[3] == 0xA3.toByte()) return true
+
+                    // AVI: RIFF ... AVI 
+                    if (header[0] == 'R'.code.toByte() && header[1] == 'I'.code.toByte() &&
+                        header[2] == 'F'.code.toByte() && header[3] == 'F'.code.toByte() &&
+                        header[8] == 'A'.code.toByte() && header[9] == 'V'.code.toByte() &&
+                        header[10] == 'I'.code.toByte()) return true
+
+                    // Descartar si es imagen conocida
+                    val isJpeg = header[0] == 0xFF.toByte() && header[1] == 0xD8.toByte() && header[2] == 0xFF.toByte()
+                    val isPng = header[0] == 0x89.toByte() && header[1] == 'P'.code.toByte() &&
+                            header[2] == 'N'.code.toByte() && header[3] == 'G'.code.toByte()
+                    val isGif = header[0] == 'G'.code.toByte() && header[1] == 'I'.code.toByte() && header[2] == 'F'.code.toByte()
+                    if (isJpeg || isPng || isGif) return false
+                }
+            }
+        } catch (_: Exception) {}
+
+        // 5. Verificación de respaldo mediante MediaMetadataRetriever
         return try {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(context, uri)
@@ -230,46 +285,64 @@ object NoticeMediaStorageManager {
     }
 
     /**
+     * Extrae una captura o miniatura en Bitmap del video seleccionado
+     */
+    fun getVideoThumbnail(context: Context, uri: Uri): Bitmap? {
+        return try {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(context, uri)
+            val frame = retriever.getFrameAtTime(1000000) // 1 seg
+                ?: retriever.getFrameAtTime(0)
+            retriever.release()
+            frame
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
      * Intenta subir un archivo de video al almacenamiento remoto en la nube.
-     * Si no está disponible o falla, retorna null de forma segura sin arrojar excepciones.
+     * Si no está disponible o tarda más de 12 segundos, retorna null de forma segura sin bloquear.
      */
     suspend fun tryUploadVideoToCloud(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
-        try {
-            val storage = try {
-                FirebaseStorage.getInstance()
-            } catch (_: Exception) {
-                try {
-                    FirebaseStorage.getInstance("gs://wild-rift-drafting.firebasestorage.app")
-                } catch (_: Exception) {
-                    null
-                }
-            } ?: return@withContext null
-
-            val storageRef = storage.reference
-            val filename = "notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4"
-            val videoRef = storageRef.child(filename)
-            videoRef.putFile(uri).await()
-            val downloadUrl = videoRef.downloadUrl.await()
-            val urlString = downloadUrl.toString()
-            Log.d(TAG, "Video subido exitosamente a la nube: $urlString")
-
-            // Guardar copia local inmediata en caché para reproducción instantánea sin esperar red
+        withTimeoutOrNull(12000L) {
             try {
-                val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
-                if (!dir.exists()) dir.mkdirs()
-                val key = "vid_" + urlString.hashCode().toString().replace("-", "n") + ".mp4"
-                val file = File(dir, key)
-                context.contentResolver.openInputStream(uri)?.use { input ->
-                    FileOutputStream(file).use { output ->
-                        input.copyTo(output)
+                val storage = try {
+                    FirebaseStorage.getInstance()
+                } catch (_: Exception) {
+                    try {
+                        FirebaseStorage.getInstance("gs://wild-rift-drafting.firebasestorage.app")
+                    } catch (_: Exception) {
+                        null
                     }
-                }
-            } catch (_: Exception) {}
+                } ?: return@withTimeoutOrNull null
 
-            urlString
-        } catch (e: Exception) {
-            Log.w(TAG, "Almacenamiento remoto no disponible para video (${e.message}), se utilizará almacenamiento local.")
-            null
+                val storageRef = storage.reference
+                val filename = "notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4"
+                val videoRef = storageRef.child(filename)
+                videoRef.putFile(uri).await()
+                val downloadUrl = videoRef.downloadUrl.await()
+                val urlString = downloadUrl.toString()
+                Log.d(TAG, "Video subido exitosamente a la nube: $urlString")
+
+                // Guardar copia local inmediata en caché para reproducción instantánea sin esperar red
+                try {
+                    val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+                    if (!dir.exists()) dir.mkdirs()
+                    val key = "vid_" + urlString.hashCode().toString().replace("-", "n") + ".mp4"
+                    val file = File(dir, key)
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        FileOutputStream(file).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                } catch (_: Exception) {}
+
+                urlString
+            } catch (e: Exception) {
+                Log.w(TAG, "Almacenamiento remoto no disponible para video (${e.message}), se utilizará almacenamiento local.")
+                null
+            }
         }
     }
 
@@ -282,7 +355,7 @@ object NoticeMediaStorageManager {
         // 1. Guardar siempre en almacenamiento interno local permanente
         val localPath = saveMediaToInternalStorage(context, uri, isVideo = true)
 
-        // 2. Intentar subir al servicio en la nube si está activo
+        // 2. Intentar subir al servicio en la nube si está activo (con timeout de seguridad)
         val cloudUrl = tryUploadVideoToCloud(context, uri)
         if (!cloudUrl.isNullOrBlank()) {
             return@withContext cloudUrl
