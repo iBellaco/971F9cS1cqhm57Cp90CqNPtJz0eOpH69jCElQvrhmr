@@ -105,6 +105,25 @@ jobs:
                 "client_info": {
                   "mobilesdk_app_id": "1:500606030430:android:d32178b0d793e97aa7dacf",
                   "android_client_info": {
+                    "package_name": "com.Coach"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "AIzaSyDFUZjKmw2K5IJT-p6E6vBvQ9Ons6xUhck"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:500606030430:android:d32178b0d793e97aa7dacf",
+                  "android_client_info": {
                     "package_name": "com.aistudio.wildriftdrafting.wrdftx"
                   }
                 },
@@ -125,9 +144,9 @@ jobs:
           }
           EOF
 
-      - name: Build Debug APK with R8 / ProGuard Obfuscation
+      - name: Build Debug APK
         run: |
-          gradle :app:assembleDebug -PenableDebugMinify=true
+          gradle :app:assembleDebug
 
       - name: Verify APK
         run: |
