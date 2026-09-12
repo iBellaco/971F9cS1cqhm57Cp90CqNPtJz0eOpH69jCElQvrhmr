@@ -23,6 +23,7 @@ import okhttp3.Request
 import android.media.MediaMetadataRetriever
 import android.provider.OpenableColumns
 import kotlinx.coroutines.withTimeoutOrNull
+import org.json.JSONObject
 
 object NoticeMediaStorageManager {
     private const val TAG = "NoticeMediaStorage"
@@ -307,8 +308,16 @@ object NoticeMediaStorageManager {
      * Configura metadatos video/mp4 y guarda en caché local inmediata para visualización instantánea.
      */
     suspend fun tryUploadVideoToCloud(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
-        withTimeoutOrNull(60000L) {
+        withTimeoutOrNull(45000L) {
             try {
+                // Asegurar autenticación para Firebase Storage
+                val auth = try { com.google.firebase.auth.FirebaseAuth.getInstance() } catch (_: Exception) { null }
+                if (auth?.currentUser == null) {
+                    try {
+                        auth?.signInAnonymously()?.await()
+                    } catch (_: Exception) {}
+                }
+
                 // Guardar en archivo temporal seguro para lectura estable
                 val tempUploadFile = File(context.cacheDir, "temp_upload_${System.currentTimeMillis()}.mp4")
                 context.contentResolver.openInputStream(uri)?.use { input ->
@@ -326,11 +335,6 @@ object NoticeMediaStorageManager {
                     try { FirebaseStorage.getInstance() } catch (_: Exception) { null },
                     try { FirebaseStorage.getInstance("gs://wild-rift-drafting.appspot.com") } catch (_: Exception) { null }
                 )
-
-                if (storages.isEmpty()) {
-                    Log.w(TAG, "No se pudo instanciar FirebaseStorage.")
-                    return@withTimeoutOrNull null
-                }
 
                 var finalUrl: String? = null
                 val filename = "notice_videos/${System.currentTimeMillis()}_${UUID.randomUUID().toString().take(6)}.mp4"
@@ -369,6 +373,112 @@ object NoticeMediaStorageManager {
                 finalUrl
             } catch (e: Exception) {
                 Log.w(TAG, "Error subiendo video a Firebase Storage: ${e.message}")
+                null
+            }
+        }
+    }
+
+    /**
+     * Sube un video a Catbox.moe para obtener un enlace público directo permanente HTTPS (.mp4)
+     * compatible con reproducción instantánea en cualquier dispositivo.
+     */
+    suspend fun tryUploadToCatbox(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
+        withTimeoutOrNull(45000L) {
+            try {
+                val tempFile = File(context.cacheDir, "catbox_upload_${System.currentTimeMillis()}.mp4")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    FileOutputStream(tempFile).use { output -> input.copyTo(output) }
+                }
+                if (!tempFile.exists() || tempFile.length() == 0L) return@withTimeoutOrNull null
+
+                val requestBody = okhttp3.MultipartBody.Builder()
+                    .setType(okhttp3.MultipartBody.FORM)
+                    .addFormDataPart("reqtype", "fileupload")
+                    .addFormDataPart(
+                        "fileToUpload",
+                        "video_${System.currentTimeMillis()}.mp4",
+                        okhttp3.RequestBody.create("video/mp4".toMediaTypeOrNull(), tempFile)
+                    )
+                    .build()
+
+                val request = Request.Builder()
+                    .url("https://catbox.moe/user/api.php")
+                    .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) CoachApp/1.0")
+                    .post(requestBody)
+                    .build()
+
+                val response = okHttpClient.newCall(request).execute()
+                val responseText = response.body?.string()?.trim() ?: ""
+                if (response.isSuccessful && responseText.startsWith("http")) {
+                    Log.d(TAG, "Video subido exitosamente a Catbox: $responseText")
+                    // Guardar en caché local
+                    try {
+                        val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+                        if (!dir.exists()) dir.mkdirs()
+                        val key = "vid_" + responseText.hashCode().toString().replace("-", "n") + ".mp4"
+                        tempFile.copyTo(File(dir, key), overwrite = true)
+                    } catch (_: Exception) {}
+                    try { tempFile.delete() } catch (_: Exception) {}
+                    return@withTimeoutOrNull responseText
+                }
+                try { tempFile.delete() } catch (_: Exception) {}
+                null
+            } catch (e: Exception) {
+                Log.w(TAG, "Error subiendo a Catbox: ${e.message}")
+                null
+            }
+        }
+    }
+
+    /**
+     * Sube un video a Tmpfiles API como alternativa en la nube directa.
+     */
+    suspend fun tryUploadToTmpfiles(context: Context, uri: Uri): String? = withContext(Dispatchers.IO) {
+        withTimeoutOrNull(30000L) {
+            try {
+                val tempFile = File(context.cacheDir, "tmpfiles_upload_${System.currentTimeMillis()}.mp4")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    FileOutputStream(tempFile).use { output -> input.copyTo(output) }
+                }
+                if (!tempFile.exists() || tempFile.length() == 0L) return@withTimeoutOrNull null
+
+                val requestBody = okhttp3.MultipartBody.Builder()
+                    .setType(okhttp3.MultipartBody.FORM)
+                    .addFormDataPart(
+                        "input_file",
+                        "video_${System.currentTimeMillis()}.mp4",
+                        okhttp3.RequestBody.create("video/mp4".toMediaTypeOrNull(), tempFile)
+                    )
+                    .build()
+
+                val request = Request.Builder()
+                    .url("https://tmpfiles.org/api/v1/upload")
+                    .header("User-Agent", "Mozilla/5.0 (Linux; Android 14) CoachApp/1.0")
+                    .post(requestBody)
+                    .build()
+
+                val response = okHttpClient.newCall(request).execute()
+                val responseText = response.body?.string()?.trim() ?: ""
+                if (response.isSuccessful && responseText.isNotBlank()) {
+                    val json = JSONObject(responseText)
+                    if (json.optString("status") == "success") {
+                        val originalUrl = json.getJSONObject("data").getString("url")
+                        val directUrl = originalUrl.replace("tmpfiles.org/", "tmpfiles.org/dl/")
+                        Log.d(TAG, "Video subido exitosamente a Tmpfiles: $directUrl")
+                        try {
+                            val dir = File(context.cacheDir, VIDEO_CACHE_DIR)
+                            if (!dir.exists()) dir.mkdirs()
+                            val key = "vid_" + directUrl.hashCode().toString().replace("-", "n") + ".mp4"
+                            tempFile.copyTo(File(dir, key), overwrite = true)
+                        } catch (_: Exception) {}
+                        try { tempFile.delete() } catch (_: Exception) {}
+                        return@withTimeoutOrNull directUrl
+                    }
+                }
+                try { tempFile.delete() } catch (_: Exception) {}
+                null
+            } catch (e: Exception) {
+                Log.w(TAG, "Error subiendo a Tmpfiles: ${e.message}")
                 null
             }
         }
@@ -454,9 +564,11 @@ object NoticeMediaStorageManager {
      * Guarda el video de forma blindada:
      * 1. Almacena copia permanente en disco local para reproducción instantánea (0ms).
      * 2. Intenta subirlo a Firebase Storage con metadatos video/mp4 (prioritario para sincronización global).
-     * 3. Si no está disponible, intenta Supabase Storage si estuviera configurado.
-     * 4. Si es ligero (< 500KB), genera Data URL Base64 para que se replique en Firestore en todos los dispositivos.
-     * 5. Si todo lo anterior falla, retorna la ruta local permanente file://.
+     * 3. Si no está disponible, intenta Catbox Cloud (enlace HTTPS mp4 público permanente multidispositivo).
+     * 4. Si no está disponible, intenta Tmpfiles Cloud.
+     * 5. Si no está disponible, intenta Supabase Storage si estuviera configurado.
+     * 6. Si es ligero (< 500KB), genera Data URL Base64 para que se replique en Firestore en todos los dispositivos.
+     * 7. Si todo lo anterior falla, retorna la ruta local permanente file://.
      */
     suspend fun uploadOrSaveVideo(context: Context, uri: Uri): String = withContext(Dispatchers.IO) {
         // 1. Guardar siempre copia permanente en almacenamiento local privado
@@ -468,19 +580,31 @@ object NoticeMediaStorageManager {
             return@withContext cloudUrl
         }
 
-        // 3. Intentar subir a Supabase Storage como almacenamiento secundario si está disponible
+        // 3. Intentar subir a Catbox Cloud (enlace HTTPS mp4 público permanente multidispositivo)
+        val catboxUrl = tryUploadToCatbox(context, uri)
+        if (!catboxUrl.isNullOrBlank()) {
+            return@withContext catboxUrl
+        }
+
+        // 4. Intentar subir a Tmpfiles Cloud
+        val tmpfilesUrl = tryUploadToTmpfiles(context, uri)
+        if (!tmpfilesUrl.isNullOrBlank()) {
+            return@withContext tmpfilesUrl
+        }
+
+        // 5. Intentar subir a Supabase Storage como almacenamiento secundario si está disponible
         val supabaseUrl = tryUploadVideoToSupabase(context, uri)
         if (!supabaseUrl.isNullOrBlank()) {
             return@withContext supabaseUrl
         }
 
-        // 4. Si es video compacto (< 500KB), generar Data URL Base64 para sincronización instantánea en la nube
+        // 6. Si es video compacto (< 500KB), generar Data URL Base64 para sincronización instantánea en la nube
         val dataUrl = convertVideoToDataUrl(context, uri, maxBytes = 500_000)
         if (!dataUrl.isNullOrBlank()) {
             return@withContext dataUrl
         }
 
-        // 5. Retornar la ruta local permanente file://
+        // 7. Retornar la ruta local permanente file://
         localPath
     }
 

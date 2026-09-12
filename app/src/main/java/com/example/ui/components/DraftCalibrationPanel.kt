@@ -76,8 +76,8 @@ fun DraftCalibrationPanel(
     fun modify(deltaX: Float = 0f, deltaY: Float = 0f, deltaSize: Float = 0f) {
         val cur = config
         val effectiveDeltaSize = if (deltaSize != 0f) deltaSize else (deltaY * 0.5f + deltaX * 0.5f)
-        val effectiveDeltaX = if (deltaX != 0f) deltaX else deltaY
-        val effectiveDeltaY = if (deltaY != 0f) deltaY else deltaX
+        val effectiveDeltaX = deltaX
+        val effectiveDeltaY = deltaY
 
         val updated = when (selectedTarget) {
             CalibrationTarget.TOP_ENEMY_5 -> cur.copy(

@@ -380,15 +380,9 @@ object AppNoticeManager {
 
         try {
             val db = FirebaseFirestore.getInstance()
-            // Sanitizar URLs excesivamente grandes o locales para la carga remota en Firestore
             val listData = newNotices.map { n ->
-                val cleanVideo = if (n.videoUrl.startsWith("file://") || n.videoUrl.length > 200_000) {
-                    if (n.videoUrl.startsWith("file://")) "" else n.videoUrl.take(500)
-                } else n.videoUrl
-
-                val cleanExpanded = if (n.expandedImageUrl.startsWith("file://") || n.expandedImageUrl.length > 200_000) {
-                    if (n.expandedImageUrl.startsWith("file://")) "" else n.expandedImageUrl.take(500)
-                } else n.expandedImageUrl
+                val cleanVideo = if (n.videoUrl.startsWith("file://")) "" else n.videoUrl
+                val cleanExpanded = if (n.expandedImageUrl.startsWith("file://")) "" else n.expandedImageUrl
 
                 mapOf(
                     "id" to n.id,

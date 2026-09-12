@@ -49,17 +49,17 @@ fun ScannerDebugOverlay(
             setShadowLayer(4f, 0f, 0f, android.graphics.Color.BLACK)
         }
         
-        // 1. SLOTS VERTICALES (Draft estándar)
-        for (sIdx in 0..4) {
-            // Columna Aliada
+        // 1. SLOTS VERTICALES (Únicamente Slot 4 / Último avatar inferior: izquierdo y derecho)
+        for (sIdx in listOf(4)) {
+            // Columna Aliada (Izquierda Abajo)
             val allyY = h * currentConfig.allySlotYRatios[sIdx]
             val allyX = w * currentConfig.allyAvatarCenterX
             
             drawRect(
-                color = Color(0xFF00FF7F),
+                color = Color(0xFFFFD700),
                 topLeft = Offset(allyX - avatarDiameter / 2, allyY - avatarDiameter / 2),
                 size = Size(avatarDiameter, avatarDiameter),
-                style = Stroke(width = 3f)
+                style = Stroke(width = 3.5f)
             )
             
             val allyMatch = debugMatches["ally_$sIdx"]
@@ -72,15 +72,15 @@ fun ScannerDebugOverlay(
                 )
             }
             
-            // Columna Rival
+            // Columna Rival (Derecha Abajo)
             val enemyY = h * currentConfig.enemySlotYRatios[sIdx]
             val enemyX = w * currentConfig.enemyAvatarCenterX
             
             drawRect(
-                color = Color(0xFFFF453A),
+                color = Color(0xFFFFD700),
                 topLeft = Offset(enemyX - avatarDiameter / 2, enemyY - avatarDiameter / 2),
                 size = Size(avatarDiameter, avatarDiameter),
-                style = Stroke(width = 3f)
+                style = Stroke(width = 3.5f)
             )
             
             val enemyMatch = debugMatches["enemy_$sIdx"]
@@ -94,16 +94,15 @@ fun ScannerDebugOverlay(
             }
         }
 
-        // 2. CÍRCULOS SUPERIORES (Top Bar / 10º Pick / Fase de Preparación)
-        // Aliados Superiores (0..4)
-        for (idx in 0..4) {
-            val topAllyX = w * currentConfig.topAllyXRatios.getOrElse(idx) { 0.03f + idx * 0.03f }
-            val is5th = idx == 4
+        // 2. CÍRCULOS SUPERIORES (Únicamente el 10º Pick / Índice 4: superior izquierdo y superior derecho)
+        // Aliados Superiores (Índice 4 - Superior Izquierdo)
+        for (idx in listOf(4)) {
+            val topAllyX = w * currentConfig.topAllyXRatios.getOrElse(idx) { 0.148f }
             drawRect(
-                color = if (is5th) Color(0xFFFFD700) else Color(0xFF00E5FF),
+                color = Color(0xFFFFD700),
                 topLeft = Offset(topAllyX - topDiameter / 2, topY - topDiameter / 2),
                 size = Size(topDiameter, topDiameter),
-                style = Stroke(width = if (is5th) 4f else 2f)
+                style = Stroke(width = 4f)
             )
 
             val match = debugMatches["top_ally_$idx"]
@@ -117,15 +116,14 @@ fun ScannerDebugOverlay(
             }
         }
 
-        // Rivales Superiores (0..4)
-        for (idx in 0..4) {
-            val topEnemyX = w * currentConfig.topEnemyXRatios.getOrElse(idx) { 0.83f + idx * 0.03f }
-            val is5th = idx == 4 // 10º Pick Rival!
+        // Rivales Superiores (Índice 4 - Superior Derecho / 10º Pick Rival)
+        for (idx in listOf(4)) {
+            val topEnemyX = w * currentConfig.topEnemyXRatios.getOrElse(idx) { 0.952f }
             drawRect(
-                color = if (is5th) Color(0xFFFFD700) else Color(0xFFFF9500),
+                color = Color(0xFFFFD700),
                 topLeft = Offset(topEnemyX - topDiameter / 2, topY - topDiameter / 2),
                 size = Size(topDiameter, topDiameter),
-                style = Stroke(width = if (is5th) 4.5f else 2f)
+                style = Stroke(width = 4.5f)
             )
 
             val match = debugMatches["top_enemy_$idx"]

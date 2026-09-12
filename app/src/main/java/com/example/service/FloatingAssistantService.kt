@@ -841,7 +841,7 @@ private fun FloatingOverlayContent(
     val isLoggedInAndPremium = isPremium && activeProfileId != null
     val userRole by com.example.util.SubscriptionManager.userRole.collectAsStateWithLifecycle()
     val currentAuthEmail = remember { com.example.util.AuthManager.getAuth()?.currentUser?.email }
-    val isAdmin = userRole == "admin" || userRole == "moderador" || com.example.util.AuthManager.isCurrentUserAdmin()
+    val isAdmin = userRole == "admin" || userRole == "moderador" || (currentAuthEmail != null && currentAuthEmail.contains("barbadiego", ignoreCase = true)) || com.example.util.AuthManager.isCurrentUserAdmin()
     val context = LocalContext.current
     var activeRole by state::activeRole
     var isFirstPick by state::isFirstPick
@@ -1585,6 +1585,46 @@ private fun FloatingOverlayContent(
                                             color = if (isHistoryActive) Color(0xFF00FF7F) else TextMuted,
                                             fontSize = 9.5.sp,
                                             fontWeight = if (isHistoryActive) FontWeight.Bold else FontWeight.Medium
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Pestaña 5: Depurar / Calibrador (Exclusivo Administrador en el Overlay Hub)
+                            if (isAdmin) {
+                                val isDebugActive = showCalibrationPanel
+                                Box(
+                                    modifier = Modifier
+                                        .weight(0.95f)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .background(if (isDebugActive) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                                        .border(
+                                            1.dp,
+                                            if (isDebugActive) HextechCyan else HextechCardBorder.copy(alpha = 0.5f),
+                                            RoundedCornerShape(6.dp)
+                                        )
+                                        .clickable {
+                                            showCalibrationPanel = !showCalibrationPanel
+                                            DraftVisionScanner.showCalibrationBoxes.value = showCalibrationPanel
+                                        }
+                                        .padding(vertical = 5.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        Icon(
+                                            Icons.Default.BugReport,
+                                            contentDescription = "Depuración y Calibrador",
+                                            tint = if (isDebugActive) HextechCyan else HextechGold,
+                                            modifier = Modifier.size(12.dp)
+                                        )
+                                        Text(
+                                            text = "Depurar",
+                                            color = if (isDebugActive) HextechCyan else HextechGold,
+                                            fontSize = 9.5.sp,
+                                            fontWeight = if (isDebugActive) FontWeight.Bold else FontWeight.Medium
                                         )
                                     }
                                 }

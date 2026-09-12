@@ -171,34 +171,9 @@ fun AdminDashboardDialog(
     var showBroadcastDialog by remember { mutableStateOf(false) }
     var showNoticeConfigDialog by remember { mutableStateOf(false) }
     var showCpmAnalyticsDialog by remember { mutableStateOf(false) }
-    var showCalibrationDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
-    if (showCalibrationDialog) {
-        Dialog(
-            onDismissRequest = {
-                showCalibrationDialog = false
-                com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = false
-            },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = HextechDarkBg
-            ) {
-                Box(modifier = Modifier.fillMaxSize().systemBarsPadding()) {
-                    DraftCalibrationPanel(
-                        onDismiss = {
-                            showCalibrationDialog = false
-                            com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-
     if (showReportsPanel) {
         AdminFeedbackBottomSheet(onDismiss = { showReportsPanel = false })
     }
@@ -239,7 +214,6 @@ fun AdminDashboardDialog(
                     onOpenBroadcast = { showBroadcastDialog = true },
                     onOpenNotice = { showNoticeConfigDialog = true },
                     onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
-                    onOpenCalibration = { showCalibrationDialog = true },
                     isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
 
@@ -281,7 +255,6 @@ private fun AdminDashboardHeader(
     onOpenBroadcast: () -> Unit,
     onOpenNotice: () -> Unit,
     onOpenCpmAnalytics: () -> Unit = {},
-    onOpenCalibration: () -> Unit = {},
     isFullAdmin: Boolean = true
 ) {
     Surface(
@@ -350,7 +323,7 @@ private fun AdminDashboardHeader(
             // Botones de acción rápida superiores (Fijados y siempre visibles)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 // Botón combinado OCR & Soporte
                 AnimatedAdminActionButton(
@@ -361,62 +334,47 @@ private fun AdminDashboardHeader(
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                 ) {
                     Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("Soporte", fontSize = 9.5.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("OCR y Soporte", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón Broadcast
                 AnimatedAdminActionButton(
                     onClick = onOpenBroadcast,
-                    modifier = Modifier.weight(1.05f),
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                 ) {
                     Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("Broadcast", fontSize = 9.5.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("Broadcast", fontSize = 10.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón Avisos
                 AnimatedAdminActionButton(
                     onClick = onOpenNotice,
-                    modifier = Modifier.weight(0.95f),
+                    modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                 ) {
                     Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("Avisos", fontSize = 9.5.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("Avisos", fontSize = 10.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón CPM
                 AnimatedAdminActionButton(
                     onClick = onOpenCpmAnalytics,
-                    modifier = Modifier.weight(0.85f),
+                    modifier = Modifier.weight(0.9f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
                 ) {
                     Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("CPM", fontSize = 9.5.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold, maxLines = 1)
-                }
-
-                // Botón Depurador / Calibrador
-                if (isFullAdmin) {
-                    AnimatedAdminActionButton(
-                        onClick = onOpenCalibration,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
-                    ) {
-                        Icon(Icons.Default.BugReport, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text("Depurar", fontSize = 9.5.sp, color = HextechGold, fontWeight = FontWeight.Bold, maxLines = 1)
-                    }
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text("CPM", fontSize = 10.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
             }
         }

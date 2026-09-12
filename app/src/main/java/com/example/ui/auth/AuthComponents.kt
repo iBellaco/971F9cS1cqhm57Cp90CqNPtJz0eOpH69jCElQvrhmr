@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -247,10 +248,10 @@ fun AuthPrimaryButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.94f else 1f,
+        targetValue = if (isPressed) 0.93f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = 380f
         ),
         label = "authPrimaryScale"
     )
@@ -261,8 +262,11 @@ fun AuthPrimaryButton(
         interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .scale(scale),
+            .height(52.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = HextechCyan,
@@ -275,12 +279,15 @@ fun AuthPrimaryButton(
             CircularProgressIndicator(
                 color = HextechDarkBg,
                 modifier = Modifier.size(24.dp),
-                strokeWidth = 2.dp
+                strokeWidth = 2.5.dp
             )
         } else {
             Text(
                 text = text,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.5.sp
+                )
             )
         }
     }
@@ -296,10 +303,10 @@ fun AuthSecondaryButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.94f else 1f,
+        targetValue = if (isPressed) 0.93f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = 380f
         ),
         label = "authSecondaryScale"
     )
@@ -310,10 +317,13 @@ fun AuthSecondaryButton(
         interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .scale(scale),
+            .height(52.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
         shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, HextechCyan),
+        border = BorderStroke(1.2.dp, HextechCyan),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = HextechCyan,
             disabledContentColor = TextMuted
@@ -323,12 +333,15 @@ fun AuthSecondaryButton(
             CircularProgressIndicator(
                 color = HextechCyan,
                 modifier = Modifier.size(24.dp),
-                strokeWidth = 2.dp
+                strokeWidth = 2.5.dp
             )
         } else {
             Text(
                 text = text,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.3.sp
+                )
             )
         }
     }
@@ -357,15 +370,15 @@ fun AuthDivider(text: String = "o") {
 fun SocialLoginButton(
     text: String,
     onClick: () -> Unit,
-    iconRes: Int? = null // Optional if you have an icon
+    iconRes: Int? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.94f else 1f,
+        targetValue = if (isPressed) 0.93f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
+            stiffness = 380f
         ),
         label = "socialBtnScale"
     )
@@ -376,7 +389,10 @@ fun SocialLoginButton(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .scale(scale),
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, HextechCardBorder),
         colors = ButtonDefaults.outlinedButtonColors(
