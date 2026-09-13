@@ -101,7 +101,7 @@ fun SponsorCpmPanelDialog(
     val sevenDaysMillis = 7 * 24 * 60 * 60 * 1000L
 
     val myNotices = remember(allNotices, userEmail, localPendingAds, now) {
-        val remoteAds = allNotices.filter { it.sponsorEmail.equals(userEmail, ignoreCase = true) || it.tag.equals("Publicidad", true) }
+        val remoteAds = allNotices.filter { it.sponsorEmail.isNotBlank() || it.tag.equals("Publicidad", true) }
         val remoteAdIds = remoteAds.map { it.id }.toSet()
         val combined = remoteAds + localPendingAds.filter { it.id !in remoteAdIds }
         
@@ -391,70 +391,43 @@ fun SponsorCpmPanelDialog(
                         )
                     )
 
-                    // Contenido
-                    OutlinedTextField(
-                        value = contentInput,
-                        onValueChange = { contentInput = it },
-                        label = { Text("Contenido / Mensaje Publicitario") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 2,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechGold, 
-                            unfocusedBorderColor = HextechSurfaceVariant,
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White
-                        )
-                    )
-
                     // Multimedia Horizontal (Banner/Video horizontal para inicio)
                     Text("1. Multimedia Horizontal (Banner de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    Row(
+                    Text("• Medidas recomendadas: 1920 x 1080 px (Relación 16:9)\n• Límite: Máximo 10 MB (Imagen o Video máx 10s)", color = TextSecondary, fontSize = 10.sp)
+                    
+                    Button(
+                        onClick = { horizontalPicker.launch("*/*") },
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechGold)
                     ) {
-                        OutlinedTextField(
-                            value = horizontalMediaInput,
-                            onValueChange = { horizontalMediaInput = it },
-                            label = { Text("URL o archivo horizontal") },
-                            modifier = Modifier.weight(1f),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = HextechGold, 
-                                unfocusedBorderColor = HextechSurfaceVariant,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            )
-                        )
-                        IconButton(
-                            onClick = { horizontalPicker.launch("*/*") },
-                            modifier = Modifier.background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
-                        ) {
-                            Icon(Icons.Default.CloudUpload, contentDescription = "Subir multimedia horizontal", tint = HextechGold)
-                        }
+                        Icon(Icons.Default.PhotoLibrary, contentDescription = null, tint = HextechGold)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(if (horizontalMediaInput.isBlank()) "Seleccionar desde Galería (Horizontal)" else "Cambiar Multimedia Horizontal", color = Color.White, fontSize = 12.sp)
                     }
-                    Text("Máximo imagen 10MB o video de hasta 10 segundos.", color = TextSecondary, fontSize = 9.5.sp)
 
                     // Preview Horizontal
                     if (horizontalMediaInput.isNotBlank()) {
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(110.dp)
+                                .height(120.dp)
                                 .clip(RoundedCornerShape(8.dp)),
                             color = HextechDarkBg,
-                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.8f))
                         ) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 if (horizontalMediaInput.endsWith(".mp4", true) || horizontalMediaInput.contains("video", true)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechCyan)
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Vista Previa de Video (Horizontal)", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Video Horizontal Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     }
                                 } else {
                                     AsyncImage(
                                         model = horizontalMediaInput,
-                                        contentDescription = "Preview horizontal",
+                                        contentDescription = "Vista previa horizontal",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier.fillMaxSize()
                                     )
@@ -463,31 +436,22 @@ fun SponsorCpmPanelDialog(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     // Multimedia Vertical (Imagen/Video vertical para modal pantalla completa)
                     Text("2. Multimedia Vertical (Vista Ampliada):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    Row(
+                    Text("• Medidas recomendadas: 1080 x 1920 px (Relación 9:16)\n• Límite: Máximo 10 MB (Imagen o Video máx 10s)", color = TextSecondary, fontSize = 10.sp)
+
+                    Button(
+                        onClick = { verticalPicker.launch("*/*") },
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, HextechCyan)
                     ) {
-                        OutlinedTextField(
-                            value = verticalMediaInput,
-                            onValueChange = { verticalMediaInput = it },
-                            label = { Text("URL o archivo vertical") },
-                            modifier = Modifier.weight(1f),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = HextechGold, 
-                                unfocusedBorderColor = HextechSurfaceVariant,
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            )
-                        )
-                        IconButton(
-                            onClick = { verticalPicker.launch("*/*") },
-                            modifier = Modifier.background(HextechSurfaceVariant, RoundedCornerShape(8.dp))
-                        ) {
-                            Icon(Icons.Default.CloudUpload, contentDescription = "Subir multimedia vertical", tint = HextechCyan)
-                        }
+                        Icon(Icons.Default.VideoLibrary, contentDescription = null, tint = HextechCyan)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(if (verticalMediaInput.isBlank()) "Seleccionar desde Galería (Vertical)" else "Cambiar Multimedia Vertical", color = Color.White, fontSize = 12.sp)
                     }
 
                     // Preview Vertical
@@ -495,22 +459,22 @@ fun SponsorCpmPanelDialog(
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(130.dp)
+                                .height(160.dp)
                                 .clip(RoundedCornerShape(8.dp)),
                             color = HextechDarkBg,
-                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
                         ) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 if (verticalMediaInput.endsWith(".mp4", true) || verticalMediaInput.contains("video", true)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechGold)
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text("Vista Previa de Video (Vertical)", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechGold, modifier = Modifier.size(24.dp))
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Video Vertical Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                     }
                                 } else {
                                     AsyncImage(
                                         model = verticalMediaInput,
-                                        contentDescription = "Preview vertical",
+                                        contentDescription = "Vista previa vertical",
                                         contentScale = ContentScale.Fit,
                                         modifier = Modifier.fillMaxSize()
                                     )

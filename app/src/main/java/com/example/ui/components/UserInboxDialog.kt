@@ -2,6 +2,7 @@ package com.example.ui.components
 
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -105,15 +106,20 @@ fun UserInboxDialog(
             isLoading = false
         }
 
-        // 3. Escuchar tickets de soporte directamente desde support_reports para este usuario
+        // 3. Escuchar tickets de soporte directamente desde support_reports para este usuario (por userId o userEmail)
         try {
+            val supportMap = mutableMapOf<String, Map<String, Any>>()
+            fun updateSupportList() {
+                supportReportMessages = supportMap.values.toList()
+            }
+
             if (userUid.isNotBlank() && userUid != "anonimo") {
                 db.collection("support_reports")
                     .whereEqualTo("userId", userUid)
                     .addSnapshotListener { snap, err ->
                         if (err == null && snap != null) {
-                            val reportsAsMsgs = snap.documents.map { doc ->
-                                val data = doc.data ?: emptyMap<String, Any>()
+                            for (doc in snap.documents) {
+                                val data = doc.data ?: continue
                                 val title = data["title"] as? String ?: "Reporte de Soporte"
                                 val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
                                 val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
@@ -122,7 +128,7 @@ fun UserInboxDialog(
                                 val admRep = data["adminReply"] as? String ?: ""
                                 val repBy = data["repliedBy"] as? String ?: ""
 
-                                mapOf<String, Any>(
+                                supportMap[doc.id] = mapOf(
                                     "id" to doc.id,
                                     "reportId" to doc.id,
                                     "title" to "Soporte: $title",
@@ -134,11 +140,47 @@ fun UserInboxDialog(
                                     "conversation" to conv,
                                     "adminReply" to admRep,
                                     "repliedBy" to repBy,
-                                    "isRead" to (status.equals("LEIDO", ignoreCase = true) || status.equals("SOLUCIONADO", ignoreCase = true)),
+                                    "isRead" to (status.equals("LEIDO", ignoreCase = true) || status.equals("SOLUCIONADO", ignoreCase = true) || status.equals("RESUELTO", ignoreCase = true)),
                                     "sender" to (data["userName"] as? String ?: "Soporte Coach")
                                 )
                             }
-                            supportReportMessages = reportsAsMsgs
+                            updateSupportList()
+                        }
+                    }
+            }
+
+            if (userEmail.isNotBlank()) {
+                db.collection("support_reports")
+                    .whereEqualTo("userEmail", userEmail)
+                    .addSnapshotListener { snap, err ->
+                        if (err == null && snap != null) {
+                            for (doc in snap.documents) {
+                                val data = doc.data ?: continue
+                                val title = data["title"] as? String ?: "Reporte de Soporte"
+                                val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
+                                val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
+                                val status = data["status"] as? String ?: "PENDIENTE"
+                                val conv = data["conversation"] as? List<Map<String, Any>> ?: emptyList()
+                                val admRep = data["adminReply"] as? String ?: ""
+                                val repBy = data["repliedBy"] as? String ?: ""
+
+                                supportMap[doc.id] = mapOf(
+                                    "id" to doc.id,
+                                    "reportId" to doc.id,
+                                    "title" to "Soporte: $title",
+                                    "content" to desc,
+                                    "description" to desc,
+                                    "tag" to "SUPPORT",
+                                    "timestamp" to ts,
+                                    "status" to status,
+                                    "conversation" to conv,
+                                    "adminReply" to admRep,
+                                    "repliedBy" to repBy,
+                                    "isRead" to (status.equals("LEIDO", ignoreCase = true) || status.equals("SOLUCIONADO", ignoreCase = true) || status.equals("RESUELTO", ignoreCase = true)),
+                                    "sender" to (data["userName"] as? String ?: "Soporte Coach")
+                                )
+                            }
+                            updateSupportList()
                         }
                     }
             }
@@ -247,8 +289,115 @@ fun UserInboxDialog(
     }
 
     var showSupportDialog by remember { mutableStateOf(false) }
+    var selectedSupportMessage by remember { mutableStateOf<Map<String, Any>?>(null) }
+
     if (showSupportDialog) {
         SupportReportDialog(onDismiss = { showSupportDialog = false })
+    }
+
+    if (selectedSupportMessage != null) {
+        val msg = selectedSupportMessage!!
+        val id = msg["id"] as String
+        val title = msg["title"] as? String ?: "Soporte"
+        val content = msg["content"] as? String ?: ""
+        val timestamp = msg["timestamp"] as? Long ?: 0L
+        val adminReply = msg["adminReply"] as? String ?: ""
+        val repliedBy = msg["repliedBy"] as? String ?: ""
+        val reportId = (msg["reportId"] as? String)?.takeIf { it.isNotBlank() } ?: id
+        val rawStatus = (msg["status"] as? String)?.uppercase() ?: "PENDIENTE"
+        val normalizedStatus = when (rawStatus) {
+            "SOLVED", "SOLUCIONADO", "RESUELTO" -> "SOLUCIONADO"
+            "READ", "LEIDO", "LEÍDO" -> "LEÍDO"
+            else -> "PENDIENTE"
+        }
+        @Suppress("UNCHECKED_CAST")
+        val rawConversation = msg["conversation"] as? List<Map<String, Any>>
+        val conversationEntries = remember(rawConversation, adminReply) {
+            if (rawConversation != null && rawConversation.isNotEmpty()) {
+                rawConversation.mapNotNull { m ->
+                    val text = m["text"] as? String ?: return@mapNotNull null
+                    SupportMessageEntry(
+                        id = m["id"] as? String ?: UUID.randomUUID().toString(),
+                        senderName = m["senderName"] as? String ?: "Soporte",
+                        senderRole = m["senderRole"] as? String ?: "SUPPORT",
+                        text = text,
+                        timestampMillis = (m["timestampMillis"] as? Long) ?: (m["timestamp"] as? Long) ?: 0L,
+                        isGreeting = (m["isGreeting"] as? Boolean) ?: false
+                    )
+                }
+            } else if (adminReply.isNotBlank()) {
+                listOf(
+                    SupportMessageEntry(
+                        senderName = repliedBy.ifBlank { "Soporte Coach" },
+                        senderRole = "SUPPORT",
+                        text = adminReply,
+                        timestampMillis = timestamp,
+                        isGreeting = SupportReplyManager.isDefaultGreeting(adminReply)
+                    )
+                )
+            } else emptyList()
+        }
+
+        Dialog(
+            onDismissRequest = { selectedSupportMessage = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth(0.96f)
+                    .fillMaxHeight(0.9f),
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF0F172A),
+                border = BorderStroke(1.5.dp, Color(0xFF0EA5E9))
+            ) {
+                Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = Color(0xFF0EA5E9))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(title, fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 16.sp, maxLines = 1)
+                        }
+                        HextechAnimatedIconButton(
+                            onClick = { selectedSupportMessage = null },
+                            size = 36.dp,
+                            backgroundColor = Color.Transparent,
+                            borderColor = Color.Transparent,
+                            glowColor = Color(0xFF0EA5E9)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Divider(color = Color(0xFF1E293B))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            UserSupportThreadCard(
+                                reportId = reportId,
+                                originalContent = content,
+                                initialConversation = conversationEntries,
+                                adminReply = adminReply,
+                                repliedBy = repliedBy,
+                                timestamp = timestamp,
+                                userName = resolvedUserName,
+                                userUid = userUid,
+                                userEmail = userEmail,
+                                ticketStatus = normalizedStatus
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Dialog(

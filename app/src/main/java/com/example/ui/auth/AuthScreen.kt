@@ -15,6 +15,9 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 
@@ -198,6 +201,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showAdminDashboard by remember { mutableStateOf(false) }
     var showSupportPanel by remember { mutableStateOf(false) }
     var showSponsorPanel by remember { mutableStateOf(false) }
+    var showSponsorModerationDialog by remember { mutableStateOf(false) }
     var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
     val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
@@ -255,6 +259,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     if (showSponsorPanel) {
         com.example.ui.components.SponsorCpmPanelDialog(
             onDismiss = { showSponsorPanel = false }
+        )
+    }
+
+    if (showSponsorModerationDialog) {
+        com.example.ui.components.AdminSponsorModerationDialog(
+            onDismiss = { showSponsorModerationDialog = false }
         )
     }
 
@@ -971,24 +981,15 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(14.dp))
             
-            if (userRole == "admin" || userRole == "moderador") {
+            if (userRole == "admin") {
+                // Panel de Administración
                 com.example.ui.components.HextechAnimatedButton(
-                    onClick = {
-                        if (userRole == "admin") {
-                            showAdminDashboard = true
-                        } else {
-                            showSupportPanel = true
-                        }
-                    },
+                    onClick = { showAdminDashboard = true },
                     backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
-                        if (userRole == "admin") {
-                            listOf(com.example.ui.theme.DangerRed, Color(0xFFB91C1C))
-                        } else {
-                            listOf(com.example.ui.theme.HextechCyan, com.example.ui.theme.HextechBlue)
-                        }
+                        listOf(com.example.ui.theme.DangerRed, Color(0xFFB91C1C))
                     ),
                     borderColor = com.example.ui.theme.HextechGold,
-                    glowColor = if (userRole == "admin") com.example.ui.theme.DangerRed else com.example.ui.theme.HextechCyan,
+                    glowColor = com.example.ui.theme.DangerRed,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -997,14 +998,100 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     enablePulse = true
                 ) {
                     Icon(
-                        imageVector = if (userRole == "admin") Icons.Default.AdminPanelSettings else Icons.Default.SupportAgent,
+                        imageVector = Icons.Default.AdminPanelSettings,
                         contentDescription = null,
-                        tint = if (userRole == "admin") Color.White else com.example.ui.theme.HextechDarkBg
+                        tint = Color.White
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (userRole == "admin") "Panel de Administración" else "Panel de Soporte",
-                        color = if (userRole == "admin") Color.White else com.example.ui.theme.HextechDarkBg,
+                        text = "Panel de Administración",
+                        color = Color.White,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Panel de Moderador
+                com.example.ui.components.HextechAnimatedButton(
+                    onClick = { showSponsorModerationDialog = true },
+                    backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(Color(0xFFF97316), Color(0xFFEA580C))
+                    ),
+                    borderColor = com.example.ui.theme.HextechGold,
+                    glowColor = Color(0xFFF97316),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enableShimmer = true,
+                    enablePulse = true
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Verified,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Panel de Moderador",
+                        color = Color.White,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Panel Patrocinador CPM
+                com.example.ui.components.HextechAnimatedButton(
+                    onClick = { showSponsorPanel = true },
+                    backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(Color(0xFFEC4899), Color(0xFFDB2777))
+                    ),
+                    borderColor = com.example.ui.theme.HextechGold,
+                    glowColor = Color(0xFFEC4899),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enableShimmer = true,
+                    enablePulse = true
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Panel Patrocinador CPM",
+                        color = Color.White,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            } else if (userRole == "moderador") {
+                com.example.ui.components.HextechAnimatedButton(
+                    onClick = { showSupportPanel = true },
+                    backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(com.example.ui.theme.HextechCyan, com.example.ui.theme.HextechBlue)
+                    ),
+                    borderColor = com.example.ui.theme.HextechGold,
+                    glowColor = com.example.ui.theme.HextechCyan,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enableShimmer = true,
+                    enablePulse = true
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.SupportAgent,
+                        contentDescription = null,
+                        tint = com.example.ui.theme.HextechDarkBg
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Panel de Soporte",
+                        color = com.example.ui.theme.HextechDarkBg,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
                 }
