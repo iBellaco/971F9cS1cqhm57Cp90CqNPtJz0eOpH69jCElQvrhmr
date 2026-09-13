@@ -816,7 +816,8 @@ fun DraftingApp() {
             AppScreen.META -> {}
             AppScreen.INFO -> {
                 InfoScreen(
-                    onNavigateBack = { currentScreen = AppScreen.MAIN }
+                    onNavigateBack = { currentScreen = AppScreen.MAIN },
+                    onNavigateToFAQ = { currentScreen = AppScreen.FAQ }
                 )
             }
             AppScreen.FAQ -> {

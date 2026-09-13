@@ -655,21 +655,8 @@ fun SponsorCpmPanelDialog(
                         }
                         prefs.edit().putString("pending_ads", jsonArray.toString()).apply()
 
-                        // Enviar la solicitud a Supabase como Feedback
-                        coroutineScope.launch {
-                            try {
-                                com.example.data.supabase.FeedbackRepository.submitFeedback(
-                                    type = "SPONSOR_AD",
-                                    title = titleInput.trim(),
-                                    description = descriptionStr,
-                                    email = userEmail
-                                )
-                                Toast.makeText(context, "Anuncio enviado a revisión de administrador", Toast.LENGTH_SHORT).show()
-                                showCreateDialog = false
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "Error al enviar: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                        }
+                        Toast.makeText(context, "Anuncio enviado a revisión de administrador", Toast.LENGTH_SHORT).show()
+                        showCreateDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
                     enabled = !isUploadingMedia

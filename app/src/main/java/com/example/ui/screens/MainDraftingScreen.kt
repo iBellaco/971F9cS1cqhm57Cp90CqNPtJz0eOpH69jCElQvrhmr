@@ -173,10 +173,8 @@ fun MainDraftingScreen(
     var isAssistantActive by remember { mutableStateOf(SystemPermissionHelper.isServiceRunning(context)) }
     var showPermissionDialog by remember { mutableStateOf(false) }
     var showBugReportDialog by remember { mutableStateOf(false) }
-    var showDonationDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
-    var showPrivacyPolicyDialog by remember { mutableStateOf(false) }
     val currentAvatarId by SubscriptionManager.currentAvatarId.collectAsState()
     val currentRankBorder by SubscriptionManager.currentRankBorder.collectAsState()
 
@@ -298,17 +296,17 @@ fun MainDraftingScreen(
                             modifier = Modifier.padding(start = 6.dp)
                         ) {
                             IconButton(
-                                onClick = { showDonationDialog = true },
+                                onClick = onNavigateToInfo,
                                 modifier = Modifier
                                     .clip(CircleShape)
                                     .background(HextechSurface)
                                     .border(1.dp, HextechGold.copy(alpha = 0.6f), CircleShape)
                                     .size(38.dp)
-                                    .testTag("nav_donation_button")
+                                    .testTag("nav_info_button")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = tr("Donaciones"),
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = tr("Información"),
                                     tint = HextechGold,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -607,102 +605,6 @@ fun MainDraftingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Botones de Información, Preguntas Frecuentes y Política de Privacidad apegados al final de la pantalla de inicio
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        androidx.compose.material3.OutlinedButton(
-                            onClick = onNavigateToInfo,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                                .testTag("btn_about_bottom"),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                containerColor = HextechSurface.copy(alpha = 0.9f),
-                                contentColor = HextechGold
-                            ),
-                            border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.7f))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = HextechGold,
-                                modifier = Modifier.size(17.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = tr("Información"),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp,
-                                letterSpacing = 0.5.sp
-                            )
-                        }
-
-                        androidx.compose.material3.OutlinedButton(
-                            onClick = onNavigateToFAQ,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                                .testTag("btn_faq_bottom"),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                containerColor = HextechSurface.copy(alpha = 0.9f),
-                                contentColor = HextechCyan
-                            ),
-                            border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.7f))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = HextechCyan,
-                                modifier = Modifier.size(17.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = tr("Preguntas Frecuentes"),
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 10.sp,
-                                letterSpacing = 0.3.sp
-                            )
-                        }
-                    }
-
-                    androidx.compose.material3.OutlinedButton(
-                        onClick = { showPrivacyPolicyDialog = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(42.dp)
-                            .testTag("btn_privacy_bottom"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                            containerColor = HextechSurface.copy(alpha = 0.9f),
-                            contentColor = HextechGoldLight
-                        ),
-                        border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.5f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Security,
-                            contentDescription = null,
-                            tint = HextechGold,
-                            modifier = Modifier.size(17.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = tr("Políticas de Privacidad, Términos y Terceros"),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.5.sp,
-                            letterSpacing = 0.3.sp
-                        )
-                    }
-
                     // Derechos de autor y créditos
                     Column(
                         modifier = Modifier
@@ -739,7 +641,6 @@ fun MainDraftingScreen(
                     }
                 }
             }
-        }
 
         // Diálogo para conceder el permiso de superposición (Aparecer sobre otras apps)
         if (showPermissionDialog) {
@@ -795,11 +696,7 @@ fun MainDraftingScreen(
             )
         }
 
-        if (showDonationDialog) {
-            com.example.ui.components.DonationDialog(
-                onDismiss = { showDonationDialog = false }
-            )
-        }
+
 
         if (showThemeDialog) {
             com.example.ui.components.ThemeCustomizationBottomSheet(
@@ -818,9 +715,7 @@ fun MainDraftingScreen(
             )
         }
 
-        if (showPrivacyPolicyDialog) {
-            PrivacyPolicyDialog(onDismiss = { showPrivacyPolicyDialog = false })
-        }
+
     }
 }
 

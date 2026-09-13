@@ -299,6 +299,7 @@ object FeedbackRepository {
                     order("created_at", Order.DESCENDING)
                 }
                 .decodeList<FeedbackReport>()
+                .filter { !it.type.equals("SPONSOR_AD", ignoreCase = true) }
 
             Log.d(TAG, "Se obtuvieron ${list.size} reportes de Supabase")
             Result.success(list)

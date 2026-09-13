@@ -178,17 +178,23 @@ object DraftVisionScanner {
     // Memoria persistente del slot asignado al usuario
     private var cachedUserSlotIndex: Int? = null
 
+    // Memoria persistente de campeones confirmados por slot para evitar que desaparezcan al terminar o transicionar
+    private val allySlotConfirmedChampions = arrayOfNulls<Champion>(5)
+    private val enemySlotConfirmedChampions = arrayOfNulls<Champion>(5)
+
     // Filtros de estabilización temporal (anti-parpadeo y anti-oscilación)
     private class SlotTemporalFilter {
         private var lastConfirmedChampion: Champion? = null
 
-        fun process(candidate: Champion?, isOcr: Boolean, score: Float): Champion? {
+        fun process(candidate: Champion?, isOcr: Boolean, score: Float, persistentCache: Champion?): Champion? {
             if (candidate != null) {
                 lastConfirmedChampion = candidate
                 return candidate
             }
-            lastConfirmedChampion = null
-            return null
+            if (persistentCache != null) {
+                return persistentCache
+            }
+            return lastConfirmedChampion
         }
 
         fun reset() {
@@ -205,6 +211,8 @@ object DraftVisionScanner {
         cachedUserSlotIndex = null
         allySlotRolesCache.clear()
         allySummonerNamesCache.clear()
+        allySlotConfirmedChampions.fill(null)
+        enemySlotConfirmedChampions.fill(null)
         allySlotFilters.forEach { it.reset() }
         enemySlotFilters.forEach { it.reset() }
         AppLogger.d(TAG, "Memoria de roles e invocadores reiniciada")
@@ -575,8 +583,14 @@ object DraftVisionScanner {
 
                 // Si se detectó un campeón real en este slot, se asigna con máxima prioridad
                 if (detectedChampInSlot != null) {
+                    allySlotConfirmedChampions[i] = detectedChampInSlot
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
+                    slot.confidencePercent = 100
+                    slot.isLikelyUnpicked = false
+                } else if (allySlotConfirmedChampions[i] != null) {
+                    allyOcrChampions[i] = allySlotConfirmedChampions[i]
+                    slot.champion = allySlotConfirmedChampions[i]
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
                 } else if (isUnpickedTextPresent || (detectedRoleInSlot != null && detectedChampInSlot == null)) {
@@ -687,8 +701,14 @@ object DraftVisionScanner {
                 }
 
                 if (detectedEnemyChamp != null) {
+                    enemySlotConfirmedChampions[i] = detectedEnemyChamp
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
+                    enemySlots[i].confidencePercent = 100
+                    enemySlots[i].isLikelyUnpicked = false
+                } else if (enemySlotConfirmedChampions[i] != null) {
+                    enemyOcrChampions[i] = enemySlotConfirmedChampions[i]
+                    enemySlots[i].champion = enemySlotConfirmedChampions[i]
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
                 } else if (isWaitingPick || isUnpickedTextPresent) {
@@ -738,9 +758,10 @@ object DraftVisionScanner {
             val ocrChamp = allyOcrChampions[i]
             val roleForSlot = allySlotRolesCache[i] ?: defaultRolesList[i]
 
-            val finalChamp = allySlotFilters[i].process(ocrChamp, isOcr = (ocrChamp != null), score = if (ocrChamp != null) 1.0f else 0f)
+            val finalChamp = allySlotFilters[i].process(ocrChamp, isOcr = (ocrChamp != null), score = if (ocrChamp != null) 1.0f else 0f, persistentCache = allySlotConfirmedChampions[i])
             
             if (finalChamp != null) {
+                allySlotConfirmedChampions[i] = finalChamp
                 slot.champion = finalChamp
                 slot.confidencePercent = 100
                 slot.explicitRole = roleForSlot
@@ -786,9 +807,10 @@ object DraftVisionScanner {
 
             val ocrChamp = enemyOcrChampions[i]
 
-            val finalChamp = enemySlotFilters[i].process(ocrChamp, isOcr = (ocrChamp != null), score = if (ocrChamp != null) 1.0f else 0f)
+            val finalChamp = enemySlotFilters[i].process(ocrChamp, isOcr = (ocrChamp != null), score = if (ocrChamp != null) 1.0f else 0f, persistentCache = enemySlotConfirmedChampions[i])
 
             if (finalChamp != null) {
+                enemySlotConfirmedChampions[i] = finalChamp
                 slot.champion = finalChamp
                 slot.confidencePercent = 100
             } else {
@@ -880,31 +902,32 @@ object DraftVisionScanner {
         val totalAllyOcr = allySlots.count { it.champion != null }
         val totalEnemyOcr = enemySlots.count { it.champion != null }
 
-        // Inferencia determinista de Primera Selección por picks activos en pantalla
-        // (Si el rival tiene selecciones confirmadas y los aliados tienen 0, es certeza absoluta de que el rival seleccionó primero)
-        if (totalEnemyOcr >= 1 && totalAllyOcr == 0) {
-            detectedFirstPick = false
-            AppLogger.d(TAG, "Inferencia definitiva: Rival tiene $totalEnemyOcr picks y Aliados 0 -> Rival es Primera Selección (Aliados = 2ª Selección)")
-        } else if (totalAllyOcr >= 1 && totalEnemyOcr == 0) {
+        // Inferencia determinista de Primera Selección según la regla exacta del usuario:
+        // Si el equipo aliado selecciona primero (Slot 0 aliado) -> Primera Selección (true)
+        // Si el equipo rival selecciona primero (Slot 0 rival) -> Segunda Selección (false)
+        if (allySlots[0].champion != null && enemySlots[0].champion == null) {
             detectedFirstPick = true
-            AppLogger.d(TAG, "Inferencia definitiva: Aliados tienen $totalAllyOcr picks y Rival 0 -> Aliados = Primera Selección")
+            AppLogger.d(TAG, "Inferencia First Pick: Aliados seleccionaron en Slot 0 primero -> Primera Selección (true)")
+        } else if (enemySlots[0].champion != null && allySlots[0].champion == null) {
+            detectedFirstPick = false
+            AppLogger.d(TAG, "Inferencia First Pick: Rival seleccionó en Slot 0 primero -> Segunda Selección (false)")
+        } else if (totalAllyOcr > 0 && totalEnemyOcr == 0) {
+            detectedFirstPick = true
+            AppLogger.d(TAG, "Inferencia First Pick: Aliados tienen $totalAllyOcr picks y Rival 0 -> Primera Selección (true)")
+        } else if (totalEnemyOcr > 0 && totalAllyOcr == 0) {
+            detectedFirstPick = false
+            AppLogger.d(TAG, "Inferencia First Pick: Rival tiene $totalEnemyOcr picks y Aliados 0 -> Segunda Selección (false)")
         } else if (detectedFirstPick == null) {
             when {
-                // Ronda 2: (1, 2) -> Aliado eligió 1º y Rival eligió 2 | (2, 1) -> Rival eligió 1º y Aliado eligió 2
                 totalAllyOcr == 1 && totalEnemyOcr == 2 -> detectedFirstPick = true
                 totalEnemyOcr == 1 && totalAllyOcr == 2 -> detectedFirstPick = false
-
-                // Ronda 3: (3, 2) -> Aliado eligió 1º | (2, 3) -> Rival eligió 1º
                 totalAllyOcr == 3 && totalEnemyOcr == 2 -> detectedFirstPick = true
-                totalEnemyOcr == 3 && totalAllyOcr == 2 -> detectedFirstPick = false
-
-                // Ronda 4: (3, 4) -> Aliado eligió 1º | (4, 3) -> Rival eligió 1º
+                totalEnemyOcr == 3 && totalEnemyOcr == 3 -> detectedFirstPick = true
+                totalEnemyOcr == 2 && totalAllyOcr == 3 -> detectedFirstPick = true
                 totalAllyOcr == 3 && totalEnemyOcr == 4 -> detectedFirstPick = true
                 totalEnemyOcr == 3 && totalAllyOcr == 4 -> detectedFirstPick = false
-
-                // Ronda 5: (5, 4) -> Aliado eligió 1º | (4, 5) -> Rival eligió 1º
                 totalAllyOcr == 5 && totalEnemyOcr == 4 -> detectedFirstPick = true
-                totalEnemyOcr == 5 && totalAllyOcr == 4 -> detectedFirstPick = false
+                totalEnemyOcr == 4 && totalAllyOcr == 5 -> detectedFirstPick = false
             }
         }
 
@@ -918,6 +941,7 @@ object DraftVisionScanner {
         // Las selecciones 1 a 9 (y la 10ª cuando se fije) se leen directamente por su nombre de texto OCR en pantalla.
         // Si la 10ª selección aún no está elegida ("no selecciona nada"), se mantiene vacía sin forzar falsos positivos.
         // -----------------------------------------------------------------------------------------
+        // Primero comprobar slots de abajo (inferiores / draft vertical)
         val bottomSlotCandidate = if (effectiveFirstPick) {
             enemySlots[4].champion
         } else {
@@ -927,6 +951,36 @@ object DraftVisionScanner {
         if (bottomSlotCandidate != null) {
             lastPickVisualChampion = bottomSlotCandidate
             lastPickVisualConfidence = 1.0f
+        } else if ((totalAllyOcr + totalEnemyOcr >= 7 || isPreparationPhase)) {
+            // Si abajo no hay selección 10 aún, escanear avatares superiores o identificación visual
+            try {
+                val targetIsEnemy = effectiveFirstPick
+                val topPickChamp = GenerativeVisionAnalyzer.identifyLastPickAvatar(
+                    bitmap = bitmap,
+                    isAlly = !effectiveFirstPick,
+                    targetTopEnemy = targetIsEnemy
+                )
+                if (topPickChamp != null) {
+                    lastPickVisualChampion = topPickChamp
+                    lastPickVisualConfidence = 0.95f
+                    isLastPickVisualRecognized = true
+                    if (targetIsEnemy) {
+                        enemySlotConfirmedChampions[4] = topPickChamp
+                        enemySlots[4].champion = topPickChamp
+                        enemySlots[4].confidencePercent = 95
+                        enemySlots[4].isLikelyUnpicked = false
+                        AppLogger.d(TAG, "10º Pick Rival detectado por imagen: ${topPickChamp.name}")
+                    } else {
+                        allySlotConfirmedChampions[4] = topPickChamp
+                        allySlots[4].champion = topPickChamp
+                        allySlots[4].confidencePercent = 95
+                        allySlots[4].isLikelyUnpicked = false
+                        AppLogger.d(TAG, "10º Pick Aliado detectado por imagen: ${topPickChamp.name}")
+                    }
+                }
+            } catch (e: Exception) {
+                AppLogger.w(TAG, "Error escaneando 10º pick por imagen: ${e.message}")
+            }
         }
         
         // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados

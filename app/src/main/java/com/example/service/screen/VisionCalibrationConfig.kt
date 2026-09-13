@@ -9,8 +9,8 @@ import android.content.SharedPreferences
  */
 data class VisionCalibrationConfig(
     // Posición horizontal X central de avatares en columnas verticales de draft (0..1)
-    val allyAvatarCenterX: Float = 0.138f,
-    val enemyAvatarCenterX: Float = 0.897f,
+    val allyAvatarCenterX: Float = 0.073f,
+    val enemyAvatarCenterX: Float = 0.957f,
 
     // Diámetro del avatar relativo al alto de pantalla (0..1)
     val avatarDiameterRatio: Float = 0.106f,
@@ -46,11 +46,11 @@ data class VisionCalibrationConfig(
 
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
     val topAvatarYRatio: Float = 0.045f,
-    val topAvatarDiameterRatio: Float = 0.060f,
-    val topAlly5XRatio: Float = 0.238f,
-    val topEnemy5XRatio: Float = 0.912f,
-    val topAllyXRatios: List<Float> = listOf(0.078f, 0.118f, 0.158f, 0.198f, 0.238f),
-    val topEnemyXRatios: List<Float> = listOf(0.752f, 0.792f, 0.832f, 0.872f, 0.912f)
+    val topAvatarDiameterRatio: Float = 0.065f,
+    val topAlly5XRatio: Float = 0.168f,
+    val topEnemy5XRatio: Float = 0.976f,
+    val topAllyXRatios: List<Float> = listOf(0.048f, 0.078f, 0.108f, 0.138f, 0.168f),
+    val topEnemyXRatios: List<Float> = listOf(0.856f, 0.886f, 0.916f, 0.946f, 0.976f)
 ) {
     fun toFormattedCoordinatesString(): String {
         val sb = StringBuilder()

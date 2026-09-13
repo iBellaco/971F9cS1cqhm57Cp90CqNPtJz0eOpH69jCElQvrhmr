@@ -23,6 +23,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.ColorLens
@@ -50,13 +52,16 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoScreen(
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToFAQ: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var supabaseStatus by remember { mutableStateOf("") }
     var isTestingSupabase by remember { mutableStateOf(false) }
     var isPurging by remember { mutableStateOf(false) }
     var purgeStatus by remember { mutableStateOf("") }
+    var showDonationDialog by remember { mutableStateOf(false) }
+    var showLegalDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -225,10 +230,59 @@ fun InfoScreen(
 
 
 
-            // Section 3: Desarrollador & Derechos de Autor
+            // Section 3: Donaciones, Preguntas Frecuentes e Información Legal
+            InfoCard(
+                title = tr("3. Donaciones, Preguntas Frecuentes y Legal"),
+                icon = Icons.Default.Star
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Button(
+                        onClick = { showDonationDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.Star, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Apoyar el Proyecto (Donaciones)"), color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = onNavigateToFAQ,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                        border = BorderStroke(1.2.dp, HextechCyan.copy(alpha = 0.6f)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Preguntas Frecuentes (FAQ)"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = { showLegalDialog = true },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(44.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGoldLight),
+                        border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.5f)),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Icon(Icons.Default.Lock, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(tr("Información Legal y Privacidad"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+                }
+            }
+
+            // Section 4: Desarrollador & Derechos de Autor
             val context = LocalContext.current
             InfoCard(
-                title = tr("3. Desarrollador y Derechos de Autor"),
+                title = tr("4. Desarrollador y Derechos de Autor"),
                 icon = Icons.Default.Person
             ) {
                 Text(
@@ -262,6 +316,18 @@ fun InfoScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+    }
+
+    if (showDonationDialog) {
+        com.example.ui.components.DonationDialog(
+            onDismiss = { showDonationDialog = false }
+        )
+    }
+
+    if (showLegalDialog) {
+        com.example.ui.components.PrivacyPolicyDialog(
+            onDismiss = { showLegalDialog = false }
+        )
     }
 }
 
