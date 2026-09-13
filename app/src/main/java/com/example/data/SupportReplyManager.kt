@@ -633,6 +633,11 @@ object SupportReplyManager {
         return Intent(Intent.ACTION_SENDTO, uri)
     }
 
+    fun sanitizePlainText(input: String, maxLength: Int = 500): String {
+        val clean = input.replace(Regex("<[^>]*>"), "").replace(Regex("(?i)<script[^>]*>[^<]*</script>"), "")
+        return if (clean.length > maxLength) clean.substring(0, maxLength) else clean
+    }
+
     suspend fun autoPurgeAllExpired(context: Context): Int = withContext(Dispatchers.IO) {
         var totalPurged = 0
         val now = System.currentTimeMillis()

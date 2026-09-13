@@ -198,7 +198,7 @@ fun MetaAndDraftScreen(
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var activeRole by remember { mutableStateOf<LaneRole?>(null) }
+    var activeRole by remember { mutableStateOf<LaneRole?>(com.example.util.UserPreferences.getActiveDraftRole(screenContext)) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
     val defaultChamp = WildRiftRepository.champions.firstOrNull() ?: Champion(
@@ -3652,10 +3652,12 @@ fun DraftAnalysisTab(
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = if (activeRole != null) com.example.util.tr(activeRole.displayName) else tr("Sin seleccionar (Todas las líneas)"),
+                                text = if (activeRole != null) com.example.util.tr(activeRole.displayName) else tr("Todas las líneas"),
                                 color = HextechGold,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Black
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Black,
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                             )
                         }
                     }

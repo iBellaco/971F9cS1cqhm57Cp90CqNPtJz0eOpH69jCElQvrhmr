@@ -816,7 +816,7 @@ fun UserSupportThreadCard(
                     Spacer(modifier = Modifier.height(6.dp))
                     OutlinedTextField(
                         value = userReplyText,
-                        onValueChange = { userReplyText = it },
+                        onValueChange = { userReplyText = SupportReplyManager.sanitizePlainText(it, 500) },
                         placeholder = { Text("Escribe tu respuesta aquí...", color = Color.Gray, fontSize = 11.5.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 3,
@@ -829,12 +829,17 @@ fun UserSupportThreadCard(
                             unfocusedContainerColor = Color(0xFF0F172A)
                         )
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Text(
+                            text = "${userReplyText.length}/500",
+                            color = Color.Gray,
+                            fontSize = 10.sp
+                        )
                         Button(
                             onClick = {
                                 if (userReplyText.trim().isBlank()) return@Button
@@ -873,26 +878,6 @@ fun UserSupportThreadCard(
                             Text("Enviar", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
-                }
-            }
-        } else if (conversation.isEmpty()) {
-            Surface(
-                shape = RoundedCornerShape(6.dp),
-                color = Color(0xFF0F172A),
-                border = BorderStroke(1.dp, Color(0xFF334155)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        "Tu reporte está siendo revisado por el equipo de soporte.",
-                        color = Color.Gray,
-                        fontSize = 11.sp
-                    )
                 }
             }
         }

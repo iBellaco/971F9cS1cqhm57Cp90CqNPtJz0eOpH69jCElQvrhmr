@@ -438,12 +438,26 @@ fun SupportReplyDialog(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // Plantillas rápidas de respuesta
-                    Text(
-                        text = "Plantillas rápidas para $displayUserName:",
-                        color = HextechGold,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Plantillas rápidas para $displayUserName:",
+                            color = HextechGold,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        TextButton(
+                            onClick = { replyText = "" },
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 2.dp)
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text("Eliminar texto", color = Color(0xFFEF4444), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
                     Spacer(modifier = Modifier.height(6.dp))
                     Row(
                         modifier = Modifier
@@ -467,7 +481,7 @@ fun SupportReplyDialog(
                                     .background(HextechSurfaceVariant)
                                     .border(0.8.dp, HextechCardBorder, RoundedCornerShape(8.dp))
                                     .clickable {
-                                        replyText = tpl
+                                        replyText = SupportReplyManager.sanitizePlainText(tpl, 500)
                                     }
                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                             ) {
@@ -493,7 +507,7 @@ fun SupportReplyDialog(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = replyText,
-                        onValueChange = { replyText = it },
+                        onValueChange = { replyText = SupportReplyManager.sanitizePlainText(it, 500) },
                         placeholder = {
                             Text(
                                 text = "Escribe aquí la respuesta para $displayUserName...",
@@ -512,6 +526,17 @@ fun SupportReplyDialog(
                         ),
                         shape = RoundedCornerShape(10.dp)
                     )
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "${replyText.length}/500",
+                            color = TextMuted,
+                            fontSize = 10.sp
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -633,7 +658,7 @@ fun SupportReplyDialog(
                             } else {
                                 Icon(Icons.Default.Send, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(15.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Enviar Mensaje", color = HextechDarkBg, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("Responder", color = HextechDarkBg, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
