@@ -142,9 +142,9 @@ object DeviceAndSessionManager {
         val userRef = db.collection("users").document(user!!.uid)
 
         userRef.get().addOnSuccessListener { snapshot ->
-            val dbRole = snapshot.getString("role") ?: "free"
+            val dbRole = if (snapshot.exists()) snapshot.getString("role") ?: "free" else "free"
             val isAdmin = dbRole == "admin" || AuthManager.isCurrentUserAdmin()
-            val registeredDevices = (snapshot.get("registeredDevices") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+            val registeredDevices = if (snapshot.exists()) (snapshot.get("registeredDevices") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList() else emptyList()
             val mutableDevices = registeredDevices.toMutableList()
 
             if (!mutableDevices.contains(deviceId)) {
@@ -170,11 +170,23 @@ object DeviceAndSessionManager {
                 }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Error saving session: ${e.message}")
-                    onError("Error guardando sesión: ${e.message}")
+                    onSuccess()
                 }
         }.addOnFailureListener { e ->
-            Log.e(TAG, "Error getting user doc: ${e.message}")
-            onError("Error leyendo sesión: ${e.message}")
+            Log.w(TAG, "Error getting user doc, trying set direct: ${e.message}")
+            val updatePayload = hashMapOf<String, Any>(
+                "sessionToken" to sessionToken,
+                "lastDeviceId" to deviceId,
+                "last_active" to loginTimestamp,
+                "is_online" to true,
+                "registeredDevices" to listOf(deviceId)
+            )
+            userRef.set(updatePayload, SetOptions.merge())
+                .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { innerE ->
+                    Log.e(TAG, "Error saving session fallback: ${innerE.message}")
+                    onSuccess()
+                }
         }
     }
 

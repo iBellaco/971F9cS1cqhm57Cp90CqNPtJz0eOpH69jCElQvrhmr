@@ -1,5 +1,11 @@
 package com.example.ui.components
 
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.material.icons.filled.Image
 import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
@@ -524,6 +530,68 @@ fun UserInboxDialog(
 }
 
 @Composable
+fun ImageViewerDialog(
+    photoBase64: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.9f))
+                .clickable { onDismiss() },
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.95f)
+                        .fillMaxHeight(0.8f)
+                        .background(Color(0xFF0F172A), RoundedCornerShape(12.dp))
+                        .padding(8.dp)
+                ) {
+                    val bitmap = remember(photoBase64) {
+                        try {
+                            val cleanBase64 = if (photoBase64.contains(",")) photoBase64.substringAfter(",") else photoBase64
+                            val decodedBytes = android.util.Base64.decode(cleanBase64, android.util.Base64.DEFAULT)
+                            android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+                    if (bitmap != null) {
+                        androidx.compose.foundation.Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = "Imagen adjunta",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                        )
+                    } else {
+                        coil.compose.AsyncImage(
+                            model = photoBase64,
+                            contentDescription = "Imagen adjunta",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0EA5E9))
+                ) {
+                    Text("Cerrar", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun UserSupportThreadCard(
     reportId: String,
     originalContent: String,
@@ -540,6 +608,14 @@ fun UserSupportThreadCard(
     val coroutineScope = rememberCoroutineScope()
 
     var liveStatus by remember(ticketStatus) { mutableStateOf(ticketStatus) }
+    var livePhotos by remember { mutableStateOf<List<String>>(emptyList()) }
+    var selectedPhotoToView by remember { mutableStateOf<String?>(null) }
+
+    if (selectedPhotoToView != null) {
+        ImageViewerDialog(photoBase64 = selectedPhotoToView!!) {
+            selectedPhotoToView = null
+        }
+    }
 
     var conversation by remember(initialConversation, adminReply) {
         mutableStateOf(
@@ -572,9 +648,13 @@ fun UserSupportThreadCard(
                 if (err == null && snap != null && snap.exists()) {
                     val rawSt = snap.getString("status") ?: "PENDIENTE"
                     liveStatus = when (rawSt.uppercase()) {
-                        "SOLVED", "SOLUCIONADO", "RESUELTO" -> "SOLUCIONADO"
+                        "SOLVED", "SOLUCIONADO", "RESUELTO", "CERRADO", "CLOSED" -> "SOLUCIONADO"
                         "READ", "LEIDO", "LEÍDO" -> "LEÍDO"
                         else -> "PENDIENTE"
+                    }
+                    val remotePhotos = snap.get("photos") as? List<*>
+                    if (remotePhotos != null) {
+                        livePhotos = remotePhotos.mapNotNull { it?.toString() }
                     }
                     val desc = snap.getString("description") ?: snap.getString("content") ?: originalContent
                     val remoteConv = snap.get("conversation") as? List<Map<String, Any>>
@@ -675,12 +755,45 @@ fun UserSupportThreadCard(
     var userReplyText by remember { mutableStateOf("") }
     var isSending by remember { mutableStateOf(false) }
 
-    val canReply = remember(conversation) { SupportReplyManager.canUserReply(conversation) }
+    val canReply = remember(conversation, liveStatus) { SupportReplyManager.canUserReply(conversation, liveStatus) }
     val isOnlyGreeting = remember(conversation) { SupportReplyManager.isOnlyGreeting(conversation) }
+    val isClosed = liveStatus.uppercase() == "SOLUCIONADO" || liveStatus.uppercase() == "CERRADO" || liveStatus.uppercase() == "CLOSED" || liveStatus.uppercase() == "RESUELTO"
     val timeFormatter = remember { SimpleDateFormat("HH:mm - dd/MM", Locale.getDefault()) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Mensaje original
+        // Etiqueta de soporte y estado
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Soporte Técnico / Reporte", color = Color(0xFF38BDF8), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Surface(
+                shape = RoundedCornerShape(4.dp),
+                color = when (liveStatus.uppercase()) {
+                    "SOLUCIONADO", "CERRADO", "CLOSED" -> Color(0xFF10B981).copy(alpha = 0.2f)
+                    else -> Color(0xFFF59E0B).copy(alpha = 0.2f)
+                },
+                border = BorderStroke(0.5.dp, when (liveStatus.uppercase()) {
+                    "SOLUCIONADO", "CERRADO", "CLOSED" -> Color(0xFF10B981)
+                    else -> Color(0xFFF59E0B)
+                })
+            ) {
+                Text(
+                    text = liveStatus,
+                    color = when (liveStatus.uppercase()) {
+                        "SOLUCIONADO", "CERRADO", "CLOSED" -> Color(0xFF34D399)
+                        else -> Color(0xFFFBBF24)
+                    },
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Mensaje original (Descripción)
         if (originalContent.isNotBlank()) {
             Surface(
                 shape = RoundedCornerShape(6.dp),
@@ -689,9 +802,52 @@ fun UserSupportThreadCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(8.dp)) {
-                    Text("Tu reporte inicial:", color = Color(0xFF94A3B8), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text("Descripción:", color = Color(0xFF94A3B8), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(originalContent, color = Color.LightGray, fontSize = 12.sp)
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+
+        // Imagen adjunta (si existe) con botón para abrir en ventana
+        if (livePhotos.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(2.dp))
+            Text("Imagen adjunta:", color = Color(0xFF94A3B8), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                livePhotos.forEach { photoStr ->
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .background(Color(0xFF0F172A), RoundedCornerShape(8.dp))
+                            .border(1.dp, Color(0xFF0EA5E9), RoundedCornerShape(8.dp))
+                            .clickable { selectedPhotoToView = photoStr },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val thumbBitmap = remember(photoStr) {
+                            try {
+                                val clean = if (photoStr.contains(",")) photoStr.substringAfter(",") else photoStr
+                                val bytes = android.util.Base64.decode(clean, android.util.Base64.DEFAULT)
+                                android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                            } catch (_: Exception) { null }
+                        }
+                        if (thumbBitmap != null) {
+                            androidx.compose.foundation.Image(
+                                bitmap = thumbBitmap.asImageBitmap(),
+                                contentDescription = "Imagen adjunta",
+                                modifier = Modifier.fillMaxSize().padding(2.dp),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                            )
+                        } else {
+                            Icon(Icons.Default.Image, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(24.dp))
+                        }
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -774,38 +930,52 @@ fun UserSupportThreadCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Si hay solo saludo predeterminado, mostrar nota informativa sin bloquear la conversación
-        if (isOnlyGreeting) {
-            Surface(
-                shape = RoundedCornerShape(6.dp),
-                color = Color(0xFF0F172A),
-                border = BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+        // Validación de respuesta (Cerrado, solo saludo, o esperando respuesta)
+        when {
+            isClosed -> {
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color(0xFF0F172A),
+                    border = BorderStroke(1.dp, Color(0xFFEF4444).copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        "Saludo de bienvenida recibido. Puedes escribir aquí abajo para dar seguimiento a tu ticket.",
-                        color = Color(0xFFFDE68A),
-                        fontSize = 10.5.sp
-                    )
+                    Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFFEF4444), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            "Este reporte ha sido marcado como cerrado. Ya no es posible enviar más respuestas.",
+                            color = Color(0xFFFCA5A5),
+                            fontSize = 10.5.sp
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.height(6.dp))
-        }
-
-        if (canReply) {
-            // Sección para que el usuario responda
-            Surface(
-                shape = RoundedCornerShape(8.dp),
-                color = Color(0xFF0B132B),
-                border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.4f)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            !canReply || isOnlyGreeting -> {
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color(0xFF0F172A),
+                    border = BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            "Esperando respuesta del equipo de soporte. La opción de responder se habilitará cuando soporte responda formalmente a tu ticket.",
+                            color = Color(0xFFFDE68A),
+                            fontSize = 10.5.sp
+                        )
+                    }
+                }
+            }
+            else -> {
+                // Sección para que el usuario responda
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color(0xFF0B132B),
+                    border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.4f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                 Column(modifier = Modifier.padding(8.dp)) {
                     Text(
                         "Responder a Soporte",
@@ -883,3 +1053,6 @@ fun UserSupportThreadCard(
         }
     }
 }
+}
+
+

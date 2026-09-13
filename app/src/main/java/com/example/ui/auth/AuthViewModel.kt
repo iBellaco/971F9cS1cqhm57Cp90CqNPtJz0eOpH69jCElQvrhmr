@@ -116,6 +116,10 @@ class AuthViewModel : ViewModel() {
             _uiState.update { it.copy(error = "Por favor, completa todos los campos.") }
             return
         }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(_email.value.trim()).matches()) {
+            _uiState.update { it.copy(error = "El formato del correo electrónico no es válido.") }
+            return
+        }
         if (_password.value != _confirmPassword.value) {
             _uiState.update { it.copy(error = "Las contraseñas no coinciden.") }
             return
@@ -137,9 +141,9 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                val result = auth.createUserWithEmailAndPassword(_email.value, _password.value).await()
+                val result = auth.createUserWithEmailAndPassword(_email.value.trim(), _password.value).await()
                 val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
-                    .setDisplayName(_username.value)
+                    .setDisplayName(_username.value.trim())
                     .build()
                 result.user?.updateProfile(profileUpdates)?.await()
                 result.user?.sendEmailVerification()?.await()
@@ -147,10 +151,10 @@ class AuthViewModel : ViewModel() {
             } catch (e: Exception) {
                 val rawMsg = e.localizedMessage ?: ""
                 val errorMsg = when {
-                    rawMsg.contains("email address is already in use", ignoreCase = true) -> "El correo electrónico ya está registrado."
-                    rawMsg.contains("badly formatted", ignoreCase = true) -> "El formato del correo es inválido."
-                    rawMsg.contains("network", ignoreCase = true) -> "Error de red. Verifica tu conexión."
-                    else -> "Error al registrar la cuenta. Inténtalo más tarde."
+                    rawMsg.contains("email address is already in use", ignoreCase = true) || rawMsg.contains("already in use", ignoreCase = true) -> "Este correo electrónico ya está registrado. Evita crear múltiples cuentas con el mismo correo."
+                    rawMsg.contains("badly formatted", ignoreCase = true) || rawMsg.contains("invalid email", ignoreCase = true) -> "El formato del correo electrónico es inválido."
+                    rawMsg.contains("network", ignoreCase = true) -> "Error de red. Verifica tu conexión a internet."
+                    else -> "Este correo ya se encuentra registrado o la cuenta no pudo crearse. Verifica tus datos."
                 }
                 _uiState.update { it.copy(isLoading = false, error = errorMsg) }
             }
