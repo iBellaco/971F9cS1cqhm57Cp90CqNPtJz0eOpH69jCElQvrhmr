@@ -491,8 +491,31 @@ fun SupportReportDialog(
                                         "device" to "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
                                     )
 
-                                    // 1. Guardar en Firestore para panel de administración en tiempo real
-                                    db.collection("support_reports").add(reportMap)
+                                     // 1. Guardar en Firestore para panel de administración en tiempo real
+                                     db.collection("support_reports").add(reportMap).addOnSuccessListener { docRef ->
+                                         val reportId = docRef.id
+                                         if (userId.isNotBlank() && userId != "anonimo") {
+                                             try {
+                                                 val inboxMsg = hashMapOf<String, Any>(
+                                                     "title" to "Reporte: $cleanTitle",
+                                                     "content" to cleanDesc,
+                                                     "description" to cleanDesc,
+                                                     "userId" to userId,
+                                                     "userName" to userName,
+                                                     "userEmail" to userEmail,
+                                                     "photos" to base64Photos.toList(),
+                                                     "timestamp" to Timestamp.now(),
+                                                     "createdAt" to Timestamp.now(),
+                                                     "isRead" to true,
+                                                     "tag" to "SUPPORT",
+                                                     "sender" to userName,
+                                                     "reportId" to reportId,
+                                                     "status" to "PENDIENTE"
+                                                 )
+                                                 db.collection("users").document(userId).collection("messages").document(reportId).set(inboxMsg)
+                                             } catch (_: Exception) {}
+                                         }
+                                     }
 
                                     // 2. Respaldo adicional en FeedbackRepository si está configurado
                                     try {

@@ -943,15 +943,14 @@ private fun FloatingOverlayContent(
         if (!autoScanEnabled) return@LaunchedEffect
         while (true) {
             delay(120)
-            if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
-                scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
-            } else if (!isScanning) {
-                try {
+            try {
+                if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
+                    scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
+                } else if (!isScanning) {
                     val bitmap = screenCaptureManager.captureCurrentFrame()
-                    if (bitmap != null) {
+                    if (bitmap != null && !bitmap.isRecycled && bitmap.width > 0 && bitmap.height > 0) {
                         val result = DraftVisionScanner.scanDraftFromBitmap(bitmap, context, isFirstPick, activeRole)
                         if (result.isSuccessful) {
-                            // Detección automática del orden de pick (Primera Selección vs Segunda Selección)
                             if (result.detectedFirstPick != null) {
                                 isFirstPick = result.detectedFirstPick
                             }
@@ -959,7 +958,6 @@ private fun FloatingOverlayContent(
                             var newAlliesAdded = 0
                             var newEnemiesAdded = 0
                             
-                            // 1. Asignación directa y de alta precisión por rol (respetando selecciones manuales y evitando asignaciones espurias)
                             defaultRoles.forEachIndexed { idx, role ->
                                 if (manualLockedAllySlots[idx] != true) {
                                     val scannedAlly = result.alliesByRole[role]
@@ -970,7 +968,6 @@ private fun FloatingOverlayContent(
                                 }
                                 if (manualLockedEnemySlots[idx] != true) {
                                     val scannedEnemy = result.enemiesByRole[role]
-                                    // Permitir sobrescribir el slot si era un falso positivo previo, PERO ahora sí está confirmado (ej. por OCR final)
                                     val canAssign = scannedEnemy != null && (enemies[idx] == null || (enemies[idx]?.id != scannedEnemy.id && result.isLastPickConfirmed))
                                     if (canAssign) {
                                         assignEnemySlot(idx, scannedEnemy!!, result.enemyConfidencesByRole[role])
@@ -979,7 +976,6 @@ private fun FloatingOverlayContent(
                                 }
                             }
 
-                            // Verificación complementaria en tiempo real: Si el rival ya tiene picks y aliados tienen 0, el rival es First Pick (nosotros = Counter Pick)
                             val currentAllyPicks = allies.count { it != null }
                             val currentEnemyPicks = enemies.count { it != null }
                             if (currentEnemyPicks > 0 && currentAllyPicks == 0) {
@@ -988,7 +984,6 @@ private fun FloatingOverlayContent(
                                 isFirstPick = true
                             }
 
-                            // Sincronizar nombres de invocador aliados y hechizos
                             if (result.isLegendaryRanked) {
                                 isLegendaryQueue = true
                                 state.allySummonerNames.clear()
@@ -1018,33 +1013,38 @@ private fun FloatingOverlayContent(
                                     state.hasCalledGeminiFor10thPick = true
                                     scanNoticeMessage = "Analizando 10º pick con IA (Preparación)..."
                                     launch(Dispatchers.IO) {
-                                        val cropRect = if (isEnemy10th) {
-                                            android.graphics.Rect((bitmap.width * 0.5f).toInt(), 0, bitmap.width, (bitmap.height * 0.20f).toInt())
-                                        } else {
-                                            android.graphics.Rect(0, 0, (bitmap.width * 0.5f).toInt(), (bitmap.height * 0.20f).toInt())
-                                        }
-                                        val crop = android.graphics.Bitmap.createBitmap(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
-                                        val champName = com.example.service.gemini.GeminiVisionService.identify10thPickFromPreparationScreen(crop, isEnemy10th)
-                                        crop.recycle()
-                                        if (champName != null) {
-                                            val matchedChamp = com.example.service.screen.ChampionNameResolver.findChampionInText(champName, com.example.data.WildRiftRepository.champions)
-                                            if (matchedChamp != null) {
-                                                withContext(Dispatchers.Main) {
-                                                    if (isEnemy10th) {
-                                                        assignEnemySlot(4, matchedChamp, 100)
-                                                    } else {
-                                                        assignAllySlot(4, matchedChamp)
+                                        try {
+                                            val cropRect = if (isEnemy10th) {
+                                                android.graphics.Rect((bitmap.width * 0.5f).toInt(), 0, bitmap.width, (bitmap.height * 0.20f).toInt())
+                                            } else {
+                                                android.graphics.Rect(0, 0, (bitmap.width * 0.5f).toInt(), (bitmap.height * 0.20f).toInt())
+                                            }
+                                            if (cropRect.width() > 0 && cropRect.height() > 0 && cropRect.right <= bitmap.width && cropRect.bottom <= bitmap.height) {
+                                                val crop = android.graphics.Bitmap.createBitmap(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
+                                                val champName = com.example.service.gemini.GeminiVisionService.identify10thPickFromPreparationScreen(crop, isEnemy10th)
+                                                crop.recycle()
+                                                if (champName != null) {
+                                                    val matchedChamp = com.example.service.screen.ChampionNameResolver.findChampionInText(champName, com.example.data.WildRiftRepository.champions)
+                                                    if (matchedChamp != null) {
+                                                        withContext(Dispatchers.Main) {
+                                                            if (isEnemy10th) {
+                                                                assignEnemySlot(4, matchedChamp, 100)
+                                                            } else {
+                                                                assignAllySlot(4, matchedChamp)
+                                                            }
+                                                            scanNoticeMessage = "🎯 10º Pick detectado con IA: ${matchedChamp.name}"
+                                                        }
                                                     }
-                                                    scanNoticeMessage = "🎯 10º Pick detectado con IA: ${matchedChamp.name}"
                                                 }
                                             }
+                                        } catch (e: Exception) {
+                                            AppLogger.e("FloatingService", "Error in 10th pick Gemini task", e)
                                         }
                                     }
                                 }
                             }
 
                             if (totalAlliesPicked == 5 && totalEnemiesPicked == 5 && (result.isLastPickConfirmed || result.isPreparationPhase)) {
-                                // Finalizar Auto-Scan únicamente cuando existan 5 aliados + 5 rivales CONFIRMADOS
                                 autoScanEnabled = false
                                 scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
                                     "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
@@ -1060,6 +1060,7 @@ private fun FloatingOverlayContent(
                             } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                 scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($totalAlliesPicked/5 vs $totalEnemiesPicked/5)"
                             }
+
                             if (scanNoticeMessage != null) {
                                 launch {
                                     delay(2000)
@@ -1068,7 +1069,9 @@ private fun FloatingOverlayContent(
                             }
                         }
                     }
-                } catch (_: Exception) {}
+                }
+            } catch (e: Exception) {
+                AppLogger.e("FloatingService", "Error in auto-scan loop", e)
             }
         }
     }

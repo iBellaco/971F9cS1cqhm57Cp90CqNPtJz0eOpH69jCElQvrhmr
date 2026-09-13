@@ -337,7 +337,34 @@ fun UserInboxDialog(
                                     }
                                     Text(dateStr, color = Color.Gray, fontSize = 11.sp)
                                     Spacer(modifier = Modifier.height(8.dp))
-                                    Text(content, color = Color.LightGray, fontSize = 13.sp)
+                                                                         val sender = msg["sender"] as? String ?: ""
+                                     val repliedBy = msg["repliedBy"] as? String ?: ""
+                                     val adminReply = msg["adminReply"] as? String ?: ""
+                                     if (sender.isNotBlank()) {
+                                         Text("Enviado por: $sender", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                         Spacer(modifier = Modifier.height(4.dp))
+                                     }
+                                     Text(content, color = Color.LightGray, fontSize = 13.sp)
+                                     if (adminReply.isNotBlank() || repliedBy.isNotBlank()) {
+                                         Spacer(modifier = Modifier.height(8.dp))
+                                         Surface(
+                                             shape = RoundedCornerShape(6.dp),
+                                             color = Color(0xFF0F172A),
+                                             border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.5f)),
+                                             modifier = Modifier.fillMaxWidth()
+                                         ) {
+                                             Column(modifier = Modifier.padding(8.dp)) {
+                                                 Text(
+                                                     "Respuesta de Soporte${if (repliedBy.isNotBlank()) " ($repliedBy)" else ""}:",
+                                                     color = Color(0xFF38BDF8),
+                                                     fontSize = 11.sp,
+                                                     fontWeight = FontWeight.Bold
+                                                 )
+                                                 Spacer(modifier = Modifier.height(2.dp))
+                                                 Text(adminReply, color = Color.White, fontSize = 12.sp)
+                                             }
+                                         }
+                                     }
                                 }
                             }
                         }

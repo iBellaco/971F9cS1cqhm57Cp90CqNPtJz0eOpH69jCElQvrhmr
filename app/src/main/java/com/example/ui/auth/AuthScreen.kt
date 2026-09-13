@@ -805,11 +805,16 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(activeTheme.secondary)
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        com.example.ui.components.AnimatedTactileButton(
+                            onClick = {
+                                essenceBounce = true
+                                showBuyEssenceDialog = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = activeTheme.secondary),
+                            modifier = Modifier.height(34.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            scaleDown = 0.90f
                         ) {
                             Text(
                                 text = "Comprar",
