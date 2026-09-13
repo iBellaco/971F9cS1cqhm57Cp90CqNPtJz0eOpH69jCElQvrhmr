@@ -173,6 +173,7 @@ fun AdminDashboardDialog(
     var showCpmAnalyticsDialog by remember { mutableStateOf(false) }
     var showDatabaseConsumptionDialog by remember { mutableStateOf(false) }
     var showSponsorModerationDialog by remember { mutableStateOf(false) }
+    var showSponsorPanelDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
@@ -204,6 +205,10 @@ fun AdminDashboardDialog(
         AdminSponsorModerationDialog(onDismiss = { showSponsorModerationDialog = false })
     }
 
+    if (showSponsorPanelDialog) {
+        SponsorCpmPanelDialog(onDismiss = { showSponsorPanelDialog = false })
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -226,6 +231,7 @@ fun AdminDashboardDialog(
                     onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
                     onOpenDatabaseConsumption = { showDatabaseConsumptionDialog = true },
                     onOpenSponsorModeration = { showSponsorModerationDialog = true },
+                    onOpenSponsorPanel = { showSponsorPanelDialog = true },
                     isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
 
@@ -269,6 +275,7 @@ private fun AdminDashboardHeader(
     onOpenCpmAnalytics: () -> Unit = {},
     onOpenDatabaseConsumption: () -> Unit = {},
     onOpenSponsorModeration: () -> Unit = {},
+    onOpenSponsorPanel: () -> Unit = {},
     isFullAdmin: Boolean = true
 ) {
     Surface(
@@ -404,7 +411,7 @@ private fun AdminDashboardHeader(
                     Text("Base Datos", fontSize = 9.sp, color = HextechGold, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
-                // Botón Patrocinios
+                // Botón Patrocinios (Moderación)
                 AnimatedAdminActionButton(
                     onClick = onOpenSponsorModeration,
                     modifier = Modifier.weight(1f),
@@ -414,7 +421,20 @@ private fun AdminDashboardHeader(
                 ) {
                     Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFFFDBA74), modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(2.dp))
-                    Text("Patrocinios", fontSize = 9.sp, color = Color(0xFFFDBA74), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Text("Moderador", fontSize = 9.sp, color = Color(0xFFFDBA74), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
+
+                // Botón Panel Patrocinador
+                AnimatedAdminActionButton(
+                    onClick = onOpenSponsorPanel,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEC4899).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFF472B6), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Patrocinador", fontSize = 9.sp, color = Color(0xFFF472B6), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
             }
         }

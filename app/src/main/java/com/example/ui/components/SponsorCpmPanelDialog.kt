@@ -54,6 +54,12 @@ fun SponsorCpmPanelDialog(
     val coroutineScope = rememberCoroutineScope()
 
     val allNotices by AppNoticeManager.notices.collectAsState()
+    val currentBlueEssence by com.example.util.SubscriptionManager.blueEssence.collectAsState()
+    var showBuyEssenceDialog by remember { mutableStateOf(false) }
+
+    if (showBuyEssenceDialog) {
+        BuyEssenceDialog(isAdmin = false, onDismiss = { showBuyEssenceDialog = false })
+    }
     
     // Lista local de anuncios pendientes (guardados en SharedPreferences para evitar que desaparezcan)
     val prefs = context.getSharedPreferences("sponsor_pending_ads", Context.MODE_PRIVATE)
@@ -587,6 +593,41 @@ fun SponsorCpmPanelDialog(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+                    val parsedBudgetVal = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+                    val requiredEssences = (parsedBudgetVal * 10).toLong()
+                    val hasEnoughEssence = currentBlueEssence >= requiredEssences
+
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = HextechSurface,
+                        border = BorderStroke(1.dp, if (hasEnoughEssence) HextechGold.copy(alpha = 0.5f) else Color(0xFFEF4444))
+                    ) {
+                        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Costo en Esencias Azules ($1 = 10 EA):", color = TextSecondary, fontSize = 11.sp)
+                                Text("$requiredEssences EA", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text("Tu Saldo Actual:", color = TextSecondary, fontSize = 11.sp)
+                                Text("$currentBlueEssence EA", color = if (hasEnoughEssence) Color(0xFF10B981) else Color(0xFFEF4444), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                            if (!hasEnoughEssence) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Button(
+                                    onClick = { showBuyEssenceDialog = true },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentPadding = PaddingValues(vertical = 4.dp)
+                                ) {
+                                    Icon(Icons.Default.AddCircle, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Recargar Esencias (Insuficientes)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Nota: El anuncio requiere la aprobación de un administrador para ser visible en la plataforma. Al vencer permanecerá 7 días en tu historial con contador antes de su eliminación.", color = TextSecondary, fontSize = 10.sp)
                 }
@@ -595,8 +636,14 @@ fun SponsorCpmPanelDialog(
                 Button(
                     onClick = {
                         val parsedBudget = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+                        val requiredEssences = (parsedBudget * 10).toLong()
                         if (titleInput.trim().isBlank()) {
                             Toast.makeText(context, "El título del anuncio es obligatorio", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (currentBlueEssence < requiredEssences) {
+                            Toast.makeText(context, "No tienes suficientes esencias azules ($requiredEssences EA requeridas). Recarga para publicar.", Toast.LENGTH_LONG).show()
+                            showBuyEssenceDialog = true
                             return@Button
                         }
                         
@@ -654,8 +701,11 @@ fun SponsorCpmPanelDialog(
                             jsonArray.put(obj)
                         }
                         prefs.edit().putString("pending_ads", jsonArray.toString()).apply()
+                        coroutineScope.launch {
+                            com.example.util.SubscriptionManager.addBlueEssence(-requiredEssences)
+                        }
 
-                        Toast.makeText(context, "Anuncio enviado a revisión de administrador", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Anuncio enviado a revisión. Se descontaron $requiredEssences EA.", Toast.LENGTH_LONG).show()
                         showCreateDialog = false
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = HextechGold),

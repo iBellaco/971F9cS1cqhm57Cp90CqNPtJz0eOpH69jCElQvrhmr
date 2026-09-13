@@ -416,7 +416,7 @@ object DraftVisionScanner {
                         // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar)
                         if (isAllyCol) {
                             var bestSlot = -1
-                            var minDiff = 0.180f
+                            var minDiff = 0.075f
                             for (s in 0..4) {
                                 val diff = kotlin.math.abs(subYRatio - calib.allySlotYRatios[s])
                                 if (diff < minDiff) {
@@ -431,7 +431,7 @@ object DraftVisionScanner {
                         // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival)
                         else if (isEnemyCol) {
                             var bestSlot = -1
-                            var minDiff = 0.180f
+                            var minDiff = 0.075f
                             for (s in 0..4) {
                                 val diff = kotlin.math.abs(subYRatio - calib.enemySlotYRatios[s])
                                 if (diff < minDiff) {
@@ -951,35 +951,47 @@ object DraftVisionScanner {
         if (bottomSlotCandidate != null) {
             lastPickVisualChampion = bottomSlotCandidate
             lastPickVisualConfidence = 1.0f
-        } else if ((totalAllyOcr + totalEnemyOcr >= 7 || isPreparationPhase)) {
-            // Si abajo no hay selección 10 aún, escanear avatares superiores o identificación visual
-            try {
-                val targetIsEnemy = effectiveFirstPick
-                val topPickChamp = GenerativeVisionAnalyzer.identifyLastPickAvatar(
-                    bitmap = bitmap,
-                    isAlly = !effectiveFirstPick,
-                    targetTopEnemy = targetIsEnemy
-                )
-                if (topPickChamp != null) {
-                    lastPickVisualChampion = topPickChamp
-                    lastPickVisualConfidence = 0.95f
-                    isLastPickVisualRecognized = true
-                    if (targetIsEnemy) {
-                        enemySlotConfirmedChampions[4] = topPickChamp
-                        enemySlots[4].champion = topPickChamp
-                        enemySlots[4].confidencePercent = 95
-                        enemySlots[4].isLikelyUnpicked = false
-                        AppLogger.d(TAG, "10º Pick Rival detectado por imagen: ${topPickChamp.name}")
-                    } else {
-                        allySlotConfirmedChampions[4] = topPickChamp
-                        allySlots[4].champion = topPickChamp
-                        allySlots[4].confidencePercent = 95
-                        allySlots[4].isLikelyUnpicked = false
-                        AppLogger.d(TAG, "10º Pick Aliado detectado por imagen: ${topPickChamp.name}")
-                    }
+        } else {
+            var topPickChamp: Champion? = null
+            if ((totalAllyOcr + totalEnemyOcr >= 7 || isPreparationPhase)) {
+                try {
+                    val targetIsEnemy = effectiveFirstPick
+                    topPickChamp = GenerativeVisionAnalyzer.identifyLastPickAvatar(
+                        bitmap = bitmap,
+                        isAlly = !effectiveFirstPick,
+                        targetTopEnemy = targetIsEnemy
+                    )
+                } catch (_: Exception) {}
+            }
+
+            // Fallback local por proceso de eliminación si hay 9 picks confirmados
+            if (topPickChamp == null && (totalAllyOcr + totalEnemyOcr) == 9) {
+                val confirmedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
+                val remaining = allChamps.filter { !confirmedIds.contains(it.id) }
+                if (remaining.size == 1) {
+                    topPickChamp = remaining.first()
+                    AppLogger.d(TAG, "10º Pick deducido por eliminación local: ${topPickChamp.name}")
                 }
-            } catch (e: Exception) {
-                AppLogger.w(TAG, "Error escaneando 10º pick por imagen: ${e.message}")
+            }
+
+            if (topPickChamp != null) {
+                lastPickVisualChampion = topPickChamp
+                lastPickVisualConfidence = 0.95f
+                isLastPickVisualRecognized = true
+                val targetIsEnemy = effectiveFirstPick
+                if (targetIsEnemy) {
+                    enemySlotConfirmedChampions[4] = topPickChamp
+                    enemySlots[4].champion = topPickChamp
+                    enemySlots[4].confidencePercent = 95
+                    enemySlots[4].isLikelyUnpicked = false
+                    AppLogger.d(TAG, "10º Pick Rival detectado/deducido: ${topPickChamp.name}")
+                } else {
+                    allySlotConfirmedChampions[4] = topPickChamp
+                    allySlots[4].champion = topPickChamp
+                    allySlots[4].confidencePercent = 95
+                    allySlots[4].isLikelyUnpicked = false
+                    AppLogger.d(TAG, "10º Pick Aliado detectado/deducido: ${topPickChamp.name}")
+                }
             }
         }
         
