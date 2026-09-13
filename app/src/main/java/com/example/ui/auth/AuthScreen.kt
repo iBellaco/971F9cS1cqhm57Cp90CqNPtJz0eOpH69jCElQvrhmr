@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.SupportAgent
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 
@@ -195,6 +196,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showInboxDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
     var showSupportPanel by remember { mutableStateOf(false) }
+    var showSponsorPanel by remember { mutableStateOf(false) }
     var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
     val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
@@ -249,6 +251,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
         )
     }
 
+    if (showSponsorPanel) {
+        com.example.ui.components.SponsorCpmPanelDialog(
+            onDismiss = { showSponsorPanel = false }
+        )
+    }
+
     if (showBlueEssenceStoreDialog) {
         com.example.ui.components.BlueEssenceStoreDialog(
             profileId = activeProfile.id,
@@ -283,11 +291,11 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
                         .background(activeTheme.surfaceVariant)
                         .border(1.dp, if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder, CircleShape)
-                        .tactileClickable { showInboxDialog = true },
+                        .clickable { showInboxDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -295,7 +303,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             imageVector = if (unreadCount > 0) Icons.Default.MarkEmailUnread else Icons.Default.Message,
                             contentDescription = "Bandeja de Entrada",
                             tint = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.secondary,
-                            modifier = Modifier.size(18.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                         if (unreadCount > 0) {
                             Box(
@@ -986,6 +994,22 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         color = com.example.ui.theme.HextechDarkBg,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            if (userRole == "patrocinador") {
+                com.example.ui.components.AnimatedTactileButton(
+                    onClick = { showSponsorPanel = true },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF97316)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.Campaign, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Panel de Anuncios CPM (Patrocinador)", color = com.example.ui.theme.HextechDarkBg, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }

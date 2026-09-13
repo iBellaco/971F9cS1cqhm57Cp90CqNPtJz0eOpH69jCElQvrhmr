@@ -141,6 +141,7 @@ fun AdminSupportReportsDialog(
     var previewZoomBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var reportToDelete by remember { mutableStateOf<UnifiedSupportReport?>(null) }
     var reportToReply by remember { mutableStateOf<UnifiedSupportReport?>(null) }
+    var initialReplyText by remember { mutableStateOf("") }
 
     val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
     val userEmail = authUser?.email ?: ""
@@ -733,7 +734,14 @@ fun AdminSupportReportsDialog(
                                     isAdmin = isAdmin,
                                     onImageClick = { bmp -> previewZoomBitmap = bmp },
                                     onSetStatus = { newStat -> updateReportStatus(item, newStat) },
-                                    onReplyClick = { reportToReply = item },
+                                    onReplyClick = {
+                                        initialReplyText = ""
+                                        reportToReply = item
+                                    },
+                                    onEditReplyClick = {
+                                        initialReplyText = item.adminReply
+                                        reportToReply = item
+                                    },
                                     onDelete = { reportToDelete = item }
                                 )
                             }
@@ -753,20 +761,30 @@ fun AdminSupportReportsDialog(
             reportDescription = targetReport.description,
             userEmail = targetReport.userEmail,
             userName = targetReport.userName,
-            initialReply = targetReport.adminReply,
+            initialReply = initialReplyText,
             isFirestoreDoc = targetReport.isFirestoreDoc,
-            onDismiss = { reportToReply = null },
+            onDismiss = {
+                reportToReply = null
+                initialReplyText = ""
+            },
             onReplySent = { replyText, markedAsRead ->
                 val idx = reportsList.indexOfFirst { it.id == targetReport.id }
                 if (idx != -1) {
                     val updatedStatus = if (markedAsRead) FeedbackRepository.STATUS_READ else reportsList[idx].status
+                    val existing = reportsList[idx].adminReply
+                    val finalReply = if (existing.isNotBlank() && initialReplyText.isBlank()) {
+                        "$existing\n\n---\n\n$replyText"
+                    } else {
+                        replyText
+                    }
                     reportsList[idx] = reportsList[idx].copy(
-                        adminReply = replyText,
+                        adminReply = finalReply,
                         repliedAtMillis = System.currentTimeMillis(),
                         status = updatedStatus
                     )
                 }
                 reportToReply = null
+                initialReplyText = ""
             }
         )
     }
@@ -891,6 +909,7 @@ private fun UnifiedReportAdminCard(
     onImageClick: (Bitmap) -> Unit,
     onSetStatus: (String) -> Unit,
     onReplyClick: () -> Unit,
+    onEditReplyClick: () -> Unit,
     onDelete: () -> Unit
 ) {
     val context = LocalContext.current
@@ -1331,7 +1350,7 @@ private fun UnifiedReportAdminCard(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             OutlinedButton(
-                                onClick = onReplyClick,
+                                onClick = onEditReplyClick,
                                 modifier = Modifier.height(28.dp),
                                 border = BorderStroke(0.8.dp, HextechCyan),
                                 shape = RoundedCornerShape(6.dp),

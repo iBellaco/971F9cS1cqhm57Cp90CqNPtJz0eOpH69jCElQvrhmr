@@ -53,8 +53,14 @@ fun SupportReplyDialog(
         ?: authUser?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
         ?: "Administrador"
 
+    val displayUserName = when {
+        !userName.isBlank() && !userName.contains("@") -> userName
+        !userEmail.isBlank() -> userEmail.substringBefore("@")
+        else -> "Usuario"
+    }
+
     val quickTemplates = listOf(
-        "👋 Hola, soy $responderName del equipo de soporte de Coach. Gracias por escribirnos, hemos recibido tu mensaje y estamos para ayudarte a la brevedad.",
+        "👋 Hola $displayUserName, soy $responderName del equipo de soporte de Coach. Gracias por escribirnos, hemos recibido tu mensaje y estamos para ayudarte a la brevedad.",
         "✅ ¡Problema solucionado! Esta incidencia fue corregida en la última actualización de Coach. Te sugerimos actualizar tu app.",
         "🔄 Te sugerimos cerrar sesión, reiniciar la app y volver a ingresar para sincronizar tus configuraciones de forma óptima.",
         "🛡️ Hemos verificado la configuración de tu cuenta y optimizado tus datos. Por favor confirma si el problema persiste.",

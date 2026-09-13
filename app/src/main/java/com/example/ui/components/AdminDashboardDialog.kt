@@ -171,6 +171,8 @@ fun AdminDashboardDialog(
     var showBroadcastDialog by remember { mutableStateOf(false) }
     var showNoticeConfigDialog by remember { mutableStateOf(false) }
     var showCpmAnalyticsDialog by remember { mutableStateOf(false) }
+    var showDatabaseConsumptionDialog by remember { mutableStateOf(false) }
+    var showSponsorModerationDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
@@ -194,6 +196,14 @@ fun AdminDashboardDialog(
         AdminCpmAnalyticsDialog(onDismiss = { showCpmAnalyticsDialog = false })
     }
 
+    if (showDatabaseConsumptionDialog) {
+        AdminDatabaseConsumptionDialog(onDismiss = { showDatabaseConsumptionDialog = false })
+    }
+
+    if (showSponsorModerationDialog) {
+        AdminSponsorModerationDialog(onDismiss = { showSponsorModerationDialog = false })
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -214,6 +224,8 @@ fun AdminDashboardDialog(
                     onOpenBroadcast = { showBroadcastDialog = true },
                     onOpenNotice = { showNoticeConfigDialog = true },
                     onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
+                    onOpenDatabaseConsumption = { showDatabaseConsumptionDialog = true },
+                    onOpenSponsorModeration = { showSponsorModerationDialog = true },
                     isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
 
@@ -255,6 +267,8 @@ private fun AdminDashboardHeader(
     onOpenBroadcast: () -> Unit,
     onOpenNotice: () -> Unit,
     onOpenCpmAnalytics: () -> Unit = {},
+    onOpenDatabaseConsumption: () -> Unit = {},
+    onOpenSponsorModeration: () -> Unit = {},
     isFullAdmin: Boolean = true
 ) {
     Surface(
@@ -323,19 +337,19 @@ private fun AdminDashboardHeader(
             // Botones de acción rápida superiores (Fijados y siempre visibles)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Botón combinado OCR & Soporte
+                // Botón Soporte
                 AnimatedAdminActionButton(
                     onClick = onOpenFeedbackAndSupport,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text("Soporte", fontSize = 10.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Icon(Icons.Default.SupportAgent, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Soporte", fontSize = 9.sp, color = HextechCyan, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón Broadcast
@@ -344,11 +358,11 @@ private fun AdminDashboardHeader(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7C3AED).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text("Broadcast", fontSize = 10.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Icon(Icons.Default.Campaign, contentDescription = null, tint = Color(0xFFC4B5FD), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Broadcast", fontSize = 9.sp, color = Color(0xFFC4B5FD), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón Avisos
@@ -357,24 +371,50 @@ private fun AdminDashboardHeader(
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0D9488).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text("Avisos", fontSize = 10.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Icon(Icons.Default.Announcement, contentDescription = null, tint = Color(0xFF2DD4BF), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Avisos", fontSize = 9.sp, color = Color(0xFF2DD4BF), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
                 // Botón CPM
                 AnimatedAdminActionButton(
                     onClick = onOpenCpmAnalytics,
-                    modifier = Modifier.weight(0.9f),
+                    modifier = Modifier.weight(0.8f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FF66).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 4.dp, vertical = 6.dp)
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(13.dp))
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text("CPM", fontSize = 10.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Icon(Icons.Default.TrendingUp, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("CPM", fontSize = 9.sp, color = Color(0xFF00FF66), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
+
+                // Botón Base de Datos
+                AnimatedAdminActionButton(
+                    onClick = onOpenDatabaseConsumption,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold.copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Storage, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Base Datos", fontSize = 9.sp, color = HextechGold, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
+
+                // Botón Patrocinios
+                AnimatedAdminActionButton(
+                    onClick = onOpenSponsorModeration,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF97316).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFFFDBA74), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Patrocinios", fontSize = 9.sp, color = Color(0xFFFDBA74), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
             }
         }

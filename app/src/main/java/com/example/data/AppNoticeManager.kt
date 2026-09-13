@@ -25,7 +25,10 @@ data class AppNotice(
     val titleColor: String = "#FFD700",
     val contentColor: String = "#CCCCCC",
     val isEnabled: Boolean = true,
-    val budget: Double = 0.0 // Presupuesto asignado a este anuncio en USD
+    val budget: Double = 0.0, // Presupuesto asignado a este anuncio en USD
+    val budgetUnit: String = "day", // "hour", "day", "month", "year"
+    val isApproved: Boolean = true, // false until admin accepts it if published by sponsor
+    val sponsorEmail: String = "" // email of the sponsor who published it
 )
 
 object AppNoticeManager {
@@ -194,7 +197,10 @@ object AppNoticeManager {
                             titleColor = map["titleColor"]?.toString() ?: "#FFD700",
                             contentColor = map["contentColor"]?.toString() ?: "#CCCCCC",
                             isEnabled = (map["isEnabled"] as? Boolean) ?: true,
-                            budget = (map["budget"] as? Number)?.toDouble() ?: 0.0
+                            budget = (map["budget"] as? Number)?.toDouble() ?: 0.0,
+                            budgetUnit = map["budgetUnit"]?.toString() ?: "day",
+                            isApproved = (map["isApproved"] as? Boolean) ?: true,
+                            sponsorEmail = map["sponsorEmail"]?.toString() ?: ""
                         )
                     )
                 }
@@ -268,6 +274,9 @@ object AppNoticeManager {
                     put("contentColor", n.contentColor)
                     put("isEnabled", n.isEnabled)
                     put("budget", n.budget)
+                    put("budgetUnit", n.budgetUnit)
+                    put("isApproved", n.isApproved)
+                    put("sponsorEmail", n.sponsorEmail)
                 }
                 arr.put(obj)
             }
@@ -302,7 +311,10 @@ object AppNoticeManager {
                             titleColor = obj.optString("titleColor", "#C8AA6E"),
                             contentColor = obj.optString("contentColor", "#A09B8C"),
                             isEnabled = obj.optBoolean("isEnabled", true),
-                            budget = obj.optDouble("budget", 0.0)
+                            budget = obj.optDouble("budget", 0.0),
+                            budgetUnit = obj.optString("budgetUnit", "day"),
+                            isApproved = obj.optBoolean("isApproved", true),
+                            sponsorEmail = obj.optString("sponsorEmail", "")
                         )
                     )
                 }
@@ -395,7 +407,10 @@ object AppNoticeManager {
                     "titleColor" to n.titleColor,
                     "contentColor" to n.contentColor,
                     "isEnabled" to n.isEnabled,
-                    "budget" to n.budget
+                    "budget" to n.budget,
+                    "budgetUnit" to n.budgetUnit,
+                    "isApproved" to n.isApproved,
+                    "sponsorEmail" to n.sponsorEmail
                 )
             }
             val data = hashMapOf(
@@ -425,7 +440,10 @@ object AppNoticeManager {
                             "titleColor" to n.titleColor,
                             "contentColor" to n.contentColor,
                             "isEnabled" to n.isEnabled,
-                            "budget" to n.budget
+                            "budget" to n.budget,
+                            "budgetUnit" to n.budgetUnit,
+                            "isApproved" to n.isApproved,
+                            "sponsorEmail" to n.sponsorEmail
                         )
                     }
                     val fallbackData = hashMapOf(

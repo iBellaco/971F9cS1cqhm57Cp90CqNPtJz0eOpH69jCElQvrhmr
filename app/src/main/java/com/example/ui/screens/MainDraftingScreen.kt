@@ -405,7 +405,7 @@ fun MainDraftingScreen(
 
                 // 1. Paneles de Avisos separados por categoría (Importantes, Ofertas, Publicidad, etc.)
                 // Cada tipo de anuncio tiene su propio panel independiente; si hay varios del mismo tipo se agrupan.
-                val activeNotices = notices.filter { it.isEnabled && (it.content.isNotBlank() || it.title.isNotBlank()) }
+                val activeNotices = notices.filter { it.isEnabled && it.isApproved && (it.content.isNotBlank() || it.title.isNotBlank()) }
 
                 // Sincronizar anuncios desde la nube al cargar la pantalla
                 LaunchedEffect(Unit) {
