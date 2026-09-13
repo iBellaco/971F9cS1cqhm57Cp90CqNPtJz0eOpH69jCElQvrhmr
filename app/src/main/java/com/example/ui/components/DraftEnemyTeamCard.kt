@@ -1,5 +1,16 @@
 package com.example.ui.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -112,33 +123,68 @@ fun DraftEnemyTeamCard(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        if (champ != null) {
-                            UserAvatarView(
-                                avatarId = champ.id,
-                                size = 52.dp,
-                                showBorder = false
-                            )
-                            
-                            // Botón de eliminar
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(2.dp),
-                                contentAlignment = Alignment.TopEnd
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(DangerRed)
-                                        .clickable { onRemoveEnemy(champ) },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = Color.White, modifier = Modifier.size(10.dp))
+                        AnimatedContent(
+                            targetState = champ,
+                            transitionSpec = {
+                                if (targetState != null) {
+                                    (fadeIn(animationSpec = tween(220, easing = FastOutSlowInEasing)) +
+                                            scaleIn(
+                                                initialScale = 0.65f,
+                                                animationSpec = spring(
+                                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                    stiffness = Spring.StiffnessMedium
+                                                )
+                                            ) +
+                                            slideInVertically(
+                                                initialOffsetY = { it / 3 },
+                                                animationSpec = spring(
+                                                    dampingRatio = Spring.DampingRatioLowBouncy,
+                                                    stiffness = Spring.StiffnessMedium
+                                                )
+                                            )
+                                    ).togetherWith(
+                                        fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f)
+                                    )
+                                } else {
+                                    (fadeIn(animationSpec = tween(180))).togetherWith(
+                                        fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f)
+                                    )
+                                }
+                            },
+                            label = "EnemyChampionSlotAnimation"
+                        ) { selectedChamp ->
+                            if (selectedChamp != null) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    UserAvatarView(
+                                        avatarId = selectedChamp.id,
+                                        size = 52.dp,
+                                        showBorder = false
+                                    )
+                                    
+                                    // Botón de eliminar
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(2.dp),
+                                        contentAlignment = Alignment.TopEnd
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .clip(CircleShape)
+                                                .background(DangerRed)
+                                                .clickable { onRemoveEnemy(selectedChamp) },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = Color.White, modifier = Modifier.size(10.dp))
+                                        }
+                                    }
+                                }
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.Add, contentDescription = "Agregar", tint = HextechGold.copy(alpha = 0.5f), modifier = Modifier.size(24.dp))
                                 }
                             }
-                        } else {
-                            Icon(Icons.Default.Add, contentDescription = "Agregar", tint = HextechGold.copy(alpha = 0.5f), modifier = Modifier.size(24.dp))
                         }
                     }
                 }

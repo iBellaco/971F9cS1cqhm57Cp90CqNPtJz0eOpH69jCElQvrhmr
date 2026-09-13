@@ -302,8 +302,8 @@ object DraftVisionScanner {
                         isPreparationPhase = true
                     }
 
-                    // EXCLUSIÓN ABSOLUTA DEL CENTRO (0.28f a 0.72f) Y DEL OVERLAY FLOTANTE DEL ASISTENTE
-                    if (xRatio in 0.28f..0.72f || (box != null && overlayRect != null && android.graphics.Rect.intersects(box, overlayRect!!))) {
+                    // EXCLUSIÓN ABSOLUTA DEL CENTRO (0.33f a 0.67f) Y DEL OVERLAY FLOTANTE DEL ASISTENTE
+                    if (xRatio in 0.33f..0.67f || (box != null && overlayRect != null && android.graphics.Rect.intersects(box, overlayRect!!))) {
                         continue
                     }
 
@@ -399,16 +399,16 @@ object DraftVisionScanner {
                             baseBox
                         }
 
-                        // Ignorar barra de bans y botones
-                        if (subYRatio < 0.100f || subYRatio > 0.850f) continue
+                        // Ignorar barra de bans superior y botones inferiores extremos
+                        if (subYRatio < 0.080f || subYRatio > 0.920f) continue
 
-                        val isAllyCol = xRatio in calib.allyOcrMinX..calib.allyOcrMaxX
-                        val isEnemyCol = xRatio in calib.enemyOcrMinX..calib.enemyOcrMaxX
+                        val isAllyCol = xRatio in (calib.allyOcrMinX - 0.02f)..(calib.allyOcrMaxX + 0.05f)
+                        val isEnemyCol = xRatio in (calib.enemyOcrMinX - 0.05f)..(calib.enemyOcrMaxX + 0.02f)
 
                         // 1.1 COLUMNA ALIADA (Texto inmediatamente a la derecha del avatar)
                         if (isAllyCol) {
                             var bestSlot = -1
-                            var minDiff = 0.120f
+                            var minDiff = 0.180f
                             for (s in 0..4) {
                                 val diff = kotlin.math.abs(subYRatio - calib.allySlotYRatios[s])
                                 if (diff < minDiff) {
@@ -423,7 +423,7 @@ object DraftVisionScanner {
                         // 1.2 COLUMNA ENEMIGA (Texto inmediatamente a la izquierda del avatar rival)
                         else if (isEnemyCol) {
                             var bestSlot = -1
-                            var minDiff = 0.120f
+                            var minDiff = 0.180f
                             for (s in 0..4) {
                                 val diff = kotlin.math.abs(subYRatio - calib.enemySlotYRatios[s])
                                 if (diff < minDiff) {
@@ -573,17 +573,17 @@ object DraftVisionScanner {
                     }
                 }
 
-                // Si en este slot se detectó texto indicando que aún no se elige, se invalida el campeón (es un hover)
-                if (isUnpickedTextPresent || (detectedRoleInSlot != null && detectedChampInSlot == null)) {
-                    allyOcrChampions[i] = null
-                    slot.champion = null
-                    slot.isLikelyUnpicked = true
-                    allySlotFilters[i].reset() // Resetear memoria temporal del slot para no arrastrar campeones previos
-                } else if (detectedChampInSlot != null) {
+                // Si se detectó un campeón real en este slot, se asigna con máxima prioridad
+                if (detectedChampInSlot != null) {
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
+                } else if (isUnpickedTextPresent || (detectedRoleInSlot != null && detectedChampInSlot == null)) {
+                    allyOcrChampions[i] = null
+                    slot.champion = null
+                    slot.isLikelyUnpicked = true
+                    allySlotFilters[i].reset()
                 } else {
                     allyOcrChampions[i] = null
                     slot.champion = null
@@ -686,16 +686,16 @@ object DraftVisionScanner {
                     }
                 }
 
-                if (isWaitingPick || isUnpickedTextPresent || (isWaitingPick && detectedEnemyChamp == null)) {
-                    enemyOcrChampions[i] = null
-                    enemySlots[i].champion = null
-                    enemySlots[i].isLikelyUnpicked = true
-                    enemySlotFilters[i].reset()
-                } else if (detectedEnemyChamp != null) {
+                if (detectedEnemyChamp != null) {
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
+                } else if (isWaitingPick || isUnpickedTextPresent) {
+                    enemyOcrChampions[i] = null
+                    enemySlots[i].champion = null
+                    enemySlots[i].isLikelyUnpicked = true
+                    enemySlotFilters[i].reset()
                 } else {
                     enemyOcrChampions[i] = null
                     enemySlots[i].champion = null
@@ -983,11 +983,11 @@ object DraftVisionScanner {
         val hasDraftActivity = total > 0 || allySummonerNamesCache.isNotEmpty() || userDetectedLane != null || detectedFirstPick != null || isLegendaryRanked || isPreparationPhase
 
         val statusMsg = when {
-            isLegendaryRanked && total == 0 -> "🛡️ Clasificatoria Legendaria (Nombres anónimos)"
-            isLegendaryRanked -> "🛡️ Clasificatoria Legendaria • $total picks detectados"
+            isLegendaryRanked && total == 0 -> "Clasificatoria Legendaria (Nombres anónimos)"
+            isLegendaryRanked -> "Clasificatoria Legendaria • $total picks detectados"
             total == 0 && allySummonerNamesCache.isNotEmpty() -> "Invocadores aliados detectados (${allySummonerNamesCache.size}/5)"
             total == 0 -> "Esperando selección en directo..."
-            isLastPickVisualRecognized -> "10/10 Completo • 10º Pick detectado por imagen (${lastPickVisualChampion?.name})"
+            isLastPickVisualRecognized || total == 10 -> "10/10 Completo • 10º Pick detectado (${lastPickVisualChampion?.name ?: "Confirmado"})"
             total == 9 -> "9/10 picks detectados con certeza (esperando último pick)"
             total in 1..8 -> "$total/10 picks detectados con certeza"
             auditList.isNotEmpty() -> "Detectados: $total picks (${auditList.size} adaptaciones)"
@@ -996,17 +996,17 @@ object DraftVisionScanner {
 
         val tenthTurn = pickSequence.last()
         val tenthSlot = if (tenthTurn.isAlly) allySlots.getOrNull(tenthTurn.slotIndex) else enemySlots.getOrNull(tenthTurn.slotIndex)
-        val isTenthOcr = tenthSlot != null && tenthSlot.champion != null && tenthSlot.confidencePercent == 100
-        val isTenthVisualConfirmed = isLastPickVisualRecognized && lastPickVisualConfidence >= 0.65f
-        val isTenthConfirmed = isTenthOcr || isTenthVisualConfirmed
+        val isTenthOcr = tenthSlot != null && tenthSlot.champion != null
+        val isTenthVisualConfirmed = isLastPickVisualRecognized
+        val isTenthConfirmed = isTenthOcr || isTenthVisualConfirmed || total == 10
 
-        // Finalizar SOLAMENTE cuando existan 5 aliados + 5 rivales CONFIRMADOS
+        // Finalizar cuando existan 5 aliados + 5 rivales o el 10º pick esté confirmado
         val allAlliesConfirmed = allySlots.all { it.champion != null }
         val allEnemiesConfirmed = enemySlots.all { it.champion != null }
-        val isLastPickConfirmedValue = if (isPreparationPhase && isTenthConfirmed) {
+        val isLastPickConfirmedValue = if (isPreparationPhase && (isTenthConfirmed || total == 10)) {
             true
         } else {
-            (total == 10 && allAlliesConfirmed && allEnemiesConfirmed && isTenthConfirmed)
+            (total == 10 || (allAlliesConfirmed && allEnemiesConfirmed) || (total >= 9 && isTenthConfirmed))
         }
 
         return DraftScanResult(

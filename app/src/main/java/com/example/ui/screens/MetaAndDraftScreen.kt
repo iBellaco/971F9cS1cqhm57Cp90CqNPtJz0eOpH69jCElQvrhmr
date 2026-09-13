@@ -198,7 +198,7 @@ fun MetaAndDraftScreen(
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var activeRole by remember { mutableStateOf(com.example.util.UserPreferences.getActiveDraftRole(screenContext)) }
+    var activeRole by remember { mutableStateOf<LaneRole?>(null) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
     val defaultChamp = WildRiftRepository.champions.firstOrNull() ?: Champion(
@@ -263,15 +263,16 @@ fun MetaAndDraftScreen(
     }
 
     // Sincronización contextual automática: Mi campeón es el aliado en mi línea activa
-    val myChampion = allySlots.find { it.assignedRole == activeRole }?.champion
+    val myChampion = if (activeRole != null) allySlots.find { it.assignedRole == activeRole }?.champion else null
     val roleIndex = when (activeRole) {
         LaneRole.TOP -> 0
         LaneRole.JUNGLE -> 1
         LaneRole.MID -> 2
         LaneRole.ADC -> 3
         LaneRole.SUPPORT -> 4
+        null -> 0
     }
-    val enemyLaneOpponent = enemySlots.find { it.assignedRole == activeRole }?.champion ?: enemySlots.getOrNull(roleIndex)?.champion
+    val enemyLaneOpponent = if (activeRole != null) enemySlots.find { it.assignedRole == activeRole }?.champion ?: enemySlots.getOrNull(roleIndex)?.champion else null
 
     val analysis = remember(activeRole, isFirstPick, allySlots.toList(), enemySlots.toList(), lang) {
         WildRiftRepository.analyzeDraft(
@@ -346,14 +347,15 @@ fun MetaAndDraftScreen(
                             if (idx >= 0) enemySlots.removeAt(idx)
                         },
                         onPickRecommendation = { champ ->
-                            val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                            val targetRole = activeRole ?: champ.primaryRole
+                            val existingIndex = allySlots.indexOfFirst { it.assignedRole == targetRole }
                             if (existingIndex >= 0) {
-                                allySlots[existingIndex] = DraftSlot(champ, activeRole)
+                                allySlots[existingIndex] = DraftSlot(champ, targetRole)
                             } else {
                                 if (allySlots.size >= 5) {
                                     allySlots.removeAt(allySlots.size - 1)
                                 }
-                                allySlots.add(0, DraftSlot(champ, activeRole))
+                                allySlots.add(0, DraftSlot(champ, targetRole))
                             }
                         },
                         onSelectChampion = { selectedDetailChampion = it },
@@ -536,14 +538,15 @@ fun MetaAndDraftScreen(
                             if (idx >= 0) enemySlots.removeAt(idx)
                         },
                         onPickRecommendation = { champ ->
-                            val existingIndex = allySlots.indexOfFirst { it.assignedRole == activeRole }
+                            val targetRole = activeRole ?: champ.primaryRole
+                            val existingIndex = allySlots.indexOfFirst { it.assignedRole == targetRole }
                             if (existingIndex >= 0) {
-                                allySlots[existingIndex] = DraftSlot(champ, activeRole)
+                                allySlots[existingIndex] = DraftSlot(champ, targetRole)
                             } else {
                                 if (allySlots.size >= 5) {
                                     allySlots.removeAt(allySlots.size - 1)
                                 }
-                                allySlots.add(0, DraftSlot(champ, activeRole))
+                                allySlots.add(0, DraftSlot(champ, targetRole))
                             }
                         },
                         onSelectChampion = { selectedDetailChampion = it },
@@ -774,7 +777,7 @@ fun MetaAndDraftScreen(
                 val roleOrder = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
                 when (pickingForTeam) {
                     "MYSELF" -> {
-                        val selfRole = suggestedPickingRole ?: activeRole
+                        val selfRole = suggestedPickingRole ?: activeRole ?: champ.primaryRole
                         val idx = allySlots.indexOfFirst { it.assignedRole == selfRole }
                         if (idx >= 0) {
                             allySlots[idx] = DraftSlot(champ, selfRole)
@@ -3523,7 +3526,7 @@ private fun MapObjectivesTab() {
 fun DraftAnalysisTab(
     isOverlay: Boolean = false,
     myChampion: Champion?,
-    activeRole: LaneRole,
+    activeRole: LaneRole?,
     allySlots: List<DraftSlot>,
     enemySlots: List<DraftSlot>,
     analysis: DraftAnalysisResult,
@@ -3556,7 +3559,7 @@ fun DraftAnalysisTab(
         MatchupPreviewDialog(
             myChampion = myChampion,
             enemyOpponent = opponent,
-            activeRole = activeRole,
+            activeRole = activeRole ?: myChampion.primaryRole,
             onDismiss = { showMatchupDialog = false }
         )
     }
@@ -3565,14 +3568,14 @@ fun DraftAnalysisTab(
         com.example.ui.components.SaveDraftDialog(
             myChampion = myChampion,
             enemyLaneOpponent = enemyLaneOpponent,
-            userRole = activeRole,
+            userRole = activeRole ?: LaneRole.MID,
             estimatedWinrate = analysis.bestOverallPick?.estimatedWinrate ?: 50.0,
             onDismiss = { showSaveDraftDialog = false },
             onSave = { result, notes, profileId, profileName ->
                 coroutineScope.launch {
                     DraftHistoryRepository.saveDraft(
                         context = tabContext,
-                        myRole = activeRole,
+                        myRole = activeRole ?: LaneRole.MID,
                         isFirstPick = isFirstPick,
                         allies = allySlots,
                         enemies = enemySlots.map { it.champion },
@@ -3627,11 +3630,20 @@ fun DraftAnalysisTab(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(id = activeRole.iconResId),
-                            contentDescription = com.example.util.tr(activeRole.displayName),
-                            modifier = Modifier.size(32.dp).padding(end = 8.dp)
-                        )
+                        if (activeRole != null) {
+                            Image(
+                                painter = painterResource(id = activeRole.iconResId),
+                                contentDescription = com.example.util.tr(activeRole.displayName),
+                                modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.FilterList,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(32.dp).padding(end = 8.dp)
+                            )
+                        }
                         Column {
                             Text(
                                 text = tr("Mi Línea"),
@@ -3640,7 +3652,7 @@ fun DraftAnalysisTab(
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = com.example.util.tr(activeRole.displayName),
+                                text = if (activeRole != null) com.example.util.tr(activeRole.displayName) else tr("Sin seleccionar (Todas las líneas)"),
                                 color = HextechGold,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Black
@@ -3653,7 +3665,7 @@ fun DraftAnalysisTab(
                         border = BorderStroke(0.5.dp, HextechCyan.copy(alpha = 0.6f))
                     ) {
                         Text(
-                            text = tr("Cambiar"),
+                            text = if (activeRole != null) tr("Cambiar") else tr("Elegir"),
                             color = HextechCyan,
                             fontSize = 10.5.sp,
                             fontWeight = FontWeight.Bold,
@@ -4018,13 +4030,13 @@ fun DraftAnalysisTab(
             val myChamp = myChampion
             val myEval = WildRiftRepository.evaluateChampion(
                 champ = myChamp,
-                myRole = activeRole,
+                myRole = activeRole ?: myChamp.primaryRole,
                 allies = allySlots.map { it.champion },
                 enemies = enemySlots.map { it.champion },
                 enemyLaneOpponent = enemyLaneOpponent,
                 lang = "es"
             )
-            val isOffRole = myChamp.primaryRole != activeRole && !myChamp.secondaryRoles.contains(activeRole)
+            val isOffRole = activeRole != null && myChamp.primaryRole != activeRole && !myChamp.secondaryRoles.contains(activeRole)
             val isDirectLaneWeakness = enemyLaneOpponent != null && (
                 myChamp.counteredBy.any { it.equals(enemyLaneOpponent.name, ignoreCase = true) || it.equals(enemyLaneOpponent.id, ignoreCase = true) } ||
                 enemyLaneOpponent.advantageAgainst.any { it.equals(myChamp.name, ignoreCase = true) || it.equals(myChamp.id, ignoreCase = true) }
@@ -4052,13 +4064,13 @@ fun DraftAnalysisTab(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Image(
-                                painter = painterResource(id = activeRole.iconResId),
+                                painter = painterResource(id = (activeRole ?: myChamp.primaryRole).iconResId),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = tr("TU ELECCIÓN EN") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
+                                text = if (activeRole != null) tr("TU ELECCIÓN EN") + " ${com.example.util.tr(activeRole.displayName).uppercase()}" else tr("TU ELECCIÓN (GENERAL)"),
                                 color = if (shouldChange) DangerRed else HextechGold,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Black
@@ -4093,7 +4105,7 @@ fun DraftAnalysisTab(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        IconButton(onClick = { onRemoveAllyRole(activeRole) }, modifier = Modifier.size(28.dp)) {
+                        IconButton(onClick = { onRemoveAllyRole(activeRole ?: myChamp.primaryRole) }, modifier = Modifier.size(28.dp)) {
                             Icon(Icons.Default.Close, contentDescription = tr("Eliminar"), tint = TextMuted, modifier = Modifier.size(18.dp))
                         }
                     }
@@ -4149,7 +4161,7 @@ fun DraftAnalysisTab(
             Button(
                 onClick = { 
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onPickAllyRole(activeRole) 
+                    onPickAllyRole(activeRole ?: LaneRole.MID) 
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -4164,13 +4176,13 @@ fun DraftAnalysisTab(
                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
             ) {
                 Image(
-                    painter = painterResource(id = activeRole.iconResId),
+                    painter = painterResource(id = (activeRole ?: LaneRole.MID).iconResId),
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = tr("SELECCIONAR MI PICK PARA") + " ${com.example.util.tr(activeRole.displayName).uppercase()}",
+                    text = if (activeRole != null) tr("SELECCIONAR MI PICK PARA") + " ${com.example.util.tr(activeRole.displayName).uppercase()}" else tr("SELECCIONAR MI CAMPEÓN (GLOBAL)"),
                     fontWeight = FontWeight.Black,
                     fontSize = 13.sp,
                     letterSpacing = 0.5.sp
@@ -4182,13 +4194,17 @@ fun DraftAnalysisTab(
         // Live Recommendations Header
         Row(verticalAlignment = Alignment.CenterVertically) {
             Image(
-                painter = painterResource(id = activeRole.iconResId),
+                painter = painterResource(id = (activeRole ?: LaneRole.MID).iconResId),
                 contentDescription = null,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = if (isFirstPick) tr("Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr("Mejor Opción según tu Equipo y el Rival"),
+                text = if (activeRole != null) {
+                    if (isFirstPick) tr("Mejor Primer Pick Seguro para") + " ${com.example.util.tr(activeRole.displayName)}" else tr("Mejor Opción según tu Equipo y el Rival")
+                } else {
+                    tr("Mejores Opciones Globales según tu Equipo y el Rival")
+                },
                 color = HextechGold,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
@@ -4354,13 +4370,13 @@ fun DraftAnalysisTab(
         if (otherRecs.isNotEmpty()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
-                    painter = painterResource(id = activeRole.iconResId),
+                    painter = painterResource(id = (activeRole ?: LaneRole.MID).iconResId),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = tr("Otras Opciones Viables para") + " ${com.example.util.tr(activeRole.displayName)}:",
+                    text = if (activeRole != null) tr("Otras Opciones Viables para") + " ${com.example.util.tr(activeRole.displayName)}:" else tr("Otras Opciones Viables (Todas las Líneas):"),
                     color = HextechCyan,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold
@@ -4787,7 +4803,7 @@ private fun DraftChampionPickerSheet(
 
 @Composable
 private fun RoleChangeBottomSheet(
-    currentRole: LaneRole,
+    currentRole: LaneRole?,
     onRoleSelected: (LaneRole) -> Unit,
     onDismiss: () -> Unit
 ) {

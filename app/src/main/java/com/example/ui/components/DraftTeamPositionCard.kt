@@ -1,6 +1,17 @@
 package com.example.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -242,77 +253,111 @@ fun DraftTeamPositionCard(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            if (champ != null) {
-                                // Imagen del Campeón Seleccionado (Al hacer click se abre el selector para ESTA casilla)
-                                AppAssetImage(
-                                    url = champ.avatarUrl,
-                                    contentDescription = champ.name,
-                                    fallbackText = champ.name,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .clickable {
-                                            onPickChampionForRole(role)
-                                        }
-                                )
-
-                                // Indicador "TÚ" si corresponde a la línea del usuario
-                                if (isMyRole) {
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.BottomStart)
-                                            .padding(2.dp)
-                                            .clip(RoundedCornerShape(3.dp))
-                                            .background(HextechCyan)
-                                            .padding(horizontal = 3.dp, vertical = 1.dp)
-                                    ) {
-                                        Text(
-                                            text = "Mío",
-                                            color = Color.Black,
-                                            fontSize = 8.sp,
-                                            fontWeight = FontWeight.Black
+                            AnimatedContent(
+                                targetState = champ,
+                                transitionSpec = {
+                                    if (targetState != null) {
+                                        (fadeIn(animationSpec = tween(220, easing = FastOutSlowInEasing)) +
+                                                scaleIn(
+                                                    initialScale = 0.65f,
+                                                    animationSpec = spring(
+                                                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                        stiffness = Spring.StiffnessMedium
+                                                    )
+                                                ) +
+                                                slideInVertically(
+                                                    initialOffsetY = { it / 3 },
+                                                    animationSpec = spring(
+                                                        dampingRatio = Spring.DampingRatioLowBouncy,
+                                                        stiffness = Spring.StiffnessMedium
+                                                    )
+                                                )
+                                        ).togetherWith(
+                                            fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f)
+                                        )
+                                    } else {
+                                        (fadeIn(animationSpec = tween(180))).togetherWith(
+                                            fadeOut(animationSpec = tween(150)) + scaleOut(targetScale = 0.8f)
                                         )
                                     }
-                                }
-
-                                // Botón pequeño 'X' en la esquina superior para deseleccionar
-                                Box(
-                                    modifier = Modifier
-                                        .align(Alignment.TopEnd)
-                                        .size(16.dp)
-                                        .clip(CircleShape)
-                                        .background(Color.Black.copy(alpha = 0.75f))
-                                        .clickable {
-                                            onRemoveChampionForRole(role)
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = tr("Quitar"),
-                                        tint = Color.White,
-                                        modifier = Modifier.size(10.dp)
-                                    )
-                                }
-                            } else {
-                                // Casilla vacía con botón "+" para añadir
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = tr("Seleccionar Campeón"),
-                                        tint = if (isMyRole) HextechCyan else TextMuted,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    if (isMyRole) {
-                                        Text(
-                                            text = "Mío",
-                                            color = HextechCyan,
-                                            fontSize = if (isOverlay) 5.sp else 7.5.sp,
-                                            fontWeight = FontWeight.Black
+                                },
+                                label = "ChampionSelectionAnimation"
+                            ) { selectedChamp ->
+                                if (selectedChamp != null) {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        // Imagen del Campeón Seleccionado (Al hacer click se abre el selector para ESTA casilla)
+                                        AppAssetImage(
+                                            url = selectedChamp.avatarUrl,
+                                            contentDescription = selectedChamp.name,
+                                            fallbackText = selectedChamp.name,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    onPickChampionForRole(role)
+                                                }
                                         )
+
+                                        // Indicador "TÚ" si corresponde a la línea del usuario
+                                        if (isMyRole) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .align(Alignment.BottomStart)
+                                                    .padding(2.dp)
+                                                    .clip(RoundedCornerShape(3.dp))
+                                                    .background(HextechCyan)
+                                                    .padding(horizontal = 3.dp, vertical = 1.dp)
+                                            ) {
+                                                Text(
+                                                    text = "Mío",
+                                                    color = Color.Black,
+                                                    fontSize = 8.sp,
+                                                    fontWeight = FontWeight.Black
+                                                )
+                                            }
+                                        }
+
+                                        // Botón pequeño 'X' en la esquina superior para deseleccionar
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .size(16.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.Black.copy(alpha = 0.75f))
+                                                .clickable {
+                                                    onRemoveChampionForRole(role)
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Close,
+                                                contentDescription = tr("Quitar"),
+                                                tint = Color.White,
+                                                modifier = Modifier.size(10.dp)
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    // Casilla vacía con botón "+" para añadir
+                                    Column(
+                                        modifier = Modifier.fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = tr("Seleccionar Campeón"),
+                                            tint = if (isMyRole) HextechCyan else TextMuted,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        if (isMyRole) {
+                                            Text(
+                                                text = "Mío",
+                                                color = HextechCyan,
+                                                fontSize = if (isOverlay) 5.sp else 7.5.sp,
+                                                fontWeight = FontWeight.Black
+                                            )
+                                        }
                                     }
                                 }
                             }

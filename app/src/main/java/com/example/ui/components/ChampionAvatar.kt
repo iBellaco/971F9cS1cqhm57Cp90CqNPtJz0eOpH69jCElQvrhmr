@@ -1,5 +1,10 @@
 package com.example.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,11 +16,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +43,7 @@ import com.example.ui.theme.TierSColor
 import com.example.ui.theme.TierSPlusColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import kotlinx.coroutines.launch
 
 @Composable
 fun ChampionAvatar(
@@ -43,6 +52,38 @@ fun ChampionAvatar(
     showTierBadge: Boolean = true,
     modifier: Modifier = Modifier
 ) {
+    // Animación fluida de escala y deslizamiento al seleccionar o cambiar de campeón
+    val scaleAnim = remember(champion.id) { Animatable(0.68f) }
+    val slideAnim = remember(champion.id) { Animatable(12f) }
+    val alphaAnim = remember(champion.id) { Animatable(0.2f) }
+
+    LaunchedEffect(champion.id) {
+        launch {
+            scaleAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        launch {
+            slideAnim.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        launch {
+            alphaAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 220, easing = FastOutSlowInEasing)
+            )
+        }
+    }
+
     val avatarBrush = when (champion.id) {
         "morgana" -> Brush.radialGradient(listOf(Color(0xFF8B5CF6), Color(0xFF2E1065), Color(0xFF0F051D)))
         "viego" -> Brush.radialGradient(listOf(Color(0xFF00F2FE), Color(0xFF005A82), Color(0xFF071426)))
@@ -50,7 +91,17 @@ fun ChampionAvatar(
         else -> Brush.radialGradient(listOf(Color(0xFF3A4B5C), Color(0xFF1E2A38), Color(0xFF0F1722)))
     }
 
-    Box(contentAlignment = Alignment.BottomEnd, modifier = modifier.size(size)) {
+    Box(
+        contentAlignment = Alignment.BottomEnd, 
+        modifier = modifier
+            .size(size)
+            .graphicsLayer {
+                scaleX = scaleAnim.value
+                scaleY = scaleAnim.value
+                translationY = slideAnim.value
+                alpha = alphaAnim.value
+            }
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -154,6 +205,38 @@ fun AppAssetImage(
 ) {
     val context = LocalContext.current
     val parsedUrl = url.trim()
+
+    // Animación fluida de selección / carga para imágenes de assets
+    val scaleAnim = remember(url) { Animatable(0.72f) }
+    val slideAnim = remember(url) { Animatable(10f) }
+    val alphaAnim = remember(url) { Animatable(0.25f) }
+
+    LaunchedEffect(url) {
+        launch {
+            scaleAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        launch {
+            slideAnim.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        launch {
+            alphaAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
+            )
+        }
+    }
     
     val modelData: Any? = when {
         parsedUrl.startsWith("file:///android_asset/") -> android.net.Uri.parse(parsedUrl)
@@ -164,6 +247,12 @@ fun AppAssetImage(
 
     Box(
         modifier = modifier
+            .graphicsLayer {
+                scaleX = scaleAnim.value
+                scaleY = scaleAnim.value
+                translationY = slideAnim.value
+                alpha = alphaAnim.value
+            }
             .clip(shape)
             .background(HextechDarkBg)
             .border(1.dp, borderColor, shape),
@@ -180,13 +269,12 @@ fun AppAssetImage(
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(modelData)
-.crossfade(true)
-.placeholder(com.example.R.drawable.ic_placeholder_loading)
-                    
+                    .crossfade(true)
+                    .placeholder(com.example.R.drawable.ic_placeholder_loading)
                     .diskCachePolicy(CachePolicy.ENABLED)
                     .memoryCacheKey(modelData.toString() + "_v1365")
-                        .diskCacheKey(modelData.toString() + "_v1365")
-                        .memoryCachePolicy(CachePolicy.ENABLED)
+                    .diskCacheKey(modelData.toString() + "_v1365")
+                    .memoryCachePolicy(CachePolicy.ENABLED)
                     .listener(
                         onError = { request, result -> 
                             com.example.util.AppLogger.e("ImageLoader", "Failed to load ${request.data}: ${result.throwable.message}") 

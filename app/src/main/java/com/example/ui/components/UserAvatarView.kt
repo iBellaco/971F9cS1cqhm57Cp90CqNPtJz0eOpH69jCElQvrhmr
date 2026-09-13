@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -8,6 +9,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -16,8 +20,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.animation.core.*
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -40,6 +42,7 @@ import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.HextechDarkBg
 import com.example.ui.theme.HextechGold
 import com.example.ui.theme.HextechGoldLight
+import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -100,9 +103,46 @@ fun UserAvatarView(
         label = "Rotation"
     )
 
+    val scaleAnim = remember(avatarId) { Animatable(0.7f) }
+    val slideAnim = remember(avatarId) { Animatable(10f) }
+    val alphaAnim = remember(avatarId) { Animatable(0.2f) }
+
+    LaunchedEffect(avatarId) {
+        launch {
+            scaleAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        launch {
+            slideAnim.animateTo(
+                targetValue = 0f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        }
+        launch {
+            alphaAnim.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing)
+            )
+        }
+    }
+
     Box(
         modifier = modifier
             .size(size)
+            .graphicsLayer {
+                scaleX = scaleAnim.value
+                scaleY = scaleAnim.value
+                translationY = slideAnim.value
+                alpha = alphaAnim.value
+            }
             .clip(CircleShape)
             .background(
                 Brush.radialGradient(

@@ -56,6 +56,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -269,7 +270,7 @@ fun PersonalTierListView(
                 FilterChip(
                     selected = selectedQueueMode == "ALL",
                     onClick = { selectedQueueMode = "ALL" },
-                    label = { Text("🌐 " + tr("Todas las Colas"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                    label = { Text(tr("Todas las Colas"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechGold,
                         selectedLabelColor = HextechDarkBg
@@ -279,7 +280,7 @@ fun PersonalTierListView(
                 FilterChip(
                     selected = selectedQueueMode == "RANKED",
                     onClick = { selectedQueueMode = "RANKED" },
-                    label = { Text("⚔️ " + tr("Clasificatoria Estándar"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                    label = { Text(tr("Clasificatoria Normal"), fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = HextechCyan,
                         selectedLabelColor = HextechDarkBg
@@ -289,7 +290,7 @@ fun PersonalTierListView(
                 FilterChip(
                     selected = selectedQueueMode == "LEGENDARY",
                     onClick = { selectedQueueMode = "LEGENDARY" },
-                    label = { Text("🏆 " + tr("Clasificatoria Legendaria"), fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                    label = { Text(tr("Clasificatoria Legendaria"), fontSize = 11.sp, fontWeight = FontWeight.Bold) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF9333EA),
                         selectedLabelColor = Color.White
@@ -1195,7 +1196,7 @@ private fun PersonalChampionDetailModal(
                 ) {
                     Column {
                         Text(
-                            text = "🏆 Veredicto del Coach:",
+                            text = tr("Veredicto del Coach:"),
                             color = HextechGold,
                             fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
@@ -1241,7 +1242,7 @@ private fun PersonalChampionDetailModal(
                                         Text(draft.userRole, color = HextechCyan, fontSize = 9.5.sp)
                                     }
                                     Text(
-                                        text = if (isWin) " Victoria ➔" else " Derrota ➔",
+                                        text = if (isWin) "Victoria >" else "Derrota >",
                                         color = if (isWin) Color(0xFF81C784) else DangerRed,
                                         fontSize = 10.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -1262,5 +1263,22 @@ private fun PersonalChampionDetailModal(
         containerColor = HextechSurface,
         titleContentColor = HextechGold,
         textContentColor = TextPrimary
+    )
+}
+
+@Composable
+fun PersonalTierListView(
+    isOverlay: Boolean = false,
+    onSelectChampion: (Champion) -> Unit = {}
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val draftsFlow = remember(context) { com.example.data.repository.DraftHistoryRepository.getAllDrafts(context) }
+    val draftsList by draftsFlow.collectAsState(initial = emptyList())
+    var selectedDraftDetail by remember { mutableStateOf<SavedDraftEntity?>(null) }
+
+    PersonalTierListView(
+        draftsList = draftsList,
+        onSelectDraftForDetail = { selectedDraftDetail = it },
+        isOverlay = isOverlay
     )
 }

@@ -669,7 +669,7 @@ object WildRiftRepository {
     }
 
     fun analyzeDraft(
-        myRole: LaneRole,
+        myRole: LaneRole? = null,
         allies: List<Champion>,
         enemies: List<Champion>,
         enemyLaneOpponent: Champion? = null,
@@ -811,9 +811,13 @@ object WildRiftRepository {
             !allies.any { it.id == champ.id } && !enemies.any { it.id == champ.id }
         }
 
-        val candidates = availableChampions.filter { champ ->
-            champ.primaryRole == myRole || champ.secondaryRoles.contains(myRole)
-        }.ifEmpty { availableChampions }
+        val candidates = if (myRole != null) {
+            availableChampions.filter { champ ->
+                champ.primaryRole == myRole || champ.secondaryRoles.contains(myRole)
+            }.ifEmpty { availableChampions }
+        } else {
+            availableChampions
+        }
 
         val serverLabel = when (serverRegion) {
             "CN" -> "China ($rankTier)"
@@ -824,13 +828,16 @@ object WildRiftRepository {
         val recommendations = candidates.map { champ ->
             var score = champ.winrate
 
+            val effectiveRole = myRole ?: champ.primaryRole
             // Role affinity bonus so recommendations vary correctly across lanes
-            if (champ.primaryRole == myRole) {
-                score += 10.0
-            } else if (champ.secondaryRoles.contains(myRole)) {
-                score += 5.0
-            } else {
-                score -= 15.0
+            if (myRole != null) {
+                if (champ.primaryRole == myRole) {
+                    score += 10.0
+                } else if (champ.secondaryRoles.contains(myRole)) {
+                    score += 5.0
+                } else {
+                    score -= 15.0
+                }
             }
 
             // Tier Bonus
@@ -849,13 +856,13 @@ object WildRiftRepository {
             var synergyText = ""
             var counterText = ""
 
-            val isFlex = champ.primaryRole != myRole
-            val dynamicAdvice = com.example.util.CoachingGenerator.generateTacticalAdvice(champ, myRole, lang)
+            val isFlex = myRole != null && champ.primaryRole != myRole
+            val dynamicAdvice = com.example.util.CoachingGenerator.generateTacticalAdvice(champ, effectiveRole, lang)
             val roleContextAdvice = if (isFlex) {
                 t(lang,
-                    "Flex in ${myRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Tips: $dynamicAdvice",
-                    "Flex no ${myRole.displayName}: Vantagem de fator surpresa. Desvantagem: Pode sofrer contra escolhas dominantes naturais desta rota. Dicas: $dynamicAdvice",
-                    "Flex en ${myRole.displayName}: Ventaja de factor sorpresa. Desventaja: Puede sufrir contra picks dominantes naturales de la línea. Consejos: $dynamicAdvice"
+                    "Flex in ${effectiveRole.displayName}: Surprise factor advantage. Cons: May struggle against natural dominant picks in this lane. Tips: $dynamicAdvice",
+                    "Flex no ${effectiveRole.displayName}: Vantagem de fator surpresa. Desvantagem: Pode sofrer contra escolhas dominantes naturais desta rota. Dicas: $dynamicAdvice",
+                    "Flex en ${effectiveRole.displayName}: Ventaja de factor sorpresa. Desventaja: Puede sufrir contra picks dominantes naturales de la línea. Consejos: $dynamicAdvice"
                 )
             } else {
                 dynamicAdvice
@@ -895,7 +902,7 @@ object WildRiftRepository {
 
             if (isFirstPickEffective) {
                 // FIRST PICK / BLIND PICK CALCULATION
-                val roleBlindList = safeBlindPicks[myRole] ?: emptyList()
+                val roleBlindList = safeBlindPicks[effectiveRole] ?: emptyList()
                 val isSafeBlind = roleBlindList.contains(champ.id)
                 if (isSafeBlind) {
                     score += 6.5 // High priority bonus for genuine safe blind picks
@@ -908,21 +915,21 @@ object WildRiftRepository {
                     isSafeBlind && champ.tier == "S+" -> t(lang, "👑 1ER PICK PRIORITARIO (Meta $serverLabel)", "👑 1º PICK PRIORITÁRIO (Meta $serverLabel)", "👑 1ER PICK PRIORITARIO (Meta $serverLabel)")
                     isSafeBlind -> t(lang, "🛡️ BLIND PICK SEGURO (Versátil)", "🛡️ BLIND PICK SEGURO (Versátil)", "🛡️ BLIND PICK SEGURO (Versátil)")
                     champ.tier == "S+" -> t(lang, "⭐ META S+ ($serverLabel)", "⭐ META S+ ($serverLabel)", "⭐ META S+ ($serverLabel)")
-                    else -> t(lang, "Opción Estable en ${myRole.shortName}", "Opção Estável no ${myRole.shortName}", "Opción Estable en ${myRole.shortName}")
+                    else -> t(lang, "Opción Estable en ${effectiveRole.shortName}", "Opção Estável no ${effectiveRole.shortName}", "Opción Estable en ${effectiveRole.shortName}")
                 }
 
                 val reason = when {
                     isSafeBlind && champ.tier == "S+" ->
                         t(lang,
-                            "Prioridad #1 de Primer Pick en ${myRole.displayName} [$serverLabel]: ${champ.name} es el pick a ciegas más seguro y autosuficiente. Domina la línea, resiste ganks y no tiene counters abusivos. $roleContextAdvice",
-                            "Prioridade #1 de Primeiro Pick no ${myRole.displayName} [$serverLabel]: ${champ.name} é o pick às cegas mais seguro e autossuficiente. Domina a rota, resiste a emboscadas e não tem counters abusivos. $roleContextAdvice",
-                            "Prioridad #1 de Primer Pick en ${myRole.displayName} [$serverLabel]: ${champ.name} es el pick a ciegas más seguro y autosuficiente. Domina la línea, resiste ganks y no tiene counters abusivos. $roleContextAdvice"
+                            "Prioridad #1 de Primer Pick en ${effectiveRole.displayName} [$serverLabel]: ${champ.name} es el pick a ciegas más seguro y autosuficiente. Domina la línea, resiste ganks y no tiene counters abusivos. $roleContextAdvice",
+                            "Prioridade #1 de Primeiro Pick no ${effectiveRole.displayName} [$serverLabel]: ${champ.name} é o pick às cegas mais seguro e autossuficiente. Domina a rota, resiste a emboscadas e não tem counters abusivos. $roleContextAdvice",
+                            "Prioridad #1 de Primer Pick en ${effectiveRole.displayName} [$serverLabel]: ${champ.name} es el pick a ciegas más seguro y autosuficiente. Domina la línea, resiste ganks y no tiene counters abusivos. $roleContextAdvice"
                         )
                     isSafeBlind ->
                         t(lang,
-                            "Excelente selección a ciegas en ${myRole.displayName}: Gran versatilidad y control de oleadas sin riesgo de ser countereado gravemente. $roleContextAdvice",
-                            "Excelente escolha às cegas no ${myRole.displayName}: Grande versatilidade e controle de rotas sem risco de counter pesado. $roleContextAdvice",
-                            "Excelente selección a ciegas en ${myRole.displayName}: Gran versatilidad y control de oleadas sin riesgo de ser countereado gravemente. $roleContextAdvice"
+                            "Excelente selección a ciegas en ${effectiveRole.displayName}: Gran versatilidad y control de oleadas sin riesgo de ser countereado gravemente. $roleContextAdvice",
+                            "Excelente escolha às cegas no ${effectiveRole.displayName}: Grande versatilidade e controle de rotas sem risco de counter pesado. $roleContextAdvice",
+                            "Excelente selección a ciegas en ${effectiveRole.displayName}: Gran versatilidad y control de oleadas sin riesgo de ser countereado gravemente. $roleContextAdvice"
                         )
                     else -> roleContextAdvice
                 }
