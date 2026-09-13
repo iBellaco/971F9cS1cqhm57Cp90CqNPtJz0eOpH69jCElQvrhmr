@@ -785,6 +785,7 @@ fun AdminFeedbackBottomSheet(
                                     if (!reportId.isNullOrBlank()) {
                                         scope.launch {
                                             FeedbackRepository.updateFeedbackStatusInCloud(reportId, newStatus)
+                                            SupportReplyManager.updateReportStatus(context, reportId, newStatus)
                                         }
                                     }
                                     val msg = when (newStatus) {
@@ -843,7 +844,6 @@ fun AdminFeedbackBottomSheet(
                     FeedbackRepository.setFeedbackStatus(context, rep, FeedbackRepository.STATUS_READ)
                 }
                 loadReports()
-                reportToReply = null
             }
         )
     }

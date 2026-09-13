@@ -494,6 +494,16 @@ fun SupportReportDialog(
                                     }
                                     val userName = exactUserName
 
+                                    val initialMessageMap = mapOf<String, Any>(
+                                        "id" to java.util.UUID.randomUUID().toString(),
+                                        "senderName" to userName.ifBlank { "Invocador" },
+                                        "senderRole" to "USER",
+                                        "text" to cleanDesc,
+                                        "timestampMillis" to System.currentTimeMillis(),
+                                        "isGreeting" to false
+                                    )
+                                    val initialConversation = listOf(initialMessageMap)
+
                                     val reportMap = hashMapOf<String, Any>(
                                         "title" to cleanTitle,
                                         "description" to cleanDesc,
@@ -503,6 +513,7 @@ fun SupportReportDialog(
                                         "photos" to base64Photos.toList(),
                                         "createdAt" to Timestamp.now(),
                                         "status" to "PENDIENTE",
+                                        "conversation" to initialConversation,
                                         "appVersion" to "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                                         "device" to "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
                                     )
@@ -510,6 +521,16 @@ fun SupportReportDialog(
                                      // 1. Guardar en Firestore para panel de administración en tiempo real
                                      db.collection("support_reports").add(reportMap).addOnSuccessListener { docRef ->
                                          val reportId = docRef.id
+                                         val initialEntry = com.example.data.SupportMessageEntry(
+                                             id = "${reportId}_initial",
+                                             senderName = userName.ifBlank { "Invocador" },
+                                             senderRole = "USER",
+                                             text = cleanDesc,
+                                             timestampMillis = System.currentTimeMillis(),
+                                             isGreeting = false
+                                         )
+                                         com.example.data.SupportReplyManager.saveConversation(context, reportId, listOf(initialEntry))
+
                                          if (userId.isNotBlank() && userId != "anonimo") {
                                              try {
                                                  val inboxMsg = hashMapOf<String, Any>(
@@ -526,7 +547,8 @@ fun SupportReportDialog(
                                                      "tag" to "SUPPORT",
                                                      "sender" to userName,
                                                      "reportId" to reportId,
-                                                     "status" to "PENDIENTE"
+                                                     "status" to "PENDIENTE",
+                                                     "conversation" to initialConversation
                                                  )
                                                  db.collection("users").document(userId).collection("messages").document(reportId).set(inboxMsg)
                                              } catch (_: Exception) {}

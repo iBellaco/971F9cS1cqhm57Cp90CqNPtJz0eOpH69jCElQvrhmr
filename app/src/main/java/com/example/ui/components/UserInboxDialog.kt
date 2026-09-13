@@ -309,6 +309,19 @@ fun UserInboxDialog(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
+                                    // Badge de Estado para reportes de soporte (sincronizado multidispositivo)
+                                    val rawStatus = (msg["status"] as? String)?.uppercase() ?: "PENDIENTE"
+                                    val normalizedStatus = when (rawStatus) {
+                                        "SOLVED", "SOLUCIONADO", "RESUELTO" -> "SOLUCIONADO"
+                                        "READ", "LEIDO", "LEÍDO" -> "LEÍDO"
+                                        else -> "PENDIENTE"
+                                    }
+                                    val (statusColor, statusBg) = when (normalizedStatus) {
+                                        "SOLUCIONADO" -> Color(0xFF10B981) to Color(0xFF10B981).copy(alpha = 0.2f)
+                                        "LEÍDO" -> Color(0xFF38BDF8) to Color(0xFF38BDF8).copy(alpha = 0.2f)
+                                        else -> Color(0xFFF59E0B) to Color(0xFFF59E0B).copy(alpha = 0.2f)
+                                    }
+
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -348,6 +361,23 @@ fun UserInboxDialog(
                                                     fontWeight = FontWeight.ExtraBold,
                                                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                                                 )
+                                            }
+
+                                            if (rawTag.equals("SUPPORT", ignoreCase = true) || (msg["reportId"] as? String)?.isNotBlank() == true) {
+                                                Surface(
+                                                    shape = RoundedCornerShape(4.dp),
+                                                    color = statusBg,
+                                                    border = BorderStroke(0.5.dp, statusColor),
+                                                    modifier = Modifier.padding(end = 6.dp)
+                                                ) {
+                                                    Text(
+                                                        normalizedStatus,
+                                                        color = statusColor,
+                                                        fontSize = 8.5.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                                    )
+                                                }
                                             }
 
                                             Text(title, color = if (!isRead) Color(0xFF0EA5E9) else Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
@@ -428,7 +458,8 @@ fun UserInboxDialog(
                                             timestamp = timestamp,
                                             userName = resolvedUserName,
                                             userUid = userUid,
-                                            userEmail = userEmail
+                                            userEmail = userEmail,
+                                            ticketStatus = normalizedStatus
                                         )
                                     } else {
                                         if (sender.isNotBlank()) {
@@ -457,10 +488,13 @@ fun UserSupportThreadCard(
     timestamp: Long,
     userName: String,
     userUid: String,
-    userEmail: String
+    userEmail: String,
+    ticketStatus: String = "PENDIENTE"
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+
+    var liveStatus by remember(ticketStatus) { mutableStateOf(ticketStatus) }
 
     var conversation by remember(initialConversation, adminReply) {
         mutableStateOf(
@@ -469,25 +503,127 @@ fun UserSupportThreadCard(
                 val local = SupportReplyManager.getConversation(context, reportId)
                 if (local.isNotEmpty()) local
                 else if (adminReply.isNotBlank()) {
-                    listOf(
+                    val parts = adminReply.split("\n\n---\n\n")
+                    parts.mapIndexed { idx, part ->
                         SupportMessageEntry(
+                            id = "${reportId}_adm_$idx",
                             senderName = repliedBy.ifBlank { "Soporte Coach" },
                             senderRole = "SUPPORT",
-                            text = adminReply,
-                            timestampMillis = timestamp,
-                            isGreeting = SupportReplyManager.isDefaultGreeting(adminReply)
+                            text = part.trim(),
+                            timestampMillis = timestamp + (idx * 1000L),
+                            isGreeting = SupportReplyManager.isDefaultGreeting(part.trim())
                         )
-                    )
+                    }
                 } else emptyList()
             }
         )
     }
 
-    // Actualizar con copia local en caso de que el usuario ya haya enviado mensajes
-    LaunchedEffect(reportId) {
-        val local = SupportReplyManager.getConversation(context, reportId)
-        if (local.isNotEmpty() && local.size > conversation.size) {
-            conversation = local
+    // Escucha en tiempo real para sincronización multidispositivo de la conversación y estado del ticket
+    DisposableEffect(reportId, userUid) {
+        val db = FirebaseFirestore.getInstance()
+        val listener = db.collection("support_reports").document(reportId)
+            .addSnapshotListener { snap, err ->
+                if (err == null && snap != null && snap.exists()) {
+                    val rawSt = snap.getString("status") ?: "PENDIENTE"
+                    liveStatus = when (rawSt.uppercase()) {
+                        "SOLVED", "SOLUCIONADO", "RESUELTO" -> "SOLUCIONADO"
+                        "READ", "LEIDO", "LEÍDO" -> "LEÍDO"
+                        else -> "PENDIENTE"
+                    }
+                    val desc = snap.getString("description") ?: snap.getString("content") ?: originalContent
+                    val remoteConv = snap.get("conversation") as? List<Map<String, Any>>
+                    if (!remoteConv.isNullOrEmpty()) {
+                        val parsed = remoteConv.mapNotNull { m ->
+                            val text = m["text"] as? String ?: return@mapNotNull null
+                            SupportMessageEntry(
+                                id = m["id"] as? String ?: UUID.randomUUID().toString(),
+                                senderName = m["senderName"] as? String ?: "Soporte",
+                                senderRole = m["senderRole"] as? String ?: "SUPPORT",
+                                text = text,
+                                timestampMillis = (m["timestampMillis"] as? Number)?.toLong() ?: System.currentTimeMillis(),
+                                isGreeting = (m["isGreeting"] as? Boolean) ?: false
+                            )
+                        }
+                        val hasUserInitial = parsed.any { it.senderRole.equals("USER", ignoreCase = true) && it.text.trim() == desc.trim() }
+                        val fullList = if (!hasUserInitial && desc.isNotBlank()) {
+                            listOf(
+                                SupportMessageEntry(
+                                    id = "${reportId}_initial",
+                                    senderName = userName.ifBlank { "Invocador" },
+                                    senderRole = "USER",
+                                    text = desc,
+                                    timestampMillis = snap.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis(),
+                                    isGreeting = false
+                                )
+                            ) + parsed
+                        } else {
+                            parsed
+                        }
+                        conversation = fullList
+                        SupportReplyManager.saveConversation(context, reportId, fullList)
+                    } else {
+                        // Fallback si no hay array pero sí adminReply acumulado
+                        val admRep = snap.getString("adminReply") ?: snap.getString("lastAdminReply") ?: ""
+                        if (admRep.isNotBlank()) {
+                            val repAt = snap.getTimestamp("repliedAt")?.toDate()?.time ?: System.currentTimeMillis()
+                            val repBy = snap.getString("repliedBy") ?: "Soporte Coach"
+                            val fallbackList = mutableListOf<SupportMessageEntry>()
+                            if (desc.isNotBlank()) {
+                                fallbackList.add(
+                                    SupportMessageEntry(
+                                        id = "${reportId}_initial",
+                                        senderName = userName.ifBlank { "Invocador" },
+                                        senderRole = "USER",
+                                        text = desc,
+                                        timestampMillis = snap.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis(),
+                                        isGreeting = false
+                                    )
+                                )
+                            }
+                            val parts = admRep.split("\n\n---\n\n")
+                            for ((pIdx, part) in parts.withIndex()) {
+                                if (part.isNotBlank()) {
+                                    fallbackList.add(
+                                        SupportMessageEntry(
+                                            id = "${reportId}_adm_$pIdx",
+                                            senderName = repBy,
+                                            senderRole = "SUPPORT",
+                                            text = part.trim(),
+                                            timestampMillis = repAt + (pIdx * 1000L),
+                                            isGreeting = SupportReplyManager.isDefaultGreeting(part.trim())
+                                        )
+                                    )
+                                }
+                            }
+                            conversation = fallbackList
+                            SupportReplyManager.saveConversation(context, reportId, fallbackList)
+                        }
+                    }
+                }
+            }
+
+        // Listener secundario sobre la bandeja del usuario para sincronización cruzada
+        var userListener: com.google.firebase.firestore.ListenerRegistration? = null
+        if (userUid.isNotBlank() && userUid != "anonimo") {
+            userListener = db.collection("users").document(userUid).collection("messages").document(reportId)
+                .addSnapshotListener { uSnap, uErr ->
+                    if (uErr == null && uSnap != null && uSnap.exists()) {
+                        val rawSt = uSnap.getString("status")
+                        if (!rawSt.isNullOrBlank()) {
+                            liveStatus = when (rawSt.uppercase()) {
+                                "SOLVED", "SOLUCIONADO", "RESUELTO" -> "SOLUCIONADO"
+                                "READ", "LEIDO", "LEÍDO" -> "LEÍDO"
+                                else -> "PENDIENTE"
+                            }
+                        }
+                    }
+                }
+        }
+
+        onDispose {
+            listener.remove()
+            userListener?.remove()
         }
     }
 
@@ -593,7 +729,7 @@ fun UserSupportThreadCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Si es SOLO saludo predeterminado
+        // Si hay solo saludo predeterminado, mostrar nota informativa sin bloquear la conversación
         if (isOnlyGreeting) {
             Surface(
                 shape = RoundedCornerShape(6.dp),
@@ -608,13 +744,16 @@ fun UserSupportThreadCard(
                     Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        "Saludo de bienvenida recibido. El equipo de soporte atenderá tu mensaje en breve. (No es posible responder al saludo inicial).",
+                        "Saludo de bienvenida recibido. Puedes escribir aquí abajo para dar seguimiento a tu ticket.",
                         color = Color(0xFFFDE68A),
                         fontSize = 10.5.sp
                     )
                 }
             }
-        } else if (canReply) {
+            Spacer(modifier = Modifier.height(6.dp))
+        }
+
+        if (canReply) {
             // Sección para que el usuario responda
             Surface(
                 shape = RoundedCornerShape(8.dp),

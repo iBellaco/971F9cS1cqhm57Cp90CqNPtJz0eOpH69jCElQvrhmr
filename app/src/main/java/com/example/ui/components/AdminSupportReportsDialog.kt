@@ -63,6 +63,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -124,6 +125,8 @@ data class UnifiedSupportReport(
     val createdAtMillis: Long = System.currentTimeMillis(),
     val rawSupabaseReport: FeedbackReport? = null,
     val isFirestoreDoc: Boolean = false,
+    val firestoreDocId: String? = null,
+    val supabaseId: String? = null,
     val adminReply: String = "",
     val repliedAtMillis: Long = 0L,
     val repliedBy: String = ""
@@ -215,6 +218,8 @@ fun AdminSupportReportsDialog(
                                 createdAtMillis = createdMillis,
                                 rawSupabaseReport = fb,
                                 isFirestoreDoc = false,
+                                firestoreDocId = null,
+                                supabaseId = fb.id,
                                 adminReply = finalReply,
                                 repliedAtMillis = repliedAt,
                                 repliedBy = repliedBy
@@ -238,7 +243,7 @@ fun AdminSupportReportsDialog(
                             for (doc in snapshot.documents) {
                                 val docId = doc.id
                                 val docTitle = doc.getString("title") ?: ""
-                                val existing = combined.find { it.id == docId || (docTitle.isNotBlank() && it.title == docTitle) }
+                                val existing = combined.find { it.id == docId || it.firestoreDocId == docId || (docTitle.isNotBlank() && it.title == docTitle) }
                                 val docReply = doc.getString("adminReply") ?: ""
                                 val docRepliedAt = doc.getTimestamp("repliedAt")?.toDate()?.time ?: 0L
                                 val docRepliedBy = doc.getString("repliedBy") ?: ""
@@ -247,9 +252,19 @@ fun AdminSupportReportsDialog(
                                 val finalRepliedAt = if (docRepliedAt > 0L) docRepliedAt else (localReply?.timestampMillis ?: 0L)
                                 val finalRepliedBy = if (docRepliedBy.isNotBlank()) docRepliedBy else (localReply?.author ?: "Equipo Coach")
 
+                                val rawStatus = doc.getString("status") ?: "PENDIENTE"
+                                val normalizedStatus = when (rawStatus.uppercase()) {
+                                    "SOLVED", "SOLUCIONADO", "RESUELTO" -> FeedbackRepository.STATUS_SOLVED
+                                    "READ", "LEIDO", "LEÍDO" -> FeedbackRepository.STATUS_READ
+                                    else -> FeedbackRepository.STATUS_PENDING
+                                }
+
                                 if (existing != null) {
                                     val idx = combined.indexOf(existing)
                                     combined[idx] = existing.copy(
+                                        firestoreDocId = docId,
+                                        isFirestoreDoc = true,
+                                        status = if (normalizedStatus != FeedbackRepository.STATUS_PENDING) normalizedStatus else existing.status,
                                         adminReply = if (finalReply.isNotBlank()) finalReply else existing.adminReply,
                                         repliedAtMillis = if (finalRepliedAt > 0L) finalRepliedAt else existing.repliedAtMillis,
                                         repliedBy = if (finalRepliedBy.isNotBlank()) finalRepliedBy else existing.repliedBy
@@ -261,12 +276,6 @@ fun AdminSupportReportsDialog(
                                     val userName = doc.getString("userName") ?: ""
                                     @Suppress("UNCHECKED_CAST")
                                     val photos = (doc.get("photos") as? List<String>) ?: emptyList()
-                                    val rawStatus = doc.getString("status") ?: "PENDIENTE"
-                                    val normalizedStatus = when (rawStatus.uppercase()) {
-                                        "SOLVED", "SOLUCIONADO", "RESUELTO" -> FeedbackRepository.STATUS_SOLVED
-                                        "READ", "LEIDO", "LEÍDO" -> FeedbackRepository.STATUS_READ
-                                        else -> FeedbackRepository.STATUS_PENDING
-                                    }
                                     val appVer = doc.getString("appVersion") ?: ""
                                     val dev = doc.getString("device") ?: ""
                                     val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
@@ -274,6 +283,7 @@ fun AdminSupportReportsDialog(
                                     combined.add(
                                         UnifiedSupportReport(
                                             id = docId,
+                                            firestoreDocId = docId,
                                             type = "SOPORTE",
                                             title = docTitle.ifBlank { "Ticket de soporte" },
                                             description = desc,
@@ -287,6 +297,7 @@ fun AdminSupportReportsDialog(
                                             createdAtMillis = ts,
                                             rawSupabaseReport = null,
                                             isFirestoreDoc = true,
+                                            supabaseId = null,
                                             adminReply = finalReply,
                                             repliedAtMillis = finalRepliedAt,
                                             repliedBy = finalRepliedBy
@@ -323,18 +334,105 @@ fun AdminSupportReportsDialog(
                     for (fb in supaList) {
                         val id = fb.id ?: "${fb.title}_${fb.createdAt}"
                         val status = FeedbackRepository.getReportStatus(context, fb)
-                        val existingIdx = reportsList.indexOfFirst { it.id == id }
+                        val existingIdx = reportsList.indexOfFirst { it.id == id || it.supabaseId == id || (fb.title.isNotBlank() && it.title == fb.title) }
                         if (existingIdx != -1) {
-                            if (reportsList[existingIdx].status != status || reportsList[existingIdx].adminReply != fb.adminReply) {
-                                reportsList[existingIdx] = reportsList[existingIdx].copy(
-                                    status = status,
-                                    adminReply = if (!fb.adminReply.isNullOrBlank()) fb.adminReply else reportsList[existingIdx].adminReply
+                            val cur = reportsList[existingIdx]
+                            // Jamás degradar un estado resuelto o leído a pendiente por sondeo pasivo
+                            val shouldUpdateStatus = if (status != FeedbackRepository.STATUS_PENDING) {
+                                cur.status != status
+                            } else false
+                            val shouldUpdateReply = !fb.adminReply.isNullOrBlank() && cur.adminReply.isBlank()
+                            if (shouldUpdateStatus || shouldUpdateReply) {
+                                reportsList[existingIdx] = cur.copy(
+                                    status = if (shouldUpdateStatus) status else cur.status,
+                                    adminReply = if (!fb.adminReply.isNullOrBlank()) fb.adminReply else cur.adminReply
                                 )
                             }
                         }
                     }
                 }
             } catch (_: Exception) {}
+        }
+    }
+
+    // Escucha en tiempo real para sincronización multidispositivo de estados y respuestas
+    DisposableEffect(Unit) {
+        val listenerReg = FirebaseFirestore.getInstance()
+            .collection("support_reports")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .limit(100)
+            .addSnapshotListener { snapshot, error ->
+                if (error == null && snapshot != null) {
+                    for (doc in snapshot.documents) {
+                        val docId = doc.id
+                        val docTitle = doc.getString("title") ?: ""
+                        val rawStatus = doc.getString("status") ?: "PENDIENTE"
+                        val normalizedStatus = when (rawStatus.uppercase()) {
+                            "SOLVED", "SOLUCIONADO", "RESUELTO" -> FeedbackRepository.STATUS_SOLVED
+                            "READ", "LEIDO", "LEÍDO" -> FeedbackRepository.STATUS_READ
+                            else -> FeedbackRepository.STATUS_PENDING
+                        }
+                        val docReply = doc.getString("adminReply") ?: ""
+                        val docRepliedAt = doc.getTimestamp("repliedAt")?.toDate()?.time ?: 0L
+                        val docRepliedBy = doc.getString("repliedBy") ?: ""
+
+                        val existingIdx = reportsList.indexOfFirst { it.id == docId || it.firestoreDocId == docId || (docTitle.isNotBlank() && it.title == docTitle) }
+                        if (existingIdx != -1) {
+                            val cur = reportsList[existingIdx]
+                            val finalReply = if (docReply.isNotBlank()) docReply else cur.adminReply
+                            val finalRepliedAt = if (docRepliedAt > 0L) docRepliedAt else cur.repliedAtMillis
+                            val finalRepliedBy = if (docRepliedBy.isNotBlank()) docRepliedBy else cur.repliedBy
+
+                            if (cur.status != normalizedStatus || cur.adminReply != finalReply || cur.firestoreDocId == null) {
+                                reportsList[existingIdx] = cur.copy(
+                                    status = normalizedStatus,
+                                    adminReply = finalReply,
+                                    repliedAtMillis = finalRepliedAt,
+                                    repliedBy = finalRepliedBy,
+                                    firestoreDocId = docId
+                                )
+                            }
+                        } else {
+                            // Agregar nuevo reporte en tiempo real
+                            val desc = doc.getString("description") ?: ""
+                            val userId = doc.getString("userId") ?: ""
+                            val userEmail = doc.getString("userEmail") ?: ""
+                            val userName = doc.getString("userName") ?: ""
+                            @Suppress("UNCHECKED_CAST")
+                            val photos = (doc.get("photos") as? List<String>) ?: emptyList()
+                            val appVer = doc.getString("appVersion") ?: ""
+                            val dev = doc.getString("device") ?: ""
+                            val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
+                            reportsList.add(
+                                0,
+                                UnifiedSupportReport(
+                                    id = docId,
+                                    firestoreDocId = docId,
+                                    type = "SOPORTE",
+                                    title = docTitle.ifBlank { "Ticket de soporte" },
+                                    description = desc,
+                                    userId = userId,
+                                    userEmail = userEmail,
+                                    userName = userName,
+                                    photosBase64 = photos,
+                                    status = normalizedStatus,
+                                    appVersion = appVer,
+                                    device = dev,
+                                    createdAtMillis = ts,
+                                    rawSupabaseReport = null,
+                                    isFirestoreDoc = true,
+                                    supabaseId = null,
+                                    adminReply = docReply,
+                                    repliedAtMillis = docRepliedAt,
+                                    repliedBy = docRepliedBy
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        onDispose {
+            listenerReg.remove()
         }
     }
 
@@ -369,7 +467,7 @@ fun AdminSupportReportsDialog(
     }
 
     fun updateReportStatus(report: UnifiedSupportReport, newStatus: String) {
-        val idx = reportsList.indexOfFirst { it.id == report.id }
+        val idx = reportsList.indexOfFirst { it.id == report.id || (report.firestoreDocId != null && it.firestoreDocId == report.firestoreDocId) }
         if (idx != -1) {
             reportsList[idx] = reportsList[idx].copy(status = newStatus)
         }
@@ -387,21 +485,19 @@ fun AdminSupportReportsDialog(
             FeedbackRepository.setFeedbackStatus(context, fakeReport, newStatus)
         }
 
-        // 2. Si es de Firestore, intentar actualizar documento
-        if (report.isFirestoreDoc || report.id.isNotBlank()) {
-            coroutineScope.launch {
-                try {
-                    val firestoreStatus = when (newStatus) {
-                        FeedbackRepository.STATUS_SOLVED -> "SOLUCIONADO"
-                        FeedbackRepository.STATUS_READ -> "LEIDO"
-                        else -> "PENDIENTE"
-                    }
-                    FirebaseFirestore.getInstance()
-                        .collection("support_reports")
-                        .document(report.id)
-                        .update("status", firestoreStatus)
-                } catch (_: Exception) {}
-            }
+        // 2. Sincronizar multidispositivo en Firestore, Supabase en la nube y almacenamiento local
+        val effectiveFirestoreId = report.firestoreDocId ?: report.id
+        val effectiveSupabaseId = report.supabaseId ?: report.rawSupabaseReport?.id
+        coroutineScope.launch {
+            SupportReplyManager.updateReportStatus(
+                context = context,
+                reportId = effectiveFirestoreId,
+                newStatus = newStatus,
+                userId = report.userId.takeIf { it.isNotBlank() },
+                userEmail = report.userEmail.takeIf { it.isNotBlank() },
+                reportTitle = report.title,
+                supabaseId = effectiveSupabaseId
+            )
         }
 
         val statusLabel = when (newStatus) {
@@ -768,20 +864,21 @@ fun AdminSupportReportsDialog(
     // Modal para responder al mensaje de soporte
     if (reportToReply != null) {
         val targetReport = reportToReply!!
+        val effectiveReportId = targetReport.firestoreDocId ?: targetReport.id
         SupportReplyDialog(
-            reportId = targetReport.id,
+            reportId = effectiveReportId,
             reportTitle = targetReport.title,
             reportDescription = targetReport.description,
             userEmail = targetReport.userEmail,
             userName = targetReport.userName,
             initialReply = initialReplyText,
-            isFirestoreDoc = targetReport.isFirestoreDoc,
+            isFirestoreDoc = targetReport.isFirestoreDoc || targetReport.firestoreDocId != null,
             onDismiss = {
                 reportToReply = null
                 initialReplyText = ""
             },
             onReplySent = { replyText, markedAsRead ->
-                val idx = reportsList.indexOfFirst { it.id == targetReport.id }
+                val idx = reportsList.indexOfFirst { it.id == targetReport.id || it.firestoreDocId == effectiveReportId }
                 if (idx != -1) {
                     val updatedStatus = if (markedAsRead) FeedbackRepository.STATUS_READ else reportsList[idx].status
                     val existing = reportsList[idx].adminReply
@@ -793,10 +890,12 @@ fun AdminSupportReportsDialog(
                     reportsList[idx] = reportsList[idx].copy(
                         adminReply = finalReply,
                         repliedAtMillis = System.currentTimeMillis(),
-                        status = updatedStatus
+                        status = updatedStatus,
+                        firestoreDocId = effectiveReportId,
+                        isFirestoreDoc = true
                     )
+                    reportToReply = reportsList[idx]
                 }
-                reportToReply = null
                 initialReplyText = ""
             }
         )

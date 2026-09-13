@@ -196,18 +196,28 @@ object DraftValidationLayer {
             lower.contains("carril del baron") || lower.contains("carril del barón") ||
             lower.contains("carril de baron") || lower.contains("carril de barón") ||
             lower.contains("carril baron") || lower.contains("carril barón") ||
+            lower.contains("linea del baron") || lower.contains("linea del barón") ||
+            lower.contains("linea de baron") || lower.contains("linea de barón") ||
+            lower.contains("linea baron") || lower.contains("linea barón") ||
             lower.contains("carril superior") || lower.contains("calle superior") ||
+            lower.contains("linea superior") || lower.contains("carril solo") ||
+            lower.contains("calle solo") || lower.contains("linea solo") ||
             lower.contains("baron lane") || lower.contains("rota de barao") ||
-            lower.contains("rota de barão") || lower.contains("solo lane")) {
+            lower.contains("rota do barao") || lower.contains("rota de barão") ||
+            lower.contains("rota do barão") || lower.contains("rota do topo") ||
+            lower.contains("rota solo") || lower.contains("solo lane")) {
             return LaneRole.TOP
         }
 
         // MID
         if (lower.contains("calle central") || lower.contains("carril central") ||
-            lower.contains("calle medio") || lower.contains("carril medio") ||
+            lower.contains("linea central") || lower.contains("calle medio") ||
+            lower.contains("carril medio") || lower.contains("linea medio") ||
             lower.contains("calle de enmedio") || lower.contains("calle de en medio") ||
+            lower.contains("linea de enmedio") || lower.contains("linea de en medio") ||
+            lower.contains("carril de enmedio") || lower.contains("carril de en medio") ||
             lower.contains("mid lane") || lower.contains("rota do meio") ||
-            lower.contains("middle lane")) {
+            lower.contains("rota central") || lower.contains("middle lane")) {
             return LaneRole.MID
         }
 
@@ -218,25 +228,35 @@ object DraftValidationLayer {
             lower.contains("carril del dragon") || lower.contains("carril del dragón") ||
             lower.contains("carril de dragon") || lower.contains("carril de dragón") ||
             lower.contains("carril dragon") || lower.contains("carril dragón") ||
+            lower.contains("linea del dragon") || lower.contains("linea del dragón") ||
+            lower.contains("linea de dragon") || lower.contains("linea de dragón") ||
+            lower.contains("linea dragon") || lower.contains("linea dragón") ||
             lower.contains("calle duo") || lower.contains("calle dúo") ||
             lower.contains("carril duo") || lower.contains("carril dúo") ||
+            lower.contains("linea duo") || lower.contains("linea dúo") ||
             lower.contains("duo lane") || lower.contains("dragon lane") ||
             lower.contains("rota do dragao") || lower.contains("rota do dragão") ||
-            lower.contains("carril bot") || lower.contains("calle bot") ||
+            lower.contains("rota duo") || lower.contains("carril bot") ||
+            lower.contains("calle bot") || lower.contains("linea bot") ||
             lower.contains("bot lane")) {
             return LaneRole.ADC
         }
 
         // SUPPORT / APOYO
         if (lower.contains("apoyo") || lower.contains("soporte") ||
-            lower.contains("suporte") || lower.contains("support")) {
+            lower.contains("suporte") || lower.contains("support") ||
+            lower.contains("rota suporte") || lower.contains("carril apoyo") ||
+            lower.contains("linea apoyo") || lower.contains("carril soporte") ||
+            lower.contains("linea soporte")) {
             return LaneRole.SUPPORT
         }
 
         // JUNGLA
         if (lower.contains("jungla") || lower.contains("jungle") ||
             lower.contains("cacador") || lower.contains("caçador") ||
-            lower.contains("selva")) {
+            lower.contains("selva") || lower.contains("carril jungla") ||
+            lower.contains("linea jungla") || lower.contains("rota selva") ||
+            lower.contains("rota caçador") || lower.contains("rota cacador")) {
             return LaneRole.JUNGLE
         }
 
@@ -244,7 +264,7 @@ object DraftValidationLayer {
         val tokens = lower.split(Regex("[\\s,.:;\\-_/()]+")).filter { it.isNotBlank() }
         for (token in tokens) {
             when (token) {
-                "baron", "barao", "barão", "top", "solo" -> return LaneRole.TOP
+                "baron", "barao", "barão", "top", "solo", "topo", "superior" -> return LaneRole.TOP
                 "jungla", "jungle", "cacador", "caçador", "selva", "jg" -> return LaneRole.JUNGLE
                 "mid", "medio", "meio", "central" -> return LaneRole.MID
                 "adc", "duo", "dúo", "dragon", "dragón", "dragao", "dragão", "tirador", "atirador", "bot" -> return LaneRole.ADC

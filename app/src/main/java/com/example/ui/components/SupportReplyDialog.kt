@@ -72,36 +72,79 @@ fun SupportReplyDialog(
         mutableStateOf(SupportReplyManager.getConversation(context, reportId))
     }
 
-    // Consultar el nombre exacto del usuario y el historial desde Firestore
-    LaunchedEffect(reportId, userEmail) {
-        try {
-            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-            val docSnap = db.collection("support_reports").document(reportId).get().await()
-            if (docSnap.exists()) {
-                val dbUser = docSnap.getString("userName") ?: docSnap.getString("displayName") ?: ""
-                if (dbUser.isNotBlank() && !dbUser.contains("@") && resolvedUserName.isBlank()) {
-                    resolvedUserName = dbUser.trim()
-                }
+    // Inicializar con mensaje inicial del usuario si la conversación no lo tiene
+    LaunchedEffect(reportId, reportDescription) {
+        if (conversationMessages.none { it.senderRole.equals("USER", ignoreCase = true) } && reportDescription.isNotBlank()) {
+            val initial = com.example.data.SupportMessageEntry(
+                id = "${reportId}_initial",
+                senderName = resolvedUserName.ifBlank { "Invocador" },
+                senderRole = "USER",
+                text = reportDescription,
+                timestampMillis = System.currentTimeMillis(),
+                isGreeting = false
+            )
+            val merged = listOf(initial) + conversationMessages
+            conversationMessages = merged
+            SupportReplyManager.saveConversation(context, reportId, merged)
+        }
+    }
 
-                // Cargar mensajes de conversación si existen en Firestore
-                val remoteConv = docSnap.get("conversation") as? List<Map<String, Any>>
-                if (!remoteConv.isNullOrEmpty()) {
-                    val parsed = remoteConv.map { item ->
-                        com.example.data.SupportMessageEntry(
-                            id = item["id"] as? String ?: java.util.UUID.randomUUID().toString(),
-                            senderName = item["senderName"] as? String ?: "Soporte",
-                            senderRole = item["senderRole"] as? String ?: "SUPPORT",
-                            text = item["text"] as? String ?: "",
-                            timestampMillis = (item["timestampMillis"] as? Number)?.toLong() ?: System.currentTimeMillis(),
-                            isGreeting = (item["isGreeting"] as? Boolean) ?: false
-                        )
+    // Escuchar en tiempo real cambios en el ticket (para ver nuevas respuestas del usuario o de otros administradores al instante)
+    DisposableEffect(reportId) {
+        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+        val listenerReg = db.collection("support_reports").document(reportId)
+            .addSnapshotListener { snapshot, error ->
+                if (error == null && snapshot != null && snapshot.exists()) {
+                    val dbUser = snapshot.getString("userName") ?: snapshot.getString("displayName") ?: ""
+                    if (dbUser.isNotBlank() && !dbUser.contains("@") && resolvedUserName.isBlank()) {
+                        resolvedUserName = dbUser.trim()
                     }
-                    conversationMessages = parsed
-                    SupportReplyManager.saveConversation(context, reportId, parsed)
+
+                    val desc = snapshot.getString("description") ?: snapshot.getString("content") ?: reportDescription
+                    val remoteConv = snapshot.get("conversation") as? List<Map<String, Any>>
+                    val parsed = if (!remoteConv.isNullOrEmpty()) {
+                        remoteConv.mapNotNull { item ->
+                            val text = item["text"] as? String ?: return@mapNotNull null
+                            com.example.data.SupportMessageEntry(
+                                id = item["id"] as? String ?: java.util.UUID.randomUUID().toString(),
+                                senderName = item["senderName"] as? String ?: "Soporte",
+                                senderRole = item["senderRole"] as? String ?: "SUPPORT",
+                                text = text,
+                                timestampMillis = (item["timestampMillis"] as? Number)?.toLong() ?: System.currentTimeMillis(),
+                                isGreeting = (item["isGreeting"] as? Boolean) ?: false
+                            )
+                        }
+                    } else emptyList()
+
+                    val hasUserInitial = parsed.any { it.senderRole.equals("USER", ignoreCase = true) && it.text.trim() == desc.trim() }
+                    val fullList = if (!hasUserInitial && desc.isNotBlank()) {
+                        listOf(
+                            com.example.data.SupportMessageEntry(
+                                id = "${reportId}_initial",
+                                senderName = resolvedUserName.ifBlank { "Invocador" },
+                                senderRole = "USER",
+                                text = desc,
+                                timestampMillis = snapshot.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis(),
+                                isGreeting = false
+                            )
+                        ) + parsed
+                    } else {
+                        parsed
+                    }
+                    conversationMessages = fullList
+                    SupportReplyManager.saveConversation(context, reportId, fullList)
                 }
             }
 
-            // Si aún no tenemos el nombre exacto, buscar en la colección de usuarios por email
+        onDispose {
+            listenerReg.remove()
+        }
+    }
+
+    // Consultar el nombre exacto del usuario por email si aún no lo tenemos
+    LaunchedEffect(reportId, userEmail) {
+        try {
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
             if (resolvedUserName.isBlank() && userEmail.isNotBlank()) {
                 val userDocs = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
                 if (!userDocs.isEmpty) {
@@ -132,11 +175,21 @@ fun SupportReplyDialog(
         )
     }
 
-    var replyText by remember { mutableStateOf(initialReply.ifBlank { "" }) }
+    val hasPriorSupportReply = remember(conversationMessages) {
+        conversationMessages.any { it.senderRole.equals("SUPPORT", ignoreCase = true) }
+    }
 
-    // Actualizar plantilla por defecto cuando se resuelve el nombre si no ha escrito nada
-    LaunchedEffect(displayUserName) {
-        if (replyText.isBlank() || replyText.startsWith("👋 Hola")) {
+    var replyText by remember {
+        mutableStateOf(
+            if (initialReply.isNotBlank()) initialReply
+            else if (!hasPriorSupportReply) quickTemplates[0]
+            else ""
+        )
+    }
+
+    // Solo sugerir plantilla de bienvenida inicial si NO hay respuestas previas del equipo y no hay texto
+    LaunchedEffect(displayUserName, hasPriorSupportReply) {
+        if (!hasPriorSupportReply && (replyText.isBlank() || replyText.startsWith("👋 Hola"))) {
             replyText = quickTemplates[0]
         }
     }
@@ -525,6 +578,18 @@ fun SupportReplyDialog(
                             }
                         }
 
+                        // Botón para cerrar el diálogo al terminar
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            modifier = Modifier
+                                .height(42.dp),
+                            border = BorderStroke(1.dp, TextMuted.copy(alpha = 0.5f)),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp)
+                        ) {
+                            Text("Cerrar", color = TextMuted, fontSize = 11.5.sp)
+                        }
+
                         // Botón de guardar y enviar respuesta (permite seguir mandando mensajes)
                         Button(
                             onClick = {
@@ -550,7 +615,7 @@ fun SupportReplyDialog(
                                     val updatedConv = SupportReplyManager.getConversation(context, reportId)
                                     conversationMessages = updatedConv
                                     replyText = "" // Dejar campo listo para enviar más mensajes
-                                    Toast.makeText(context, "Mensaje enviado al usuario exitosamente", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Mensaje enviado exitosamente. Puedes seguir respondiendo.", Toast.LENGTH_SHORT).show()
                                     onReplySent(cleanText, markAsRead)
                                 }
                             },

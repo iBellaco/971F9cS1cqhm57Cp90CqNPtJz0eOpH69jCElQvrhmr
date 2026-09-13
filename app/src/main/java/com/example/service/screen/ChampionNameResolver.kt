@@ -11,16 +11,19 @@ object ChampionNameResolver {
     // Palabras reservadas de la UI de Wild Rift que nunca deben confundirse con campeones
     private val UI_IGNORE_WORDS = setOf(
         "jugador", "player", "jogador", "draft", "coach", "tier", "tiers", "champs", "campeon", "campeones",
+        "campeao", "campeões", "champion", "champions",
         "equipo", "aliado", "aliados", "enemigo", "enemigos", "rival", "rivales", "victoria", "derrota", "carril", "baron", "barón", "central", "medio",
         "jungla", "duo", "dúo", "soporte", "apoyo", "tirador", "marca", "estelar", "eterna", "maestria", "maestría",
         "nivel", "combatanos", "combatamos", "juntos", "bloquear", "elegir", "seleccion", "selección", "eleccion", "elección", "fase",
+        "preseleccion", "preselección", "pre-seleccion", "eligiendo", "esperando", "seleccionando", "escolhendo", "aguardando",
+        "selecting", "choosing", "waiting", "bloqueando", "banning", "swap", "cambiar", "trocar", "orden", "turno",
         "ban", "bans", "auto", "scan", "activo", "asistente", "detener", "ajustes", "ajuste", "versus", "vs",
         "tarjeta", "aumento", "usó", "uso", "excelente", "composicion", "composición", "oponentes", "buscando",
         "primera", "segunda", "escolha", "selecao", "seleção", "pick", "picks",
         "destello", "flash", "castigo", "smite", "ignicion", "ignición", "ignite", "prender", "incendiar",
         "curacion", "curación", "cura", "heal", "barrera", "barrier", "extenuacion", "extenuación", "exaustao",
         "exaustão", "exhaust", "fantasmal", "fantasma", "ghost", "claridad", "teletransporte", "teleport",
-        "hechizo", "hechizos", "feitiço", "feitiços", "spells", "spell"
+        "hechizo", "hechizos", "feitiço", "feitiços", "spells", "spell", "tu", "tú", "you", "voce", "você", "yo", "eu"
     )
 
     // Mapa exhaustivo de nombres de Wild Rift a sus IDs canónicos

@@ -1097,7 +1097,7 @@ private fun FloatingOverlayContent(
                                         }
                                     } else if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
                                         scanNoticeMessage = "🎯 10º Pick por Imagen: ${result.lastPickChampion.name}"
-                                    } else if (!state.isRoleManuallySelected && result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
+                                    } else if (result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
                                         activeRole = result.userExplicitlyDetectedRole
                                         com.example.util.UserPreferences.setActiveDraftRole(context, result.userExplicitlyDetectedRole)
                                         scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.userExplicitlyDetectedRole.shortName})"

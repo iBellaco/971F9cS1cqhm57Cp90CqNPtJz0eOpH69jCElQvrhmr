@@ -459,7 +459,7 @@ object DraftVisionScanner {
             var autonomousUserSlot = -1
             try {
                 // Exploramos el borde izquierdo y el area del avatar (aprox 12% del ancho) buscando pixeles dorados de Wild Rift
-                val searchMarginX = (width * 0.03f).toInt().coerceAtLeast(1)
+                val searchMarginX = (width * 0.12f).toInt().coerceAtLeast(1)
                 
                 // Mantenemos un conteo de pixeles dorados por slot
                 val goldCounts = IntArray(5)
@@ -470,7 +470,7 @@ object DraftVisionScanner {
                     val yBottom = (yCenter + height * 0.05f).toInt().coerceAtMost(height - 1)
                     
                     var yellowPixels = 0
-                    val step = 3
+                    val step = 2
                     for (y in yTop..yBottom step step) {
                         for (x in 0..searchMarginX step step) {
                             val px = bitmap.getPixel(x, y)
@@ -478,7 +478,7 @@ object DraftVisionScanner {
                             val g = android.graphics.Color.green(px)
                             val b = android.graphics.Color.blue(px)
                             // Tolerancia estricta para el Dorado de la UI de Wild Rift (Rojo/Verde altos, Azul bajo)
-                            if (r > 160 && g > 130 && b < 100 && r > b * 1.5f && g > b * 1.2f) {
+                            if (r > 150 && g > 120 && b < 110 && r > b * 1.4f && g > b * 1.15f) {
                                 yellowPixels++
                             }
                         }
@@ -1084,6 +1084,8 @@ object DraftVisionScanner {
             total == 0 && allySummonerNamesCache.isNotEmpty() -> "Invocadores aliados detectados (${allySummonerNamesCache.size}/5)"
             total == 0 -> "Esperando selección en directo..."
             isLastPickVisualRecognized -> "10/10 Completo • 10º Pick detectado por imagen (${lastPickVisualChampion?.name})"
+            total == 9 -> "9/10 picks detectados con certeza (esperando último pick)"
+            total in 1..8 -> "$total/10 picks detectados con certeza"
             auditList.isNotEmpty() -> "Detectados: $total picks (${auditList.size} adaptaciones)"
             else -> "Detectados: $total picks con certeza"
         }
@@ -1112,7 +1114,7 @@ object DraftVisionScanner {
             enemiesByRole = finalEnemiesMap,
             enemyConfidencesByRole = enemyConfidences,
             detectedRole = userDetectedLane,
-            userExplicitlyDetectedRole = if (userExplicitlyConfirmed) userDetectedLane else null,
+            userExplicitlyDetectedRole = userDetectedLane,
             detectedFirstPick = detectedFirstPick,
             isLastPickImageRecognized = isLastPickVisualRecognized,
             isLastPickConfirmed = isLastPickConfirmedValue,

@@ -10,6 +10,7 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -187,6 +188,13 @@ object FeedbackRepository {
         }
         editor.putStringSet(KEY_COMPLETED_IDS, currentSet)
         editor.apply()
+
+        // Sincronizar en la nube en segundo plano si hay un ID disponible
+        if (!id.isNullOrBlank()) {
+            kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                updateFeedbackStatusInCloud(id, newStatus)
+            }
+        }
     }
 
     /**
