@@ -314,17 +314,12 @@ fun AvatarSelectionBottomSheet(
                             )
                         }
                         Spacer(modifier = Modifier.width(6.dp))
-                        TextButton(
+                        HextechAnimatedTextLink(
+                            text = tr("Ver Planes"),
                             onClick = onOpenPremiumPlans,
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                        ) {
-                            Text(
-                                text = tr("Ver Planes"),
-                                color = HextechGoldLight,
-                                fontSize = 11.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                            color = HextechGoldLight,
+                            fontSize = 11.5.sp
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -588,11 +583,14 @@ fun AvatarSelectionBottomSheet(
                                     textAlign = TextAlign.Center
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Button(
+                                HextechAnimatedButton(
                                     onClick = onOpenPremiumPlans,
-                                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = Color.Black)
+                                    backgroundColor = HextechGold,
+                                    borderColor = HextechCyan,
+                                    glowColor = HextechGold,
+                                    enableShimmer = true
                                 ) {
-                                    Text("Ver Planes Premium", fontWeight = FontWeight.Bold)
+                                    Text("Ver Planes Premium", color = HextechDarkBg, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -725,13 +723,16 @@ fun AvatarSelectionBottomSheet(
                 }
             },
             confirmButton = {
-                Button(
+                HextechAnimatedButton(
                     onClick = {
                         showPremiumRequiredDialog = null
                         onDismiss()
                         onOpenPremiumPlans()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    backgroundColor = HextechGold,
+                    borderColor = HextechCyan,
+                    glowColor = HextechGold,
+                    enableShimmer = true,
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(Icons.Default.Diamond, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
@@ -740,9 +741,11 @@ fun AvatarSelectionBottomSheet(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showPremiumRequiredDialog = null }) {
-                    Text(tr("Cerrar"), color = TextSecondary)
-                }
+                HextechAnimatedTextLink(
+                    text = tr("Cerrar"),
+                    onClick = { showPremiumRequiredDialog = null },
+                    color = TextSecondary
+                )
             }
         )
     }

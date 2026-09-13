@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.SupportAgent
 import androidx.compose.material.icons.filled.Campaign
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 
@@ -289,14 +290,13 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             ) {
                 // Top-Left: Inbox button
                 val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(activeTheme.surfaceVariant)
-                        .border(1.dp, if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder, CircleShape)
-                        .clickable { showInboxDialog = true },
-                    contentAlignment = Alignment.Center
+                com.example.ui.components.HextechAnimatedIconButton(
+                    onClick = { showInboxDialog = true },
+                    size = 46.dp,
+                    backgroundColor = activeTheme.surfaceVariant,
+                    borderColor = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder,
+                    glowColor = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.primary,
+                    enablePulse = unreadCount > 0
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
@@ -308,24 +308,23 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         if (unreadCount > 0) {
                             Box(
                                 modifier = Modifier
-                                    .size(8.dp)
+                                    .size(9.dp)
                                     .align(Alignment.TopEnd)
                                     .clip(CircleShape)
                                     .background(DangerRed)
+                                    .border(1.dp, activeTheme.surfaceVariant, CircleShape)
                             )
                         }
                     }
                 }
 
                 // Top-Right: History button
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(activeTheme.surfaceVariant)
-                        .border(1.dp, activeTheme.cardBorder, CircleShape)
-                        .tactileClickable { showHistoryDialog = true },
-                    contentAlignment = Alignment.Center
+                com.example.ui.components.HextechAnimatedIconButton(
+                    onClick = { showHistoryDialog = true },
+                    size = 40.dp,
+                    backgroundColor = activeTheme.surfaceVariant,
+                    borderColor = activeTheme.cardBorder,
+                    glowColor = activeTheme.secondary
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -343,7 +342,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 subtitle = "Sesión iniciada correctamente"
             )
             
-            var showInboxDialog by remember { mutableStateOf(false) }
             var showBuyEssenceDialog by remember { mutableStateOf(false) }
 
             if (showInboxDialog) {
@@ -835,21 +833,24 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        com.example.ui.components.AnimatedTactileButton(
+                        com.example.ui.components.HextechAnimatedButton(
                             onClick = {
                                 essenceBounce = true
                                 showBuyEssenceDialog = true
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = activeTheme.secondary),
-                            modifier = Modifier.height(34.dp),
+                            backgroundColor = activeTheme.secondary,
+                            borderColor = activeTheme.primary,
+                            glowColor = activeTheme.secondary,
+                            modifier = Modifier.height(36.dp),
                             shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                            enableShimmer = true,
                             scaleDown = 0.90f
                         ) {
                             Text(
                                 text = "Comprar",
                                 color = activeTheme.background,
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.ExtraBold
                             )
                         }
@@ -893,34 +894,31 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             fontSize = 11.5.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        val renewInteractionSource = remember { MutableInteractionSource() }
-                        val renewPressed by renewInteractionSource.collectIsPressedAsState()
-                        val renewScale by animateFloatAsState(
-                            targetValue = if (renewPressed) 0.95f else 1f,
-                            animationSpec = spring(
-                                dampingRatio = Spring.DampingRatioMediumBouncy,
-                                stiffness = Spring.StiffnessLow
-                            ),
-                            label = "renewBtnScale"
-                        )
-                        com.example.ui.components.AnimatedTactileButton(
+                        com.example.ui.components.HextechAnimatedButton(
                             onClick = { showPlansDialog = true },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = com.example.ui.theme.DangerRed,
-                                contentColor = androidx.compose.ui.graphics.Color.White
-                            ),
+                            backgroundColor = com.example.ui.theme.DangerRed,
+                            borderColor = com.example.ui.theme.HextechGold,
+                            glowColor = com.example.ui.theme.DangerRed,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(36.dp),
-                            shape = RoundedCornerShape(6.dp),
-                            contentPadding = PaddingValues(0.dp)
+                                .height(42.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            enableShimmer = true,
+                            enablePulse = true,
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                         ) {
-                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(15.dp))
+                            Icon(
+                                Icons.Default.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                                tint = androidx.compose.ui.graphics.Color.White
+                            )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 "Renovar / Extender Suscripción",
-                                fontSize = 11.5.sp,
-                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                fontSize = 12.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                color = androidx.compose.ui.graphics.Color.White
                             )
                         }
                     }
@@ -930,30 +928,35 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(10.dp))
             
             // Animated button for Plans
-            com.example.ui.components.AnimatedTactileButton(
+            com.example.ui.components.HextechAnimatedButton(
                 onClick = { showPlansDialog = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = activeTheme.primary.copy(alpha = 0.12f),
-                    contentColor = activeTheme.primary
+                backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                    listOf(
+                        activeTheme.primary.copy(alpha = 0.22f),
+                        activeTheme.secondary.copy(alpha = 0.22f)
+                    )
                 ),
-                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.6f)),
+                borderColor = activeTheme.primary,
+                glowColor = activeTheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(44.dp),
-                shape = RoundedCornerShape(10.dp)
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+                enableShimmer = true,
+                enablePulse = true
             ) {
                 Icon(
                     imageVector = Icons.Default.LocalActivity,
                     contentDescription = null,
                     tint = activeTheme.primary,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = if (isPremium) "Planes / Pase" else "Ver Planes Pro",
                     color = activeTheme.primary,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                    fontSize = 12.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                    fontSize = 13.sp,
                     maxLines = 1
                 )
             }
@@ -969,7 +972,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             Spacer(modifier = Modifier.height(14.dp))
             
             if (userRole == "admin" || userRole == "moderador") {
-                com.example.ui.components.AnimatedTactileButton(
+                com.example.ui.components.HextechAnimatedButton(
                     onClick = {
                         if (userRole == "admin") {
                             showAdminDashboard = true
@@ -977,21 +980,31 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             showSupportPanel = true
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = if (userRole == "admin") com.example.ui.theme.DangerRed else com.example.ui.theme.HextechCyan),
+                    backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        if (userRole == "admin") {
+                            listOf(com.example.ui.theme.DangerRed, Color(0xFFB91C1C))
+                        } else {
+                            listOf(com.example.ui.theme.HextechCyan, com.example.ui.theme.HextechBlue)
+                        }
+                    ),
+                    borderColor = com.example.ui.theme.HextechGold,
+                    glowColor = if (userRole == "admin") com.example.ui.theme.DangerRed else com.example.ui.theme.HextechCyan,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enableShimmer = true,
+                    enablePulse = true
                 ) {
                     Icon(
                         imageVector = if (userRole == "admin") Icons.Default.AdminPanelSettings else Icons.Default.SupportAgent,
                         contentDescription = null,
-                        tint = com.example.ui.theme.HextechDarkBg
+                        tint = if (userRole == "admin") Color.White else com.example.ui.theme.HextechDarkBg
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = if (userRole == "admin") "Panel de Administración" else "Panel de Soporte",
-                        color = com.example.ui.theme.HextechDarkBg,
+                        color = if (userRole == "admin") Color.White else com.example.ui.theme.HextechDarkBg,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                     )
                 }
@@ -999,31 +1012,46 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
 
             if (userRole == "patrocinador") {
-                com.example.ui.components.AnimatedTactileButton(
+                com.example.ui.components.HextechAnimatedButton(
                     onClick = { showSponsorPanel = true },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF97316)),
+                    backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                        listOf(Color(0xFFF97316), Color(0xFFEA580C))
+                    ),
+                    borderColor = com.example.ui.theme.HextechGold,
+                    glowColor = Color(0xFFF97316),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enableShimmer = true,
+                    enablePulse = true
                 ) {
-                    Icon(Icons.Default.Campaign, contentDescription = null, tint = com.example.ui.theme.HextechDarkBg)
+                    Icon(Icons.Default.Campaign, contentDescription = null, tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Panel de Anuncios CPM (Patrocinador)", color = com.example.ui.theme.HextechDarkBg, fontWeight = FontWeight.Bold)
+                    Text("Panel de Anuncios CPM (Patrocinador)", color = Color.White, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
             
-            com.example.ui.components.AnimatedTactileButton(
+            com.example.ui.components.HextechAnimatedOutlinedButton(
                 onClick = onSignOut,
-                colors = ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechSurfaceVariant),
+                backgroundColor = com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f),
+                borderColor = DangerRed.copy(alpha = 0.65f),
+                glowColor = DangerRed,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(46.dp),
+                    .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.35f))
+                scaleDown = 0.92f
             ) {
-                Text("Cerrar Sesión", color = DangerRed, fontWeight = FontWeight.SemiBold)
+                Icon(
+                    imageVector = Icons.Default.ExitToApp,
+                    contentDescription = null,
+                    tint = DangerRed,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Cerrar Sesión", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
     }

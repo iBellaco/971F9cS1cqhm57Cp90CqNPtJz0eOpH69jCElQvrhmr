@@ -98,8 +98,14 @@ fun BlueEssenceStoreDialog(
                             Text("Saldo: ${prof.blueEssence} EA", color = HextechCyan, fontSize = 13.sp)
                         }
                     }
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                    HextechAnimatedIconButton(
+                        onClick = onDismiss,
+                        size = 32.dp,
+                        backgroundColor = Color.Transparent,
+                        borderColor = Color.Transparent,
+                        glowColor = HextechGold
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted, modifier = Modifier.size(18.dp))
                     }
                 }
                 
@@ -269,7 +275,7 @@ fun BlueEssenceStoreDialog(
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(desc, color = TextMuted, fontSize = 11.sp)
                                         Spacer(modifier = Modifier.height(10.dp))
-                                        Button(
+                                        HextechAnimatedButton(
                                             onClick = {
                                                 val success = AccountProfileManager.spendBlueEssence(context, profileId, cost)
                                                 if (success) {
@@ -284,9 +290,12 @@ fun BlueEssenceStoreDialog(
                                                     Toast.makeText(context, "Esencias Azules insuficientes (Necesitas $cost EA)", Toast.LENGTH_SHORT).show()
                                                 }
                                             },
-                                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                                            modifier = Modifier.fillMaxWidth().height(36.dp),
-                                            shape = RoundedCornerShape(8.dp)
+                                            backgroundColor = HextechGold,
+                                            borderColor = HextechCyan,
+                                            glowColor = HextechGold,
+                                            modifier = Modifier.fillMaxWidth().height(38.dp),
+                                            shape = RoundedCornerShape(8.dp),
+                                            enableShimmer = true
                                         ) {
                                             Text("Canjear con Esencias Azules", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                         }

@@ -106,8 +106,14 @@ fun ThemeCustomizationBottomSheet(
                         )
                     }
                 }
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted)
+                HextechAnimatedIconButton(
+                    onClick = onDismiss,
+                    size = 32.dp,
+                    backgroundColor = Color.Transparent,
+                    borderColor = Color.Transparent,
+                    glowColor = HextechGold
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted, modifier = Modifier.size(18.dp))
                 }
             }
 
@@ -491,13 +497,16 @@ fun ThemeCustomizationBottomSheet(
                 }
             },
             confirmButton = {
-                Button(
+                HextechAnimatedButton(
                     onClick = {
                         showPremiumRequiredDialog = false
                         onOpenPremiumPlans()
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                    shape = RoundedCornerShape(10.dp)
+                    backgroundColor = HextechGold,
+                    borderColor = HextechCyan,
+                    glowColor = HextechGold,
+                    shape = RoundedCornerShape(10.dp),
+                    enableShimmer = true
                 ) {
                     Icon(
                         Icons.Default.Star,
@@ -515,9 +524,12 @@ fun ThemeCustomizationBottomSheet(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showPremiumRequiredDialog = false }) {
-                    Text(tr("Entendido"), color = TextMuted)
-                }
+                HextechAnimatedTextLink(
+                    text = tr("Entendido"),
+                    onClick = { showPremiumRequiredDialog = false },
+                    color = TextMuted,
+                    fontSize = 13.sp
+                )
             },
             containerColor = HextechSurface,
             shape = RoundedCornerShape(16.dp),
@@ -778,18 +790,16 @@ private fun RegionVisualPreviewGridCard(
                             }
                         }
 
-                        Button(
+                        HextechAnimatedButton(
                             onClick = onApply,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isApplied) inspectedTheme.surfaceVariant else inspectedTheme.primary
-                            ),
-                            border = BorderStroke(
-                                1.dp,
-                                if (isApplied) inspectedTheme.secondary else inspectedTheme.primaryGlow
-                            ),
+                            backgroundColor = if (isApplied) inspectedTheme.surfaceVariant else inspectedTheme.primary,
+                            borderColor = if (isApplied) inspectedTheme.secondary else inspectedTheme.primaryGlow,
+                            glowColor = if (isApplied) inspectedTheme.secondary else inspectedTheme.primary,
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                            modifier = Modifier.height(32.dp)
+                            modifier = Modifier.height(34.dp),
+                            scaleDown = 0.92f,
+                            enableShimmer = !isApplied
                         ) {
                             if (isApplied) {
                                 Icon(

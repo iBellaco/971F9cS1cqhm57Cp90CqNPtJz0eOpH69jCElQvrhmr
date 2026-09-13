@@ -104,9 +104,12 @@ fun SubscriptionHistoryDialog(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(
+                        HextechAnimatedIconButton(
                             onClick = { loadHistory() },
-                            modifier = Modifier.size(32.dp)
+                            size = 32.dp,
+                            backgroundColor = Color.Transparent,
+                            borderColor = Color.Transparent,
+                            glowColor = HextechCyan
                         ) {
                             Icon(
                                 Icons.Default.Refresh,
@@ -116,15 +119,18 @@ fun SubscriptionHistoryDialog(
                             )
                         }
                         Spacer(modifier = Modifier.width(4.dp))
-                        IconButton(
+                        HextechAnimatedIconButton(
                             onClick = onDismiss,
-                            modifier = Modifier.size(32.dp)
+                            size = 32.dp,
+                            backgroundColor = Color.Transparent,
+                            borderColor = Color.Transparent,
+                            glowColor = HextechGold
                         ) {
                             Icon(
                                 Icons.Default.Close,
                                 contentDescription = "Cerrar",
                                 tint = TextSecondary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -241,14 +247,14 @@ fun SubscriptionHistoryDialog(
                                 modifier = Modifier.padding(horizontal = 20.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
-                            OutlinedButton(
+                            HextechAnimatedOutlinedButton(
                                 onClick = { loadHistory() },
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
-                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                                borderColor = HextechCyan,
+                                glowColor = HextechCyan
                             ) {
-                                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Refresh, tint = HextechCyan, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Reintentar búsqueda", fontSize = 12.sp)
+                                Text("Reintentar búsqueda", color = HextechCyan, fontSize = 12.sp)
                             }
                         }
                     }

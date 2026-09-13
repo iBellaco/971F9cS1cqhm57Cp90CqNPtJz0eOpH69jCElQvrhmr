@@ -149,33 +149,15 @@ class ScreenCaptureManager(private val context: Context) {
                 val captureWidth = maxOf(screenWidth, screenHeight).coerceAtLeast(1280)
                 val captureHeight = minOf(screenWidth, screenHeight).coerceAtLeast(720)
 
+                // ImageReader configurado para adquisición bajo demanda por frameLock.
+                // No se usa listener de 60fps continuo para evitar sobrecarga de CPU,
+                // miles de asignaciones de memoria innecesarias y conflictos nativos de buffers.
                 imageReader = ImageReader.newInstance(
                     captureWidth,
                     captureHeight,
                     PixelFormat.RGBA_8888,
-                    3
-                ).apply {
-                    setOnImageAvailableListener({ reader ->
-                        var img: Image? = null
-                        try {
-                            img = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
-                            val cleanBmp = processImageToBitmap(img)
-                            if (cleanBmp != null) {
-                                synchronized(frameLock) {
-                                    val old = lastFrame
-                                    lastFrame = cleanBmp
-                                    old?.recycle()
-                                }
-                            }
-                        } catch (t: Throwable) {
-                            AppLogger.w(TAG, "Error seguro en listener de imagen: ${t.message}")
-                        } finally {
-                            try {
-                                img?.close()
-                            } catch (_: Throwable) {}
-                        }
-                    }, handler)
-                }
+                    2
+                )
 
                 virtualDisplay = mediaProjection?.createVirtualDisplay(
                     VIRTUAL_DISPLAY_NAME,
@@ -201,8 +183,6 @@ class ScreenCaptureManager(private val context: Context) {
 
     /**
      * Notifica y actualiza dimensiones de pantalla tras rotación sin destruir la proyección virtual.
-     * Al usar un VirtualDisplay con AUTO_MIRROR en resolución de juego, no se requiere reinicializar
-     * ni crear nuevos objetos ImageReader, manteniendo intacto el Foreground Service y el token de Android 14+.
      */
     fun refreshProjection() {
         val now = System.currentTimeMillis()
@@ -218,22 +198,27 @@ class ScreenCaptureManager(private val context: Context) {
     }
 
     /**
-     * Captura el frame actual de la pantalla como un Bitmap con sincronización protegida.
+     * Captura el frame actual de la pantalla bajo demanda como un Bitmap con sincronización protegida.
+     * Garantiza acceso thread-safe exclusivo a ImageReader y reciclaje de fotogramas.
      */
     fun captureCurrentFrame(): Bitmap? {
-        try {
-            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            val metrics = DisplayMetrics()
-            @Suppress("DEPRECATION")
-            windowManager.defaultDisplay.getRealMetrics(metrics)
-            screenWidth = metrics.widthPixels
-            screenHeight = metrics.heightPixels
-        } catch (_: Exception) {}
-
-        // Intentar obtener el frame disponible, con breve espera de sincronización si recién inicializa
-        var attempts = 0
-        while (attempts < 5) {
-            synchronized(frameLock) {
+        synchronized(frameLock) {
+            val reader = imageReader ?: return null
+            var image: Image? = null
+            try {
+                image = reader.acquireLatestImage() ?: reader.acquireNextImage()
+                if (image != null) {
+                    val cleanBmp = processImageToBitmap(image)
+                    if (cleanBmp != null) {
+                        val old = lastFrame
+                        try {
+                            lastFrame = cleanBmp.copy(Bitmap.Config.ARGB_8888, false)
+                        } catch (_: Throwable) {}
+                        old?.recycle()
+                        return cleanBmp
+                    }
+                }
+                // Si este frame específico vino vacío, retornar copia segura del último frame válido
                 val cached = lastFrame
                 if (cached != null && !cached.isRecycled) {
                     return try {
@@ -242,40 +227,23 @@ class ScreenCaptureManager(private val context: Context) {
                         null
                     }
                 }
-            }
-
-            val reader = imageReader ?: return null
-            var image: Image? = null
-            try {
-                image = reader.acquireLatestImage() ?: reader.acquireNextImage()
-                if (image != null) {
-                    val cleanBitmap = processImageToBitmap(image)
-                    if (cleanBitmap != null) {
-                        synchronized(frameLock) {
-                            val old = lastFrame
-                            try {
-                                lastFrame = cleanBitmap.copy(Bitmap.Config.ARGB_8888, false)
-                            } catch (_: Throwable) {}
-                            old?.recycle()
-                        }
-                        return cleanBitmap
+            } catch (e: Throwable) {
+                AppLogger.w(TAG, "Extracción de frame segura: ${e.message}")
+                val cached = lastFrame
+                if (cached != null && !cached.isRecycled) {
+                    return try {
+                        cached.copy(Bitmap.Config.ARGB_8888, false)
+                    } catch (_: Throwable) {
+                        null
                     }
                 }
-            } catch (e: Throwable) {
-                AppLogger.e(TAG, "Error al extraer frame de ImageReader", e)
             } finally {
                 try {
                     image?.close()
-                } catch (_: Exception) {}
+                } catch (_: Throwable) {}
             }
-
-            attempts++
-            try {
-                Thread.sleep(35)
-            } catch (_: Exception) {}
+            return null
         }
-
-        return null
     }
 
     fun isReady(): Boolean = mediaProjection != null && imageReader != null

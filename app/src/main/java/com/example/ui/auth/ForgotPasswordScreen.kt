@@ -75,13 +75,10 @@ fun ForgotPasswordScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
+            com.example.ui.components.HextechAnimatedTextLink(
                 text = "Volver a iniciar sesión",
-                color = HextechCyan,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .tactileClickable { onNavigateToLogin() }
-                    .padding(8.dp)
+                onClick = onNavigateToLogin,
+                color = HextechCyan
             )
         }
     }

@@ -227,15 +227,19 @@ fun SupportReportDialog(
                             }
                         }
 
-                        IconButton(
+                        HextechAnimatedIconButton(
                             onClick = onDismiss,
                             enabled = !isSubmitting,
-                            modifier = Modifier.size(30.dp)
+                            size = 32.dp,
+                            backgroundColor = androidx.compose.ui.graphics.Color.Transparent,
+                            borderColor = androidx.compose.ui.graphics.Color.Transparent,
+                            glowColor = HextechCyan
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Cerrar",
-                                tint = TextMuted
+                                tint = TextMuted,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -455,7 +459,7 @@ fun SupportReportDialog(
                     Spacer(modifier = Modifier.height(18.dp))
 
                     // Botón Enviar Reporte
-                    Button(
+                    HextechAnimatedButton(
                         onClick = {
                             val cleanTitle = title.trim()
                             val cleanDesc = description.trim()
@@ -468,7 +472,7 @@ fun SupportReportDialog(
                                 descriptionError = true
                                 hasError = true
                             }
-                            if (hasError) return@Button
+                            if (hasError) return@HextechAnimatedButton
 
                             isSubmitting = true
                             coroutineScope.launch {
@@ -553,8 +557,12 @@ fun SupportReportDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                        shape = RoundedCornerShape(12.dp)
+                        backgroundColor = HextechCyan,
+                        borderColor = HextechGold,
+                        glowColor = HextechCyan,
+                        shape = RoundedCornerShape(12.dp),
+                        enableShimmer = true,
+                        enablePulse = true
                     ) {
                         if (isSubmitting) {
                             CircularProgressIndicator(

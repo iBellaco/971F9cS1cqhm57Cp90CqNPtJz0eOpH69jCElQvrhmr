@@ -194,18 +194,9 @@ fun BuyEssenceDialog(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 // Botón de Comprar
-                val buyInteractionSource = remember { MutableInteractionSource() }
-                val buyPressed by buyInteractionSource.collectIsPressedAsState()
-                val buyScale by animateFloatAsState(
-                    targetValue = if (buyPressed) 0.94f else 1f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    label = "buyScale"
-                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
+                HextechAnimatedButton(
                     onClick = {
                         if (isAdmin) {
                             isPurchasing = true
@@ -219,21 +210,20 @@ fun BuyEssenceDialog(
                         }
                     },
                     enabled = isAdmin && !isPurchasing,
-                    interactionSource = buyInteractionSource,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
-                        .scale(buyScale),
+                        .height(48.dp),
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isAdmin) HextechCyan else Color(0xFF334155),
-                        disabledContainerColor = Color(0xFF1E293B)
-                    )
+                    backgroundColor = if (isAdmin) HextechCyan else Color(0xFF334155),
+                    borderColor = if (isAdmin) HextechGold else Color.Transparent,
+                    glowColor = if (isAdmin) HextechCyan else Color.Transparent,
+                    enableShimmer = isAdmin && !isPurchasing,
+                    enablePulse = isAdmin && !isPurchasing
                 ) {
                     if (isPurchasing) {
                         CircularProgressIndicator(modifier = Modifier.size(18.dp), color = Color.White)
                     } else {
-                        Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp), tint = if (isAdmin) Color(0xFF0F172A) else Color.Gray)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = if (isAdmin) "Comprar (Sin Restricciones)" else "Comprar (En Mantenimiento)",

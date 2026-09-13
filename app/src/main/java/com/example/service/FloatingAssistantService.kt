@@ -196,6 +196,7 @@ enum class OverlayHubTab { DRAFT, TIER_LIST, CHAMPIONS, HISTORY }
 class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner, ComponentCallbacks2 {
     private val overlayState = OverlayState()
     private var screenCaptureManager: ScreenCaptureManager? = null
+    private var isDestroyed = false
 
     private var windowManager: WindowManager? = null
     private var floatingComposeView: ComposeView? = null
@@ -229,20 +230,32 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
             createNotificationChannel()
             val notification = buildForegroundNotification()
+            val hasPendingCapture = ScreenCaptureManager.pendingMediaProjectionData != null
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(
-                        NOTIFICATION_ID,
-                        notification,
+                    val fgsType = if (hasPendingCapture) {
                         android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
                         android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
-                    )
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(
+                    } else {
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                    }
+                    androidx.core.app.ServiceCompat.startForeground(
+                        this,
                         NOTIFICATION_ID,
                         notification,
-                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
+                        fgsType
                     )
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    if (hasPendingCapture) {
+                        androidx.core.app.ServiceCompat.startForeground(
+                            this,
+                            NOTIFICATION_ID,
+                            notification,
+                            android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
+                        )
+                    } else {
+                        startForeground(NOTIFICATION_ID, notification)
+                    }
                 } else {
                     startForeground(NOTIFICATION_ID, notification)
                 }
@@ -250,7 +263,8 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                 AppLogger.w("FloatingService", "Fallback foreground service start: ${e.message}")
                 try {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        startForeground(
+                        androidx.core.app.ServiceCompat.startForeground(
+                            this,
                             NOTIFICATION_ID,
                             notification,
                             android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
@@ -259,6 +273,14 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
                         startForeground(NOTIFICATION_ID, notification)
                     }
                 } catch (_: Exception) {}
+            }
+
+            if (ScreenCaptureManager.pendingMediaProjectionData != null) {
+                screenCaptureManager?.initializeProjection(
+                    ScreenCaptureManager.pendingMediaProjectionResultCode,
+                    ScreenCaptureManager.pendingMediaProjectionData!!
+                )
+                ScreenCaptureManager.pendingMediaProjectionData = null
             }
 
             createFloatingOverlay()
@@ -277,18 +299,22 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             try {
                 val notification = buildForegroundNotification()
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    startForeground(
+                    androidx.core.app.ServiceCompat.startForeground(
+                        this,
                         NOTIFICATION_ID,
                         notification,
                         android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE or
                         android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                     )
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(
+                    androidx.core.app.ServiceCompat.startForeground(
+                        this,
                         NOTIFICATION_ID,
                         notification,
-                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
                     )
+                } else {
+                    startForeground(NOTIFICATION_ID, notification)
                 }
             } catch (e: Exception) {
                 AppLogger.w("FloatingService", "Error asegurando tipo FGS: ${e.message}")
@@ -325,6 +351,9 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     }
 
     override fun onDestroy() {
+        if (isDestroyed) return
+        isDestroyed = true
+
         try {
             unregisterComponentCallbacks(this)
         } catch (_: Exception) {}
@@ -665,16 +694,17 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
 
     private fun removeFloatingOverlay() {
         try {
+            val wm = windowManager ?: return
             floatingComposeView?.let { view ->
-                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
+                try { wm.removeViewImmediate(view) } catch (_: Exception) {}
             }
             floatingComposeView = null
             closeTargetComposeView?.let { view ->
-                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
+                try { wm.removeViewImmediate(view) } catch (_: Exception) {}
             }
             closeTargetComposeView = null
             debugOverlayView?.let { view ->
-                try { windowManager?.removeViewImmediate(view) } catch (_: Exception) {}
+                try { wm.removeViewImmediate(view) } catch (_: Exception) {}
             }
             debugOverlayView = null
         } catch (_: Exception) {}
@@ -1020,17 +1050,21 @@ private fun FloatingOverlayContent(
                                         if ((isEnemy10th && enemies[4] == null) || (!isEnemy10th && allies[4] == null)) {
                                             state.hasCalledGeminiFor10thPick = true
                                             scanNoticeMessage = "Analizando 10º pick con IA (Preparación)..."
-                                            launch(Dispatchers.IO) {
-                                                try {
-                                                    val cropRect = if (isEnemy10th) {
-                                                        android.graphics.Rect((bitmap.width * 0.5f).toInt(), 0, bitmap.width, (bitmap.height * 0.20f).toInt())
-                                                    } else {
-                                                        android.graphics.Rect(0, 0, (bitmap.width * 0.5f).toInt(), (bitmap.height * 0.20f).toInt())
-                                                    }
-                                                    if (cropRect.width() > 0 && cropRect.height() > 0 && cropRect.right <= bitmap.width && cropRect.bottom <= bitmap.height) {
-                                                        val crop = android.graphics.Bitmap.createBitmap(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
+                                            val crop = try {
+                                                val cropRect = if (isEnemy10th) {
+                                                    android.graphics.Rect((bitmap.width * 0.5f).toInt(), 0, bitmap.width, (bitmap.height * 0.20f).toInt())
+                                                } else {
+                                                    android.graphics.Rect(0, 0, (bitmap.width * 0.5f).toInt(), (bitmap.height * 0.20f).toInt())
+                                                }
+                                                if (cropRect.width() > 0 && cropRect.height() > 0 && cropRect.right <= bitmap.width && cropRect.bottom <= bitmap.height && !bitmap.isRecycled) {
+                                                    android.graphics.Bitmap.createBitmap(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
+                                                } else null
+                                            } catch (_: Throwable) { null }
+
+                                            if (crop != null) {
+                                                launch(Dispatchers.IO) {
+                                                    try {
                                                         val champName = com.example.service.gemini.GeminiVisionService.identify10thPickFromPreparationScreen(crop, isEnemy10th)
-                                                        crop.recycle()
                                                         if (champName != null) {
                                                             val matchedChamp = com.example.service.screen.ChampionNameResolver.findChampionInText(champName, com.example.data.WildRiftRepository.champions)
                                                             if (matchedChamp != null) {
@@ -1044,9 +1078,11 @@ private fun FloatingOverlayContent(
                                                                 }
                                                             }
                                                         }
+                                                    } catch (e: Throwable) {
+                                                        AppLogger.e("FloatingService", "Error in 10th pick Gemini task", e)
+                                                    } finally {
+                                                        try { crop.recycle() } catch (_: Throwable) {}
                                                     }
-                                                } catch (e: Exception) {
-                                                    AppLogger.e("FloatingService", "Error in 10th pick Gemini task", e)
                                                 }
                                             }
                                         }
@@ -1080,12 +1116,13 @@ private fun FloatingOverlayContent(
                         } finally {
                             try {
                                 bitmap.recycle()
-                            } catch (_: Exception) {}
+                            } catch (_: Throwable) {}
                         }
                     }
                 }
-            } catch (e: Exception) {
-                AppLogger.e("FloatingService", "Error in auto-scan loop", e)
+            } catch (t: Throwable) {
+                AppLogger.e("FloatingService", "Error in auto-scan loop", t)
+                delay(300)
             }
         }
     }

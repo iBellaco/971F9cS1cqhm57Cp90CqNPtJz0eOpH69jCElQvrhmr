@@ -254,26 +254,17 @@ private fun PremiumPlanCard(
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    val subInteractionSource = remember { MutableInteractionSource() }
-                    val subPressed by subInteractionSource.collectIsPressedAsState()
-                    val subScale by animateFloatAsState(
-                        targetValue = if (subPressed) 0.94f else 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
-                        ),
-                        label = "subScale"
-                    )
-
-                    Button(
+                    HextechAnimatedButton(
                         onClick = onSubscribe,
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                        backgroundBrush = Brush.horizontalGradient(listOf(HextechGold, HextechGoldLight)),
+                        borderColor = HextechCyan,
+                        glowColor = HextechGold,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(54.dp)
-                            .scale(subScale),
-                        interactionSource = subInteractionSource,
-                        shape = RoundedCornerShape(14.dp)
+                            .height(54.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        enableShimmer = true,
+                        enablePulse = true
                     ) {
                         Text(
                             text = "Suscribirse Ahora",

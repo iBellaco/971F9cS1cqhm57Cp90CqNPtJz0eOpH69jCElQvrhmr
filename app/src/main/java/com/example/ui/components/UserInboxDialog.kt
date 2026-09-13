@@ -191,17 +191,23 @@ fun UserInboxDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Bandeja de Entrada", fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 18.sp)
                     }
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray)
+                    HextechAnimatedIconButton(
+                        onClick = onDismiss,
+                        size = 36.dp,
+                        backgroundColor = Color.Transparent,
+                        borderColor = Color.Transparent,
+                        glowColor = Color(0xFF0EA5E9)
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray, modifier = Modifier.size(20.dp))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
-                OutlinedButton(
+                HextechAnimatedOutlinedButton(
                     onClick = { showSupportDialog = true },
-                    modifier = Modifier.fillMaxWidth().height(40.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF0EA5E9)),
-                    border = BorderStroke(1.dp, Color(0xFF0EA5E9).copy(alpha = 0.6f)),
+                    modifier = Modifier.fillMaxWidth().height(42.dp),
+                    borderColor = Color(0xFF0EA5E9),
+                    glowColor = Color(0xFF0EA5E9),
                     shape = RoundedCornerShape(10.dp)
                 ) {
                     Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(16.dp))
@@ -223,14 +229,12 @@ fun UserInboxDialog(
                             fontSize = 12.sp
                         )
                         if (unreadCount > 0) {
-                            TextButton(
+                            HextechAnimatedTextLink(
+                                text = "Marcar todos leídos",
                                 onClick = { markAllAsRead() },
-                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
-                                Icon(Icons.Default.MarkEmailRead, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("Marcar todos leídos", color = Color(0xFF38BDF8), fontSize = 12.sp)
-                            }
+                                color = Color(0xFF38BDF8),
+                                fontSize = 12.sp
+                            )
                         }
                     }
                 }
@@ -319,17 +323,23 @@ fun UserInboxDialog(
 
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             if (!isRead) {
-                                                IconButton(
+                                                HextechAnimatedIconButton(
                                                     onClick = { markMessageAsRead(id) },
-                                                    modifier = Modifier.size(28.dp)
+                                                    size = 30.dp,
+                                                    backgroundColor = Color.Transparent,
+                                                    borderColor = Color.Transparent,
+                                                    glowColor = Color(0xFF0EA5E9)
                                                 ) {
                                                     Icon(Icons.Default.MarkEmailRead, contentDescription = "Marcar como leído", tint = Color(0xFF0EA5E9), modifier = Modifier.size(18.dp))
                                                 }
                                                 Spacer(modifier = Modifier.width(4.dp))
                                             }
-                                            IconButton(
+                                            HextechAnimatedIconButton(
                                                 onClick = { deleteMessage(id) },
-                                                modifier = Modifier.size(28.dp)
+                                                size = 30.dp,
+                                                backgroundColor = Color.Transparent,
+                                                borderColor = Color.Transparent,
+                                                glowColor = Color(0xFFEF4444)
                                             ) {
                                                 Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color.Gray, modifier = Modifier.size(18.dp))
                                             }

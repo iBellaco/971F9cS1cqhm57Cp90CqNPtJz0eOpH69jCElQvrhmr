@@ -175,8 +175,14 @@ fun PurchaseHistoryDialog(
                             )
                         }
                     }
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray)
+                    HextechAnimatedIconButton(
+                        onClick = onDismiss,
+                        size = 32.dp,
+                        backgroundColor = Color.Transparent,
+                        borderColor = Color.Transparent,
+                        glowColor = HextechCyan
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray, modifier = Modifier.size(18.dp))
                     }
                 }
 

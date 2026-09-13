@@ -31,6 +31,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.data.AppNotice
 import com.example.data.AppNoticeManager
 import com.example.ui.theme.*
+import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.UUID
 
@@ -43,8 +44,43 @@ fun SponsorCpmPanelDialog(
     val userEmail = authUser?.email ?: "patrocinador@coach.app"
 
     val allNotices by AppNoticeManager.notices.collectAsState()
-    val myNotices = remember(allNotices, userEmail) {
-        allNotices.filter { it.sponsorEmail.equals(userEmail, ignoreCase = true) || it.tag.equals("Publicidad", true) }
+    
+    // Lista local de anuncios pendientes (guardados en SharedPreferences para evitar que desaparezcan)
+    val prefs = context.getSharedPreferences("sponsor_pending_ads", Context.MODE_PRIVATE)
+    var localPendingAds by remember { 
+        mutableStateOf<List<AppNotice>>(
+            try {
+                val json = prefs.getString("pending_ads", "[]") ?: "[]"
+                val jsonArray = org.json.JSONArray(json)
+                val list = mutableListOf<AppNotice>()
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    list.add(
+                        AppNotice(
+                            id = obj.optString("id", ""),
+                            title = obj.optString("title", ""),
+                            content = obj.optString("content", ""),
+                            expandedImageUrl = obj.optString("expandedImageUrl", ""),
+                            externalUrl = obj.optString("externalUrl", ""),
+                            tag = obj.optString("tag", "Publicidad"),
+                            budget = obj.optDouble("budget", 0.0),
+                            budgetUnit = obj.optString("budgetUnit", "day"),
+                            isApproved = obj.optBoolean("isApproved", false),
+                            isEnabled = obj.optBoolean("isEnabled", false),
+                            sponsorEmail = obj.optString("sponsorEmail", "")
+                        )
+                    )
+                }
+                list
+            } catch (e: Exception) { emptyList() }
+        )
+    }
+
+    val myNotices = remember(allNotices, userEmail, localPendingAds) {
+        val remoteAds = allNotices.filter { it.sponsorEmail.equals(userEmail, ignoreCase = true) || it.tag.equals("Publicidad", true) }
+        val remoteAdIds = remoteAds.map { it.id }.toSet()
+        // Mostrar los remotos + los locales que aún no están en la lista remota
+        remoteAds + localPendingAds.filter { it.id !in remoteAdIds }
     }
 
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -54,6 +90,20 @@ fun SponsorCpmPanelDialog(
     var externalUrlInput by remember { mutableStateOf("") }
     var budgetInput by remember { mutableStateOf("10.00") }
     var selectedDurationUnit by remember { mutableStateOf("day") } // "hour", "day", "month", "year"
+
+    // El presupuesto se calcula automáticamente según la frecuencia
+    val autoBudget = remember(selectedDurationUnit) {
+        when (selectedDurationUnit) {
+            "hour" -> "1.50"
+            "day" -> "10.00"
+            "month" -> "150.00"
+            "year" -> "1000.00"
+            else -> "10.00"
+        }
+    }
+    LaunchedEffect(autoBudget) { budgetInput = autoBudget }
+
+    val coroutineScope = rememberCoroutineScope()
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -143,6 +193,27 @@ fun SponsorCpmPanelDialog(
                     ) {
                         items(myNotices, key = { it.id }) { notice ->
                             SponsorNoticeCard(notice = notice, onDelete = {
+                                val updatedLocal = localPendingAds.filter { it.id != notice.id }
+                                localPendingAds = updatedLocal
+                                
+                                val jsonArray = org.json.JSONArray()
+                                updatedLocal.forEach { n ->
+                                    val obj = org.json.JSONObject()
+                                    obj.put("id", n.id)
+                                    obj.put("title", n.title)
+                                    obj.put("content", n.content)
+                                    obj.put("expandedImageUrl", n.expandedImageUrl)
+                                    obj.put("externalUrl", n.externalUrl)
+                                    obj.put("tag", n.tag)
+                                    obj.put("budget", n.budget)
+                                    obj.put("budgetUnit", n.budgetUnit)
+                                    obj.put("isApproved", n.isApproved)
+                                    obj.put("isEnabled", n.isEnabled)
+                                    obj.put("sponsorEmail", n.sponsorEmail)
+                                    jsonArray.put(obj)
+                                }
+                                prefs.edit().putString("pending_ads", jsonArray.toString()).apply()
+
                                 val updated = allNotices.filter { it.id != notice.id }
                                 AppNoticeManager.saveNotices(context, updated)
                                 Toast.makeText(context, "Anuncio eliminado", Toast.LENGTH_SHORT).show()
@@ -193,13 +264,19 @@ fun SponsorCpmPanelDialog(
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechGold, unfocusedBorderColor = HextechSurfaceVariant)
                     )
+
                     OutlinedTextField(
                         value = budgetInput,
-                        onValueChange = { budgetInput = it },
-                        label = { Text("Presupuesto (USD)") },
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Presupuesto (USD) - Calculado Automáticamente") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechGold, unfocusedBorderColor = HextechSurfaceVariant)
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = HextechGold, 
+                            unfocusedBorderColor = HextechSurfaceVariant,
+                            disabledTextColor = HextechCyan
+                        )
                     )
 
                     Text("Frecuencia de Presupuesto:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -230,7 +307,16 @@ fun SponsorCpmPanelDialog(
                             Toast.makeText(context, "El título y contenido son obligatorios", Toast.LENGTH_SHORT).show()
                             return@Button
                         }
-                        val newNotice = AppNotice(
+                        
+                        val descriptionStr = """
+                            Presupuesto: $autoBudget $selectedDurationUnit
+                            Imagen: $imageUrlInput
+                            Enlace: $externalUrlInput
+                            
+                            $contentInput
+                        """.trimIndent()
+                        
+                        val newPendingNotice = AppNotice(
                             id = UUID.randomUUID().toString(),
                             title = titleInput.trim(),
                             content = contentInput.trim(),
@@ -239,14 +325,48 @@ fun SponsorCpmPanelDialog(
                             tag = "Publicidad",
                             budget = parsedBudget,
                             budgetUnit = selectedDurationUnit,
-                            isApproved = false, // Not visible until admin accepts
+                            isApproved = false,
                             isEnabled = false,
                             sponsorEmail = userEmail
                         )
-                        val updatedList = allNotices + newNotice
-                        AppNoticeManager.saveNotices(context, updatedList)
-                        Toast.makeText(context, "Anuncio enviado a revisión de administrador", Toast.LENGTH_SHORT).show()
-                        showCreateDialog = false
+
+                        // Guardar en localPendingAds
+                        val updatedLocalList = localPendingAds + newPendingNotice
+                        localPendingAds = updatedLocalList
+                        
+                        val jsonArray = org.json.JSONArray()
+                        updatedLocalList.forEach { n ->
+                            val obj = org.json.JSONObject()
+                            obj.put("id", n.id)
+                            obj.put("title", n.title)
+                            obj.put("content", n.content)
+                            obj.put("expandedImageUrl", n.expandedImageUrl)
+                            obj.put("externalUrl", n.externalUrl)
+                            obj.put("tag", n.tag)
+                            obj.put("budget", n.budget)
+                            obj.put("budgetUnit", n.budgetUnit)
+                            obj.put("isApproved", n.isApproved)
+                            obj.put("isEnabled", n.isEnabled)
+                            obj.put("sponsorEmail", n.sponsorEmail)
+                            jsonArray.put(obj)
+                        }
+                        prefs.edit().putString("pending_ads", jsonArray.toString()).apply()
+
+                        // Enviar la solicitud a Supabase como Feedback
+                        coroutineScope.launch {
+                            try {
+                                com.example.data.supabase.FeedbackRepository.submitFeedback(
+                                    type = "SPONSOR_AD",
+                                    title = titleInput.trim(),
+                                    description = descriptionStr,
+                                    email = userEmail
+                                )
+                                Toast.makeText(context, "Anuncio enviado a revisión de administrador", Toast.LENGTH_SHORT).show()
+                                showCreateDialog = false
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error al enviar: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
                 ) {
@@ -269,6 +389,10 @@ fun SponsorNoticeCard(
 ) {
     val statusText = if (notice.isApproved) "Aprobado y Activo" else "Pendiente de Aprobación"
     val statusColor = if (notice.isApproved) Color(0xFF10B981) else Color(0xFFF59E0B)
+
+    val metricsMap by com.example.data.AppNoticeAnalyticsManager.metricsMap.collectAsState()
+    val metrics = metricsMap[notice.id] ?: com.example.data.NoticeMetrics(notice.id)
+    val ctr = if (metrics.impressions > 0) (metrics.clicks.toDouble() / metrics.impressions) * 100 else 0.0
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -304,12 +428,37 @@ fun SponsorNoticeCard(
 
             Text(notice.content, color = TextSecondary, fontSize = 12.sp, maxLines = 2, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
 
+            // Statistics Row
+            if (notice.isApproved) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .background(HextechDarkBg, RoundedCornerShape(6.dp))
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Vistas", color = TextSecondary, fontSize = 10.sp)
+                        Text("${metrics.impressions}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Clics", color = TextSecondary, fontSize = 10.sp)
+                        Text("${metrics.clicks}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("CTR", color = TextSecondary, fontSize = 10.sp)
+                        Text(String.format(java.util.Locale.US, "%.1f%%", ctr), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Presupuesto: $${String.format(Locale.US, "%.2f", notice.budget)} (${notice.budgetUnit})", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Text("Presupuesto: $${String.format(java.util.Locale.US, "%.2f", notice.budget)} (${notice.budgetUnit})", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                 IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(16.dp))
                 }

@@ -68,13 +68,10 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            Text(
+            com.example.ui.components.HextechAnimatedTextLink(
                 text = "¿Olvidaste tu contraseña?",
-                color = HextechCyan,
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .tactileClickable { onNavigateToForgot() }
-                    .padding(8.dp)
+                onClick = onNavigateToForgot,
+                color = HextechCyan
             )
         }
 
@@ -106,13 +103,10 @@ fun LoginScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "¿No tienes una cuenta? ", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
-            Text(
+            com.example.ui.components.HextechAnimatedTextLink(
                 text = "Regístrate",
-                color = HextechCyan,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .tactileClickable { onNavigateToRegister() }
-                    .padding(4.dp)
+                onClick = onNavigateToRegister,
+                color = HextechCyan
             )
         }
     }

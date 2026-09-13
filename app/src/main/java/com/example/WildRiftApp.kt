@@ -59,15 +59,19 @@ open class WildRiftApp : Application(), ImageLoaderFactory {
             val isGmsBrokerSecurityException = exception is SecurityException &&
                     (exception.message?.contains("com.google.android.gms") == true ||
                      exception.message?.contains("Unknown calling package") == true)
-            val isCaptureThreadException = (thread.name.contains("ScreenCapture") ||
-                    thread.name.contains("ImageReader") ||
-                    exception.message?.contains("Buffer") == true ||
-                    exception.message?.contains("VirtualDisplay") == true ||
-                    exception.message?.contains("MediaProjection") == true ||
-                    exception.message?.contains("View not attached") == true ||
-                    exception.message?.contains("BadTokenException") == true ||
-                    exception.message?.contains("updateViewLayout") == true ||
-                    exception.message?.contains("has already been added") == true)
+            val isCaptureThreadException = (thread.name.contains("ScreenCapture", ignoreCase = true) ||
+                    thread.name.contains("ImageReader", ignoreCase = true) ||
+                    thread.name.contains("DefaultDispatcher", ignoreCase = true) ||
+                    exception.message?.contains("Buffer", ignoreCase = true) == true ||
+                    exception.message?.contains("VirtualDisplay", ignoreCase = true) == true ||
+                    exception.message?.contains("MediaProjection", ignoreCase = true) == true ||
+                    exception.message?.contains("media projection", ignoreCase = true) == true ||
+                    exception.message?.contains("bitmap", ignoreCase = true) == true ||
+                    exception.message?.contains("recycled", ignoreCase = true) == true ||
+                    exception.message?.contains("View not attached", ignoreCase = true) == true ||
+                    exception.message?.contains("BadTokenException", ignoreCase = true) == true ||
+                    exception.message?.contains("updateViewLayout", ignoreCase = true) == true ||
+                    exception.message?.contains("has already been added", ignoreCase = true) == true)
             if (!isGmsBrokerSecurityException && !isCaptureThreadException) {
                 defaultExceptionHandler?.uncaughtException(thread, exception)
             } else {

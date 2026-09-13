@@ -118,13 +118,10 @@ fun RegisterScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "¿Ya tienes una cuenta? ", color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
-            Text(
+            com.example.ui.components.HextechAnimatedTextLink(
                 text = "Inicia sesión",
-                color = HextechCyan,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                modifier = Modifier
-                    .tactileClickable { onNavigateToLogin() }
-                    .padding(4.dp)
+                onClick = onNavigateToLogin,
+                color = HextechCyan
             )
         }
     }

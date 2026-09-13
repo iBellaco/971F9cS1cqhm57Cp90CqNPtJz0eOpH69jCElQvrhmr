@@ -30,8 +30,9 @@ fun AdminDatabaseConsumptionDialog(
     val totalCapacityMb = 512.0 // Free tier Firestore / SQLite limit
     val usedFirestoreMb = 4.25
     val usedRoomLocalMb = 2.80
+    val usedSupabaseMb = 1.15
     val cacheAssetsMb = 7.55
-    val totalUsedMb = usedFirestoreMb + usedRoomLocalMb + cacheAssetsMb
+    val totalUsedMb = usedFirestoreMb + usedRoomLocalMb + usedSupabaseMb + cacheAssetsMb
     val percentageUsed = (totalUsedMb / totalCapacityMb).toFloat().coerceIn(0f, 1f)
 
     Dialog(
@@ -120,6 +121,13 @@ fun AdminDatabaseConsumptionDialog(
                     sizeMb = usedFirestoreMb,
                     color = HextechGold,
                     description = "Perfiles, reportes, sugerencias y anuncios sincronizados."
+                )
+
+                ConsumptionBreakdownRow(
+                    title = "Supabase (Nube - PostgreSQL)",
+                    sizeMb = usedSupabaseMb,
+                    color = Color(0xFF3ECF8E), // Supabase Green
+                    description = "Autenticación, Storage y sincronización SQL escalable."
                 )
 
                 ConsumptionBreakdownRow(

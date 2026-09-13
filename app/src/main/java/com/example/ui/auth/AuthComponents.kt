@@ -245,35 +245,20 @@ fun AuthPrimaryButton(
     isLoading: Boolean = false,
     enabled: Boolean = true
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.93f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = 380f
-        ),
-        label = "authPrimaryScale"
-    )
-
-    Button(
+    com.example.ui.components.HextechAnimatedButton(
         onClick = onClick,
         enabled = enabled && !isLoading,
-        interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = HextechCyan,
-            contentColor = HextechDarkBg,
-            disabledContainerColor = HextechCardBorder,
-            disabledContentColor = TextMuted
-        )
+            .height(52.dp),
+        backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+            listOf(HextechCyan, HextechBlue)
+        ),
+        borderColor = HextechGold,
+        glowColor = HextechCyan,
+        enableShimmer = true,
+        enablePulse = true,
+        scaleDown = 0.92f
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -286,7 +271,8 @@ fun AuthPrimaryButton(
                 text = text,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 0.5.sp,
+                    color = HextechDarkBg
                 )
             )
         }
@@ -300,34 +286,15 @@ fun AuthSecondaryButton(
     isLoading: Boolean = false,
     enabled: Boolean = true
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.93f else 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = 380f
-        ),
-        label = "authSecondaryScale"
-    )
-
-    OutlinedButton(
+    com.example.ui.components.HextechAnimatedOutlinedButton(
         onClick = onClick,
         enabled = enabled && !isLoading,
-        interactionSource = interactionSource,
         modifier = Modifier
             .fillMaxWidth()
-            .height(52.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.2.dp, HextechCyan),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = HextechCyan,
-            disabledContentColor = TextMuted
-        )
+            .height(52.dp),
+        borderColor = HextechCyan,
+        glowColor = HextechCyan,
+        scaleDown = 0.92f
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -340,7 +307,8 @@ fun AuthSecondaryButton(
                 text = text,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.3.sp
+                    letterSpacing = 0.3.sp,
+                    color = HextechCyan
                 )
             )
         }

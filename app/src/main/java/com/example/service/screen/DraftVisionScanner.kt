@@ -225,12 +225,11 @@ object DraftVisionScanner {
         currentActiveRole: LaneRole? = null
     ): DraftScanResult {
         if (bitmap.isRecycled || bitmap.width < bitmap.height) {
-
             return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Orientación no horizontal")
         }
 
-
-        val recognizer = getRecognizer() ?: return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "OCR no disponible")
+        return try {
+            val recognizer = getRecognizer() ?: return DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "OCR no disponible")
 
         val width = bitmap.width
         val height = bitmap.height
@@ -952,7 +951,10 @@ object DraftVisionScanner {
         val bottomSlot = if (targetIsAlly) allySlots[targetSlotIdx] else enemySlots[targetSlotIdx]
         val bottomSlotCandidate = bottomSlot.champion
 
-        val topBarMatched = GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, targetIsAlly)
+        // GenerativeVisionAnalyzer sólo debe ejecutarse en fase de preparación y cuando ya hay al menos 8 picks confirmados
+        val topBarMatched = if (isPreparationPhase && (totalAllyOcr + totalEnemyOcr >= 8)) {
+            GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, targetIsAlly)
+        } else null
         if (topBarMatched != null) {
             isLastPickVisualRecognized = true
             lastPickVisualChampion = topBarMatched
@@ -1082,5 +1084,9 @@ object DraftVisionScanner {
             isSuccessful = hasDraftActivity,
             statusMessage = statusMsg
         )
+        } catch (t: Throwable) {
+            AppLogger.e(TAG, "Excepción no controlada en scanDraftFromBitmap prevenida", t)
+            DraftScanResult(emptyList(), emptyList(), isSuccessful = false, statusMessage = "Error en escaneo")
+        }
     }
 }
