@@ -885,21 +885,29 @@ fun NoticeCategoryCard(
 
     val tagColor = getNoticeTagColor(categoryTag)
     val tagIcon = getNoticeTagIcon(categoryTag)
+    val isSponsored = currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("Publicidad", true)
 
     // Registro de impresiones analíticas
     LaunchedEffect(currentNotice.id) {
         com.example.data.AppNoticeAnalyticsManager.recordImpression(context, currentNotice.id, currentNotice.tag)
     }
 
-    // Rotación automática activa únicamente si hay múltiples avisos en esta misma categoría
-    LaunchedEffect(noticeList.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
+    val rotationIntervalSec = remember(intervalMillis) { (intervalMillis / 1000L).coerceAtLeast(1L).toInt() }
+    var remainingRotationSec by remember(currentNotice.id, autoTimerTrigger, rotationIntervalSec) { mutableStateOf(rotationIntervalSec) }
+
+    // Rotación automática activa únicamente si hay múltiples avisos en esta misma categoría con contador de rotación en tiempo real
+    LaunchedEffect(currentNotice.id, noticeList.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
         if (noticeList.size > 1 && !isPinned && !isFullscreenMedia) {
-            while (true) {
-                kotlinx.coroutines.delay(intervalMillis)
+            remainingRotationSec = rotationIntervalSec
+            while (remainingRotationSec > 0) {
+                kotlinx.coroutines.delay(1000L)
                 if (!isFullscreenMedia && !isPinned) {
-                    slideDirection = 1
-                    currentIndex = (currentIndex + 1) % noticeList.size
+                    remainingRotationSec--
                 }
+            }
+            if (!isFullscreenMedia && !isPinned) {
+                slideDirection = 1
+                currentIndex = (currentIndex + 1) % noticeList.size
             }
         }
     }
@@ -940,6 +948,44 @@ fun NoticeCategoryCard(
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // Contador de rotación visual cuando hay múltiples avisos
+                        if (noticeList.size > 1 && !isPinned) {
+                            Surface(
+                                color = HextechDarkBg.copy(alpha = 0.8f),
+                                shape = RoundedCornerShape(5.dp),
+                                border = BorderStroke(0.8.dp, tagColor.copy(alpha = 0.6f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "${remainingRotationSec}s",
+                                        color = tagColor,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        // Etiqueta "Patrocinado" en la esquina derecha cuando el anuncio es de patrocinador
+                        if (isSponsored) {
+                            Surface(
+                                shape = RoundedCornerShape(5.dp),
+                                color = HextechGold.copy(alpha = 0.2f),
+                                border = BorderStroke(1.dp, HextechGold)
+                            ) {
+                                Text(
+                                    text = "Patrocinado",
+                                    color = HextechGold,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+
                         // Si hay varios avisos del mismo tipo, se muestran controles para alternar y fijar
                         if (noticeList.size > 1) {
                             IconButton(

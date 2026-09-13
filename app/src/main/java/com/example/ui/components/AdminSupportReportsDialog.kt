@@ -871,6 +871,7 @@ fun AdminSupportReportsDialog(
             reportDescription = targetReport.description,
             userEmail = targetReport.userEmail,
             userName = targetReport.userName,
+            userId = targetReport.userId,
             initialReply = initialReplyText,
             isFirestoreDoc = targetReport.isFirestoreDoc || targetReport.firestoreDocId != null,
             onDismiss = {

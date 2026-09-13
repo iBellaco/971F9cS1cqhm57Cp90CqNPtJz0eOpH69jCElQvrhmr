@@ -226,7 +226,7 @@ object WildRiftSpellsAndRunes {
             "curar", "curación", "curacion", "heal" -> "heal"
             "claridad", "clarity" -> "clarity"
             "marca", "marca / lanzamiento", "mark", "snowball" -> "mark"
-            "teleportación", "teletransporte", "teleport" -> "teleport"
+            "teleportación", "teletransporte", "teleport", "transporte", "tp", "teleportar", "teleporte" -> "teleport"
             "limpiar", "cleanse" -> "cleanse"
             else -> null
         }

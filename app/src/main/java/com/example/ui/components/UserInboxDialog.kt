@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.example.data.SupportMessageEntry
@@ -45,6 +46,7 @@ fun UserInboxDialog(
 ) {
     var subcollectionMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var arrayMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var supportReportMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -69,7 +71,7 @@ fun UserInboxDialog(
         }
     }
 
-    LaunchedEffect(userUid) {
+    LaunchedEffect(userUid, userEmail) {
         val db = FirebaseFirestore.getInstance()
         val userDoc = db.collection("users").document(userUid)
         
@@ -96,11 +98,54 @@ fun UserInboxDialog(
             }
             isLoading = false
         }
+
+        // 3. Escuchar tickets de soporte directamente desde support_reports para este usuario
+        try {
+            if (userUid.isNotBlank() && userUid != "anonimo") {
+                db.collection("support_reports")
+                    .whereEqualTo("userId", userUid)
+                    .addSnapshotListener { snap, err ->
+                        if (err == null && snap != null) {
+                            val reportsAsMsgs = snap.documents.map { doc ->
+                                val data = doc.data ?: emptyMap<String, Any>()
+                                val title = data["title"] as? String ?: "Reporte de Soporte"
+                                val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
+                                val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
+                                val status = data["status"] as? String ?: "PENDIENTE"
+                                val conv = data["conversation"] as? List<Map<String, Any>> ?: emptyList()
+                                val admRep = data["adminReply"] as? String ?: ""
+                                val repBy = data["repliedBy"] as? String ?: ""
+
+                                mapOf<String, Any>(
+                                    "id" to doc.id,
+                                    "reportId" to doc.id,
+                                    "title" to "Soporte: $title",
+                                    "content" to desc,
+                                    "description" to desc,
+                                    "tag" to "SUPPORT",
+                                    "timestamp" to ts,
+                                    "status" to status,
+                                    "conversation" to conv,
+                                    "adminReply" to admRep,
+                                    "repliedBy" to repBy,
+                                    "isRead" to (status.equals("LEIDO", ignoreCase = true) || status.equals("SOLUCIONADO", ignoreCase = true)),
+                                    "sender" to (data["userName"] as? String ?: "Soporte Coach")
+                                )
+                            }
+                            supportReportMessages = reportsAsMsgs
+                        }
+                    }
+            }
+        } catch (_: Exception) {}
     }
 
-    // Unir mensajes de ambas fuentes eliminando duplicados por id
-    val messages = remember(subcollectionMessages, arrayMessages) {
+    // Unir mensajes de todas las fuentes eliminando duplicados por id
+    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages) {
         val all = mutableMapOf<String, Map<String, Any>>()
+        for (m in supportReportMessages) {
+            val id = m["id"] as? String ?: continue
+            all[id] = m
+        }
         for (m in arrayMessages) {
             val id = m["id"] as? String ?: continue
             all[id] = m

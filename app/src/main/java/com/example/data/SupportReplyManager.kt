@@ -225,6 +225,7 @@ object SupportReplyManager {
         replyText: String,
         author: String = "Equipo Coach",
         userEmail: String? = null,
+        userId: String? = null,
         reportTitle: String? = null,
         isFirestoreDoc: Boolean = false,
         markAsRead: Boolean = true
@@ -232,7 +233,7 @@ object SupportReplyManager {
         try {
             val db = FirebaseFirestore.getInstance()
             var docSnap: com.google.firebase.firestore.DocumentSnapshot? = null
-            var resolvedUserId = ""
+            var resolvedUserId = userId?.takeIf { it.isNotBlank() && it != "anonimo" } ?: ""
             var resolvedTitle = reportTitle ?: "Reporte de Soporte"
             var resolvedOriginalDesc = reportTitle ?: ""
             var resolvedSenderName = "Usuario"
@@ -240,7 +241,10 @@ object SupportReplyManager {
             try {
                 docSnap = db.collection("support_reports").document(reportId).get().await()
                 if (docSnap != null && docSnap.exists()) {
-                    resolvedUserId = docSnap.getString("userId") ?: ""
+                    val dbUid = docSnap.getString("userId")
+                    if (!dbUid.isNullOrBlank() && dbUid != "anonimo" && resolvedUserId.isBlank()) {
+                        resolvedUserId = dbUid
+                    }
                     resolvedTitle = docSnap.getString("title") ?: resolvedTitle
                     resolvedOriginalDesc = docSnap.getString("description") ?: docSnap.getString("content") ?: resolvedOriginalDesc
                     resolvedSenderName = docSnap.getString("userName") ?: "Usuario"

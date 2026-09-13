@@ -7,7 +7,9 @@ import android.net.Uri
 import android.os.Build
 import android.provider.OpenableColumns
 import android.util.Base64
+import android.util.Log
 import android.widget.Toast
+import kotlinx.coroutines.tasks.await
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -504,7 +506,9 @@ fun SupportReportDialog(
                                     )
                                     val initialConversation = listOf(initialMessageMap)
 
+                                    val reportId = java.util.UUID.randomUUID().toString()
                                     val reportMap = hashMapOf<String, Any>(
+                                        "id" to reportId,
                                         "title" to cleanTitle,
                                         "description" to cleanDesc,
                                         "userId" to userId,
@@ -518,42 +522,46 @@ fun SupportReportDialog(
                                         "device" to "${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE})"
                                     )
 
-                                     // 1. Guardar en Firestore para panel de administración en tiempo real
-                                     db.collection("support_reports").add(reportMap).addOnSuccessListener { docRef ->
-                                         val reportId = docRef.id
-                                         val initialEntry = com.example.data.SupportMessageEntry(
-                                             id = "${reportId}_initial",
-                                             senderName = userName.ifBlank { "Invocador" },
-                                             senderRole = "USER",
-                                             text = cleanDesc,
-                                             timestampMillis = System.currentTimeMillis(),
-                                             isGreeting = false
-                                         )
-                                         com.example.data.SupportReplyManager.saveConversation(context, reportId, listOf(initialEntry))
+                                    try {
+                                        db.collection("support_reports").document(reportId).set(reportMap).await()
+                                    } catch (e: Exception) {
+                                        Log.w("SupportReportDialog", "Error guardando en support_reports: ${e.message}")
+                                    }
 
-                                         if (userId.isNotBlank() && userId != "anonimo") {
-                                             try {
-                                                 val inboxMsg = hashMapOf<String, Any>(
-                                                     "title" to "Reporte: $cleanTitle",
-                                                     "content" to cleanDesc,
-                                                     "description" to cleanDesc,
-                                                     "userId" to userId,
-                                                     "userName" to userName,
-                                                     "userEmail" to userEmail,
-                                                     "photos" to base64Photos.toList(),
-                                                     "timestamp" to System.currentTimeMillis(),
-                                                     "createdAt" to Timestamp.now(),
-                                                     "isRead" to true,
-                                                     "tag" to "SUPPORT",
-                                                     "sender" to userName,
-                                                     "reportId" to reportId,
-                                                     "status" to "PENDIENTE",
-                                                     "conversation" to initialConversation
-                                                 )
-                                                 db.collection("users").document(userId).collection("messages").document(reportId).set(inboxMsg)
-                                             } catch (_: Exception) {}
-                                         }
-                                     }
+                                    val initialEntry = com.example.data.SupportMessageEntry(
+                                        id = "${reportId}_initial",
+                                        senderName = userName.ifBlank { "Invocador" },
+                                        senderRole = "USER",
+                                        text = cleanDesc,
+                                        timestampMillis = System.currentTimeMillis(),
+                                        isGreeting = false
+                                    )
+                                    com.example.data.SupportReplyManager.saveConversation(context, reportId, listOf(initialEntry))
+
+                                    val targetUserId = if (userId.isNotBlank() && userId != "anonimo") userId else (currentUser?.uid ?: "local_user")
+                                    try {
+                                        val inboxMsg = hashMapOf<String, Any>(
+                                            "id" to reportId,
+                                            "title" to "Reporte: $cleanTitle",
+                                            "content" to cleanDesc,
+                                            "description" to cleanDesc,
+                                            "userId" to targetUserId,
+                                            "userName" to userName,
+                                            "userEmail" to userEmail,
+                                            "photos" to base64Photos.toList(),
+                                            "timestamp" to System.currentTimeMillis(),
+                                            "createdAt" to Timestamp.now(),
+                                            "isRead" to true,
+                                            "tag" to "SUPPORT",
+                                            "sender" to userName,
+                                            "reportId" to reportId,
+                                            "status" to "PENDIENTE",
+                                            "conversation" to initialConversation
+                                        )
+                                        db.collection("users").document(targetUserId).collection("messages").document(reportId).set(inboxMsg).await()
+                                    } catch (e: Exception) {
+                                        Log.w("SupportReportDialog", "Error guardando en bandeja de usuario: ${e.message}")
+                                    }
 
                                     // 2. Respaldo adicional en FeedbackRepository si está configurado
                                     try {

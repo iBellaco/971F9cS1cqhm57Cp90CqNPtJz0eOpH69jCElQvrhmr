@@ -43,6 +43,7 @@ fun SupportReplyDialog(
     reportDescription: String,
     userEmail: String,
     userName: String = "",
+    userId: String = "",
     initialReply: String = "",
     isFirestoreDoc: Boolean = false,
     onDismiss: () -> Unit,
@@ -606,6 +607,7 @@ fun SupportReplyDialog(
                                         replyText = cleanText,
                                         author = responderName,
                                         userEmail = userEmail,
+                                        userId = userId,
                                         reportTitle = reportTitle,
                                         isFirestoreDoc = isFirestoreDoc,
                                         markAsRead = markAsRead
