@@ -181,6 +181,7 @@ fun AuthFlowContainer(
 @Composable
 fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSignOut: () -> Unit) {
     val context = LocalContext.current
+    val activeTheme = AppThemeManager.currentTheme
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val userRole by SubscriptionManager.userRole.collectAsState()
     val premiumUntil by SubscriptionManager.premiumUntil.collectAsState()
@@ -191,6 +192,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showThemeDialog by remember { mutableStateOf(false) }
     var showPlansDialog by remember { mutableStateOf(false) }
     var showHistoryDialog by remember { mutableStateOf(false) }
+    var showInboxDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
     var showSupportPanel by remember { mutableStateOf(false) }
     var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
@@ -269,6 +271,65 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Top Row with Inbox (top-left) and History (top-right)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Top-Left: Inbox button
+                val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(activeTheme.surfaceVariant)
+                        .border(1.dp, if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder, CircleShape)
+                        .tactileClickable { showInboxDialog = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = if (unreadCount > 0) Icons.Default.MarkEmailUnread else Icons.Default.Message,
+                            contentDescription = "Bandeja de Entrada",
+                            tint = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.secondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        if (unreadCount > 0) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .align(Alignment.TopEnd)
+                                    .clip(CircleShape)
+                                    .background(DangerRed)
+                            )
+                        }
+                    }
+                }
+
+                // Top-Right: History button
+                Box(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clip(CircleShape)
+                        .background(activeTheme.surfaceVariant)
+                        .border(1.dp, activeTheme.cardBorder, CircleShape)
+                        .tactileClickable { showHistoryDialog = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Historial",
+                        tint = activeTheme.textSecondary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             AuthHeader(
                 title = "Perfil de Invocador",
                 subtitle = "Sesión iniciada correctamente"
@@ -339,101 +400,62 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 finishedListener = { avatarTapped = false }
             )
 
-            // Row with Inbox (left), Avatar in center, Support (right)
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            // Avatar in center
+            Box(
+                modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = avatarScale
+                        scaleY = avatarScale
+                    }
+                    .tactileClickable {
+                        avatarTapped = true
+                        showAvatarDialog = true
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                // Inbox button on left (smaller)
-                val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(activeTheme.surfaceVariant)
-                        .border(1.dp, if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder, CircleShape)
-                        .tactileClickable { showInboxDialog = true },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = if (unreadCount > 0) Icons.Default.MarkEmailUnread else Icons.Default.Message,
-                            contentDescription = "Bandeja de Entrada",
-                            tint = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.secondary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        if (unreadCount > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .align(Alignment.TopEnd)
-                                    .clip(CircleShape)
-                                    .background(DangerRed)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(20.dp))
-
-                // Avatar in center (tappable to open avatar dialog with edit pencil badge)
-                Box(
-                    modifier = Modifier
+                        .size(86.dp)
                         .graphicsLayer {
-                            scaleX = avatarScale
-                            scaleY = avatarScale
+                            scaleX = haloPulse
+                            scaleY = haloPulse
                         }
-                        .tactileClickable {
-                            avatarTapped = true
-                            showAvatarDialog = true
-                        },
+                        .rotate(haloRotation)
+                        .border(
+                            width = 2.dp,
+                            brush = Brush.sweepGradient(
+                                listOf(
+                                    activeTheme.primary,
+                                    activeTheme.secondary,
+                                    activeTheme.primaryGlow,
+                                    activeTheme.primary
+                                )
+                            ),
+                            shape = CircleShape
+                        )
+                )
+
+                UserAvatarView(
+                    avatarId = currentAvatarId,
+                    rankBorder = currentRankBorder,
+                    size = 72.dp,
+                    fallbackInitial = finalUserName
+                )
+                Box(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.BottomEnd)
+                        .clip(CircleShape)
+                        .background(activeTheme.secondary)
+                        .border(1.5.dp, activeTheme.background, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(86.dp)
-                            .graphicsLayer {
-                                scaleX = haloPulse
-                                scaleY = haloPulse
-                            }
-                            .rotate(haloRotation)
-                            .border(
-                                width = 2.dp,
-                                brush = Brush.sweepGradient(
-                                    listOf(
-                                        activeTheme.primary,
-                                        activeTheme.secondary,
-                                        activeTheme.primaryGlow,
-                                        activeTheme.primary
-                                    )
-                                ),
-                                shape = CircleShape
-                            )
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Cambiar Avatar",
+                        tint = activeTheme.background,
+                        modifier = Modifier.size(13.dp)
                     )
-
-                    UserAvatarView(
-                        avatarId = currentAvatarId,
-                        rankBorder = currentRankBorder,
-                        size = 72.dp,
-                        fallbackInitial = finalUserName
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.BottomEnd)
-                            .clip(CircleShape)
-                            .background(activeTheme.secondary)
-                            .border(1.5.dp, activeTheme.background, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Cambiar Avatar",
-                            tint = activeTheme.background,
-                            modifier = Modifier.size(13.dp)
-                        )
-                    }
                 }
             }
 
@@ -899,66 +921,33 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             
             Spacer(modifier = Modifier.height(10.dp))
             
-            // Animated buttons for Plans and History
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            // Animated button for Plans
+            com.example.ui.components.AnimatedTactileButton(
+                onClick = { showPlansDialog = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = activeTheme.primary.copy(alpha = 0.12f),
+                    contentColor = activeTheme.primary
+                ),
+                border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.6f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp),
+                shape = RoundedCornerShape(10.dp)
             ) {
-                com.example.ui.components.AnimatedTactileButton(
-                    onClick = { showPlansDialog = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = activeTheme.primary.copy(alpha = 0.12f),
-                        contentColor = activeTheme.primary
-                    ),
-                    border = BorderStroke(1.dp, activeTheme.primary.copy(alpha = 0.6f)),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocalActivity,
-                        contentDescription = null,
-                        tint = activeTheme.primary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = if (isPremium) "Planes / Pase" else "Ver Planes Pro",
-                        color = activeTheme.primary,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        fontSize = 12.sp,
-                        maxLines = 1
-                    )
-                }
-
-                com.example.ui.components.AnimatedTactileButton(
-                    onClick = { showHistoryDialog = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = activeTheme.surfaceVariant,
-                        contentColor = activeTheme.textSecondary
-                    ),
-                    border = BorderStroke(1.dp, activeTheme.cardBorder),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(44.dp),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = null,
-                        tint = activeTheme.textSecondary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "Historial",
-                        color = activeTheme.textSecondary,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                        fontSize = 12.sp,
-                        maxLines = 1
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.LocalActivity,
+                    contentDescription = null,
+                    tint = activeTheme.primary,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = if (isPremium) "Planes / Pase" else "Ver Planes Pro",
+                    color = activeTheme.primary,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                    fontSize = 12.sp,
+                    maxLines = 1
+                )
             }
             
             if (showHistoryDialog) {

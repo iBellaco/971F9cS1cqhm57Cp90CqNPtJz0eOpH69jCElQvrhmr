@@ -109,7 +109,24 @@ object FeedbackRepository {
         val compositeKey = if (report.createdAt != null) "${report.title}_${report.createdAt}" else null
         val titleKey = "title:${report.title}"
 
-        // 1. Revisar estado explícito en local prefs
+        // 1. Revisar campo status de Supabase (Cloud-First Multi-Device Sync)
+        val remoteStatus = report.status?.trim()?.uppercase(Locale.US)
+        if (!remoteStatus.isNullOrBlank() && remoteStatus != STATUS_PENDING) {
+            val normalized = when (remoteStatus) {
+                "SOLVED", "SOLUCIONADO" -> STATUS_SOLVED
+                "READ", "LEIDO", "LEÍDO" -> STATUS_READ
+                "ACCEPTED", "ACEPTADA", "ACEPTADO" -> STATUS_ACCEPTED
+                "REJECTED", "RECHAZADA", "RECHAZADO" -> STATUS_REJECTED
+                "COMPLETED", "COMPLETADO" -> if (report.type.equals("SUGGESTION", ignoreCase = true)) STATUS_ACCEPTED else STATUS_SOLVED
+                else -> remoteStatus
+            }
+            if (!id.isNullOrBlank()) {
+                prefs.edit().putString(PREF_STATUS_PREFIX + id, normalized).apply()
+            }
+            return normalized
+        }
+
+        // 2. Revisar estado local prefs
         if (!id.isNullOrBlank()) {
             val localStatus = prefs.getString(PREF_STATUS_PREFIX + id, null)
             if (!localStatus.isNullOrBlank()) return localStatus
@@ -120,19 +137,6 @@ object FeedbackRepository {
         }
         val localTitleStatus = prefs.getString(PREF_STATUS_PREFIX + titleKey, null)
         if (!localTitleStatus.isNullOrBlank()) return localTitleStatus
-
-        // 2. Revisar campo status de Supabase
-        val remoteStatus = report.status?.trim()?.uppercase(Locale.US)
-        if (!remoteStatus.isNullOrBlank() && remoteStatus != STATUS_PENDING) {
-            return when (remoteStatus) {
-                "SOLVED", "SOLUCIONADO" -> STATUS_SOLVED
-                "READ", "LEIDO", "LEÍDO" -> STATUS_READ
-                "ACCEPTED", "ACEPTADA", "ACEPTADO" -> STATUS_ACCEPTED
-                "REJECTED", "RECHAZADA", "RECHAZADO" -> STATUS_REJECTED
-                "COMPLETED", "COMPLETADO" -> if (report.type.equals("SUGGESTION", ignoreCase = true)) STATUS_ACCEPTED else STATUS_SOLVED
-                else -> remoteStatus
-            }
-        }
 
         // 3. Revisar legacy completed ids
         val completedIds = getCompletedFeedbackIds(context)

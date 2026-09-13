@@ -45,16 +45,24 @@ fun SupportReplyDialog(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var replyText by remember { mutableStateOf(initialReply) }
     var markAsRead by remember { mutableStateOf(true) }
     var isSending by remember { mutableStateOf(false) }
 
+    val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+    val responderName = authUser?.displayName?.takeIf { it.isNotBlank() }
+        ?: authUser?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
+        ?: "Administrador"
+
     val quickTemplates = listOf(
-        "👋 Hola, gracias por contactarnos. Hemos recibido tu mensaje y el equipo lo está revisando para ayudarte a la brevedad.",
+        "👋 Hola, soy $responderName del equipo de soporte de Coach. Gracias por escribirnos, hemos recibido tu mensaje y estamos para ayudarte a la brevedad.",
         "✅ ¡Problema solucionado! Esta incidencia fue corregida en la última actualización de Coach. Te sugerimos actualizar tu app.",
         "🔄 Te sugerimos cerrar sesión, reiniciar la app y volver a ingresar para sincronizar tus configuraciones de forma óptima.",
-        "🛡️ Hemos verificado la configuración de tu cuenta y optimizado tus datos. Por favor confirma si el problema persiste."
+        "🛡️ Hemos verificado la configuración de tu cuenta y optimizado tus datos. Por favor confirma si el problema persiste.",
+        "🔍 Tu reporte está siendo analizado detalladamente por nuestro equipo técnico prioritario. Te notificaremos cualquier avance.",
+        "💡 Recuerda que puedes consultar la sección de guías y optimización en el menú principal para aprovechar al máximo las funciones de Coach."
     )
+
+    var replyText by remember { mutableStateOf(initialReply.ifBlank { quickTemplates[0] }) }
 
     Dialog(
         onDismissRequest = { if (!isSending) onDismiss() },
@@ -192,7 +200,9 @@ fun SupportReplyDialog(
                                 0 -> "👋 Saludo"
                                 1 -> "✅ Solucionado"
                                 2 -> "🔄 Reinicio"
-                                else -> "🛡️ Parámetros"
+                                3 -> "🛡️ Cuenta"
+                                4 -> "🔍 Revisión"
+                                else -> "💡 Guía"
                             }
                             Box(
                                 modifier = Modifier

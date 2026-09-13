@@ -63,6 +63,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -140,6 +141,11 @@ fun AdminSupportReportsDialog(
     var previewZoomBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var reportToDelete by remember { mutableStateOf<UnifiedSupportReport?>(null) }
     var reportToReply by remember { mutableStateOf<UnifiedSupportReport?>(null) }
+
+    val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+    val userEmail = authUser?.email ?: ""
+    val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
+    val isAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin() || userEmail.contains("barbadiego", ignoreCase = true)
 
     fun loadAllReports() {
         isLoading = true
@@ -306,6 +312,28 @@ fun AdminSupportReportsDialog(
 
     LaunchedEffect(Unit) {
         loadAllReports()
+        while (true) {
+            kotlinx.coroutines.delay(10000L)
+            try {
+                val supabaseResult = FeedbackRepository.getAllFeedbacks()
+                if (supabaseResult.isSuccess) {
+                    val supaList = supabaseResult.getOrDefault(emptyList())
+                    for (fb in supaList) {
+                        val id = fb.id ?: "${fb.title}_${fb.createdAt}"
+                        val status = FeedbackRepository.getReportStatus(context, fb)
+                        val existingIdx = reportsList.indexOfFirst { it.id == id }
+                        if (existingIdx != -1) {
+                            if (reportsList[existingIdx].status != status || reportsList[existingIdx].adminReply != fb.adminReply) {
+                                reportsList[existingIdx] = reportsList[existingIdx].copy(
+                                    status = status,
+                                    adminReply = if (!fb.adminReply.isNullOrBlank()) fb.adminReply else reportsList[existingIdx].adminReply
+                                )
+                            }
+                        }
+                    }
+                }
+            } catch (_: Exception) {}
+        }
     }
 
     // Filtrar reportes
@@ -569,6 +597,99 @@ fun AdminSupportReportsDialog(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
+                    // Registro copiable de mensajes y estadísticas (Solo Administrador)
+                    if (isAdmin) {
+                        val todayMillis = java.util.Calendar.getInstance().apply {
+                            set(java.util.Calendar.HOUR_OF_DAY, 0)
+                            set(java.util.Calendar.MINUTE, 0)
+                            set(java.util.Calendar.SECOND, 0)
+                            set(java.util.Calendar.MILLISECOND, 0)
+                        }.timeInMillis
+                        val weekMillis = todayMillis - (7L * 24 * 60 * 60 * 1000)
+
+                        val totalRecv = reportsList.size
+                        val senders = reportsList.map { it.userName.ifBlank { it.userEmail.ifBlank { "Anónimo" } } }.distinct()
+                        val repliedList = reportsList.filter { it.adminReply.isNotBlank() }
+                        val totalReplied = repliedList.size
+                        val repliedToday = repliedList.count { it.repliedAtMillis >= todayMillis }
+                        val repliedWeek = repliedList.count { it.repliedAtMillis >= weekMillis }
+                        val repliers = repliedList.map { it.repliedBy.ifBlank { "Soporte Coach" } }.distinct()
+
+                        val logText = buildString {
+                            appendLine("=== REGISTRO ADMINISTRATIVO DE SOPORTE COACH ===")
+                            appendLine("Total de Mensajes Recibidos: $totalRecv")
+                            appendLine("Remitentes (${senders.size}): ${senders.joinToString(", ")}")
+                            appendLine("Total de Mensajes Respondidos: $totalReplied")
+                            appendLine("Respondidos Hoy: $repliedToday")
+                            appendLine("Respondidos Esta Semana: $repliedWeek")
+                            appendLine("Personal de Respuesta: ${repliers.joinToString(", ")}")
+                            appendLine("----------------------------------------------")
+                            reportsList.take(20).forEach { r ->
+                                val rDate = try { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(r.createdAtMillis)) } catch(_: Exception){ "" }
+                                appendLine("• [$rDate] De: ${r.userName.ifBlank { r.userEmail }} | Asunto: ${r.title}")
+                                if (r.adminReply.isNotBlank()) {
+                                    appendLine("  -> Respondido por: ${r.repliedBy.ifBlank { "Soporte Coach" }} | Resp: ${r.adminReply}")
+                                } else {
+                                    appendLine("  -> Estado: Pendiente de respuesta")
+                                }
+                            }
+                            appendLine("==============================================")
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 10.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "Registro y Estadísticas (Admin)",
+                                            color = HextechGold,
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    OutlinedButton(
+                                        onClick = {
+                                            val clip = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                            clip.setPrimaryClip(ClipData.newPlainText("Registro Soporte Coach", logText))
+                                            Toast.makeText(context, "Registro copiado al portapapeles", Toast.LENGTH_SHORT).show()
+                                        },
+                                        modifier = Modifier.height(28.dp),
+                                        border = BorderStroke(0.8.dp, HextechGold),
+                                        shape = RoundedCornerShape(6.dp),
+                                        contentPadding = PaddingValues(horizontal = 8.dp)
+                                    ) {
+                                        Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechGold, modifier = Modifier.size(11.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text("Copiar Log", color = HextechGold, fontSize = 10.sp)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "Recibidos: $totalRecv | Respondidos: $totalReplied | Hoy: $repliedToday | Semanal: $repliedWeek",
+                                    color = TextSecondary,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+
                     // Contenido: Lista de reportes
                     if (isLoading) {
                         Box(
@@ -609,6 +730,7 @@ fun AdminSupportReportsDialog(
                             items(filteredReports, key = { it.id }) { item ->
                                 UnifiedReportAdminCard(
                                     report = item,
+                                    isAdmin = isAdmin,
                                     onImageClick = { bmp -> previewZoomBitmap = bmp },
                                     onSetStatus = { newStat -> updateReportStatus(item, newStat) },
                                     onReplyClick = { reportToReply = item },
@@ -765,6 +887,7 @@ fun AdminSupportReportsDialog(
 @Composable
 private fun UnifiedReportAdminCard(
     report: UnifiedSupportReport,
+    isAdmin: Boolean,
     onImageClick: (Bitmap) -> Unit,
     onSetStatus: (String) -> Unit,
     onReplyClick: () -> Unit,
@@ -900,17 +1023,19 @@ private fun UnifiedReportAdminCard(
                         color = TextMuted,
                         fontSize = 10.5.sp
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    IconButton(
-                        onClick = onDelete,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar",
-                            tint = DangerRed.copy(alpha = 0.85f),
-                            modifier = Modifier.size(17.dp)
-                        )
+                    if (isAdmin) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        IconButton(
+                            onClick = onDelete,
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Eliminar",
+                                tint = DangerRed.copy(alpha = 0.85f),
+                                modifier = Modifier.size(17.dp)
+                            )
+                        }
                     }
                 }
             }
