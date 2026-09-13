@@ -177,6 +177,8 @@ import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
 import com.example.ui.theme.TierSPlusColor
 import com.example.util.AppLogger
+import android.content.ComponentCallbacks2
+import android.content.res.Configuration
 import com.example.util.LocalLanguage
 import com.example.util.SubscriptionManager
 import com.example.util.tr
@@ -191,7 +193,7 @@ import kotlin.math.roundToInt
 
 enum class OverlayHubTab { DRAFT, TIER_LIST, CHAMPIONS, HISTORY }
 
-class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner {
+class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStateRegistryOwner, ComponentCallbacks2 {
     private val overlayState = OverlayState()
     private var screenCaptureManager: ScreenCaptureManager? = null
 
@@ -260,6 +262,7 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
             }
 
             createFloatingOverlay()
+            registerComponentCallbacks(this)
         } catch (e: Exception) {
             AppLogger.e("FloatingService", "Error starting floating service", e)
         }
@@ -322,6 +325,10 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
     }
 
     override fun onDestroy() {
+        try {
+            unregisterComponentCallbacks(this)
+        } catch (_: Exception) {}
+
         // 1. Desconectar todas las vistas del WindowManager ANTES de destruir el ciclo de vida
         removeFloatingOverlay()
 
@@ -340,6 +347,22 @@ class FloatingAssistantService : Service(), LifecycleOwner, ViewModelStoreOwner,
         } catch (_: Exception) {}
 
         super.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        try {
+            System.gc()
+        } catch (_: Exception) {}
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        if (level >= TRIM_MEMORY_MODERATE) {
+            try {
+                System.gc()
+            } catch (_: Exception) {}
+        }
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
