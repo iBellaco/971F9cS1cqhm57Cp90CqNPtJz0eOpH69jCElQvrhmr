@@ -504,7 +504,7 @@ fun SupportReportDialog(
                                                      "userName" to userName,
                                                      "userEmail" to userEmail,
                                                      "photos" to base64Photos.toList(),
-                                                     "timestamp" to Timestamp.now(),
+                                                     "timestamp" to System.currentTimeMillis(),
                                                      "createdAt" to Timestamp.now(),
                                                      "isRead" to true,
                                                      "tag" to "SUPPORT",

@@ -161,17 +161,22 @@ object SupportReplyManager {
                 val docSnap = db.collection("support_reports").document(reportId).get().await()
                 val userId = docSnap.getString("userId") ?: ""
                 val title = docSnap.getString("title") ?: reportTitle ?: "Reporte de Soporte"
+                val originalDesc = docSnap.getString("description") ?: docSnap.getString("content") ?: reportTitle ?: ""
+                val senderName = docSnap.getString("userName") ?: "Usuario"
                 if (userId.isNotBlank() && userId != "anonimo") {
                     val messageMap = hashMapOf<String, Any>(
-                        "title" to "Respuesta de Soporte: $title",
-                        "content" to replyText,
-                        "timestamp" to Timestamp.now(),
+                        "title" to "Soporte: $title",
+                        "content" to originalDesc,
+                        "description" to originalDesc,
+                        "adminReply" to replyText,
+                        "repliedBy" to author,
+                        "timestamp" to System.currentTimeMillis(),
                         "isRead" to false,
                         "tag" to "SUPPORT",
-                        "sender" to author,
+                        "sender" to senderName,
                         "reportId" to reportId
                     )
-                    db.collection("users").document(userId).collection("messages").add(messageMap).await()
+                    db.collection("users").document(userId).collection("messages").document(reportId).set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
 
                     val userRef = db.collection("users").document(userId)
                     val userSnap = userRef.get().await()
