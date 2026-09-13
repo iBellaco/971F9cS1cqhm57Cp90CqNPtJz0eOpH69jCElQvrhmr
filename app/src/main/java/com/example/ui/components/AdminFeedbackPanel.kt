@@ -833,7 +833,7 @@ fun AdminFeedbackBottomSheet(
             reportTitle = rep.title,
             reportDescription = rep.cleanDescription.ifEmpty { rep.description },
             userEmail = rep.parsedEmail ?: "",
-            userName = "",
+            userName = rep.parsedUserName ?: "",
             initialReply = curReply,
             isFirestoreDoc = false,
             onDismiss = { reportToReply = null },

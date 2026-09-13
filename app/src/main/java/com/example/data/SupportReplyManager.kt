@@ -22,6 +22,15 @@ data class SupportReply(
     val timestampMillis: Long = System.currentTimeMillis()
 )
 
+data class SupportMessageEntry(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val senderName: String = "",
+    val senderRole: String = "SUPPORT", // "SUPPORT" o "USER"
+    val text: String = "",
+    val timestampMillis: Long = System.currentTimeMillis(),
+    val isGreeting: Boolean = false
+)
+
 data class AutoDeleteCountdown(
     val maxDays: Int,
     val remainingMillis: Long,
@@ -37,9 +46,108 @@ object SupportReplyManager {
     private const val KEY_REPLY_PREFIX = "reply_text_"
     private const val KEY_DATE_PREFIX = "reply_date_"
     private const val KEY_AUTHOR_PREFIX = "reply_author_"
+    private const val KEY_CONVERSATION_PREFIX = "conversation_history_"
 
     const val DAYS_RETENTION_READ = 30
     const val DAYS_RETENTION_UNREAD = 60
+
+    /**
+     * Identifica si un texto coincide con el saludo predeterminado del soporte de Coach.
+     */
+    fun isDefaultGreeting(text: String): Boolean {
+        val clean = text.trim()
+        val isGreetingPrefix = clean.startsWith("👋 Hola", ignoreCase = true) || 
+                               clean.startsWith("Hola", ignoreCase = true) ||
+                               clean.startsWith("👋 Saludo", ignoreCase = true)
+        val hasSupportMention = clean.contains("equipo de soporte", ignoreCase = true) ||
+                                clean.contains("soporte de Coach", ignoreCase = true)
+        val hasReceivedMention = clean.contains("recibido tu mensaje", ignoreCase = true) ||
+                                 clean.contains("estamos para ayudarte", ignoreCase = true)
+        return isGreetingPrefix && hasSupportMention && hasReceivedMention
+    }
+
+    /**
+     * Determina si el usuario tiene permiso para responder.
+     * Si no hay respuesta de soporte aún, o si la ÚNICA respuesta recibida de soporte
+     * es el saludo predeterminado, el usuario no puede responder.
+     * Tan pronto soporte envíe una respuesta real o seguimiento, el usuario puede responder.
+     */
+    fun canUserReply(messages: List<SupportMessageEntry>): Boolean {
+        val supportMessages = messages.filter { 
+            it.senderRole.equals("SUPPORT", ignoreCase = true) || it.senderRole.equals("ADMIN", ignoreCase = true)
+        }
+        if (supportMessages.isEmpty()) return false
+        // Si todos los mensajes de soporte son saludos predeterminados, no puede responder
+        val allAreGreetings = supportMessages.all { it.isGreeting || isDefaultGreeting(it.text) }
+        return !allAreGreetings
+    }
+
+    /**
+     * Comprueba si sólo hay saludos de bienvenida de parte de soporte.
+     */
+    fun isOnlyGreeting(messages: List<SupportMessageEntry>): Boolean {
+        val supportMessages = messages.filter { 
+            it.senderRole.equals("SUPPORT", ignoreCase = true) || it.senderRole.equals("ADMIN", ignoreCase = true)
+        }
+        if (supportMessages.isEmpty()) return false
+        return supportMessages.all { it.isGreeting || isDefaultGreeting(it.text) }
+    }
+
+    fun getConversation(context: Context, reportId: String): List<SupportMessageEntry> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val json = prefs.getString(KEY_CONVERSATION_PREFIX + reportId, null)
+        if (!json.isNullOrBlank()) {
+            try {
+                val array = org.json.JSONArray(json)
+                val list = mutableListOf<SupportMessageEntry>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    list.add(
+                        SupportMessageEntry(
+                            id = obj.optString("id", java.util.UUID.randomUUID().toString()),
+                            senderName = obj.optString("senderName", "Soporte"),
+                            senderRole = obj.optString("senderRole", "SUPPORT"),
+                            text = obj.optString("text", ""),
+                            timestampMillis = obj.optLong("timestampMillis", System.currentTimeMillis()),
+                            isGreeting = obj.optBoolean("isGreeting", false)
+                        )
+                    )
+                }
+                return list
+            } catch (e: Exception) {
+                Log.w(TAG, "Error parseando historial de conversación local: ${e.message}")
+            }
+        }
+        // Fallback a respuesta única legacy si existía
+        val legacyReply = getLocalReply(context, reportId)
+        if (legacyReply != null && legacyReply.text.isNotBlank()) {
+            val entry = SupportMessageEntry(
+                senderName = legacyReply.author,
+                senderRole = "SUPPORT",
+                text = legacyReply.text,
+                timestampMillis = legacyReply.timestampMillis,
+                isGreeting = isDefaultGreeting(legacyReply.text)
+            )
+            return listOf(entry)
+        }
+        return emptyList()
+    }
+
+    fun saveConversation(context: Context, reportId: String, messages: List<SupportMessageEntry>) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val array = org.json.JSONArray()
+        messages.forEach { m ->
+            val obj = org.json.JSONObject()
+            obj.put("id", m.id)
+            obj.put("senderName", m.senderName)
+            obj.put("senderRole", m.senderRole)
+            obj.put("text", m.text)
+            obj.put("timestampMillis", m.timestampMillis)
+            obj.put("isGreeting", m.isGreeting || isDefaultGreeting(m.text))
+            array.put(obj)
+        }
+        prefs.edit().putString(KEY_CONVERSATION_PREFIX + reportId, array.toString()).apply()
+    }
 
     /**
      * Calcula el tiempo restante de vida antes de la eliminación automática:
@@ -128,22 +236,58 @@ object SupportReplyManager {
         markAsRead: Boolean = true
     ): Boolean = withContext(Dispatchers.IO) {
         try {
-            // 1. Guardar copia local permanente
+            // 1. Guardar copia local permanente y actualizar historial de conversación
+            val isGreeting = isDefaultGreeting(replyText)
+            val newEntry = SupportMessageEntry(
+                senderName = author,
+                senderRole = "SUPPORT",
+                text = replyText,
+                timestampMillis = System.currentTimeMillis(),
+                isGreeting = isGreeting
+            )
+            val currentConversation = getConversation(context, reportId) + newEntry
+            saveConversation(context, reportId, currentConversation)
             saveLocalReply(context, reportId, replyText, author)
 
-            // 2. Si es documento en Firestore, actualizar el documento
+            val conversationListMap = currentConversation.map { m ->
+                mapOf(
+                    "id" to m.id,
+                    "senderName" to m.senderName,
+                    "senderRole" to m.senderRole,
+                    "text" to m.text,
+                    "timestampMillis" to m.timestampMillis,
+                    "isGreeting" to m.isGreeting
+                )
+            }
+
+            // 2. Si es documento en Firestore, actualizar el documento con el historial
+            var resolvedUserId = ""
+            var resolvedTitle = reportTitle ?: "Reporte de Soporte"
+            var resolvedOriginalDesc = reportTitle ?: ""
+            var resolvedSenderName = "Usuario"
+
             try {
                 val db = FirebaseFirestore.getInstance()
+                val docSnap = db.collection("support_reports").document(reportId).get().await()
+                if (docSnap.exists()) {
+                    resolvedUserId = docSnap.getString("userId") ?: ""
+                    resolvedTitle = docSnap.getString("title") ?: resolvedTitle
+                    resolvedOriginalDesc = docSnap.getString("description") ?: docSnap.getString("content") ?: resolvedOriginalDesc
+                    resolvedSenderName = docSnap.getString("userName") ?: "Usuario"
+                }
+
                 val updateData = mutableMapOf<String, Any>(
                     "adminReply" to replyText,
                     "repliedAt" to Timestamp.now(),
-                    "repliedBy" to author
+                    "repliedBy" to author,
+                    "conversation" to conversationListMap,
+                    "lastMessageAt" to Timestamp.now()
                 )
                 if (markAsRead) {
                     updateData["status"] = "LEIDO"
                 }
-                db.collection("support_reports").document(reportId).update(updateData).await()
-                Log.d(TAG, "Respuesta sincronizada en soporte remoto para $reportId")
+                db.collection("support_reports").document(reportId).set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+                Log.d(TAG, "Respuesta e historial sincronizados en Firestore para $reportId")
             } catch (e: Exception) {
                 Log.w(TAG, "No se pudo actualizar respuesta en Firestore: ${e.message}")
             }
@@ -158,27 +302,32 @@ object SupportReplyManager {
             // 4. Notificar a la bandeja de entrada del usuario en Firestore si existe userId
             try {
                 val db = FirebaseFirestore.getInstance()
-                val docSnap = db.collection("support_reports").document(reportId).get().await()
-                val userId = docSnap.getString("userId") ?: ""
-                val title = docSnap.getString("title") ?: reportTitle ?: "Reporte de Soporte"
-                val originalDesc = docSnap.getString("description") ?: docSnap.getString("content") ?: reportTitle ?: ""
-                val senderName = docSnap.getString("userName") ?: "Usuario"
-                if (userId.isNotBlank() && userId != "anonimo") {
+                if (resolvedUserId.isBlank() && !userEmail.isNullOrBlank()) {
+                    // Buscar userId por email si no lo tenemos aún
+                    val userQuery = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
+                    if (!userQuery.isEmpty) {
+                        resolvedUserId = userQuery.documents[0].id
+                    }
+                }
+
+                if (resolvedUserId.isNotBlank() && resolvedUserId != "anonimo") {
                     val messageMap = hashMapOf<String, Any>(
-                        "title" to "Soporte: $title",
-                        "content" to originalDesc,
-                        "description" to originalDesc,
+                        "title" to "Soporte: $resolvedTitle",
+                        "content" to resolvedOriginalDesc,
+                        "description" to resolvedOriginalDesc,
                         "adminReply" to replyText,
                         "repliedBy" to author,
                         "timestamp" to System.currentTimeMillis(),
                         "isRead" to false,
                         "tag" to "SUPPORT",
-                        "sender" to senderName,
-                        "reportId" to reportId
+                        "sender" to resolvedSenderName,
+                        "reportId" to reportId,
+                        "conversation" to conversationListMap
                     )
-                    db.collection("users").document(userId).collection("messages").document(reportId).set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
+                    db.collection("users").document(resolvedUserId).collection("messages").document(reportId)
+                        .set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
 
-                    val userRef = db.collection("users").document(userId)
+                    val userRef = db.collection("users").document(resolvedUserId)
                     val userSnap = userRef.get().await()
                     val unreadCount = userSnap.getLong("unreadMessagesCount") ?: 0L
                     userRef.update(
@@ -193,6 +342,77 @@ object SupportReplyManager {
             true
         } catch (e: Exception) {
             Log.e(TAG, "Error enviando respuesta de soporte: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun sendUserReply(
+        context: Context,
+        reportId: String,
+        userReplyText: String,
+        userName: String,
+        userId: String? = null,
+        userEmail: String? = null
+    ): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val newEntry = SupportMessageEntry(
+                senderName = userName.takeIf { it.isNotBlank() && !it.contains("@") } ?: "Invocador",
+                senderRole = "USER",
+                text = userReplyText.trim(),
+                timestampMillis = System.currentTimeMillis(),
+                isGreeting = false
+            )
+            val currentConversation = getConversation(context, reportId) + newEntry
+            saveConversation(context, reportId, currentConversation)
+
+            val conversationListMap = currentConversation.map { m ->
+                mapOf(
+                    "id" to m.id,
+                    "senderName" to m.senderName,
+                    "senderRole" to m.senderRole,
+                    "text" to m.text,
+                    "timestampMillis" to m.timestampMillis,
+                    "isGreeting" to m.isGreeting
+                )
+            }
+
+            val db = FirebaseFirestore.getInstance()
+            
+            // 1. Actualizar el ticket de soporte marcándolo como PENDIENTE para que el admin lo atienda
+            try {
+                val updateData = hashMapOf<String, Any>(
+                    "conversation" to conversationListMap,
+                    "status" to "PENDIENTE",
+                    "lastUserMessage" to userReplyText.trim(),
+                    "lastUserMessageAt" to Timestamp.now(),
+                    "updatedAt" to Timestamp.now()
+                )
+                db.collection("support_reports").document(reportId)
+                    .set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+            } catch (e: Exception) {
+                Log.w(TAG, "Error actualizando ticket de soporte con respuesta de usuario: ${e.message}")
+            }
+
+            // 2. Actualizar la bandeja de entrada del usuario
+            val effectiveUserId = userId?.takeIf { it.isNotBlank() && it != "anonimo" }
+                ?: com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            if (!effectiveUserId.isNullOrBlank()) {
+                try {
+                    val userMsgUpdate = hashMapOf<String, Any>(
+                        "conversation" to conversationListMap,
+                        "timestamp" to System.currentTimeMillis(),
+                        "isRead" to true
+                    )
+                    db.collection("users").document(effectiveUserId).collection("messages").document(reportId)
+                        .set(userMsgUpdate, com.google.firebase.firestore.SetOptions.merge()).await()
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error actualizando mensaje de usuario en su bandeja: ${e.message}")
+                }
+            }
+
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error enviando respuesta de usuario: ${e.message}")
             false
         }
     }

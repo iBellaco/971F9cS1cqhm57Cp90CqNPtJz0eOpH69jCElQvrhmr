@@ -20,7 +20,8 @@ object GenerativeVisionAnalyzer {
 
     suspend fun identifyLastPickAvatar(
         bitmap: Bitmap,
-        isAlly: Boolean
+        isAlly: Boolean,
+        targetTopEnemy: Boolean = true
     ): Champion? = withContext(Dispatchers.IO) {
         if (bitmap.isRecycled || apiKey.isEmpty() || isCallInProgress) return@withContext null
         isCallInProgress = true
@@ -32,10 +33,14 @@ object GenerativeVisionAnalyzer {
                 apiKey = apiKey
             )
 
-            // Cortar solo la franja superior de avatares para no saturar memoria ni red
-            val cropWidth = (bitmap.width * 0.5f).toInt().coerceAtLeast(1)
-            val cropHeight = (bitmap.height * 0.22f).toInt().coerceAtLeast(1)
-            val cropLeft = if (isAlly) 0 else (bitmap.width * 0.5f).toInt()
+            // Cortar la franja superior de avatares correspondiente para máxima precisión
+            val cropWidth = (bitmap.width * 0.40f).toInt().coerceAtLeast(1)
+            val cropHeight = (bitmap.height * 0.18f).toInt().coerceAtLeast(1)
+            val cropLeft = if (!targetTopEnemy && isAlly) {
+                0
+            } else {
+                (bitmap.width * 0.60f).toInt()
+            }
             
             crop = if (!bitmap.isRecycled && cropLeft + cropWidth <= bitmap.width && cropHeight <= bitmap.height) {
                 Bitmap.createBitmap(bitmap, cropLeft, 0, cropWidth, cropHeight)
@@ -45,9 +50,10 @@ object GenerativeVisionAnalyzer {
             if (imageToSend.isRecycled) return@withContext null
 
             val prompt = """
-                Esta es la parte superior de la pantalla de 'FASE DE PREPARACIÓN' de League of Legends: Wild Rift.
+                Esta es la parte superior derecha de la pantalla de 'FASE DE PREPARACIÓN' de League of Legends: Wild Rift.
                 En esta franja hay avatares circulares de los campeones.
-                Identifica el campeón seleccionado en el último avatar de este grupo.
+                El último avatar a la derecha contiene la confirmación definitiva (100%) del 10º Pick del Draft.
+                Identifica el campeón seleccionado en el último avatar circular de este grupo (ej: Kassadin, Brand, Kai'Sa, etc.).
                 Responde SÓLO con el nombre oficial del campeón de Wild Rift, nada más. Si no estás seguro, responde "UNKNOWN".
             """.trimIndent()
 

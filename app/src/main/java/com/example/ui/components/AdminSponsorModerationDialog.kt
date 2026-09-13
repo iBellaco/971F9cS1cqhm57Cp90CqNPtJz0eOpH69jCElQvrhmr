@@ -24,6 +24,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.data.AppNotice
 import com.example.data.AppNoticeManager
 import com.example.ui.theme.*
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
@@ -31,9 +32,38 @@ fun AdminSponsorModerationDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val allNotices by AppNoticeManager.notices.collectAsState()
+    var isSyncing by remember { mutableStateOf(false) }
+
+    fun triggerSync() {
+        coroutineScope.launch {
+            isSyncing = true
+            AppNoticeManager.syncFromCloud(context)
+            AppNoticeManager.syncPendingSponsors(context)
+            isSyncing = false
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        triggerSync()
+    }
+
     val sponsorNotices = remember(allNotices) {
-        allNotices.filter { it.tag.equals("Publicidad", true) || it.sponsorEmail.isNotBlank() }
+        allNotices.filter { it.tag.equals("Publicidad", true) || it.sponsorEmail.isNotBlank() || !it.isApproved }
+    }
+
+    val pendingCount = remember(sponsorNotices) { sponsorNotices.count { !it.isApproved } }
+    val approvedCount = remember(sponsorNotices) { sponsorNotices.count { it.isApproved } }
+
+    var selectedFilter by remember { mutableStateOf(if (pendingCount > 0) "PENDING" else "ALL") }
+
+    val filteredNotices = remember(sponsorNotices, selectedFilter) {
+        when (selectedFilter) {
+            "PENDING" -> sponsorNotices.filter { !it.isApproved }
+            "APPROVED" -> sponsorNotices.filter { it.isApproved }
+            else -> sponsorNotices.sortedBy { it.isApproved } // Pendientes primero
+        }
     }
 
     Dialog(
@@ -63,21 +93,87 @@ fun AdminSponsorModerationDialog(
                         Icon(Icons.Default.Verified, contentDescription = null, tint = HextechGold, modifier = Modifier.size(28.dp))
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text("Moderación de Anuncios de Patrocinadores", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("Acepta o rechaza publicaciones publicitarias de patrocinadores", color = TextSecondary, fontSize = 11.sp)
+                            Text("Moderación de Patrocinadores", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text("Acepta o rechaza publicaciones de anunciantes y patrocinadores", color = TextSecondary, fontSize = 11.sp)
                         }
                     }
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = { triggerSync() }) {
+                            if (isSyncing) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), color = HextechGold, strokeWidth = 2.dp)
+                            } else {
+                                Icon(Icons.Default.Refresh, contentDescription = "Sincronizar", tint = HextechGold)
+                            }
+                        }
+                        IconButton(onClick = onDismiss) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-                Text("Anuncios Registrados (${sponsorNotices.size})", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Spacer(modifier = Modifier.height(8.dp))
+                // Banner Informativo de Flujo
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = HextechSurfaceVariant,
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Info, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            "Al aprobar un patrocinio, este se activará y se visualizará directamente en el Panel de Anuncios y en la rotación de avisos de la app.",
+                            color = TextPrimary,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
 
-                if (sponsorNotices.isEmpty()) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Filtros de navegación
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilterChip(
+                        selected = selectedFilter == "PENDING",
+                        onClick = { selectedFilter = "PENDING" },
+                        label = { Text("Pendientes ($pendingCount)", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFFF59E0B),
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                    FilterChip(
+                        selected = selectedFilter == "APPROVED",
+                        onClick = { selectedFilter = "APPROVED" },
+                        label = { Text("Aprobados ($approvedCount)", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFF10B981),
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                    FilterChip(
+                        selected = selectedFilter == "ALL",
+                        onClick = { selectedFilter = "ALL" },
+                        label = { Text("Todos (${sponsorNotices.size})", fontSize = 11.sp) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechGold,
+                            selectedLabelColor = HextechDarkBg
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (filteredNotices.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -87,7 +183,12 @@ fun AdminSponsorModerationDialog(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Campaign, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("No hay anuncios de patrocinadores pendientes ni publicados.", color = TextSecondary, fontSize = 14.sp)
+                            val emptyMsg = when (selectedFilter) {
+                                "PENDING" -> "No hay anuncios de patrocinadores pendientes de revisión."
+                                "APPROVED" -> "No hay anuncios aprobados aún."
+                                else -> "No hay anuncios de patrocinadores registrados."
+                            }
+                            Text(emptyMsg, color = TextSecondary, fontSize = 13.sp)
                         }
                     }
                 } else {
@@ -97,19 +198,15 @@ fun AdminSponsorModerationDialog(
                             .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        items(sponsorNotices, key = { it.id }) { notice ->
+                        items(filteredNotices, key = { it.id }) { notice ->
                             AdminSponsorNoticeItem(
                                 notice = notice,
                                 onApprove = {
-                                    val updated = allNotices.map { n ->
-                                        if (n.id == notice.id) n.copy(isApproved = true, isEnabled = true) else n
-                                    }
-                                    AppNoticeManager.saveNotices(context, updated)
-                                    Toast.makeText(context, "Anuncio aprobado y visible en la aplicación", Toast.LENGTH_SHORT).show()
+                                    AppNoticeManager.approveSponsorNotice(context, notice.id)
+                                    Toast.makeText(context, "Anuncio aprobado y visible en el panel de anuncios", Toast.LENGTH_SHORT).show()
                                 },
                                 onReject = {
-                                    val updated = allNotices.filter { it.id != notice.id }
-                                    AppNoticeManager.saveNotices(context, updated)
+                                    AppNoticeManager.rejectSponsorNotice(context, notice.id)
                                     Toast.makeText(context, "Anuncio rechazado y eliminado", Toast.LENGTH_SHORT).show()
                                 }
                             )

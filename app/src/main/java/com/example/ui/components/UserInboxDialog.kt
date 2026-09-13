@@ -1,5 +1,6 @@
 package com.example.ui.components
 
+import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -14,19 +15,28 @@ import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.HeadsetMic
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.example.data.SupportMessageEntry
+import com.example.data.SupportReplyManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 @Composable
 fun UserInboxDialog(
@@ -36,6 +46,28 @@ fun UserInboxDialog(
     var subcollectionMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var arrayMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
+
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val authUser = remember { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }
+    var resolvedUserName by remember { mutableStateOf(authUser?.displayName?.takeIf { it.isNotBlank() } ?: "") }
+    val userEmail = authUser?.email ?: ""
+
+    LaunchedEffect(userUid) {
+        if (resolvedUserName.isBlank()) {
+            try {
+                val userSnap = FirebaseFirestore.getInstance().collection("users").document(userUid).get().await()
+                val name = userSnap.getString("userName")
+                    ?: userSnap.getString("name")
+                    ?: userSnap.getString("username")
+                    ?: userEmail.substringBefore("@").takeIf { it.isNotBlank() }
+                    ?: "Invocador"
+                resolvedUserName = name
+            } catch (_: Exception) {
+                resolvedUserName = userEmail.substringBefore("@").ifBlank { "Invocador" }
+            }
+        }
+    }
 
     LaunchedEffect(userUid) {
         val db = FirebaseFirestore.getInstance()
@@ -347,38 +379,336 @@ fun UserInboxDialog(
                                     }
                                     Text(dateStr, color = Color.Gray, fontSize = 11.sp)
                                     Spacer(modifier = Modifier.height(8.dp))
-                                                                         val sender = msg["sender"] as? String ?: ""
-                                     val repliedBy = msg["repliedBy"] as? String ?: ""
-                                     val adminReply = msg["adminReply"] as? String ?: ""
-                                     if (sender.isNotBlank()) {
-                                         Text("Enviado por: $sender", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Medium)
-                                         Spacer(modifier = Modifier.height(4.dp))
-                                     }
-                                     Text(content, color = Color.LightGray, fontSize = 13.sp)
-                                     if (adminReply.isNotBlank() || repliedBy.isNotBlank()) {
-                                         Spacer(modifier = Modifier.height(8.dp))
-                                         Surface(
-                                             shape = RoundedCornerShape(6.dp),
-                                             color = Color(0xFF0F172A),
-                                             border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.5f)),
-                                             modifier = Modifier.fillMaxWidth()
-                                         ) {
-                                             Column(modifier = Modifier.padding(8.dp)) {
-                                                 Text(
-                                                     "Respuesta de Soporte${if (repliedBy.isNotBlank()) " ($repliedBy)" else ""}:",
-                                                     color = Color(0xFF38BDF8),
-                                                     fontSize = 11.sp,
-                                                     fontWeight = FontWeight.Bold
-                                                 )
-                                                 Spacer(modifier = Modifier.height(2.dp))
-                                                 Text(adminReply, color = Color.White, fontSize = 12.sp)
-                                             }
-                                         }
-                                     }
+
+                                    val sender = msg["sender"] as? String ?: ""
+                                    val repliedBy = msg["repliedBy"] as? String ?: ""
+                                    val adminReply = msg["adminReply"] as? String ?: ""
+                                    val reportId = (msg["reportId"] as? String)?.takeIf { it.isNotBlank() } ?: id
+
+                                    @Suppress("UNCHECKED_CAST")
+                                    val rawConversation = msg["conversation"] as? List<Map<String, Any>>
+                                    val conversationEntries = remember(rawConversation, adminReply) {
+                                        if (rawConversation != null && rawConversation.isNotEmpty()) {
+                                            rawConversation.mapNotNull { m ->
+                                                val text = m["text"] as? String ?: return@mapNotNull null
+                                                SupportMessageEntry(
+                                                    id = m["id"] as? String ?: UUID.randomUUID().toString(),
+                                                    senderName = m["senderName"] as? String ?: "Soporte",
+                                                    senderRole = m["senderRole"] as? String ?: "SUPPORT",
+                                                    text = text,
+                                                    timestampMillis = (m["timestampMillis"] as? Long) ?: (m["timestamp"] as? Long) ?: 0L,
+                                                    isGreeting = (m["isGreeting"] as? Boolean) ?: false
+                                                )
+                                            }
+                                        } else if (adminReply.isNotBlank()) {
+                                            listOf(
+                                                SupportMessageEntry(
+                                                    senderName = repliedBy.ifBlank { "Soporte Coach" },
+                                                    senderRole = "SUPPORT",
+                                                    text = adminReply,
+                                                    timestampMillis = timestamp,
+                                                    isGreeting = SupportReplyManager.isDefaultGreeting(adminReply)
+                                                )
+                                            )
+                                        } else emptyList()
+                                    }
+
+                                    val isSupportTicket = rawTag.equals("SUPPORT", ignoreCase = true) ||
+                                        (msg["reportId"] as? String)?.isNotBlank() == true ||
+                                        conversationEntries.isNotEmpty() ||
+                                        adminReply.isNotBlank()
+
+                                    if (isSupportTicket) {
+                                        UserSupportThreadCard(
+                                            reportId = reportId,
+                                            originalContent = content,
+                                            initialConversation = conversationEntries,
+                                            adminReply = adminReply,
+                                            repliedBy = repliedBy,
+                                            timestamp = timestamp,
+                                            userName = resolvedUserName,
+                                            userUid = userUid,
+                                            userEmail = userEmail
+                                        )
+                                    } else {
+                                        if (sender.isNotBlank()) {
+                                            Text("Enviado por: $sender", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                        }
+                                        Text(content, color = Color.LightGray, fontSize = 13.sp)
+                                    }
                                 }
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserSupportThreadCard(
+    reportId: String,
+    originalContent: String,
+    initialConversation: List<SupportMessageEntry>,
+    adminReply: String,
+    repliedBy: String,
+    timestamp: Long,
+    userName: String,
+    userUid: String,
+    userEmail: String
+) {
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    var conversation by remember(initialConversation, adminReply) {
+        mutableStateOf(
+            if (initialConversation.isNotEmpty()) initialConversation
+            else {
+                val local = SupportReplyManager.getConversation(context, reportId)
+                if (local.isNotEmpty()) local
+                else if (adminReply.isNotBlank()) {
+                    listOf(
+                        SupportMessageEntry(
+                            senderName = repliedBy.ifBlank { "Soporte Coach" },
+                            senderRole = "SUPPORT",
+                            text = adminReply,
+                            timestampMillis = timestamp,
+                            isGreeting = SupportReplyManager.isDefaultGreeting(adminReply)
+                        )
+                    )
+                } else emptyList()
+            }
+        )
+    }
+
+    // Actualizar con copia local en caso de que el usuario ya haya enviado mensajes
+    LaunchedEffect(reportId) {
+        val local = SupportReplyManager.getConversation(context, reportId)
+        if (local.isNotEmpty() && local.size > conversation.size) {
+            conversation = local
+        }
+    }
+
+    var userReplyText by remember { mutableStateOf("") }
+    var isSending by remember { mutableStateOf(false) }
+
+    val canReply = remember(conversation) { SupportReplyManager.canUserReply(conversation) }
+    val isOnlyGreeting = remember(conversation) { SupportReplyManager.isOnlyGreeting(conversation) }
+    val timeFormatter = remember { SimpleDateFormat("HH:mm - dd/MM", Locale.getDefault()) }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Mensaje original
+        if (originalContent.isNotBlank()) {
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = Color(0xFF0F172A).copy(alpha = 0.6f),
+                border = BorderStroke(0.5.dp, Color(0xFF334155)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Text("Tu reporte inicial:", color = Color(0xFF94A3B8), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(originalContent, color = Color.LightGray, fontSize = 12.sp)
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        // Historial de conversación
+        if (conversation.isNotEmpty()) {
+            Text(
+                "Historial de Respuestas (${conversation.size})",
+                color = Color(0xFF38BDF8),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                conversation.forEach { msg ->
+                    val isUserMsg = msg.senderRole.equals("USER", ignoreCase = true)
+                    val bubbleBg = if (isUserMsg) Color(0xFF1E293B) else Color(0xFF0F2B48)
+                    val bubbleBorder = if (isUserMsg) BorderStroke(1.dp, Color(0xFFD4AF37).copy(alpha = 0.5f))
+                                       else BorderStroke(1.dp, Color(0xFF0EA5E9).copy(alpha = 0.6f))
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = if (isUserMsg) Alignment.CenterEnd else Alignment.CenterStart
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = bubbleBg,
+                            border = bubbleBorder,
+                            modifier = Modifier.fillMaxWidth(0.92f)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            if (isUserMsg) "👤 ${msg.senderName} (Tú)" else "🛡️ ${msg.senderName}",
+                                            color = if (isUserMsg) Color(0xFFD4AF37) else Color(0xFF38BDF8),
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        if (msg.isGreeting || (!isUserMsg && SupportReplyManager.isDefaultGreeting(msg.text))) {
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Surface(
+                                                shape = RoundedCornerShape(4.dp),
+                                                color = Color(0xFF38BDF8).copy(alpha = 0.2f),
+                                                border = BorderStroke(0.5.dp, Color(0xFF38BDF8))
+                                            ) {
+                                                Text(
+                                                    "SALUDO",
+                                                    color = Color(0xFF38BDF8),
+                                                    fontSize = 7.5.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(horizontal = 3.dp, vertical = 1.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Text(
+                                        timeFormatter.format(Date(msg.timestampMillis)),
+                                        color = Color.Gray,
+                                        fontSize = 9.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(msg.text, color = Color.White, fontSize = 12.sp)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Si es SOLO saludo predeterminado
+        if (isOnlyGreeting) {
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = Color(0xFF0F172A),
+                border = BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.4f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "Saludo de bienvenida recibido. El equipo de soporte atenderá tu mensaje en breve. (No es posible responder al saludo inicial).",
+                        color = Color(0xFFFDE68A),
+                        fontSize = 10.5.sp
+                    )
+                }
+            }
+        } else if (canReply) {
+            // Sección para que el usuario responda
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFF0B132B),
+                border = BorderStroke(1.dp, Color(0xFF38BDF8).copy(alpha = 0.4f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(8.dp)) {
+                    Text(
+                        "Responder a Soporte",
+                        color = Color(0xFF38BDF8),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    OutlinedTextField(
+                        value = userReplyText,
+                        onValueChange = { userReplyText = it },
+                        placeholder = { Text("Escribe tu respuesta aquí...", color = Color.Gray, fontSize = 11.5.sp) },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedBorderColor = Color(0xFF38BDF8),
+                            unfocusedBorderColor = Color(0xFF334155),
+                            focusedContainerColor = Color(0xFF0F172A),
+                            unfocusedContainerColor = Color(0xFF0F172A)
+                        )
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = {
+                                if (userReplyText.trim().isBlank()) return@Button
+                                isSending = true
+                                coroutineScope.launch {
+                                    val success = SupportReplyManager.sendUserReply(
+                                        context = context,
+                                        reportId = reportId,
+                                        userReplyText = userReplyText.trim(),
+                                        userName = userName,
+                                        userId = userUid,
+                                        userEmail = userEmail
+                                    )
+                                    if (success) {
+                                        userReplyText = ""
+                                        conversation = SupportReplyManager.getConversation(context, reportId)
+                                        Toast.makeText(context, "Respuesta enviada a soporte", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(context, "Error al enviar respuesta", Toast.LENGTH_SHORT).show()
+                                    }
+                                    isSending = false
+                                }
+                            },
+                            enabled = !isSending && userReplyText.trim().isNotBlank(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0EA5E9)),
+                            shape = RoundedCornerShape(6.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            if (isSending) {
+                                CircularProgressIndicator(modifier = Modifier.size(14.dp), color = Color.White, strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(6.dp))
+                            } else {
+                                Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.White)
+                                Spacer(modifier = Modifier.width(6.dp))
+                            }
+                            Text("Enviar", fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+                }
+            }
+        } else if (conversation.isEmpty()) {
+            Surface(
+                shape = RoundedCornerShape(6.dp),
+                color = Color(0xFF0F172A),
+                border = BorderStroke(1.dp, Color(0xFF334155)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        "Tu reporte está siendo revisado por el equipo de soporte.",
+                        color = Color.Gray,
+                        fontSize = 11.sp
+                    )
                 }
             }
         }

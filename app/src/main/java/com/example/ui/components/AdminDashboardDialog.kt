@@ -787,6 +787,22 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(text = notice.tag, color = HextechGold, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                        if (notice.sponsorEmail.isNotBlank() || notice.tag.equals("Publicidad", true)) {
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Surface(
+                                                shape = RoundedCornerShape(4.dp),
+                                                color = Color(0xFF10B981).copy(alpha = 0.2f),
+                                                border = BorderStroke(0.5.dp, Color(0xFF10B981))
+                                            ) {
+                                                Text(
+                                                    "PATROCINIO APROBADO",
+                                                    color = Color(0xFF10B981),
+                                                    fontSize = 7.5.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                                )
+                                            }
+                                        }
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(text = "•", color = TextMuted, fontSize = 9.sp)
                                         Spacer(modifier = Modifier.width(4.dp))

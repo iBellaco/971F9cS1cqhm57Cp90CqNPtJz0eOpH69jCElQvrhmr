@@ -330,9 +330,10 @@ fun SponsorCpmPanelDialog(
                             sponsorEmail = userEmail
                         )
 
-                        // Guardar en localPendingAds
+                        // Guardar en localPendingAds y registrar en AppNoticeManager para moderación
                         val updatedLocalList = localPendingAds + newPendingNotice
                         localPendingAds = updatedLocalList
+                        AppNoticeManager.submitPendingSponsorNotice(context, newPendingNotice)
                         
                         val jsonArray = org.json.JSONArray()
                         updatedLocalList.forEach { n ->

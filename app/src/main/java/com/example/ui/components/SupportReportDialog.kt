@@ -480,7 +480,19 @@ fun SupportReportDialog(
                                     val db = FirebaseFirestore.getInstance()
                                     val userEmail = currentUser?.email ?: "sin_email"
                                     val userId = currentUser?.uid ?: "anonimo"
-                                    val userName = currentUser?.displayName ?: "Usuario"
+                                    val subUser = com.example.util.SubscriptionManager.userName.value.trim()
+                                    val activeProfile = com.example.data.AccountProfileManager.getActiveProfile(context)
+                                    val rawDisplayName = currentUser?.displayName?.trim() ?: ""
+                                    val exactUserName = when {
+                                        subUser.isNotBlank() && !subUser.contains("@") -> subUser
+                                        rawDisplayName.isNotBlank() && !rawDisplayName.contains("@") -> rawDisplayName
+                                        activeProfile.name.isNotBlank() && activeProfile.name != "Invocador" && !activeProfile.name.contains("@") -> activeProfile.name.trim()
+                                        else -> {
+                                            val saved = context.getSharedPreferences("user_profile_prefs", Context.MODE_PRIVATE).getString("username", "") ?: ""
+                                            if (saved.isNotBlank() && !saved.contains("@")) saved.trim() else "Invocador"
+                                        }
+                                    }
+                                    val userName = exactUserName
 
                                     val reportMap = hashMapOf<String, Any>(
                                         "title" to cleanTitle,
@@ -528,7 +540,8 @@ fun SupportReportDialog(
                                             title = cleanTitle,
                                             description = cleanDesc,
                                             email = userEmail,
-                                            imagesBase64 = base64Photos.toList()
+                                            imagesBase64 = base64Photos.toList(),
+                                            userName = userName
                                         )
                                     } catch (_: Exception) {}
 

@@ -31,6 +31,10 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.data.SupportReplyManager
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun SupportReplyDialog(
@@ -50,26 +54,94 @@ fun SupportReplyDialog(
     var isSending by remember { mutableStateOf(false) }
 
     val authUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-    val responderName = authUser?.displayName?.takeIf { it.isNotBlank() }
-        ?: authUser?.email?.substringBefore("@")?.takeIf { it.isNotBlank() }
+    val responderName = authUser?.displayName?.takeIf { it.isNotBlank() && !it.contains("@") }
         ?: "Administrador"
 
-    val displayUserName = when {
-        !userName.isBlank() && !userName.contains("@") -> userName
-        !userEmail.isBlank() -> userEmail.substringBefore("@")
-        else -> "Usuario"
+    // Resolver el nombre de usuario exacto (NUNCA usar iniciales de email)
+    var resolvedUserName by remember {
+        mutableStateOf(
+            when {
+                userName.isNotBlank() && !userName.contains("@") -> userName.trim()
+                else -> ""
+            }
+        )
     }
 
-    val quickTemplates = listOf(
-        "👋 Hola $displayUserName, soy $responderName del equipo de soporte de Coach. Gracias por escribirnos, hemos recibido tu mensaje y estamos para ayudarte a la brevedad.",
-        "✅ ¡Problema solucionado! Esta incidencia fue corregida en la última actualización de Coach. Te sugerimos actualizar tu app.",
-        "🔄 Te sugerimos cerrar sesión, reiniciar la app y volver a ingresar para sincronizar tus configuraciones de forma óptima.",
-        "🛡️ Hemos verificado la configuración de tu cuenta y optimizado tus datos. Por favor confirma si el problema persiste.",
-        "🔍 Tu reporte está siendo analizado detalladamente por nuestro equipo técnico prioritario. Te notificaremos cualquier avance.",
-        "💡 Recuerda que puedes consultar la sección de guías y optimización en el menú principal para aprovechar al máximo las funciones de Coach."
-    )
+    // Historial reactivo de la conversación
+    var conversationMessages by remember {
+        mutableStateOf(SupportReplyManager.getConversation(context, reportId))
+    }
 
-    var replyText by remember { mutableStateOf(initialReply.ifBlank { quickTemplates[0] }) }
+    // Consultar el nombre exacto del usuario y el historial desde Firestore
+    LaunchedEffect(reportId, userEmail) {
+        try {
+            val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+            val docSnap = db.collection("support_reports").document(reportId).get().await()
+            if (docSnap.exists()) {
+                val dbUser = docSnap.getString("userName") ?: docSnap.getString("displayName") ?: ""
+                if (dbUser.isNotBlank() && !dbUser.contains("@") && resolvedUserName.isBlank()) {
+                    resolvedUserName = dbUser.trim()
+                }
+
+                // Cargar mensajes de conversación si existen en Firestore
+                val remoteConv = docSnap.get("conversation") as? List<Map<String, Any>>
+                if (!remoteConv.isNullOrEmpty()) {
+                    val parsed = remoteConv.map { item ->
+                        com.example.data.SupportMessageEntry(
+                            id = item["id"] as? String ?: java.util.UUID.randomUUID().toString(),
+                            senderName = item["senderName"] as? String ?: "Soporte",
+                            senderRole = item["senderRole"] as? String ?: "SUPPORT",
+                            text = item["text"] as? String ?: "",
+                            timestampMillis = (item["timestampMillis"] as? Number)?.toLong() ?: System.currentTimeMillis(),
+                            isGreeting = (item["isGreeting"] as? Boolean) ?: false
+                        )
+                    }
+                    conversationMessages = parsed
+                    SupportReplyManager.saveConversation(context, reportId, parsed)
+                }
+            }
+
+            // Si aún no tenemos el nombre exacto, buscar en la colección de usuarios por email
+            if (resolvedUserName.isBlank() && userEmail.isNotBlank()) {
+                val userDocs = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
+                if (!userDocs.isEmpty) {
+                    val u = userDocs.documents[0]
+                    val exactNick = u.getString("userName")
+                        ?: u.getString("displayName")
+                        ?: u.getString("name")
+                        ?: u.getString("summonerName")
+                        ?: ""
+                    if (exactNick.isNotBlank() && !exactNick.contains("@")) {
+                        resolvedUserName = exactNick.trim()
+                    }
+                }
+            }
+        } catch (_: Exception) {}
+    }
+
+    val displayUserName = resolvedUserName.ifBlank { "Invocador" }
+
+    val quickTemplates = remember(displayUserName, responderName) {
+        listOf(
+            "👋 Hola $displayUserName, soy $responderName del equipo de soporte de Coach. Gracias por escribirnos, hemos recibido tu mensaje y estamos para ayudarte a la brevedad.",
+            "✅ ¡Problema solucionado! Esta incidencia fue corregida en la última actualización de Coach. Te sugerimos actualizar tu app.",
+            "🔄 Te sugerimos cerrar sesión, reiniciar la app y volver a ingresar para sincronizar tus configuraciones de forma óptima.",
+            "🛡️ Hemos verificado la configuración de tu cuenta y optimizado tus datos. Por favor confirma si el problema persiste.",
+            "🔍 Tu reporte está siendo analizado detalladamente por nuestro equipo técnico prioritario. Te notificaremos cualquier avance.",
+            "💡 Recuerda que puedes consultar la sección de guías y optimización en el menú principal para aprovechar al máximo las funciones de Coach."
+        )
+    }
+
+    var replyText by remember { mutableStateOf(initialReply.ifBlank { "" }) }
+
+    // Actualizar plantilla por defecto cuando se resuelve el nombre si no ha escrito nada
+    LaunchedEffect(displayUserName) {
+        if (replyText.isBlank() || replyText.startsWith("👋 Hola")) {
+            replyText = quickTemplates[0]
+        }
+    }
+
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
 
     Dialog(
         onDismissRequest = { if (!isSending) onDismiss() },
@@ -78,14 +150,14 @@ fun SupportReplyDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(HextechDarkBg.copy(alpha = 0.9f))
-                .padding(16.dp),
+                .background(HextechDarkBg.copy(alpha = 0.92f))
+                .padding(14.dp),
             contentAlignment = Alignment.Center
         ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 680.dp),
+                    .heightIn(max = 720.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
                 border = BorderStroke(1.5.dp, HextechCyan)
@@ -125,7 +197,7 @@ fun SupportReplyDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Reply,
+                                    imageVector = Icons.Default.Forum,
                                     contentDescription = null,
                                     tint = HextechCyan,
                                     modifier = Modifier.size(20.dp)
@@ -134,15 +206,16 @@ fun SupportReplyDialog(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
-                                    text = "Responder Mensaje",
+                                    text = "Conversación de Soporte",
                                     color = HextechGold,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    text = "Atención y soporte directo al usuario",
-                                    color = TextSecondary,
-                                    fontSize = 11.sp
+                                    text = "Usuario: $displayUserName",
+                                    color = HextechCyan,
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
@@ -158,7 +231,7 @@ fun SupportReplyDialog(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // Tarjeta con información del mensaje original
+                    // Tarjeta con información del reporte original inicial
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -191,7 +264,7 @@ fun SupportReplyDialog(
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = reportDescription.take(220) + if (reportDescription.length > 220) "..." else "",
+                                text = reportDescription,
                                 color = TextSecondary,
                                 fontSize = 11.5.sp,
                                 lineHeight = 15.5.sp
@@ -201,9 +274,118 @@ fun SupportReplyDialog(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
+                    // Sección de Historial de Conversación
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Historial de Conversación (${conversationMessages.size}):",
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        if (conversationMessages.isNotEmpty()) {
+                            Text(
+                                text = "En vivo",
+                                color = Color(0xFF10B981),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    if (conversationMessages.isEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(HextechSurfaceVariant.copy(alpha = 0.5f))
+                                .border(0.8.dp, HextechCardBorder.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                                .padding(10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Aún no hay respuestas enviadas. Selecciona una plantilla o escribe tu mensaje abajo.",
+                                color = TextMuted,
+                                fontSize = 11.sp,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            conversationMessages.forEach { msg ->
+                                val isFromSupport = msg.senderRole == "SUPPORT"
+                                val bubbleBorderColor = if (isFromSupport) HextechCyan.copy(alpha = 0.6f) else HextechGold.copy(alpha = 0.6f)
+                                val bubbleBg = if (isFromSupport) HextechDarkBg else HextechSurface
+                                val roleLabel = if (isFromSupport) "🛡️ Soporte Coach (${msg.senderName})" else "👤 $displayUserName"
+                                val roleColor = if (isFromSupport) HextechCyan else HextechGold
+
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = bubbleBg,
+                                    border = BorderStroke(1.dp, bubbleBorderColor),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Text(
+                                                    text = roleLabel,
+                                                    color = roleColor,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                if (msg.isGreeting || SupportReplyManager.isDefaultGreeting(msg.text)) {
+                                                    Spacer(modifier = Modifier.width(6.dp))
+                                                    Surface(
+                                                        shape = RoundedCornerShape(4.dp),
+                                                        color = HextechCyan.copy(alpha = 0.2f)
+                                                    ) {
+                                                        Text(
+                                                            text = "Saludo predeterminado",
+                                                            color = HextechCyan,
+                                                            fontSize = 8.5.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                            Text(
+                                                text = dateFormat.format(Date(msg.timestampMillis)),
+                                                color = TextMuted,
+                                                fontSize = 9.5.sp
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = msg.text,
+                                            color = Color.White,
+                                            fontSize = 12.sp,
+                                            lineHeight = 16.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
                     // Plantillas rápidas de respuesta
                     Text(
-                        text = "Plantillas rápidas de respuesta:",
+                        text = "Plantillas rápidas para $displayUserName:",
                         color = HextechGold,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold
@@ -222,7 +404,8 @@ fun SupportReplyDialog(
                                 2 -> "🔄 Reinicio"
                                 3 -> "🛡️ Cuenta"
                                 4 -> "🔍 Revisión"
-                                else -> "💡 Guía"
+                                5 -> "💡 Guía"
+                                else -> "Mensaje"
                             }
                             Box(
                                 modifier = Modifier
@@ -248,7 +431,7 @@ fun SupportReplyDialog(
 
                     // Campo de redacción de respuesta
                     Text(
-                        text = "Escribe tu respuesta:",
+                        text = "Escribir nuevo mensaje o seguimiento:",
                         color = HextechCyan,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
@@ -259,14 +442,14 @@ fun SupportReplyDialog(
                         onValueChange = { replyText = it },
                         placeholder = {
                             Text(
-                                text = "Escribe aquí la respuesta que se enviará y mostrará al usuario...",
+                                text = "Escribe aquí la respuesta para $displayUserName...",
                                 fontSize = 12.sp,
                                 color = TextMuted
                             )
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 120.dp, max = 200.dp),
+                            .heightIn(min = 100.dp, max = 180.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = HextechCyan,
                             unfocusedBorderColor = HextechCardBorder,
@@ -295,7 +478,7 @@ fun SupportReplyDialog(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Marcar mensaje como leído / atendido automáticamente",
+                            text = "Marcar mensaje como leído / atendido",
                             color = TextPrimary,
                             fontSize = 11.5.sp
                         )
@@ -342,12 +525,12 @@ fun SupportReplyDialog(
                             }
                         }
 
-                        // Botón de guardar y enviar respuesta
+                        // Botón de guardar y enviar respuesta (permite seguir mandando mensajes)
                         Button(
                             onClick = {
                                 val cleanText = replyText.trim()
                                 if (cleanText.isBlank()) {
-                                    Toast.makeText(context, "La respuesta no puede estar vacía", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "El mensaje no puede estar vacío", Toast.LENGTH_SHORT).show()
                                     return@Button
                                 }
                                 isSending = true
@@ -356,22 +539,19 @@ fun SupportReplyDialog(
                                         context = context,
                                         reportId = reportId,
                                         replyText = cleanText,
-                                        author = "Equipo Coach",
+                                        author = responderName,
                                         userEmail = userEmail,
                                         reportTitle = reportTitle,
                                         isFirestoreDoc = isFirestoreDoc,
                                         markAsRead = markAsRead
                                     )
                                     isSending = false
-                                    if (ok) {
-                                        Toast.makeText(context, "Respuesta guardada y sincronizada exitosamente", Toast.LENGTH_LONG).show()
-                                        onReplySent(cleanText, markAsRead)
-                                        onDismiss()
-                                    } else {
-                                        Toast.makeText(context, "Se guardó localmente la respuesta", Toast.LENGTH_SHORT).show()
-                                        onReplySent(cleanText, markAsRead)
-                                        onDismiss()
-                                    }
+                                    // Actualizar el historial local mostrado en pantalla
+                                    val updatedConv = SupportReplyManager.getConversation(context, reportId)
+                                    conversationMessages = updatedConv
+                                    replyText = "" // Dejar campo listo para enviar más mensajes
+                                    Toast.makeText(context, "Mensaje enviado al usuario exitosamente", Toast.LENGTH_SHORT).show()
+                                    onReplySent(cleanText, markAsRead)
                                 }
                             },
                             enabled = !isSending,
@@ -386,9 +566,23 @@ fun SupportReplyDialog(
                             } else {
                                 Icon(Icons.Default.Send, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(15.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Enviar Respuesta", color = HextechDarkBg, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("Enviar Mensaje", color = HextechDarkBg, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Botón para finalizar / cerrar conversación
+                    OutlinedButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(38.dp),
+                        border = BorderStroke(1.dp, HextechCardBorder),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("Cerrar Panel de Conversación", color = TextSecondary, fontSize = 11.5.sp)
                     }
                 }
             }

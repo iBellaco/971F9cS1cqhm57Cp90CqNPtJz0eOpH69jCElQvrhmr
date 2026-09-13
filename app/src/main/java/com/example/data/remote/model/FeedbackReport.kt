@@ -17,15 +17,27 @@ data class FeedbackReport(
     @SerialName("admin_reply") val adminReply: String? = null,
     @SerialName("replied_at") val repliedAt: String? = null
 ) {
+    val parsedUserName: String?
+        get() {
+            val match = Regex("Usuario: (.*?)\n").find(description)
+                ?: Regex("\\[Usuario: (.*?)\\]").find(description)
+                ?: Regex("Invocador: (.*?)\n").find(description)
+            return match?.groupValues?.get(1)?.trim()?.takeIf { it.isNotBlank() && !it.contains("@") }
+        }
+
     val parsedEmail: String?
         get() {
-            val match = Regex("^Correo de contacto: (.*?)\n\n").find(description)
-            return match?.groupValues?.get(1)
+            val match = Regex("Correo de contacto: (.*?)\n\n").find(description)
+                ?: Regex("Correo de contacto: (.*?)\n").find(description)
+            return match?.groupValues?.get(1)?.trim()
         }
 
     val cleanDescription: String
         get() {
-            return description.replaceFirst(Regex("^Correo de contacto: (.*?)\n\n"), "")
+            return description
+                .replaceFirst(Regex("^Usuario: .*?\n\n?"), "")
+                .replaceFirst(Regex("^Correo de contacto: .*?\n\n?"), "")
+                .trim()
         }
 }
 

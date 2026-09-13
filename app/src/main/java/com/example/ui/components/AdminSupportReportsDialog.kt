@@ -207,7 +207,7 @@ fun AdminSupportReportsDialog(
                                 description = cleanDesc,
                                 userId = "",
                                 userEmail = email,
-                                userName = "",
+                                userName = fb.parsedUserName ?: "",
                                 photosBase64 = photos,
                                 status = status,
                                 appVersion = fb.appVersion,

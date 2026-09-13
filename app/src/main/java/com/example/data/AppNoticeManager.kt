@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.UUID
@@ -530,6 +533,215 @@ object AppNoticeManager {
             val updated = currentList[index].copy(budget = newBudget.coerceAtLeast(0.0))
             currentList[index] = updated
             saveNotices(context, currentList)
+        }
+    }
+
+    /**
+     * Registra un nuevo anuncio de patrocinador como pendiente de moderación
+     * y lo sincroniza con Firestore para que el administrador pueda verlo.
+     */
+    fun submitPendingSponsorNotice(context: Context, notice: AppNotice) {
+        val appContext = context.applicationContext
+        val current = _notices.value.toMutableList()
+        val existingIndex = current.indexOfFirst { it.id == notice.id }
+        val pendingNotice = notice.copy(isApproved = false, isEnabled = false, tag = "Publicidad")
+        if (existingIndex >= 0) {
+            current[existingIndex] = pendingNotice
+        } else {
+            current.add(pendingNotice)
+        }
+        _notices.value = current
+        saveNoticesToPrefs(appContext, current)
+        pushNoticesToFirestore(appContext, current)
+
+        // Registrar documento individual en colección pending_sponsor_ads para alta disponibilidad
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val map = hashMapOf<String, Any>(
+                "id" to pendingNotice.id,
+                "title" to pendingNotice.title,
+                "content" to pendingNotice.content,
+                "videoUrl" to pendingNotice.videoUrl,
+                "expandedImageUrl" to pendingNotice.expandedImageUrl,
+                "externalUrl" to pendingNotice.externalUrl,
+                "tag" to "Publicidad",
+                "budget" to pendingNotice.budget,
+                "budgetUnit" to pendingNotice.budgetUnit,
+                "isApproved" to false,
+                "isEnabled" to false,
+                "sponsorEmail" to pendingNotice.sponsorEmail,
+                "createdAt" to System.currentTimeMillis()
+            )
+            db.collection("pending_sponsor_ads").document(pendingNotice.id)
+                .set(map, SetOptions.merge())
+        } catch (e: Exception) {
+            Log.w(TAG, "Error subiendo anuncio a pending_sponsor_ads: ${e.message}")
+        }
+    }
+
+    /**
+     * Aprueba un anuncio de patrocinador:
+     * Lo marca como aprobado y habilitado, lo sincroniza inmediatamente en Firestore
+     * para que sea visible en el Gestor de Anuncios y para todos los usuarios.
+     */
+    fun approveSponsorNotice(context: Context, noticeId: String) {
+        val appContext = context.applicationContext
+        val current = _notices.value.toMutableList()
+        val index = current.indexOfFirst { it.id == noticeId }
+        if (index >= 0) {
+            val approved = current[index].copy(isApproved = true, isEnabled = true)
+            current[index] = approved
+            _notices.value = current
+            saveNoticesToPrefs(appContext, current)
+            pushNoticesToFirestore(appContext, current)
+        } else {
+            // Si no estaba en la lista local, intentar sincronizar primero
+            syncFromCloud(appContext)
+        }
+
+        // Actualizar en la colección pending_sponsor_ads
+        try {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("pending_sponsor_ads").document(noticeId)
+                .update("isApproved", true, "isEnabled", true, "approvedAt", System.currentTimeMillis())
+        } catch (_: Exception) {}
+
+        // Actualizar también en el almacenamiento local del patrocinador si está en este dispositivo
+        try {
+            val prefs = appContext.getSharedPreferences("sponsor_ads_prefs", Context.MODE_PRIVATE)
+            val jsonStr = prefs.getString("pending_ads", null)
+            if (!jsonStr.isNullOrBlank()) {
+                val array = org.json.JSONArray(jsonStr)
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    if (obj.optString("id") == noticeId) {
+                        obj.put("isApproved", true)
+                        obj.put("isEnabled", true)
+                    }
+                }
+                prefs.edit().putString("pending_ads", array.toString()).apply()
+            }
+        } catch (_: Exception) {}
+    }
+
+    /**
+     * Rechaza un anuncio de patrocinador eliminándolo de los anuncios del sistema.
+     */
+    fun rejectSponsorNotice(context: Context, noticeId: String) {
+        val appContext = context.applicationContext
+        val current = _notices.value.filter { it.id != noticeId }
+        _notices.value = current
+        saveNoticesToPrefs(appContext, current)
+        pushNoticesToFirestore(appContext, current)
+
+        try {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("pending_sponsor_ads").document(noticeId).delete()
+        } catch (_: Exception) {}
+
+        try {
+            val prefs = appContext.getSharedPreferences("sponsor_ads_prefs", Context.MODE_PRIVATE)
+            val jsonStr = prefs.getString("pending_ads", null)
+            if (!jsonStr.isNullOrBlank()) {
+                val array = org.json.JSONArray(jsonStr)
+                val newArray = org.json.JSONArray()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    if (obj.optString("id") != noticeId) {
+                        newArray.put(obj)
+                    }
+                }
+                prefs.edit().putString("pending_ads", newArray.toString()).apply()
+            }
+        } catch (_: Exception) {}
+    }
+
+    /**
+     * Sincroniza anuncios de patrocinadores pendientes desde colecciones alternativas
+     * (pending_sponsor_ads y SharedPreferences locales).
+     */
+    suspend fun syncPendingSponsors(context: Context) = withContext(Dispatchers.IO) {
+        val appContext = context.applicationContext
+        val listToAdd = mutableListOf<AppNotice>()
+
+        // 1. Cargar desde SharedPreferences locales de patrocinador
+        try {
+            val prefs = appContext.getSharedPreferences("sponsor_ads_prefs", Context.MODE_PRIVATE)
+            val jsonStr = prefs.getString("pending_ads", null)
+            if (!jsonStr.isNullOrBlank()) {
+                val array = org.json.JSONArray(jsonStr)
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    listToAdd.add(
+                        AppNotice(
+                            id = obj.optString("id", UUID.randomUUID().toString()),
+                            title = obj.optString("title", "Publicidad"),
+                            content = obj.optString("content", ""),
+                            expandedImageUrl = obj.optString("expandedImageUrl", ""),
+                            externalUrl = obj.optString("externalUrl", ""),
+                            tag = obj.optString("tag", "Publicidad"),
+                            budget = obj.optDouble("budget", 10.0),
+                            budgetUnit = obj.optString("budgetUnit", "day"),
+                            isApproved = obj.optBoolean("isApproved", false),
+                            isEnabled = obj.optBoolean("isEnabled", false),
+                            sponsorEmail = obj.optString("sponsorEmail", "")
+                        )
+                    )
+                }
+            }
+        } catch (_: Exception) {}
+
+        // 2. Cargar desde Firestore pending_sponsor_ads
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val snap = db.collection("pending_sponsor_ads").get().await()
+            for (doc in snap.documents) {
+                val id = doc.getString("id") ?: doc.id
+                val title = doc.getString("title") ?: "Publicidad"
+                val content = doc.getString("content") ?: ""
+                val expandedImageUrl = doc.getString("expandedImageUrl") ?: ""
+                val externalUrl = doc.getString("externalUrl") ?: ""
+                val tag = doc.getString("tag") ?: "Publicidad"
+                val budget = doc.getDouble("budget") ?: 10.0
+                val budgetUnit = doc.getString("budgetUnit") ?: "day"
+                val isApproved = doc.getBoolean("isApproved") ?: false
+                val isEnabled = doc.getBoolean("isEnabled") ?: false
+                val sponsorEmail = doc.getString("sponsorEmail") ?: ""
+
+                listToAdd.add(
+                    AppNotice(
+                        id = id,
+                        title = title,
+                        content = content,
+                        expandedImageUrl = expandedImageUrl,
+                        externalUrl = externalUrl,
+                        tag = tag,
+                        budget = budget,
+                        budgetUnit = budgetUnit,
+                        isApproved = isApproved,
+                        isEnabled = isEnabled,
+                        sponsorEmail = sponsorEmail
+                    )
+                )
+            }
+        } catch (_: Exception) {}
+
+        if (listToAdd.isNotEmpty()) {
+            val current = _notices.value.toMutableList()
+            var changed = false
+            for (pending in listToAdd) {
+                val idx = current.indexOfFirst { it.id == pending.id }
+                if (idx == -1) {
+                    current.add(pending)
+                    changed = true
+                }
+            }
+            if (changed) {
+                _notices.value = current
+                saveNoticesToPrefs(appContext, current)
+                pushNoticesToFirestore(appContext, current)
+                Log.d(TAG, "Sincronizados ${listToAdd.size} patrocinios en AppNoticeManager")
+            }
         }
     }
 }

@@ -175,6 +175,8 @@ object DraftVisionScanner {
     private val allySlotRolesCache = mutableMapOf<Int, LaneRole>()
     // Memoria persistente de los nombres de invocador aliados (0..4)
     private val allySummonerNamesCache = mutableMapOf<Int, String>()
+    // Memoria persistente del slot asignado al usuario
+    private var cachedUserSlotIndex: Int? = null
 
     // Filtros de estabilización temporal (anti-parpadeo y anti-oscilación)
     private class SlotTemporalFilter {
@@ -200,6 +202,7 @@ object DraftVisionScanner {
 
     fun resetSlotMemory() {
         isLegendaryRankedCache = false
+        cachedUserSlotIndex = null
         allySlotRolesCache.clear()
         allySummonerNamesCache.clear()
         allySlotFilters.forEach { it.reset() }
@@ -620,7 +623,28 @@ object DraftVisionScanner {
                             AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón 100%: ${matched.name}")
                             continue
                         }
+
+                        // C) Nombre de Invocador aliado (detección instantánea)
+                        if (!isLegendaryRanked && line.length in 2..24 && !line.startsWith("(") && !line.endsWith(")")) {
+                            summonerCandidates.add(line)
+                        }
                     }
+                }
+
+                // Guardar nombre de invocador detectado al instante
+                if (summonerCandidates.isNotEmpty() && !isLegendaryRanked) {
+                    val candidateName = summonerCandidates.first()
+                    allySummonerNamesCache[i] = candidateName
+                    textDiagnosticsList.add(
+                        TextBlockDiagnostic(
+                            text = candidateName,
+                            rect = entries.firstOrNull()?.second ?: Rect(0, 0, 10, 10),
+                            isAlly = true,
+                            slotIndex = i,
+                            tag = "INVOCADOR: $candidateName",
+                            color = android.graphics.Color.WHITE
+                        )
+                    )
                 }
 
                 // Si en este slot se detectó texto indicando que aún no se elige, se invalida el campeón (es un hover)
@@ -647,10 +671,25 @@ object DraftVisionScanner {
             }
 
             // Si se detectó el slot del usuario (marcado con "(TÚ)"), asignar su rol; si no, preservar el rol activo del usuario
+            if (userSlotIndex != null) {
+                cachedUserSlotIndex = userSlotIndex
+            } else if (cachedUserSlotIndex != null) {
+                userSlotIndex = cachedUserSlotIndex
+                userExplicitlyConfirmed = true
+            } else if (currentActiveRole != null) {
+                // Si el usuario tiene seleccionado un rol y coincide con el rol de un slot, vincular al instante
+                val matchingSlot = allySlots.indexOfFirst { it.explicitRole == currentActiveRole || allySlotRolesCache[it.slotIndex] == currentActiveRole }
+                if (matchingSlot != -1) {
+                    userSlotIndex = matchingSlot
+                    cachedUserSlotIndex = matchingSlot
+                    userExplicitlyConfirmed = true
+                }
+            }
+
             val uIdx = userSlotIndex
             if (uIdx != null && uIdx in 0..4) {
                 userDetectedLane = allySlots[uIdx].explicitRole ?: allySlotRolesCache[uIdx] ?: defaultRolesList.getOrNull(uIdx)
-                AppLogger.d(TAG, "Rol de usuario confirmado en Slot $uIdx -> ${userDetectedLane?.shortName}")
+                AppLogger.d(TAG, "Rol de usuario confirmado al instante en Slot $uIdx -> ${userDetectedLane?.shortName}")
             } else if (currentActiveRole != null) {
                 userDetectedLane = currentActiveRole
             }
@@ -940,30 +979,37 @@ object DraftVisionScanner {
         
         // -----------------------------------------------------------------------------------------
         // PASO 4: ESCANEO Y CONFIRMACIÓN DEL 10º PICK (ÚLTIMO CAMPEÓN / FUENTE VERDADERA)
-        // 1. Detectar si soy primera selección (effectiveFirstPick) -> Si es true, el rival selecciona último (Slot 5 Rival). Si es false, mi equipo selecciona último (Slot 5 Aliado).
-        // 2. Los cuadros de abajo escanean la última imagen vista (50% probabilidad).
-        // 3. Al desaparecer los cuadros inferiores o al validar, se escanea la parte superior (círculos superiores / fuente verdadera).
-        // 4. Si coincide con el de abajo, se confirma. Si no coincide o abajo desapareció, se reemplaza por el de la parte superior como fuente verdadera.
+        // Regla de Wild Rift:
+        // - Si soy Primera Selección (Aliado 1º Pick): Se visualiza en la parte inferior derecha (Slot 5 Rival / Cuadro abajo derecha).
+        //   Para comprobar al 100% que la selección es correcta, se visualiza y confirma en la parte superior derecha (Top Rival 5).
+        // - Si NO soy Primera Selección (Rival 1º Pick): Se visualiza en la parte inferior izquierda (Slot 5 Aliado / Cuadro abajo izquierda).
+        //   Y se confirma al 100% en la parte superior derecha.
         // -----------------------------------------------------------------------------------------
         val lastPickTurn = pickSequence.last()
         val targetSlotIdx = lastPickTurn.slotIndex
         val targetIsAlly = lastPickTurn.isAlly
-        val bottomSlot = if (targetIsAlly) allySlots[targetSlotIdx] else enemySlots[targetSlotIdx]
-        val bottomSlotCandidate = bottomSlot.champion
 
-        // GenerativeVisionAnalyzer sólo debe ejecutarse en fase de preparación y cuando ya hay al menos 8 picks confirmados
+        // 1. Candidato provisional en los cuadros inferiores (50% probabilidad)
+        val bottomSlotCandidate = if (effectiveFirstPick) {
+            enemySlots[4].champion
+        } else {
+            allySlots[4].champion
+        }
+
+        // 2. Fuente verdadera superior (100% certeza de confirmación): Círculo superior derecho
         val topBarMatched = if (isPreparationPhase && (totalAllyOcr + totalEnemyOcr >= 8)) {
-            GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, targetIsAlly)
+            GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, isAlly = targetIsAlly, targetTopEnemy = true)
         } else null
+
         if (topBarMatched != null) {
             isLastPickVisualRecognized = true
             lastPickVisualChampion = topBarMatched
             lastPickVisualConfidence = 1.0f
 
             if (bottomSlotCandidate != null && bottomSlotCandidate.id == topBarMatched.id) {
-                AppLogger.d(TAG, "10º Pick confirmado: Cuadro inferior y círculo superior coinciden en ${topBarMatched.name}")
+                AppLogger.d(TAG, "10º Pick confirmado: Cuadro inferior y círculo superior coinciden en ${topBarMatched.name} (100% certeza)")
             } else {
-                AppLogger.d(TAG, "10º Pick fuente verdadera superior aplicada: ${topBarMatched.name} (Bottom previo: ${bottomSlotCandidate?.name})")
+                AppLogger.d(TAG, "10º Pick fuente verdadera superior aplicada al 100%: ${topBarMatched.name} (Bottom previo: ${bottomSlotCandidate?.name})")
             }
 
             if (targetIsAlly) {

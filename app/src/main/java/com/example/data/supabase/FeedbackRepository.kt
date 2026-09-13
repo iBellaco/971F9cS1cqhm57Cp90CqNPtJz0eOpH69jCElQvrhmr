@@ -53,7 +53,8 @@ object FeedbackRepository {
         description: String,
         email: String? = null,
         imagesBase64: List<String> = emptyList(),
-        retentionDays: Int = 7
+        retentionDays: Int = 7,
+        userName: String? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val client = SupabaseClientManager.client
@@ -76,8 +77,15 @@ object FeedbackRepository {
             }
             val appVersion = "v${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}) [${WildRiftRepository.CURRENT_PATCH_VERSION}]"
 
-            val finalDescription = if (!email.isNullOrBlank()) {
-                "Correo de contacto: ${email.trim()}\n\n${description.trim()}"
+            val headerBuilder = StringBuilder()
+            if (!userName.isNullOrBlank() && !userName.contains("@")) {
+                headerBuilder.append("Usuario: ${userName.trim()}\n")
+            }
+            if (!email.isNullOrBlank()) {
+                headerBuilder.append("Correo de contacto: ${email.trim()}\n")
+            }
+            val finalDescription = if (headerBuilder.isNotEmpty()) {
+                "${headerBuilder.toString()}\n${description.trim()}"
             } else {
                 description.trim()
             }
