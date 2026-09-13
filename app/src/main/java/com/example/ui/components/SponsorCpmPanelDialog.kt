@@ -88,19 +88,27 @@ fun SponsorCpmPanelDialog(
     var contentInput by remember { mutableStateOf("") }
     var imageUrlInput by remember { mutableStateOf("") }
     var externalUrlInput by remember { mutableStateOf("") }
-    var budgetInput by remember { mutableStateOf("10.00") }
-    var selectedDurationUnit by remember { mutableStateOf("day") } // "hour", "day", "month", "year"
+    var durationValueInput by remember { mutableStateOf("1") }
+    var selectedDurationUnit by remember { mutableStateOf("day") } // "hour", "day", "week", "month", "year"
 
-    // El presupuesto se calcula automáticamente según la frecuencia
-    val autoBudget = remember(selectedDurationUnit) {
-        when (selectedDurationUnit) {
-            "hour" -> "1.50"
-            "day" -> "10.00"
-            "month" -> "150.00"
-            "year" -> "1000.00"
-            else -> "10.00"
-        }
+    val durationValueInt = remember(durationValueInput) {
+        durationValueInput.toIntOrNull()?.coerceAtLeast(1) ?: 1
     }
+
+    // El presupuesto se calcula automáticamente según la unidad y la cantidad
+    val autoBudget = remember(selectedDurationUnit, durationValueInt) {
+        val unitPrice = when (selectedDurationUnit) {
+            "hour" -> 1.50
+            "day" -> 10.00
+            "week" -> 50.00
+            "month" -> 150.00
+            "year" -> 1000.00
+            else -> 10.00
+        }
+        val total = unitPrice * durationValueInt
+        String.format(java.util.Locale.US, "%.2f", total)
+    }
+    var budgetInput by remember { mutableStateOf("10.00") }
     LaunchedEffect(autoBudget) { budgetInput = autoBudget }
 
     val coroutineScope = rememberCoroutineScope()
@@ -269,8 +277,7 @@ fun SponsorCpmPanelDialog(
                         value = budgetInput,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Presupuesto (USD) - Calculado Automáticamente") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        label = { Text("Presupuesto Total (USD)") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = HextechGold, 
@@ -279,12 +286,36 @@ fun SponsorCpmPanelDialog(
                         )
                     )
 
-                    Text("Frecuencia de Presupuesto:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text("Duración de la Publicación:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = durationValueInput,
+                            onValueChange = { if (it.all { char -> char.isDigit() }) durationValueInput = it.take(3) },
+                            label = { Text("Cantidad") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.width(100.dp),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = HextechGold, unfocusedBorderColor = HextechSurfaceVariant)
+                        )
+
+                        Text("Unidad de tiempo:", color = TextSecondary, fontSize = 11.sp)
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        listOf("hour" to "Por Hora", "day" to "Por Día", "month" to "Por Mes", "year" to "Por Año").forEach { (unitId, unitLabel) ->
+                        listOf(
+                            "hour" to "Horas",
+                            "day" to "Días",
+                            "week" to "Semanas",
+                            "month" to "Meses",
+                            "year" to "Años"
+                        ).forEach { (unitId, unitLabel) ->
                             val isSelected = selectedDurationUnit == unitId
                             FilterChip(
                                 selected = isSelected,
@@ -309,7 +340,8 @@ fun SponsorCpmPanelDialog(
                         }
                         
                         val descriptionStr = """
-                            Presupuesto: $autoBudget $selectedDurationUnit
+                            Presupuesto: $autoBudget USD
+                            Duración: $durationValueInt $selectedDurationUnit
                             Imagen: $imageUrlInput
                             Enlace: $externalUrlInput
                             
@@ -325,6 +357,8 @@ fun SponsorCpmPanelDialog(
                             tag = "Publicidad",
                             budget = parsedBudget,
                             budgetUnit = selectedDurationUnit,
+                            durationValue = durationValueInt,
+                            durationUnit = selectedDurationUnit,
                             isApproved = false,
                             isEnabled = false,
                             sponsorEmail = userEmail
@@ -346,6 +380,8 @@ fun SponsorCpmPanelDialog(
                             obj.put("tag", n.tag)
                             obj.put("budget", n.budget)
                             obj.put("budgetUnit", n.budgetUnit)
+                            obj.put("durationValue", n.durationValue)
+                            obj.put("durationUnit", n.durationUnit)
                             obj.put("isApproved", n.isApproved)
                             obj.put("isEnabled", n.isEnabled)
                             obj.put("sponsorEmail", n.sponsorEmail)
@@ -454,12 +490,39 @@ fun SponsorNoticeCard(
                 }
             }
 
+            val unitLabel = when (notice.durationUnit.lowercase(Locale.ROOT)) {
+                "hour", "hours", "hora", "horas" -> "Horas"
+                "day", "days", "dia", "dias", "día", "días" -> "Días"
+                "week", "weeks", "semana", "semanas" -> "Semanas"
+                "month", "months", "mes", "meses" -> "Meses"
+                "year", "years", "año", "años", "ano", "anos" -> "Años"
+                else -> notice.durationUnit
+            }
+
+            val expirationStr = if (notice.expiresAtMillis > 0L) {
+                val diff = notice.expiresAtMillis - System.currentTimeMillis()
+                if (diff > 0) {
+                    val hours = diff / (1000 * 60 * 60)
+                    val days = hours / 24
+                    if (days > 0) "Expira en: ${days}d ${hours % 24}h"
+                    else "Expira en: ${hours}h ${(diff / (1000 * 60)) % 60}m"
+                } else {
+                    "Expirado"
+                }
+            } else null
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Presupuesto: $${String.format(java.util.Locale.US, "%.2f", notice.budget)} (${notice.budgetUnit})", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Column {
+                    Text("Presupuesto: $${String.format(java.util.Locale.US, "%.2f", notice.budget)} USD", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text("Duración: ${notice.durationValue} $unitLabel", color = TextSecondary, fontSize = 10.sp)
+                    if (expirationStr != null) {
+                        Text(expirationStr, color = if (expirationStr == "Expirado") DangerRed else HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
                 IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(16.dp))
                 }

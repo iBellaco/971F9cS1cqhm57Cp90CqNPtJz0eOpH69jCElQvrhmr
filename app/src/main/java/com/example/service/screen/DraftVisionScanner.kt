@@ -270,10 +270,11 @@ object DraftVisionScanner {
             val visionText = recognizer.process(inputImage).await()
 
             // Detección proactiva de Clasificatoria Legendaria en pantalla completa
-            if (!isLegendaryRankedCache) {
-                isLegendaryRankedCache = DraftValidationLayer.isLegendaryRankedDraft(visionText.text)
-            }
-            isLegendaryRanked = isLegendaryRankedCache
+            isLegendaryRanked = DraftValidationLayer.isLegendaryRankedDraft(
+                fullOcrText = visionText.text,
+                hasRealSummonerNames = allySummonerNamesCache.isNotEmpty()
+            )
+            isLegendaryRankedCache = isLegendaryRanked
             if (isLegendaryRanked) {
                 AppLogger.d(TAG, "Clasificatoria Legendaria detectada en pantalla (Nombres anónimos). Búsqueda de invocadores desactivada.")
                 allySummonerNamesCache.clear()
@@ -452,60 +453,6 @@ object DraftVisionScanner {
                 emptyList()
             }
 
-
-            // -----------------------------------------------------------------------------------------
-            // DETECCION VISUAL AUTONOMA DEL USUARIO (Rastreo de la barra dorada / marco brillante del slot activo)
-            // -----------------------------------------------------------------------------------------
-            var autonomousUserSlot = -1
-            try {
-                // Exploramos el borde izquierdo y el area del avatar (aprox 12% del ancho) buscando pixeles dorados de Wild Rift
-                val searchMarginX = (width * 0.12f).toInt().coerceAtLeast(1)
-                
-                // Mantenemos un conteo de pixeles dorados por slot
-                val goldCounts = IntArray(5)
-                
-                for (i in 0..4) {
-                    val yCenter = (calib.allySlotYRatios[i] * height).toInt()
-                    val yTop = (yCenter - height * 0.05f).toInt().coerceAtLeast(0)
-                    val yBottom = (yCenter + height * 0.05f).toInt().coerceAtMost(height - 1)
-                    
-                    var yellowPixels = 0
-                    val step = 2
-                    for (y in yTop..yBottom step step) {
-                        for (x in 0..searchMarginX step step) {
-                            val px = bitmap.getPixel(x, y)
-                            val r = android.graphics.Color.red(px)
-                            val g = android.graphics.Color.green(px)
-                            val b = android.graphics.Color.blue(px)
-                            // Tolerancia estricta para el Dorado de la UI de Wild Rift (Rojo/Verde altos, Azul bajo)
-                            if (r > 150 && g > 120 && b < 110 && r > b * 1.4f && g > b * 1.15f) {
-                                yellowPixels++
-                            }
-                        }
-                    }
-                    goldCounts[i] = yellowPixels
-                }
-                
-                // El slot con mayor cantidad de pixeles dorados (y que supere un umbral minimo) es el nuestro
-                var maxGold = 0
-                var maxGoldIndex = -1
-                for (i in 0..4) {
-                    if (goldCounts[i] > maxGold) {
-                        maxGold = goldCounts[i]
-                        maxGoldIndex = i
-                    }
-                }
-                
-                if (maxGold > 15) { // Umbral minimo de pixeles de marco dorado encontrados
-                    autonomousUserSlot = maxGoldIndex
-                    userSlotIndex = autonomousUserSlot
-                    userExplicitlyConfirmed = true
-                    AppLogger.d(TAG, "Slot del usuario detectado AUTONOMAMENTE en Slot Aliado $autonomousUserSlot (Gold Score: $maxGold)")
-                }
-            } catch (e: Exception) {
-                AppLogger.e(TAG, "Error en deteccion visual autonoma", e)
-            }
-
             // Procesar textos aliados: Detección de Línea, Nombre de Invocador y Campeón
             for (i in 0..4) {
                 val slot = allySlots[i]
@@ -520,36 +467,6 @@ object DraftVisionScanner {
                     val safeBox = box ?: Rect(0, 0, 10, 10)
                     val sublines = rawBlock.split("\n").map { it.trim() }.filter { it.isNotBlank() }
 
-                    // Comprobar si el texto está coloreado en dorado/amarillo característico del slot del usuario en Wild Rift
-                    var hasYellowGoldText = false
-                    try {
-                        val sampleBox = Rect(
-                            safeBox.left.coerceIn(0, width - 1),
-                            safeBox.top.coerceIn(0, height - 1),
-                            safeBox.right.coerceIn(0, width),
-                            safeBox.bottom.coerceIn(0, height)
-                        )
-                        if (sampleBox.width() > 4 && sampleBox.height() > 4) {
-                            var yellowHits = 0
-                            val stepX = (sampleBox.width() / 6).coerceAtLeast(1)
-                            val stepY = (sampleBox.height() / 4).coerceAtLeast(1)
-                            for (sy in sampleBox.top until sampleBox.bottom step stepY) {
-                                for (sx in sampleBox.left until sampleBox.right step stepX) {
-                                    val px = bitmap.getPixel(sx, sy)
-                                    val pr = android.graphics.Color.red(px)
-                                    val pg = android.graphics.Color.green(px)
-                                    val pb = android.graphics.Color.blue(px)
-                                    if (pr > 165 && pg > 140 && pb < 115 && pr > pb * 1.5f) {
-                                        yellowHits++
-                                    }
-                                }
-                            }
-                            if (yellowHits >= 3) {
-                                hasYellowGoldText = true
-                            }
-                        }
-                    } catch (_: Exception) {}
-
                     for (line in sublines) {
                         if (DraftValidationLayer.isNoiseText(line)) continue
                         
@@ -560,17 +477,21 @@ object DraftVisionScanner {
                             isUnpickedTextPresent = true
                         }
 
-                        // Comprobar si este slot contiene la etiqueta del usuario "(TÚ)" / "(TU)" / "(YOU)" / "(VOCÊ)" o coincide con su nombre
+                        // Comprobar si este slot contiene la etiqueta explícita del usuario "(TÚ)" / "(TU)" / "(YOU)" / "(VOCÊ)" o coincide con su nombre
                         val lineNorm = DraftValidationLayer.normalize(line).lowercase(Locale.ROOT)
                         val lineCompressed = lineNorm.replace(" ", "")
-                        val isUserTag = !isLegendaryRanked && (lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
-                                        lineNorm == "voce" || lineNorm == "(voce)" ||
-                                        lineNorm.startsWith("(tu) ") || lineNorm.endsWith(" (tu)") ||
-                                        lineNorm.startsWith("(you) ") || lineNorm.endsWith(" (you)") ||
-                                        lineNorm.contains(" tú ") || lineNorm.contains("(tú)") ||
-                                        currentUserNameClean.any { it.length >= 3 && lineCompressed == it })
+                        val isUserTag = !isLegendaryRanked && (
+                            lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
+                            lineNorm == "voce" || lineNorm == "(voce)" ||
+                            lineNorm.startsWith("(tu) ") || lineNorm.endsWith(" (tu)") ||
+                            lineNorm.startsWith("(you) ") || lineNorm.endsWith(" (you)") ||
+                            lineNorm.contains(" tú ") || lineNorm.contains("(tú)") ||
+                            lineNorm.contains("( tu )") || lineNorm.contains("[tu]") || lineNorm.contains("[tú]") ||
+                            lineNorm.contains("( you )") || lineNorm.contains("[you]") ||
+                            currentUserNameClean.any { it.length >= 3 && (lineCompressed == it || lineCompressed.contains(it)) }
+                        )
 
-                        if (isUserTag || hasYellowGoldText) {
+                        if (isUserTag) {
                             userSlotIndex = i
                             userExplicitlyConfirmed = true
                             textDiagnosticsList.add(
@@ -579,11 +500,11 @@ object DraftVisionScanner {
                                     rect = safeBox,
                                     isAlly = true,
                                     slotIndex = i,
-                                    tag = if (isLegendaryRanked) "¡TU SLOT (DORADO)!" else "¡TU SLOT!",
+                                    tag = "¡TU SLOT!",
                                     color = android.graphics.Color.YELLOW
                                 )
                             )
-                            AppLogger.d(TAG, "Slot del usuario confirmado en Slot Aliado $i ('$line') [Yellow=$hasYellowGoldText, Legendary=$isLegendaryRanked]")
+                            AppLogger.d(TAG, "Slot del usuario confirmado explícitamente en Slot Aliado $i ('$line')")
                         }
 
                         // A) Rol / Línea explícito (ej: "Línea Central", "Carril de Barón", etc.)
@@ -634,17 +555,22 @@ object DraftVisionScanner {
                 // Guardar nombre de invocador detectado al instante
                 if (summonerCandidates.isNotEmpty() && !isLegendaryRanked) {
                     val candidateName = summonerCandidates.first()
-                    allySummonerNamesCache[i] = candidateName
-                    textDiagnosticsList.add(
-                        TextBlockDiagnostic(
-                            text = candidateName,
-                            rect = entries.firstOrNull()?.second ?: Rect(0, 0, 10, 10),
-                            isAlly = true,
-                            slotIndex = i,
-                            tag = "INVOCADOR: $candidateName",
-                            color = android.graphics.Color.WHITE
+                    if (!candidateName.lowercase(Locale.ROOT).startsWith("jugador en") &&
+                        !candidateName.lowercase(Locale.ROOT).startsWith("jogador na")) {
+                        isLegendaryRanked = false
+                        isLegendaryRankedCache = false
+                        allySummonerNamesCache[i] = candidateName
+                        textDiagnosticsList.add(
+                            TextBlockDiagnostic(
+                                text = candidateName,
+                                rect = entries.firstOrNull()?.second ?: Rect(0, 0, 10, 10),
+                                isAlly = true,
+                                slotIndex = i,
+                                tag = "INVOCADOR: $candidateName",
+                                color = android.graphics.Color.WHITE
+                            )
                         )
-                    )
+                    }
                 }
 
                 // Si en este slot se detectó texto indicando que aún no se elige, se invalida el campeón (es un hover)
@@ -688,8 +614,22 @@ object DraftVisionScanner {
 
             val uIdx = userSlotIndex
             if (uIdx != null && uIdx in 0..4) {
-                userDetectedLane = allySlots[uIdx].explicitRole ?: allySlotRolesCache[uIdx] ?: defaultRolesList.getOrNull(uIdx)
-                AppLogger.d(TAG, "Rol de usuario confirmado al instante en Slot $uIdx -> ${userDetectedLane?.shortName}")
+                val explicitRole = allySlots[uIdx].explicitRole ?: allySlotRolesCache[uIdx]
+                if (explicitRole != null) {
+                    userDetectedLane = explicitRole
+                    AppLogger.d(TAG, "Rol de usuario confirmado explícitamente en Slot $uIdx -> ${userDetectedLane.shortName}")
+                } else {
+                    // Si el slot aliado tiene Castigo/Smite, asignar Jungla
+                    val hasSmite = allySlots[uIdx].summonerSpells.any { it.equals("Castigo", ignoreCase = true) || it.equals("Smite", ignoreCase = true) }
+                    if (hasSmite) {
+                        userDetectedLane = LaneRole.JUNGLE
+                        allySlots[uIdx].explicitRole = LaneRole.JUNGLE
+                        allySlotRolesCache[uIdx] = LaneRole.JUNGLE
+                    } else {
+                        // Preservar el rol previamente seleccionado por el usuario en lugar de forzar TOP/default
+                        userDetectedLane = currentActiveRole ?: allySlotRolesCache[uIdx]
+                    }
+                }
             } else if (currentActiveRole != null) {
                 userDetectedLane = currentActiveRole
             }
@@ -975,54 +915,18 @@ object DraftVisionScanner {
 
         // -----------------------------------------------------------------------------------------
         // PASO 4: RESOLUCIÓN Y ASIGNACIÓN DETERMINISTA DE CARRILES (ZERO-CONFUSION)
+        // Las selecciones 1 a 9 (y la 10ª cuando se fije) se leen directamente por su nombre de texto OCR en pantalla.
+        // Si la 10ª selección aún no está elegida ("no selecciona nada"), se mantiene vacía sin forzar falsos positivos.
         // -----------------------------------------------------------------------------------------
-        
-        // -----------------------------------------------------------------------------------------
-        // PASO 4: ESCANEO Y CONFIRMACIÓN DEL 10º PICK (ÚLTIMO CAMPEÓN / FUENTE VERDADERA)
-        // Regla de Wild Rift:
-        // - Si soy Primera Selección (Aliado 1º Pick): Se visualiza en la parte inferior derecha (Slot 5 Rival / Cuadro abajo derecha).
-        //   Para comprobar al 100% que la selección es correcta, se visualiza y confirma en la parte superior derecha (Top Rival 5).
-        // - Si NO soy Primera Selección (Rival 1º Pick): Se visualiza en la parte inferior izquierda (Slot 5 Aliado / Cuadro abajo izquierda).
-        //   Y se confirma al 100% en la parte superior derecha.
-        // -----------------------------------------------------------------------------------------
-        val lastPickTurn = pickSequence.last()
-        val targetSlotIdx = lastPickTurn.slotIndex
-        val targetIsAlly = lastPickTurn.isAlly
-
-        // 1. Candidato provisional en los cuadros inferiores (50% probabilidad)
         val bottomSlotCandidate = if (effectiveFirstPick) {
             enemySlots[4].champion
         } else {
             allySlots[4].champion
         }
 
-        // 2. Fuente verdadera superior (100% certeza de confirmación): Círculo superior derecho
-        val topBarMatched = if (isPreparationPhase && (totalAllyOcr + totalEnemyOcr >= 8)) {
-            GenerativeVisionAnalyzer.identifyLastPickAvatar(bitmap, isAlly = targetIsAlly, targetTopEnemy = true)
-        } else null
-
-        if (topBarMatched != null) {
-            isLastPickVisualRecognized = true
-            lastPickVisualChampion = topBarMatched
-            lastPickVisualConfidence = 1.0f
-
-            if (bottomSlotCandidate != null && bottomSlotCandidate.id == topBarMatched.id) {
-                AppLogger.d(TAG, "10º Pick confirmado: Cuadro inferior y círculo superior coinciden en ${topBarMatched.name} (100% certeza)")
-            } else {
-                AppLogger.d(TAG, "10º Pick fuente verdadera superior aplicada al 100%: ${topBarMatched.name} (Bottom previo: ${bottomSlotCandidate?.name})")
-            }
-
-            if (targetIsAlly) {
-                allySlots[targetSlotIdx].champion = topBarMatched
-                allySlots[targetSlotIdx].confidencePercent = 100
-            } else {
-                enemySlots[targetSlotIdx].champion = topBarMatched
-                enemySlots[targetSlotIdx].confidencePercent = 100
-            }
-        } else if (bottomSlotCandidate != null) {
+        if (bottomSlotCandidate != null) {
             lastPickVisualChampion = bottomSlotCandidate
-            lastPickVisualConfidence = 0.5f
-            AppLogger.d(TAG, "10º Pick usando candidato inferior (50% prob): ${bottomSlotCandidate.name}")
+            lastPickVisualConfidence = 1.0f
         }
         
         // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Smite) y afinidad de campeones detectados

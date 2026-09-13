@@ -261,14 +261,39 @@ fun AdminSponsorNoticeItem(
 
             Text(notice.content, color = TextSecondary, fontSize = 12.sp, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
 
+            val unitLabel = when (notice.durationUnit.lowercase(Locale.ROOT)) {
+                "hour", "hours", "hora", "horas" -> "Horas"
+                "day", "days", "dia", "dias", "día", "días" -> "Días"
+                "week", "weeks", "semana", "semanas" -> "Semanas"
+                "month", "months", "mes", "meses" -> "Meses"
+                "year", "years", "año", "años", "ano", "anos" -> "Años"
+                else -> notice.durationUnit
+            }
+
+            val expirationStr = if (notice.isApproved && notice.expiresAtMillis > 0L) {
+                val diff = notice.expiresAtMillis - System.currentTimeMillis()
+                if (diff > 0) {
+                    val hours = diff / (1000 * 60 * 60)
+                    val days = hours / 24
+                    if (days > 0) "Expira en: ${days}d ${hours % 24}h"
+                    else "Expira en: ${hours}h ${(diff / (1000 * 60)) % 60}m"
+                } else {
+                    "Expirado"
+                }
+            } else null
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(modifier = Modifier.weight(1f)) {
                     Text("Patrocinador: ${if (notice.sponsorEmail.isNotBlank()) notice.sponsorEmail else "N/D"}", color = HextechCyan, fontSize = 11.sp)
-                    Text("Presupuesto: $${String.format(Locale.US, "%.2f", notice.budget)} (${notice.budgetUnit})", color = TextSecondary, fontSize = 11.sp)
+                    Text("Presupuesto: $${String.format(Locale.US, "%.2f", notice.budget)} USD", color = TextSecondary, fontSize = 11.sp)
+                    Text("Duración: ${notice.durationValue} $unitLabel", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    if (expirationStr != null) {
+                        Text(expirationStr, color = if (expirationStr == "Expirado") DangerRed else Color(0xFF10B981), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -281,7 +306,7 @@ fun AdminSponsorNoticeItem(
                         ) {
                             Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Aceptar", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("Aprobar", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     Button(

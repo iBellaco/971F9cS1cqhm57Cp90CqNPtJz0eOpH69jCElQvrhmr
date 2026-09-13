@@ -1045,64 +1045,73 @@ private fun FloatingOverlayContent(
                                     val totalAlliesPicked = allies.filterNotNull().size
                                     val totalEnemiesPicked = enemies.filterNotNull().size
 
-                                    if (result.isPreparationPhase && !state.hasCalledGeminiFor10thPick) {
-                                        val isEnemy10th = state.isFirstPick
-                                        if ((isEnemy10th && enemies[4] == null) || (!isEnemy10th && allies[4] == null)) {
-                                            state.hasCalledGeminiFor10thPick = true
-                                            scanNoticeMessage = "Analizando 10º pick con IA (Preparación)..."
-                                            val crop = try {
-                                                val cropRect = if (isEnemy10th) {
-                                                    android.graphics.Rect((bitmap.width * 0.5f).toInt(), 0, bitmap.width, (bitmap.height * 0.20f).toInt())
-                                                } else {
-                                                    android.graphics.Rect(0, 0, (bitmap.width * 0.5f).toInt(), (bitmap.height * 0.20f).toInt())
-                                                }
-                                                if (cropRect.width() > 0 && cropRect.height() > 0 && cropRect.right <= bitmap.width && cropRect.bottom <= bitmap.height && !bitmap.isRecycled) {
-                                                    android.graphics.Bitmap.createBitmap(bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height())
-                                                } else null
-                                            } catch (_: Throwable) { null }
+                                    // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior y carrusel de aspectos con Gemini Vision
+                                    if (result.isPreparationPhase && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
+                                        val prepResult = withContext(Dispatchers.IO) {
+                                            com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
+                                        }
+                                        if (prepResult != null) {
+                                            val allChamps = com.example.data.WildRiftRepository.champions
 
-                                            if (crop != null) {
-                                                launch(Dispatchers.IO) {
-                                                    try {
-                                                        val champName = com.example.service.gemini.GeminiVisionService.identify10thPickFromPreparationScreen(crop, isEnemy10th)
-                                                        if (champName != null) {
-                                                            val matchedChamp = com.example.service.screen.ChampionNameResolver.findChampionInText(champName, com.example.data.WildRiftRepository.champions)
-                                                            if (matchedChamp != null) {
-                                                                withContext(Dispatchers.Main) {
-                                                                    if (isEnemy10th) {
-                                                                        assignEnemySlot(4, matchedChamp, 100)
-                                                                    } else {
-                                                                        assignAllySlot(4, matchedChamp)
-                                                                    }
-                                                                    scanNoticeMessage = "🎯 10º Pick detectado con IA: ${matchedChamp.name}"
-                                                                }
-                                                            }
-                                                        }
-                                                    } catch (e: Throwable) {
-                                                        AppLogger.e("FloatingService", "Error in 10th pick Gemini task", e)
-                                                    } finally {
-                                                        try { crop.recycle() } catch (_: Throwable) {}
+                                            val resolvedAllies = prepResult.allies.mapNotNull { name ->
+                                                allChamps.find { it.name.equals(name, ignoreCase = true) }
+                                                    ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
+                                            }
+                                            val resolvedEnemies = prepResult.enemies.mapNotNull { name ->
+                                                allChamps.find { it.name.equals(name, ignoreCase = true) }
+                                                    ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
+                                            }
+                                            val userChamp = if (!prepResult.userChampion.isNullOrBlank()) {
+                                                allChamps.find { it.name.equals(prepResult.userChampion, ignoreCase = true) }
+                                                    ?: allChamps.find { prepResult.userChampion.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
+                                            } else null
+
+                                            if (userChamp != null) {
+                                                val userRole = userChamp.primaryRole
+                                                if (activeRole != userRole) {
+                                                    activeRole = userRole
+                                                    com.example.util.UserPreferences.setActiveDraftRole(context, userRole)
+                                                }
+                                            }
+
+                                            if (resolvedAllies.isNotEmpty()) {
+                                                val assignedAllyRoles = mutableSetOf<com.example.model.LaneRole>()
+                                                resolvedAllies.forEach { champ ->
+                                                    val targetRole = if (!assignedAllyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedAllyRoles.contains(it) } ?: champ.primaryRole
+                                                    assignedAllyRoles.add(targetRole)
+                                                    val sIdx = defaultRoles.indexOf(targetRole)
+                                                    if (sIdx in 0..4 && manualLockedAllySlots[sIdx] != true && allies[sIdx] == null) {
+                                                        assignAllySlot(sIdx, champ)
+                                                    }
+                                                }
+                                            }
+
+                                            if (resolvedEnemies.isNotEmpty()) {
+                                                val assignedEnemyRoles = mutableSetOf<com.example.model.LaneRole>()
+                                                resolvedEnemies.forEach { champ ->
+                                                    val targetRole = if (!assignedEnemyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedEnemyRoles.contains(it) } ?: champ.primaryRole
+                                                    assignedEnemyRoles.add(targetRole)
+                                                    val sIdx = defaultRoles.indexOf(targetRole)
+                                                    if (sIdx in 0..4 && manualLockedEnemySlots[sIdx] != true && enemies[sIdx] == null) {
+                                                        assignEnemySlot(sIdx, champ, 100)
                                                     }
                                                 }
                                             }
                                         }
                                     }
 
-                                    if (totalAlliesPicked == 5 && totalEnemiesPicked == 5 && (result.isLastPickConfirmed || result.isPreparationPhase)) {
-                                        autoScanEnabled = false
-                                        scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
-                                            "🎯 10/10 Completo (10º Pick por Imagen: ${result.lastPickChampion.name})"
-                                        } else {
-                                            "🎯 10/10 Campeones confirmados (5 Aliados + 5 Rivales)"
-                                        }
-                                    } else if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
-                                        scanNoticeMessage = "🎯 10º Pick por Imagen: ${result.lastPickChampion.name}"
-                                    } else if (result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
+                                    val finalAlliesPicked = allies.filterNotNull().size
+                                    val finalEnemiesPicked = enemies.filterNotNull().size
+
+                                    if (result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
                                         activeRole = result.userExplicitlyDetectedRole
                                         com.example.util.UserPreferences.setActiveDraftRole(context, result.userExplicitlyDetectedRole)
                                         scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.userExplicitlyDetectedRole.shortName})"
+                                    } else if (finalAlliesPicked == 5 && finalEnemiesPicked == 5) {
+                                        autoScanEnabled = false
+                                        scanNoticeMessage = "🎯 10/10 Campeones confirmados (Fase de Preparación)"
                                     } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
-                                        scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($totalAlliesPicked/5 vs $totalEnemiesPicked/5)"
+                                        scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($finalAlliesPicked/5 vs $finalEnemiesPicked/5)"
                                     }
 
                                     if (scanNoticeMessage != null) {
@@ -1201,6 +1210,64 @@ private fun FloatingOverlayContent(
                         }
                         state.enemySpells.clear()
 
+                        val totalAlliesPicked = allies.filterNotNull().size
+                        val totalEnemiesPicked = enemies.filterNotNull().size
+
+                        // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior y carrusel con Gemini Vision
+                        if (result.isPreparationPhase && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
+                            val prepResult = withContext(Dispatchers.IO) {
+                                com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
+                            }
+                            if (prepResult != null) {
+                                val allChamps = com.example.data.WildRiftRepository.champions
+
+                                val resolvedAllies = prepResult.allies.mapNotNull { name ->
+                                    allChamps.find { it.name.equals(name, ignoreCase = true) }
+                                        ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
+                                }
+                                val resolvedEnemies = prepResult.enemies.mapNotNull { name ->
+                                    allChamps.find { it.name.equals(name, ignoreCase = true) }
+                                        ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
+                                }
+                                val userChamp = if (!prepResult.userChampion.isNullOrBlank()) {
+                                    allChamps.find { it.name.equals(prepResult.userChampion, ignoreCase = true) }
+                                        ?: allChamps.find { prepResult.userChampion.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
+                                } else null
+
+                                if (userChamp != null) {
+                                    val userRole = userChamp.primaryRole
+                                    if (activeRole != userRole) {
+                                        activeRole = userRole
+                                        com.example.util.UserPreferences.setActiveDraftRole(context, userRole)
+                                    }
+                                }
+
+                                if (resolvedAllies.isNotEmpty()) {
+                                    val assignedAllyRoles = mutableSetOf<com.example.model.LaneRole>()
+                                    resolvedAllies.forEach { champ ->
+                                        val targetRole = if (!assignedAllyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedAllyRoles.contains(it) } ?: champ.primaryRole
+                                        assignedAllyRoles.add(targetRole)
+                                        val sIdx = defaultRoles.indexOf(targetRole)
+                                        if (sIdx in 0..4 && manualLockedAllySlots[sIdx] != true) {
+                                            assignAllySlot(sIdx, champ)
+                                        }
+                                    }
+                                }
+
+                                if (resolvedEnemies.isNotEmpty()) {
+                                    val assignedEnemyRoles = mutableSetOf<com.example.model.LaneRole>()
+                                    resolvedEnemies.forEach { champ ->
+                                        val targetRole = if (!assignedEnemyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedEnemyRoles.contains(it) } ?: champ.primaryRole
+                                        assignedEnemyRoles.add(targetRole)
+                                        val sIdx = defaultRoles.indexOf(targetRole)
+                                        if (sIdx in 0..4 && manualLockedEnemySlots[sIdx] != true) {
+                                            assignEnemySlot(sIdx, champ, 100)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         if (result.detectedRole != null) {
                             activeRole = result.detectedRole
                             com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
@@ -1208,6 +1275,8 @@ private fun FloatingOverlayContent(
                         val totalDetected = allies.filterNotNull().size + enemies.filterNotNull().size
                         scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
                             "🎯 10/10 Detectado por Imagen: ${result.lastPickChampion.name}"
+                        } else if (allies.filterNotNull().size == 5 && enemies.filterNotNull().size == 5) {
+                            "🎯 10/10 Campeones confirmados (Fase de Preparación)"
                         } else {
                             "✅ Escaneo exitoso ($totalDetected picks" +
                                 (if (result.detectedRole != null) ", tu rol: ${result.detectedRole.shortName})" else ")")

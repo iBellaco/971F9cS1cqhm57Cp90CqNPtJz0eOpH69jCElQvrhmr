@@ -39,12 +39,10 @@ object ChampionNameResolver {
         "ashe" to "ashe",
         "aurelion sol" to "aurelion_sol",
         "aurelionsol" to "aurelion_sol",
-        "asol" to "aurelion_sol",
         "aurora" to "aurora",
         "bard" to "bard",
         "bardo" to "bard",
         "blitzcrank" to "blitzcrank",
-        "blitz" to "blitzcrank",
         "brand" to "brand",
         "braum" to "braum",
         "caitlyn" to "caitlyn",
@@ -61,10 +59,8 @@ object ChampionNameResolver {
         "draven" to "draven",
         "ekko" to "ekko",
         "evelynn" to "evelynn",
-        "eve" to "evelynn",
         "ezreal" to "ezreal",
         "fiddlesticks" to "fiddlesticks",
-        "fiddle" to "fiddlesticks",
         "fiora" to "fiora",
         "fizz" to "fizz",
         "galio" to "galio",
@@ -75,13 +71,11 @@ object ChampionNameResolver {
         "gwen" to "gwen",
         "hecarim" to "hecarim",
         "heimerdinger" to "heimerdinger",
-        "heimer" to "heimerdinger",
         "irelia" to "irelia",
         "janna" to "janna",
         "jarvan iv" to "jarvan_iv",
         "jarvan 4" to "jarvan_iv",
         "jarvan" to "jarvan_iv",
-        "j4" to "jarvan_iv",
         "jax" to "jax",
         "jayce" to "jayce",
         "jhin" to "jhin",
@@ -94,7 +88,6 @@ object ChampionNameResolver {
         "karma" to "karma",
         "kassadin" to "kassadin",
         "katarina" to "katarina",
-        "kata" to "katarina",
         "kayle" to "kayle",
         "kayn" to "kayn",
         "kennen" to "kennen",
@@ -116,14 +109,11 @@ object ChampionNameResolver {
         "maokai" to "maokai",
         "master yi" to "master_yi",
         "masteryi" to "master_yi",
-        "yi" to "master_yi",
         "mel" to "mel",
         "milio" to "milio",
         "miss fortune" to "miss_fortune",
         "missfortune" to "miss_fortune",
-        "mf" to "miss_fortune",
         "mordekaiser" to "mordekaiser",
-        "morde" to "mordekaiser",
         "morgana" to "morgana",
         "nami" to "nami",
         "nasus" to "nasus",
@@ -137,7 +127,6 @@ object ChampionNameResolver {
         "orianna" to "orianna",
         "ornn" to "ornn",
         "pantheon" to "pantheon",
-        "panth" to "pantheon",
         "poppy" to "poppy",
         "pyke" to "pyke",
         "qiyana" to "qiyana",
@@ -175,10 +164,8 @@ object ChampionNameResolver {
         "tristana" to "tristana",
         "trundle" to "trundle",
         "tryndamere" to "tryndamere",
-        "trynda" to "tryndamere",
         "twisted fate" to "twisted_fate",
         "twistedfate" to "twisted_fate",
-        "tf" to "twisted_fate",
         "twitch" to "twitch",
         "urgot" to "urgot",
         "varus" to "varus",
@@ -191,7 +178,6 @@ object ChampionNameResolver {
         "viego" to "viego",
         "viktor" to "viktor",
         "vladimir" to "vladimir",
-        "vlad" to "vladimir",
         "volibear" to "volibear",
         "warwick" to "warwick",
         "wukong" to "wukong",
@@ -231,7 +217,12 @@ object ChampionNameResolver {
     // Encuentra el campeón correspondiente a una línea de texto OCR con validación anti-falsos positivos
     fun findChampionInText(text: String, allChampions: List<Champion>): Champion? {
         val trimmed = text.trim()
-        if (trimmed.isBlank()) return null
+        if (trimmed.isBlank() || trimmed.length < 2) return null
+
+        // Si la línea es claramente un nombre de invocador con clanes, números o sufijos, descartar
+        if (DraftValidationLayer.isLikelySummonerName(trimmed)) {
+            return null
+        }
 
         // Si la línea contiene paréntesis (ej: "XCS Junior (Jarvan IV): ¡Combatamos!"), extraer el contenido de los paréntesis
         val parenthesisMatch = Regex("\\(([^)]+)\\)").find(trimmed)
@@ -268,9 +259,14 @@ object ChampionNameResolver {
             }
         }
 
-        // 3. Coincidencia por palabra contenida (ej: "WUKONG XCS Alee22" -> detecta "WUKONG")
+        // 3. Coincidencia por palabra contenida (ej: "WUKONG" en bloque de selección)
         val words = clean.split(" ").filter { it.length >= 2 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
+            // Para nombres ultracortos de 2 letras (ej: "VI"), exigir que la línea completa sea sólo esa palabra
+            if (word.length == 2 && words.size > 1) {
+                continue
+            }
+
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
                 val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
                 if (found != null && DraftValidationLayer.isValidChampionToken(word, found.id)) {
@@ -293,9 +289,6 @@ object ChampionNameResolver {
                 }
             }
         }
-
-        // 4. Si la línea no contiene ningún campeón pero es claramente un apodo de invocador, descartar
-        // REMOVIDO porque también daba falsos positivos en nombres legítimos concatenados.
 
         return null
     }

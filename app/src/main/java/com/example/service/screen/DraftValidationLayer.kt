@@ -80,8 +80,11 @@ object DraftValidationLayer {
      * (Legendary Ranked / Fila Lendária) en Wild Rift, donde todos los nombres de invocador
      * están estrictamente anonimizados (ej: "Jugador en cla...", "Jogador na cla...").
      */
-    fun isLegendaryRankedDraft(fullOcrText: String): Boolean {
+    fun isLegendaryRankedDraft(fullOcrText: String, hasRealSummonerNames: Boolean = false): Boolean {
+        if (hasRealSummonerNames) return false
         val norm = normalize(fullOcrText).lowercase(Locale.ROOT)
+        
+        // La clasificatoria normal dice "Clasificatoria". La Legendaria dice explícitamente "Clasificatoria Legendaria"
         if (norm.contains("clasificatoria legendaria") ||
             norm.contains("clasificatoria legend") ||
             norm.contains("fila lendaria") ||
@@ -90,8 +93,10 @@ object DraftValidationLayer {
             norm.contains("legendary queue")) {
             return true
         }
+        
+        // Detección por anonimización estricta múltiple de Riot (mínimo 3 slots con patrón anónimo)
         val anonMatches = Regex("(jugador\\s*en\\s*cla|jogador\\s*na\\s*cla|player\\s*in\\s*leg)").findAll(norm).count()
-        return anonMatches >= 2
+        return anonMatches >= 3
     }
 
     /**

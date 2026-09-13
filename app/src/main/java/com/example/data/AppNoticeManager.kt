@@ -29,7 +29,11 @@ data class AppNotice(
     val contentColor: String = "#CCCCCC",
     val isEnabled: Boolean = true,
     val budget: Double = 0.0, // Presupuesto asignado a este anuncio en USD
-    val budgetUnit: String = "day", // "hour", "day", "month", "year"
+    val budgetUnit: String = "day", // "hour", "day", "week", "month", "year"
+    val durationValue: Int = 1, // Cuántas horas/días/semanas/meses/años
+    val durationUnit: String = "day", // "hour", "day", "week", "month", "year"
+    val approvedAtMillis: Long = 0L, // Timestamp de aprobación
+    val expiresAtMillis: Long = 0L, // Timestamp de expiración calculada
     val isApproved: Boolean = true, // false until admin accepts it if published by sponsor
     val sponsorEmail: String = "" // email of the sponsor who published it
 )
@@ -202,6 +206,10 @@ object AppNoticeManager {
                             isEnabled = (map["isEnabled"] as? Boolean) ?: true,
                             budget = (map["budget"] as? Number)?.toDouble() ?: 0.0,
                             budgetUnit = map["budgetUnit"]?.toString() ?: "day",
+                            durationValue = (map["durationValue"] as? Number)?.toInt() ?: 1,
+                            durationUnit = map["durationUnit"]?.toString() ?: (map["budgetUnit"]?.toString() ?: "day"),
+                            approvedAtMillis = (map["approvedAtMillis"] as? Number)?.toLong() ?: 0L,
+                            expiresAtMillis = (map["expiresAtMillis"] as? Number)?.toLong() ?: 0L,
                             isApproved = (map["isApproved"] as? Boolean) ?: true,
                             sponsorEmail = map["sponsorEmail"]?.toString() ?: ""
                         )
@@ -278,6 +286,10 @@ object AppNoticeManager {
                     put("isEnabled", n.isEnabled)
                     put("budget", n.budget)
                     put("budgetUnit", n.budgetUnit)
+                    put("durationValue", n.durationValue)
+                    put("durationUnit", n.durationUnit)
+                    put("approvedAtMillis", n.approvedAtMillis)
+                    put("expiresAtMillis", n.expiresAtMillis)
                     put("isApproved", n.isApproved)
                     put("sponsorEmail", n.sponsorEmail)
                 }
@@ -316,6 +328,10 @@ object AppNoticeManager {
                             isEnabled = obj.optBoolean("isEnabled", true),
                             budget = obj.optDouble("budget", 0.0),
                             budgetUnit = obj.optString("budgetUnit", "day"),
+                            durationValue = obj.optInt("durationValue", 1),
+                            durationUnit = obj.optString("durationUnit", obj.optString("budgetUnit", "day")),
+                            approvedAtMillis = obj.optLong("approvedAtMillis", 0L),
+                            expiresAtMillis = obj.optLong("expiresAtMillis", 0L),
                             isApproved = obj.optBoolean("isApproved", true),
                             sponsorEmail = obj.optString("sponsorEmail", "")
                         )
@@ -412,6 +428,10 @@ object AppNoticeManager {
                     "isEnabled" to n.isEnabled,
                     "budget" to n.budget,
                     "budgetUnit" to n.budgetUnit,
+                    "durationValue" to n.durationValue,
+                    "durationUnit" to n.durationUnit,
+                    "approvedAtMillis" to n.approvedAtMillis,
+                    "expiresAtMillis" to n.expiresAtMillis,
                     "isApproved" to n.isApproved,
                     "sponsorEmail" to n.sponsorEmail
                 )
@@ -445,6 +465,10 @@ object AppNoticeManager {
                             "isEnabled" to n.isEnabled,
                             "budget" to n.budget,
                             "budgetUnit" to n.budgetUnit,
+                            "durationValue" to n.durationValue,
+                            "durationUnit" to n.durationUnit,
+                            "approvedAtMillis" to n.approvedAtMillis,
+                            "expiresAtMillis" to n.expiresAtMillis,
                             "isApproved" to n.isApproved,
                             "sponsorEmail" to n.sponsorEmail
                         )
@@ -536,6 +560,20 @@ object AppNoticeManager {
         }
     }
 
+    fun calculateExpirationMillis(startTime: Long, durationValue: Int, durationUnit: String): Long {
+        val count = durationValue.coerceAtLeast(1)
+        val cal = java.util.Calendar.getInstance().apply { timeInMillis = startTime }
+        when (durationUnit.lowercase(java.util.Locale.ROOT)) {
+            "hour", "hours", "hora", "horas" -> cal.add(java.util.Calendar.HOUR_OF_DAY, count)
+            "day", "days", "dia", "dias", "día", "días" -> cal.add(java.util.Calendar.DAY_OF_YEAR, count)
+            "week", "weeks", "semana", "semanas" -> cal.add(java.util.Calendar.WEEK_OF_YEAR, count)
+            "month", "months", "mes", "meses" -> cal.add(java.util.Calendar.MONTH, count)
+            "year", "years", "año", "años", "ano", "anos" -> cal.add(java.util.Calendar.YEAR, count)
+            else -> cal.add(java.util.Calendar.DAY_OF_YEAR, count)
+        }
+        return cal.timeInMillis
+    }
+
     /**
      * Registra un nuevo anuncio de patrocinador como pendiente de moderación
      * y lo sincroniza con Firestore para que el administrador pueda verlo.
@@ -544,7 +582,13 @@ object AppNoticeManager {
         val appContext = context.applicationContext
         val current = _notices.value.toMutableList()
         val existingIndex = current.indexOfFirst { it.id == notice.id }
-        val pendingNotice = notice.copy(isApproved = false, isEnabled = false, tag = "Publicidad")
+        val pendingNotice = notice.copy(
+            isApproved = false,
+            isEnabled = false,
+            tag = "Publicidad",
+            approvedAtMillis = 0L,
+            expiresAtMillis = 0L
+        )
         if (existingIndex >= 0) {
             current[existingIndex] = pendingNotice
         } else {
@@ -567,6 +611,8 @@ object AppNoticeManager {
                 "tag" to "Publicidad",
                 "budget" to pendingNotice.budget,
                 "budgetUnit" to pendingNotice.budgetUnit,
+                "durationValue" to pendingNotice.durationValue,
+                "durationUnit" to pendingNotice.durationUnit,
                 "isApproved" to false,
                 "isEnabled" to false,
                 "sponsorEmail" to pendingNotice.sponsorEmail,
@@ -577,19 +623,53 @@ object AppNoticeManager {
         } catch (e: Exception) {
             Log.w(TAG, "Error subiendo anuncio a pending_sponsor_ads: ${e.message}")
         }
+
+        try {
+            val prefs = appContext.getSharedPreferences("sponsor_ads_prefs", Context.MODE_PRIVATE)
+            val jsonStr = prefs.getString("pending_ads", "[]") ?: "[]"
+            val array = org.json.JSONArray(jsonStr)
+            val obj = org.json.JSONObject().apply {
+                put("id", pendingNotice.id)
+                put("title", pendingNotice.title)
+                put("content", pendingNotice.content)
+                put("videoUrl", pendingNotice.videoUrl)
+                put("expandedImageUrl", pendingNotice.expandedImageUrl)
+                put("externalUrl", pendingNotice.externalUrl)
+                put("tag", pendingNotice.tag)
+                put("budget", pendingNotice.budget)
+                put("budgetUnit", pendingNotice.budgetUnit)
+                put("durationValue", pendingNotice.durationValue)
+                put("durationUnit", pendingNotice.durationUnit)
+                put("isApproved", false)
+                put("isEnabled", false)
+                put("sponsorEmail", pendingNotice.sponsorEmail)
+            }
+            array.put(obj)
+            prefs.edit().putString("pending_ads", array.toString()).apply()
+        } catch (_: Exception) {}
     }
 
     /**
      * Aprueba un anuncio de patrocinador:
-     * Lo marca como aprobado y habilitado, lo sincroniza inmediatamente en Firestore
-     * para que sea visible en el Gestor de Anuncios y para todos los usuarios.
+     * Calcula su fecha de expiración según la duración especificada,
+     * lo marca como aprobado y habilitado, y lo sincroniza inmediatamente en Firestore.
      */
     fun approveSponsorNotice(context: Context, noticeId: String) {
         val appContext = context.applicationContext
         val current = _notices.value.toMutableList()
         val index = current.indexOfFirst { it.id == noticeId }
+        val now = System.currentTimeMillis()
+        var expiresAt = 0L
+
         if (index >= 0) {
-            val approved = current[index].copy(isApproved = true, isEnabled = true)
+            val cur = current[index]
+            expiresAt = calculateExpirationMillis(now, cur.durationValue, cur.durationUnit)
+            val approved = cur.copy(
+                isApproved = true,
+                isEnabled = true,
+                approvedAtMillis = now,
+                expiresAtMillis = expiresAt
+            )
             current[index] = approved
             _notices.value = current
             saveNoticesToPrefs(appContext, current)
@@ -602,8 +682,15 @@ object AppNoticeManager {
         // Actualizar en la colección pending_sponsor_ads
         try {
             val db = FirebaseFirestore.getInstance()
+            val updateMap = hashMapOf<String, Any>(
+                "isApproved" to true,
+                "isEnabled" to true,
+                "approvedAt" to now,
+                "approvedAtMillis" to now,
+                "expiresAtMillis" to if (expiresAt > 0L) expiresAt else (now + 24 * 3600 * 1000L)
+            )
             db.collection("pending_sponsor_ads").document(noticeId)
-                .update("isApproved", true, "isEnabled", true, "approvedAt", System.currentTimeMillis())
+                .set(updateMap, SetOptions.merge())
         } catch (_: Exception) {}
 
         // Actualizar también en el almacenamiento local del patrocinador si está en este dispositivo
@@ -617,6 +704,8 @@ object AppNoticeManager {
                     if (obj.optString("id") == noticeId) {
                         obj.put("isApproved", true)
                         obj.put("isEnabled", true)
+                        obj.put("approvedAtMillis", now)
+                        obj.put("expiresAtMillis", expiresAt)
                     }
                 }
                 prefs.edit().putString("pending_ads", array.toString()).apply()
@@ -682,6 +771,10 @@ object AppNoticeManager {
                             tag = obj.optString("tag", "Publicidad"),
                             budget = obj.optDouble("budget", 10.0),
                             budgetUnit = obj.optString("budgetUnit", "day"),
+                            durationValue = obj.optInt("durationValue", 1),
+                            durationUnit = obj.optString("durationUnit", obj.optString("budgetUnit", "day")),
+                            approvedAtMillis = obj.optLong("approvedAtMillis", 0L),
+                            expiresAtMillis = obj.optLong("expiresAtMillis", 0L),
                             isApproved = obj.optBoolean("isApproved", false),
                             isEnabled = obj.optBoolean("isEnabled", false),
                             sponsorEmail = obj.optString("sponsorEmail", "")
@@ -699,11 +792,16 @@ object AppNoticeManager {
                 val id = doc.getString("id") ?: doc.id
                 val title = doc.getString("title") ?: "Publicidad"
                 val content = doc.getString("content") ?: ""
+                val videoUrl = doc.getString("videoUrl") ?: ""
                 val expandedImageUrl = doc.getString("expandedImageUrl") ?: ""
                 val externalUrl = doc.getString("externalUrl") ?: ""
                 val tag = doc.getString("tag") ?: "Publicidad"
                 val budget = doc.getDouble("budget") ?: 10.0
                 val budgetUnit = doc.getString("budgetUnit") ?: "day"
+                val durationValue = doc.getLong("durationValue")?.toInt() ?: 1
+                val durationUnit = doc.getString("durationUnit") ?: budgetUnit
+                val approvedAtMillis = doc.getLong("approvedAtMillis") ?: 0L
+                val expiresAtMillis = doc.getLong("expiresAtMillis") ?: 0L
                 val isApproved = doc.getBoolean("isApproved") ?: false
                 val isEnabled = doc.getBoolean("isEnabled") ?: false
                 val sponsorEmail = doc.getString("sponsorEmail") ?: ""
@@ -713,11 +811,16 @@ object AppNoticeManager {
                         id = id,
                         title = title,
                         content = content,
+                        videoUrl = videoUrl,
                         expandedImageUrl = expandedImageUrl,
                         externalUrl = externalUrl,
                         tag = tag,
                         budget = budget,
                         budgetUnit = budgetUnit,
+                        durationValue = durationValue,
+                        durationUnit = durationUnit,
+                        approvedAtMillis = approvedAtMillis,
+                        expiresAtMillis = expiresAtMillis,
                         isApproved = isApproved,
                         isEnabled = isEnabled,
                         sponsorEmail = sponsorEmail
