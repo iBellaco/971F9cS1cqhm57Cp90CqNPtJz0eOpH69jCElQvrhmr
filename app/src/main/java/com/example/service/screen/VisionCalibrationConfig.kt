@@ -38,11 +38,11 @@ data class VisionCalibrationConfig(
     val spellSizeRatio: Float = 0.041f,
     val spellYOffsetRatio: Float = 0.0f,
 
-    // Rango horizontal OCR para columnas de draft
-    val allyOcrMinX: Float = 0.03f,
-    val allyOcrMaxX: Float = 0.28f,
-    val enemyOcrMinX: Float = 0.72f,
-    val enemyOcrMaxX: Float = 0.97f,
+    // Rango horizontal OCR para columnas de draft (restringido estrictamente a las columnas de slots)
+    val allyOcrMinX: Float = 0.05f,
+    val allyOcrMaxX: Float = 0.23f,
+    val enemyOcrMinX: Float = 0.77f,
+    val enemyOcrMaxX: Float = 0.95f,
 
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
     val topAvatarYRatio: Float = 0.045f,

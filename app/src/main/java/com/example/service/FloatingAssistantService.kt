@@ -999,17 +999,26 @@ private fun FloatingOverlayContent(
                                     defaultRoles.forEachIndexed { idx, role ->
                                         if (manualLockedAllySlots[idx] != true) {
                                             val scannedAlly = result.alliesByRole[role]
-                                            if (scannedAlly != null && allies[idx] == null) {
-                                                assignAllySlot(idx, scannedAlly)
-                                                newAlliesAdded++
+                                            if (scannedAlly != null) {
+                                                if (allies[idx] == null || allies[idx]?.id != scannedAlly.id) {
+                                                    assignAllySlot(idx, scannedAlly)
+                                                    newAlliesAdded++
+                                                }
+                                            } else if (result.isSuccessful && allies[idx] != null) {
+                                                allies[idx] = null
+                                                state.allySummonerNames.remove(idx)
                                             }
                                         }
                                         if (manualLockedEnemySlots[idx] != true) {
                                             val scannedEnemy = result.enemiesByRole[role]
-                                            val canAssign = scannedEnemy != null && (enemies[idx] == null || (enemies[idx]?.id != scannedEnemy.id && result.isLastPickConfirmed))
-                                            if (canAssign) {
-                                                assignEnemySlot(idx, scannedEnemy!!, result.enemyConfidencesByRole[role])
-                                                if (enemies[idx] == null) newEnemiesAdded++
+                                            if (scannedEnemy != null) {
+                                                if (enemies[idx] == null || enemies[idx]?.id != scannedEnemy.id) {
+                                                    assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                                    if (enemies[idx] == null) newEnemiesAdded++
+                                                }
+                                            } else if (result.isSuccessful && enemies[idx] != null) {
+                                                enemies[idx] = null
+                                                state.enemyConfidences.remove(role)
                                             }
                                         }
                                     }
@@ -1046,7 +1055,7 @@ private fun FloatingOverlayContent(
                                     val totalEnemiesPicked = enemies.filterNotNull().size
 
                                     // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior de forma local
-                                    if (result.isPreparationPhase && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
+                                    if (result.isPreparationPhase && (totalAlliesPicked + totalEnemiesPicked >= 9) && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
                                         val prepResult = withContext(Dispatchers.IO) {
                                             com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
                                         }
@@ -1171,12 +1180,18 @@ private fun FloatingOverlayContent(
                                 val scannedAlly = result.alliesByRole[role]
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
+                                } else if (result.isSuccessful && allies[idx] != null) {
+                                    allies[idx] = null
+                                    state.allySummonerNames.remove(idx)
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
                                 val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                } else if (result.isSuccessful && enemies[idx] != null) {
+                                    enemies[idx] = null
+                                    state.enemyConfidences.remove(role)
                                 }
                             }
                         }
@@ -1214,7 +1229,7 @@ private fun FloatingOverlayContent(
                         val totalEnemiesPicked = enemies.filterNotNull().size
 
                         // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior de forma local
-                        if (result.isPreparationPhase && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
+                        if (result.isPreparationPhase && (totalAlliesPicked + totalEnemiesPicked >= 9) && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
                             val prepResult = withContext(Dispatchers.IO) {
                                 com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
                             }
