@@ -20,11 +20,15 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 425
-    versionName = "1.1.0.17"
+    versionCode = 426
+    versionName = "1.1.0.18"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: System.getenv("GEMINI_API_KEY") ?: ""
     buildConfigField("String", "GEMINI_API_KEY", "\"${geminiKey}\"")
+    val supabaseUrl = project.findProperty("SUPABASE_URL") as? String ?: System.getenv("SUPABASE_URL") ?: "https://yreknglctxujpetgqhnw.supabase.co"
+    val supabaseKey = project.findProperty("SUPABASE_ANON_KEY") as? String ?: System.getenv("SUPABASE_ANON_KEY") ?: "sb_publishable_bQJGpyYVR-uxtBmN03F5yA_ZuibUcAr"
+    buildConfigField("String", "SUPABASE_URL", "\"${supabaseUrl}\"")
+    buildConfigField("String", "SUPABASE_ANON_KEY", "\"${supabaseKey}\"")
   }
 
   signingConfigs {

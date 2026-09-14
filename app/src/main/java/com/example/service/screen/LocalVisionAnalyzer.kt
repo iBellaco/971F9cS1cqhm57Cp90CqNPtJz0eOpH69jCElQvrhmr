@@ -282,12 +282,12 @@ object LocalVisionAnalyzer {
             // Puntuación visual combinada
             var compositeScore = (pixelSimilarity * 0.55f) + (histSimilarity * 0.30f) + (avgColorSim * 0.15f)
 
-            // Ponderación contextual según el rol esperado para el slot
+            // Ponderación contextual suave según el rol esperado para el slot (sin sesgar la similitud visual del avatar)
             if (expectedRole != null) {
                 if (champ.primaryRole == expectedRole) {
-                    compositeScore += 0.08f
+                    compositeScore += 0.03f
                 } else if (champ.secondaryRoles.contains(expectedRole)) {
-                    compositeScore += 0.04f
+                    compositeScore += 0.015f
                 }
             }
 
@@ -297,7 +297,7 @@ object LocalVisionAnalyzer {
             }
         }
 
-        if (bestChamp != null && bestScore >= 0.50f) {
+        if (bestChamp != null && bestScore >= 0.45f) {
             AppLogger.d(TAG, "Coincidencia local para avatar: ${bestChamp.name} (Confianza: ${(bestScore * 100).toInt()}%)")
             return Pair(bestChamp, bestScore)
         }
@@ -306,14 +306,15 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Identificación visual del 10º Pick mediante análisis dual:
-     * - Recorte del Slot Vertical #5 (lado izquierdo para aliado, derecho para rival)
-     * - Recorte del Avatar #5 de la Barra Superior
-     * Selecciona el campeón con mayor confianza de forma 100% offline.
+     * Identificación visual del 10º Pick comparando el slot vertical correspondiente
+     * contra el catálogo local de avatares en assets/champions.
+     * Utiliza muestreo multi-escala (estándar, enfoque interior al 88% para eliminar halos de selección
+     * o temporizadores circulares, y ampliado al 108%) de forma 100% offline.
      */
     suspend fun identify10thPickLocal(
         bitmap: Bitmap,
         isAlly: Boolean,
+        targetSlotIndex: Int = 4,
         calib: VisionCalibrationConfig,
         allChamps: List<Champion>,
         confirmedIds: Set<String>,
@@ -325,7 +326,7 @@ object LocalVisionAnalyzer {
         val width = bitmap.width
         val height = bitmap.height
 
-        // 1. Coordenadas del Slot Vertical #5
+        val slotIdx = targetSlotIndex.coerceIn(0, 4)
         val slotAvatarDiam = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
         val slotCenterX = if (!isAlly) {
             (width * calib.enemyAvatarCenterX).toInt()
@@ -333,52 +334,53 @@ object LocalVisionAnalyzer {
             (width * calib.allyAvatarCenterX).toInt()
         }
         val slotCenterY = if (!isAlly) {
-            (height * calib.enemySlotYRatios[4]).toInt()
+            (height * calib.enemySlotYRatios[slotIdx]).toInt()
         } else {
-            (height * calib.allySlotYRatios[4]).toInt()
+            (height * calib.allySlotYRatios[slotIdx]).toInt()
         }
 
-        // 2. Coordenadas del Avatar #5 Superior
-        val topAvatarDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(24)
-        val topCenterX = if (!isAlly) {
-            (width * calib.topEnemy5XRatio).toInt()
-        } else {
-            (width * calib.topAlly5XRatio).toInt()
-        }
-        val topCenterY = (height * calib.topAvatarYRatio).toInt()
+        // Multi-escala en el slot vertical de la selección para máxima robustez:
+        // 1. Recorte estándar según calibración
+        // 2. Recorte interior al 88% (ignora anillos de selección, temporizadores circulares brillantes y bordes)
+        // 3. Recorte ampliado al 108% (para capturar retratos ligeramente desfasados)
+        val standardCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotAvatarDiam)
+        val innerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 0.88f).toInt())
+        val outerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 1.08f).toInt())
 
-        // Extraer recortes
-        val slotCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotAvatarDiam)
-        val topCrop = safeCrop(bitmap, topCenterX, topCenterY, topAvatarDiam)
-
-        var bestMatchSlot: Pair<Champion, Float>? = null
-        var bestMatchTop: Pair<Champion, Float>? = null
+        val candidateMatches = mutableListOf<Pair<Champion, Float>>()
 
         try {
-            if (slotCrop != null) {
-                bestMatchSlot = matchAvatar(slotCrop, allChamps, expectedRole, confirmedIds, context)
+            if (standardCrop != null) {
+                matchAvatar(standardCrop, allChamps, expectedRole, confirmedIds, context)?.let {
+                    candidateMatches.add(it)
+                }
             }
-            if (topCrop != null) {
-                bestMatchTop = matchAvatar(topCrop, allChamps, expectedRole, confirmedIds, context)
+            if (innerCrop != null) {
+                matchAvatar(innerCrop, allChamps, expectedRole, confirmedIds, context)?.let {
+                    candidateMatches.add(it)
+                }
+            }
+            if (outerCrop != null) {
+                matchAvatar(outerCrop, allChamps, expectedRole, confirmedIds, context)?.let {
+                    candidateMatches.add(it)
+                }
             }
         } finally {
-            try { slotCrop?.recycle() } catch (_: Throwable) {}
-            try { topCrop?.recycle() } catch (_: Throwable) {}
+            try { standardCrop?.recycle() } catch (_: Throwable) {}
+            try { innerCrop?.recycle() } catch (_: Throwable) {}
+            try { outerCrop?.recycle() } catch (_: Throwable) {}
         }
 
-        val candidates = listOfNotNull(bestMatchSlot, bestMatchTop)
-        if (candidates.isEmpty()) {
+        if (candidateMatches.isEmpty()) {
             return@withContext null
         }
 
-        // Si ambos coinciden en el mismo campeón, potenciar la confianza
-        if (bestMatchSlot != null && bestMatchTop != null && bestMatchSlot.first.id == bestMatchTop.first.id) {
-            val combinedConfidence = min(0.99f, max(bestMatchSlot.second, bestMatchTop.second) + 0.08f)
-            AppLogger.d(TAG, "10º Pick confirmado dualmente por Slot y Top Bar: ${bestMatchSlot.first.name} ($combinedConfidence)")
-            return@withContext Pair(bestMatchSlot.first, combinedConfidence)
+        // Seleccionar el candidato con mayor similitud visual respecto al catálogo local de avatares
+        val bestCandidate = candidateMatches.maxByOrNull { it.second }
+        if (bestCandidate != null) {
+            AppLogger.d(TAG, "10º Pick detectado con precisión visual local en slot $slotIdx: ${bestCandidate.first.name} (Confianza: ${(bestCandidate.second * 100).toInt()}%)")
         }
-
-        return@withContext candidates.maxByOrNull { it.second }
+        return@withContext bestCandidate
     }
 
     private fun safeCrop(src: Bitmap, cx: Int, cy: Int, diameter: Int): Bitmap? {

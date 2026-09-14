@@ -306,7 +306,13 @@ object DraftVisionScanner {
                     val yRatio = if (height > 0) centerY.toFloat() / height.toFloat() else 0.5f
 
                     val lowerText = text.lowercase()
-                    if (yRatio < 0.2f && (lowerText.contains("fase de") || lowerText.contains("preparación") || lowerText.contains("preparacion"))) {
+                    val isAssistantOverlayText = lowerText.contains("campeones confirmados") || 
+                                                 lowerText.contains("escaneo manual") || 
+                                                 lowerText.contains("modo manual") ||
+                                                 lowerText.contains("coach")
+                    if (isAssistantOverlayText) continue
+
+                    if (yRatio < 0.2f && (lowerText.contains("fase de preparación") || lowerText.contains("fase de preparacion") || lowerText.contains("preparation phase"))) {
                         isPreparationPhase = true
                     }
 
@@ -970,6 +976,7 @@ object DraftVisionScanner {
             val localPickMatch = LocalVisionAnalyzer.identify10thPickLocal(
                 bitmap = bitmap,
                 isAlly = tenthTargetIsAlly,
+                targetSlotIndex = targetSlot.slotIndex,
                 calib = calib,
                 allChamps = allChamps,
                 confirmedIds = confirmedIds,

@@ -362,4 +362,66 @@ class DraftDetectionAndValidationTest {
         assertEquals(1466, enemyEndX)
         assertTrue("ROI enemiga no toca el borde derecho ni panel de volumen", enemyEndX < width - 50)
     }
+
+    @Test
+    fun testLocalVisionVolibearMatching() {
+        initChamps()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val champs = WildRiftRepository.champions
+
+        // Cargar imagen de Volibear desde assets
+        val assetManager = context.assets
+        val stream = assetManager.open("champions/volibear.png")
+        val bmp = android.graphics.BitmapFactory.decodeStream(stream)
+        assertNotNull("Bitmap de volibear.png no debe ser nulo", bmp)
+
+        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+        val match = com.example.service.screen.LocalVisionAnalyzer.matchAvatar(
+            crop = bmp,
+            candidates = champs,
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+
+        assertNotNull("Debe encontrar coincidencia para volibear", match)
+        println("TEST MATCH RESULT: ${match?.first?.name} with confidence ${match?.second}")
+        assertEquals("volibear", match?.first?.id)
+    }
+
+    @Test
+    fun testMultiScaleVolibearLocalMatching() = kotlinx.coroutines.test.runTest {
+        initChamps()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+        val champs = WildRiftRepository.champions
+
+        val assetManager = context.assets
+        val stream = assetManager.open("champions/volibear.png")
+        val volibearBmp = android.graphics.BitmapFactory.decodeStream(stream)!!
+
+        // Escala normal
+        val matchNormal = com.example.service.screen.LocalVisionAnalyzer.matchAvatar(
+            crop = volibearBmp,
+            candidates = champs,
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+        assertNotNull("Volibear en escala normal debe coincidir", matchNormal)
+        assertEquals("volibear", matchNormal?.first?.id)
+
+        // Escala reducida (88%) simulando recorte interior anti-anillos
+        val innerWidth = (volibearBmp.width * 0.88f).toInt()
+        val innerHeight = (volibearBmp.height * 0.88f).toInt()
+        val innerBmp = android.graphics.Bitmap.createScaledBitmap(volibearBmp, innerWidth, innerHeight, true)
+        val matchInner = com.example.service.screen.LocalVisionAnalyzer.matchAvatar(
+            crop = innerBmp,
+            candidates = champs,
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+        assertNotNull("Volibear con recorte interior (88%) debe coincidir", matchInner)
+        assertEquals("volibear", matchInner?.first?.id)
+        assertTrue("La confianza debe ser >= 0.70", (matchInner?.second ?: 0f) >= 0.70f)
+    }
 }
+

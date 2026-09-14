@@ -23,76 +23,16 @@ data class PreparationScanResult(
 object GeminiVisionService {
     private const val TAG = "GeminiVisionService"
 
+    /**
+     * En Wild Rift, la barra superior contiene los BANEOS de ambos equipos, NO los campeones seleccionados.
+     * Los 10 campeones del draft se leen exclusivamente a través de los slots verticales:
+     * - Selecciones 1 a 9: Nombre textual por OCR.
+     * - Selección 10: Retrato del slot vertical por comparación visual local con assets de avatares.
+     */
     suspend fun scanFullPreparationScreen(bitmap: Bitmap): PreparationScanResult? = withContext(Dispatchers.Default) {
-        if (bitmap.isRecycled) return@withContext null
-
-        try {
-            val calib = VisionCalibrationConfig()
-            val allChamps = WildRiftRepository.champions
-            val width = bitmap.width
-            val height = bitmap.height
-
-            val topAvatarDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(20)
-            val topCenterY = (height * calib.topAvatarYRatio).toInt()
-
-            val detectedAllies = mutableListOf<String>()
-            val detectedEnemies = mutableListOf<String>()
-
-            // Escanear los 5 avatares aliados superiores
-            for (xRatio in calib.topAllyXRatios) {
-                val cx = (width * xRatio).toInt()
-                val crop = safeCrop(bitmap, cx, topCenterY, topAvatarDiam)
-                if (crop != null) {
-                    try {
-                        val match = LocalVisionAnalyzer.matchAvatar(
-                            crop = crop,
-                            candidates = allChamps,
-                            expectedRole = null
-                        )
-                        if (match != null) {
-                            detectedAllies.add(match.first.name)
-                        }
-                    } finally {
-                        try { crop.recycle() } catch (_: Throwable) {}
-                    }
-                }
-            }
-
-            // Escanear los 5 avatares rivales superiores
-            for (xRatio in calib.topEnemyXRatios) {
-                val cx = (width * xRatio).toInt()
-                val crop = safeCrop(bitmap, cx, topCenterY, topAvatarDiam)
-                if (crop != null) {
-                    try {
-                        val match = LocalVisionAnalyzer.matchAvatar(
-                            crop = crop,
-                            candidates = allChamps,
-                            expectedRole = null
-                        )
-                        if (match != null) {
-                            detectedEnemies.add(match.first.name)
-                        }
-                    } finally {
-                        try { crop.recycle() } catch (_: Throwable) {}
-                    }
-                }
-            }
-
-            AppLogger.d(TAG, "Escaneo local de preparación finalizado: ${detectedAllies.size} aliados, ${detectedEnemies.size} rivales")
-
-            if (detectedAllies.isEmpty() && detectedEnemies.isEmpty()) {
-                null
-            } else {
-                PreparationScanResult(
-                    allies = detectedAllies,
-                    enemies = detectedEnemies,
-                    userChampion = detectedAllies.firstOrNull()
-                )
-            }
-        } catch (e: Exception) {
-            AppLogger.e(TAG, "Error en escaneo local de pantalla de preparación: ${e.message}")
-            null
-        }
+        // Retornar null para evitar que los baneos de la barra superior contaminen los slots de juego.
+        AppLogger.d(TAG, "scanFullPreparationScreen omitido: la barra superior corresponde a baneos, no a picks.")
+        null
     }
 
     private fun safeCrop(src: Bitmap, cx: Int, cy: Int, diameter: Int): Bitmap? {

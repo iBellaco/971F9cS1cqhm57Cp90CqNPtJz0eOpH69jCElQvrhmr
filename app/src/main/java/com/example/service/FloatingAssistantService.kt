@@ -1054,61 +1054,6 @@ private fun FloatingOverlayContent(
                                     val totalAlliesPicked = allies.filterNotNull().size
                                     val totalEnemiesPicked = enemies.filterNotNull().size
 
-                                    // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior de forma local
-                                    if (result.isPreparationPhase && (totalAlliesPicked + totalEnemiesPicked >= 9) && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
-                                        val prepResult = withContext(Dispatchers.IO) {
-                                            com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
-                                        }
-                                        if (prepResult != null) {
-                                            val allChamps = com.example.data.WildRiftRepository.champions
-
-                                            val resolvedAllies = prepResult.allies.mapNotNull { name ->
-                                                allChamps.find { it.name.equals(name, ignoreCase = true) }
-                                                    ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
-                                            }
-                                            val resolvedEnemies = prepResult.enemies.mapNotNull { name ->
-                                                allChamps.find { it.name.equals(name, ignoreCase = true) }
-                                                    ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
-                                            }
-                                            val userChamp = if (!prepResult.userChampion.isNullOrBlank()) {
-                                                allChamps.find { it.name.equals(prepResult.userChampion, ignoreCase = true) }
-                                                    ?: allChamps.find { prepResult.userChampion.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
-                                            } else null
-
-                                            if (userChamp != null) {
-                                                val userRole = userChamp.primaryRole
-                                                if (activeRole != userRole) {
-                                                    activeRole = userRole
-                                                    com.example.util.UserPreferences.setActiveDraftRole(context, userRole)
-                                                }
-                                            }
-
-                                            if (resolvedAllies.isNotEmpty()) {
-                                                val assignedAllyRoles = mutableSetOf<com.example.model.LaneRole>()
-                                                resolvedAllies.forEach { champ ->
-                                                    val targetRole = if (!assignedAllyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedAllyRoles.contains(it) } ?: champ.primaryRole
-                                                    assignedAllyRoles.add(targetRole)
-                                                    val sIdx = defaultRoles.indexOf(targetRole)
-                                                    if (sIdx in 0..4 && manualLockedAllySlots[sIdx] != true && allies[sIdx] == null) {
-                                                        assignAllySlot(sIdx, champ)
-                                                    }
-                                                }
-                                            }
-
-                                            if (resolvedEnemies.isNotEmpty()) {
-                                                val assignedEnemyRoles = mutableSetOf<com.example.model.LaneRole>()
-                                                resolvedEnemies.forEach { champ ->
-                                                    val targetRole = if (!assignedEnemyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedEnemyRoles.contains(it) } ?: champ.primaryRole
-                                                    assignedEnemyRoles.add(targetRole)
-                                                    val sIdx = defaultRoles.indexOf(targetRole)
-                                                    if (sIdx in 0..4 && manualLockedEnemySlots[sIdx] != true && enemies[sIdx] == null) {
-                                                        assignEnemySlot(sIdx, champ, 100)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
                                     val finalAlliesPicked = allies.filterNotNull().size
                                     val finalEnemiesPicked = enemies.filterNotNull().size
 
@@ -1228,61 +1173,7 @@ private fun FloatingOverlayContent(
                         val totalAlliesPicked = allies.filterNotNull().size
                         val totalEnemiesPicked = enemies.filterNotNull().size
 
-                        // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior de forma local
-                        if (result.isPreparationPhase && (totalAlliesPicked + totalEnemiesPicked >= 9) && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
-                            val prepResult = withContext(Dispatchers.IO) {
-                                com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
-                            }
-                            if (prepResult != null) {
-                                val allChamps = com.example.data.WildRiftRepository.champions
-
-                                val resolvedAllies = prepResult.allies.mapNotNull { name ->
-                                    allChamps.find { it.name.equals(name, ignoreCase = true) }
-                                        ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
-                                }
-                                val resolvedEnemies = prepResult.enemies.mapNotNull { name ->
-                                    allChamps.find { it.name.equals(name, ignoreCase = true) }
-                                        ?: allChamps.find { name.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
-                                }
-                                val userChamp = if (!prepResult.userChampion.isNullOrBlank()) {
-                                    allChamps.find { it.name.equals(prepResult.userChampion, ignoreCase = true) }
-                                        ?: allChamps.find { prepResult.userChampion.lowercase(java.util.Locale.ROOT).contains(it.name.lowercase(java.util.Locale.ROOT)) }
-                                } else null
-
-                                if (userChamp != null) {
-                                    val userRole = userChamp.primaryRole
-                                    if (activeRole != userRole) {
-                                        activeRole = userRole
-                                        com.example.util.UserPreferences.setActiveDraftRole(context, userRole)
-                                    }
-                                }
-
-                                if (resolvedAllies.isNotEmpty()) {
-                                    val assignedAllyRoles = mutableSetOf<com.example.model.LaneRole>()
-                                    resolvedAllies.forEach { champ ->
-                                        val targetRole = if (!assignedAllyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedAllyRoles.contains(it) } ?: champ.primaryRole
-                                        assignedAllyRoles.add(targetRole)
-                                        val sIdx = defaultRoles.indexOf(targetRole)
-                                        if (sIdx in 0..4 && manualLockedAllySlots[sIdx] != true) {
-                                            assignAllySlot(sIdx, champ)
-                                        }
-                                    }
-                                }
-
-                                if (resolvedEnemies.isNotEmpty()) {
-                                    val assignedEnemyRoles = mutableSetOf<com.example.model.LaneRole>()
-                                    resolvedEnemies.forEach { champ ->
-                                        val targetRole = if (!assignedEnemyRoles.contains(champ.primaryRole)) champ.primaryRole else defaultRoles.firstOrNull { !assignedEnemyRoles.contains(it) } ?: champ.primaryRole
-                                        assignedEnemyRoles.add(targetRole)
-                                        val sIdx = defaultRoles.indexOf(targetRole)
-                                        if (sIdx in 0..4 && manualLockedEnemySlots[sIdx] != true) {
-                                            assignEnemySlot(sIdx, champ, 100)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
+                        // Fase de confirmación de picks finalizada mediante escaneo local y OCR
                         if (result.detectedRole != null) {
                             activeRole = result.detectedRole
                             com.example.util.UserPreferences.setActiveDraftRole(context, result.detectedRole)
