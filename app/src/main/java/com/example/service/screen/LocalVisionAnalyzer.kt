@@ -107,9 +107,6 @@ object LocalVisionAnalyzer {
 
     fun resetTenthPickData() {
         lastTenthPickLog = null
-        try {
-            lastTenthPickCrop?.let { if (!it.isRecycled) it.recycle() }
-        } catch (_: Throwable) {}
         lastTenthPickCrop = null
         lastTenthPickCoordinates = ""
         lastTenthPickRoiLabel = ""
@@ -834,7 +831,6 @@ object LocalVisionAnalyzer {
         // Preservar copia del recorte para el Visor de Escaneo
         try {
             standardCrop?.let { crop ->
-                lastTenthPickCrop?.recycle()
                 lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
                 lastTenthPickRoiLabel = sideDesc
                 lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotAvatarDiam}px"
@@ -929,7 +925,6 @@ object LocalVisionAnalyzer {
             if (topCenterX == targetX) {
                 try {
                     standardCrop?.let { crop ->
-                        lastTenthPickCrop?.recycle()
                         lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
                         lastTenthPickRoiLabel = sideDesc
                         lastTenthPickCoordinates = "X: ${targetX}px (${(targetX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
@@ -1006,7 +1001,6 @@ object LocalVisionAnalyzer {
         val crop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
         if (idx == 4) {
             try {
-                lastTenthPickCrop?.recycle()
                 lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
                 lastTenthPickRoiLabel = "Barra Superior ($side 5 - 10º Pick)"
                 lastTenthPickCoordinates = "X: ${topCenterX}px (${(topCenterX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
@@ -1065,7 +1059,6 @@ object LocalVisionAnalyzer {
         val crop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
 
         try {
-            lastTenthPickCrop?.recycle()
             lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
             lastTenthPickRoiLabel = "Barra Superior ($side ${idx + 1})"
             lastTenthPickCoordinates = "X: ${topCenterX}px (${(topCenterX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
@@ -1097,7 +1090,8 @@ object LocalVisionAnalyzer {
         if (bitmap.isRecycled || bitmap.width < 50 || bitmap.height < 30) return null
         val stripHeight = (bitmap.height * heightRatio).toInt().coerceIn(24, bitmap.height)
         return try {
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, stripHeight)
+            val sub = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, stripHeight)
+            sub.copy(Bitmap.Config.ARGB_8888, false)
         } catch (_: Throwable) {
             null
         }

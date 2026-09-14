@@ -3512,37 +3512,51 @@ private fun TenthPickScannerViewerDialog(
     var isLiveStreaming by remember { mutableStateOf(true) }
     var isFastStep by remember { mutableStateOf(false) }
     var topStripBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var currentCrop by remember { mutableStateOf<Bitmap?>(com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop) }
-    var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(com.example.service.screen.LocalVisionAnalyzer.lastTenthPickLog) }
+    var currentCrop by remember { mutableStateOf<Bitmap?>(null) }
+    var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(null) }
     var isEvaluating by remember { mutableStateOf(false) }
 
     val step = if (isFastStep) 0.010f else 0.002f
 
     val performSingleEvaluation: suspend () -> Unit = {
-        if (screenCaptureManager?.isReady() == true) {
-            val bmp = screenCaptureManager.captureCurrentFrame()
-            if (bmp != null) {
-                try {
-                    val allChamps = com.example.data.WildRiftRepository.champions
-                    val strip = com.example.service.screen.LocalVisionAnalyzer.extractTopBarStrip(bmp, heightRatio = 0.16f)
-                    val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
-                        bitmap = bmp,
-                        isAlly = (selectedSide == 0),
-                        slotIndex = selectedSlotIndex,
-                        calib = calib,
-                        allChamps = allChamps,
-                        context = context
-                    )
-                    withContext(Dispatchers.Main) {
-                        topStripBitmap?.recycle()
-                        topStripBitmap = strip
-                        currentCrop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop
-                        currentLog = dec
+        withContext(Dispatchers.Default) {
+            try {
+                if (screenCaptureManager?.isReady() == true) {
+                    val bmp = screenCaptureManager.captureCurrentFrame()
+                    if (bmp != null && !bmp.isRecycled) {
+                        try {
+                            val allChamps = com.example.data.WildRiftRepository.champions
+                            val strip = com.example.service.screen.LocalVisionAnalyzer.extractTopBarStrip(bmp, heightRatio = 0.16f)
+                            val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
+                                bitmap = bmp,
+                                isAlly = (selectedSide == 0),
+                                slotIndex = selectedSlotIndex,
+                                calib = calib,
+                                allChamps = allChamps,
+                                context = context
+                            )
+                            val crop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop?.let {
+                                if (!it.isRecycled) {
+                                    try { it.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
+                                } else null
+                            }
+                            withContext(Dispatchers.Main) {
+                                if (strip != null && !strip.isRecycled) {
+                                    topStripBitmap = strip
+                                }
+                                if (crop != null && !crop.isRecycled) {
+                                    currentCrop = crop
+                                }
+                                currentLog = dec
+                            }
+                        } finally {
+                            try {
+                                if (!bmp.isRecycled) bmp.recycle()
+                            } catch (_: Throwable) {}
+                        }
                     }
-                } finally {
-                    bmp.recycle()
                 }
-            }
+            } catch (_: Throwable) {}
         }
     }
 
@@ -3665,7 +3679,6 @@ private fun TenthPickScannerViewerDialog(
                             com.example.service.screen.LocalVisionAnalyzer.resetTenthPickData()
                             currentCrop = null
                             currentLog = null
-                            topStripBitmap?.recycle()
                             topStripBitmap = null
                             coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
                             android.widget.Toast.makeText(context, "Capturas anteriores limpiadas", android.widget.Toast.LENGTH_SHORT).show()
