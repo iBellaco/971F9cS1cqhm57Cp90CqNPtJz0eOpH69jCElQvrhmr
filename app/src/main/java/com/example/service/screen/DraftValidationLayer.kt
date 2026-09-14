@@ -305,7 +305,7 @@ object DraftValidationLayer {
         val primaryRoleCounts = validSlots.groupBy { it.champion!!.primaryRole }.mapValues { it.value.size }
         val explicitlyAssignedRoles = mutableSetOf<LaneRole>()
 
-        // 0. RESERVA DE ROL JUNGLA POR HECHIZO CASTIGO (SMITE):
+        // 0. ASIGNACIÓN INICIAL POR HECHIZO CASTIGO (SMITE) -> ROL JUNGLA INEQUÍVOCO (Certeza 100%)
         // Si un slot aliado tiene Castigo (Smite), dicho slot es indiscutiblemente el Jungla del equipo.
         val allySlotWithSmite = if (isAllyTeam) {
             scannedSlots.find { s ->
@@ -313,12 +313,18 @@ object DraftValidationLayer {
             }
         } else null
 
-        if (allySlotWithSmite != null && allySlotWithSmite.champion == null && availableRoles.contains(LaneRole.JUNGLE)) {
-            // Reservar el rol de jungla para este slot, impidiendo que otro campeón lo tome
+        if (allySlotWithSmite != null) {
             allySlotWithSmite.explicitRole = LaneRole.JUNGLE
-            allySlotWithSmite.assignedRole = LaneRole.JUNGLE
-            availableRoles.remove(LaneRole.JUNGLE)
-            explicitlyAssignedRoles.add(LaneRole.JUNGLE)
+            val smiteChamp = allySlotWithSmite.champion
+            if (smiteChamp != null && availableRoles.contains(LaneRole.JUNGLE)) {
+                finalMap[LaneRole.JUNGLE] = smiteChamp
+                confidences[LaneRole.JUNGLE] = 100
+                availableRoles.remove(LaneRole.JUNGLE)
+                assignedChampionIds.add(smiteChamp.id)
+                allySlotWithSmite.assignedRole = LaneRole.JUNGLE
+                explicitlyAssignedRoles.add(LaneRole.JUNGLE)
+                auditList.add("Hechizo Castigo detectado: ${smiteChamp.name} -> JUNGLA (100% certeza)")
+            }
         }
 
         // 1. ASIGNACIÓN POR ROL EXPLÍCITO DETECTADO EN EL SLOT (Certeza 100%)

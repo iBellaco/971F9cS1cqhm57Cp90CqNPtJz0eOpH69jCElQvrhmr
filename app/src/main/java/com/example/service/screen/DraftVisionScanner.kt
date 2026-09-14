@@ -1093,6 +1093,58 @@ object DraftVisionScanner {
             lastPickVisualConfidence = 0.0f
             isLastPickVisualRecognized = false
         }
+
+        // Si estamos en Fase de Preparación, asegurar que ningún slot quede vacío escaneando los círculos superiores
+        if (isPreparationPhase) {
+            val confirmedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toMutableSet()
+            for (i in 0..4) {
+                if (allySlots[i].champion == null) {
+                    val expectedRole = allySlots[i].explicitRole ?: allySlotRolesCache[i] ?: defaultRolesList[i]
+                    val detected = LocalVisionAnalyzer.identifyTopSlotAvatar(
+                        bitmap = bitmap,
+                        isAlly = true,
+                        slotIndex = i,
+                        calib = calib,
+                        allChamps = allChamps,
+                        confirmedIds = confirmedIds,
+                        expectedRole = expectedRole,
+                        context = context
+                    )
+                    if (detected != null) {
+                        val champ = detected.first
+                        allySlots[i].champion = champ
+                        allySlots[i].confidencePercent = 100
+                        allySlotConfirmedChampions[i] = champ
+                        allyOcrChampions[i] = champ
+                        confirmedIds.add(champ.id)
+                        AppLogger.i(TAG, "Fase de Preparación: Campeón Aliado Slot $i confirmado de barra superior: ${champ.name}")
+                    }
+                }
+            }
+            for (i in 0..4) {
+                if (enemySlots[i].champion == null) {
+                    val detected = LocalVisionAnalyzer.identifyTopSlotAvatar(
+                        bitmap = bitmap,
+                        isAlly = false,
+                        slotIndex = i,
+                        calib = calib,
+                        allChamps = allChamps,
+                        confirmedIds = confirmedIds,
+                        expectedRole = null,
+                        context = context
+                    )
+                    if (detected != null) {
+                        val champ = detected.first
+                        enemySlots[i].champion = champ
+                        enemySlots[i].confidencePercent = 100
+                        enemySlotConfirmedChampions[i] = champ
+                        enemyOcrChampions[i] = champ
+                        confirmedIds.add(champ.id)
+                        AppLogger.i(TAG, "Fase de Preparación: Campeón Rival Slot $i confirmado de barra superior: ${champ.name}")
+                    }
+                }
+            }
+        }
         
         // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Línea)
         val validAllySlots = allySlots.filter { it.champion != null }

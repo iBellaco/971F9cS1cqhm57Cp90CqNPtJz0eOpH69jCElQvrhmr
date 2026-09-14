@@ -705,14 +705,17 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
 
-        val candidateXs = if (isAlly) {
-            listOf((width * calib.topAlly5XRatio).toInt())
+        val targetX = if (isAlly) {
+            (width * calib.topAlly5XRatio).toInt()
         } else {
-            listOf(
-                (width * calib.topEnemy5XRatio).toInt(),
-                (width * (calib.topEnemyXRatios.firstOrNull() ?: 0.856f)).toInt()
-            )
+            (width * calib.topEnemy5XRatio).toInt()
         }
+
+        val candidateXs = listOf(
+            targetX,
+            targetX - (width * 0.005f).toInt(),
+            targetX + (width * 0.005f).toInt()
+        )
 
         val sideDesc = if (isAlly) "Superior Izquierda (Aliado 5 - 10º Pick)" else "Superior Derecha (Rival 5 - 10º Pick)"
         val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
@@ -759,6 +762,54 @@ object LocalVisionAnalyzer {
         val detailed = identify10thPickSuperiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, roleExplanation, context) ?: return null
         val champ = detailed.selectedChampion ?: return null
         return Pair(champ, 1.0f)
+    }
+
+    /**
+     * Identificación visual de un avatar específico en la barra superior (slots 0..4)
+     * para aliados o rivales durante la Fase de Preparación.
+     */
+    suspend fun identifyTopSlotAvatar(
+        bitmap: Bitmap,
+        isAlly: Boolean,
+        slotIndex: Int,
+        calib: VisionCalibrationConfig,
+        allChamps: List<Champion>,
+        confirmedIds: Set<String>,
+        expectedRole: LaneRole? = null,
+        context: Context? = null
+    ): Pair<Champion, Float>? = withContext(Dispatchers.Default) {
+        if (bitmap.isRecycled) return@withContext null
+        val idx = slotIndex.coerceIn(0, 4)
+        val width = bitmap.width
+        val height = bitmap.height
+        val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
+        val topCenterY = (height * calib.topAvatarYRatio).toInt()
+        val targetXRatio = if (isAlly) {
+            calib.topAllyXRatios.getOrElse(idx) { 0.028f + idx * 0.035f }
+        } else {
+            calib.topEnemyXRatios.getOrElse(idx) { 0.832f + idx * 0.035f }
+        }
+        val topCenterX = (width * targetXRatio).toInt()
+        val side = if (isAlly) "Aliado" else "Rival"
+        val crop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
+        try {
+            val detailed = matchAvatarDetailed(
+                crop = crop,
+                roiLabel = "Barra Superior ($side ${idx + 1})",
+                candidates = allChamps,
+                expectedRole = expectedRole,
+                excludedChampionIds = confirmedIds,
+                context = context,
+                isConfirmedPhase = true
+            ) ?: return@withContext null
+            val champ = detailed.selectedChampion ?: return@withContext null
+            if (detailed.confidence >= 0.40f) {
+                return@withContext Pair(champ, detailed.confidence)
+            }
+            return@withContext null
+        } finally {
+            try { crop.recycle() } catch (_: Throwable) {}
+        }
     }
 
     /**
