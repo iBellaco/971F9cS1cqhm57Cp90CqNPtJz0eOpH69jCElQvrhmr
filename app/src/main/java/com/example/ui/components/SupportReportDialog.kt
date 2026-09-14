@@ -571,7 +571,8 @@ fun SupportReportDialog(
                                             description = cleanDesc,
                                             email = userEmail,
                                             imagesBase64 = base64Photos.toList(),
-                                            userName = userName
+                                            userName = userName,
+                                            id = reportId
                                         )
                                     } catch (_: Exception) {}
 

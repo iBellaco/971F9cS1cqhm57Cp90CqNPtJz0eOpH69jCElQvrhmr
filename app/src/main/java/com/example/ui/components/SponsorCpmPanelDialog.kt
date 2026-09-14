@@ -152,6 +152,8 @@ fun SponsorCpmPanelDialog(
         durationValueInt,
         isHorizontalVideo,
         isVerticalVideo,
+        horizontalMediaInput,
+        verticalMediaInput,
         externalUrlInput,
         currentMinute
     ) {
@@ -164,9 +166,11 @@ fun SponsorCpmPanelDialog(
         }
         var total = unitPrice * durationValueInt
         
-        // Premium for video content
+        // Premium for video content vs image content
         if (isHorizontalVideo || isVerticalVideo) {
             total *= 1.35 // 35% extra for video
+        } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
+            total *= 1.15 // 15% extra for image
         }
         
         // Premium for external link
@@ -626,7 +630,7 @@ fun SponsorCpmPanelDialog(
                         if (isHorizontalVideo || isVerticalVideo) {
                             Text("• Prima por contenido en Video: +35%", color = TextSecondary, fontSize = 10.sp)
                         } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
-                            Text("• Prima por contenido en Imagen: +0%", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Prima por contenido en Imagen: +15%", color = TextSecondary, fontSize = 10.sp)
                         }
 
                         if (externalUrlInput.isNotBlank()) {
@@ -634,6 +638,16 @@ fun SponsorCpmPanelDialog(
                         }
                         
                         Text("• Multiplicador por tráfico actual (demanda): +${((currentMinute % 50)).toInt()}%", color = TextSecondary, fontSize = 10.sp)
+
+                        val estimatedBudgetFloat = autoBudget.toFloatOrNull() ?: 0f
+                        val estimatedVisits = ((estimatedBudgetFloat / 2.0f) * 1000).toInt()
+                        val estimatedClicks = (estimatedVisits * 0.025f).toInt()
+                        
+                        androidx.compose.material3.Divider(modifier = Modifier.padding(vertical = 6.dp), color = Color(0xFF334155))
+                        Text("Rendimiento Estimado:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text("• Visitas esperadas: ~%,d".format(Locale.getDefault(), estimatedVisits), color = TextSecondary, fontSize = 10.sp)
+                        Text("• Clics únicos esperados: ~%,d".format(Locale.getDefault(), estimatedClicks), color = TextSecondary, fontSize = 10.sp)
                     }
 
                     Text("Duración de la Publicación:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)

@@ -21,6 +21,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 private data class InsertFeedbackReport(
+    val id: String? = null,
     val type: String,
     val title: String,
     val description: String,
@@ -55,7 +56,8 @@ object FeedbackRepository {
         email: String? = null,
         imagesBase64: List<String> = emptyList(),
         retentionDays: Int = 7,
-        userName: String? = null
+        userName: String? = null,
+        id: String? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val client = SupabaseClientManager.client
@@ -92,6 +94,7 @@ object FeedbackRepository {
             }
 
             val report = InsertFeedbackReport(
+                id = id,
                 type = type,
                 title = title.trim(),
                 description = finalDescription,
@@ -116,7 +119,6 @@ object FeedbackRepository {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val id = report.id
         val compositeKey = if (report.createdAt != null) "${report.title}_${report.createdAt}" else null
-        val titleKey = "title:${report.title}"
 
         // 1. Revisar campo status de Supabase (Cloud-First Multi-Device Sync)
         val remoteStatus = report.status?.trim()?.uppercase(Locale.US)
@@ -144,8 +146,6 @@ object FeedbackRepository {
             val localStatus = prefs.getString(PREF_STATUS_PREFIX + compositeKey, null)
             if (!localStatus.isNullOrBlank()) return localStatus
         }
-        val localTitleStatus = prefs.getString(PREF_STATUS_PREFIX + titleKey, null)
-        if (!localTitleStatus.isNullOrBlank()) return localTitleStatus
 
         // 3. Revisar legacy completed ids
         val completedIds = getCompletedFeedbackIds(context)
@@ -168,11 +168,9 @@ object FeedbackRepository {
         val editor = prefs.edit()
         val id = report.id
         val compositeKey = if (report.createdAt != null) "${report.title}_${report.createdAt}" else null
-        val titleKey = "title:${report.title}"
 
         if (!id.isNullOrBlank()) editor.putString(PREF_STATUS_PREFIX + id, newStatus)
         if (!compositeKey.isNullOrBlank()) editor.putString(PREF_STATUS_PREFIX + compositeKey, newStatus)
-        editor.putString(PREF_STATUS_PREFIX + titleKey, newStatus)
 
         // Sincronizar también con legacy completedIds
         val isDone = newStatus == STATUS_SOLVED || newStatus == STATUS_ACCEPTED || newStatus == STATUS_COMPLETED
@@ -180,11 +178,9 @@ object FeedbackRepository {
         if (isDone) {
             if (!id.isNullOrBlank()) currentSet.add(id)
             if (!compositeKey.isNullOrBlank()) currentSet.add(compositeKey)
-            currentSet.add(titleKey)
         } else {
             if (!id.isNullOrBlank()) currentSet.remove(id)
             if (!compositeKey.isNullOrBlank()) currentSet.remove(compositeKey)
-            currentSet.remove(titleKey)
         }
         editor.putStringSet(KEY_COMPLETED_IDS, currentSet)
         editor.apply()

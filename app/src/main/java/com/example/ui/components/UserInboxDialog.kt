@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.animation.core.*
+
+import com.example.ui.theme.*
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
@@ -409,8 +412,8 @@ fun UserInboxDialog(
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.85f),
             shape = RoundedCornerShape(16.dp),
-            color = Color(0xFF0F172A),
-            border = BorderStroke(1.5.dp, Color(0xFF0EA5E9))
+            color = HextechDarkBg,
+            border = BorderStroke(1.5.dp, HextechCyan)
         ) {
             Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 Row(
@@ -487,6 +490,17 @@ fun UserInboxDialog(
                         }
                     }
                 } else {
+                    val infiniteTransition = rememberInfiniteTransition(label = "inboxPulse")
+                    val pulseAlpha by infiniteTransition.animateFloat(
+                        initialValue = 0.4f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(900, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse
+                        ),
+                        label = "pulseAlpha"
+                    )
+
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -502,10 +516,18 @@ fun UserInboxDialog(
                             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                             val dateStr = sdf.format(Date(timestamp))
 
+                            val isSupportReply = messageTag == MessageTag.SUPPORT && !isRead
+
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
+                                colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant),
                                 shape = RoundedCornerShape(8.dp),
-                                border = if (!isRead) BorderStroke(1.dp, Color(0xFF0EA5E9)) else null,
+                                border = if (isSupportReply) {
+                                    BorderStroke(1.5.dp, HextechCyan.copy(alpha = pulseAlpha))
+                                } else if (!isRead) {
+                                    BorderStroke(1.dp, HextechCyan)
+                                } else {
+                                    BorderStroke(1.dp, HextechCardBorder)
+                                },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
@@ -601,9 +623,9 @@ fun UserInboxDialog(
                                                 size = 30.dp,
                                                 backgroundColor = Color.Transparent,
                                                 borderColor = Color.Transparent,
-                                                glowColor = Color(0xFFEF4444)
+                                                glowColor = DangerRed
                                             ) {
-                                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = Color.Gray, modifier = Modifier.size(18.dp))
+                                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed.copy(alpha = 0.7f), modifier = Modifier.size(18.dp))
                                             }
                                         }
                                     }
@@ -672,8 +694,8 @@ fun UserInboxDialog(
                                                 horizontalArrangement = Arrangement.SpaceBetween,
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Text("Toca para abrir pop-up de soporte", color = Color(0xFF0EA5E9), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                                                Icon(Icons.Default.OpenInNew, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(14.dp))
+                                                Text("Toca para abrir pop-up de soporte", color = HextechCyan.copy(alpha = pulseAlpha), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                                Icon(Icons.Default.OpenInNew, contentDescription = null, tint = HextechCyan.copy(alpha = pulseAlpha), modifier = Modifier.size(14.dp))
                                             }
                                         }
 
@@ -693,8 +715,8 @@ fun UserInboxDialog(
                                                         modifier = Modifier
                                                             .fillMaxWidth(0.95f)
                                                             .fillMaxHeight(0.85f)
-                                                            .background(Color(0xFF0F172A), RoundedCornerShape(16.dp))
-                                                            .border(1.dp, Color(0xFF0EA5E9), RoundedCornerShape(16.dp))
+                                                            .background(HextechDarkBg, RoundedCornerShape(16.dp))
+                                                            .border(1.dp, HextechCyan, RoundedCornerShape(16.dp))
                                                             .padding(16.dp)
                                                             .clickable(enabled = false) {}
                                                     ) {

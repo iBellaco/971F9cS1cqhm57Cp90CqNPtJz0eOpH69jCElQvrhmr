@@ -1644,7 +1644,7 @@ private fun ComprehensiveFeedbackCard(
                                 Icon(Icons.Default.QuestionAnswer, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                                 Text(text = tr("Respuesta de Soporte Coach:"), color = HextechCyan, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
                             }
-                            if (onReply != null) {
+                            if (onReply != null && itemCategory == "SUPPORT") {
                                 Text(
                                     text = tr("Editar"),
                                     color = HextechCyan,
@@ -1666,7 +1666,7 @@ private fun ComprehensiveFeedbackCard(
                         )
                     }
                 }
-            } else if (onReply != null) {
+            } else if (onReply != null && itemCategory == "SUPPORT") {
                 Spacer(modifier = Modifier.height(6.dp))
                 OutlinedButton(
                     onClick = onReply,
