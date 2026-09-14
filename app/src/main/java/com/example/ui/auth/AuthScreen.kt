@@ -1,6 +1,7 @@
 package com.example.ui.auth
 
 import android.widget.Toast
+import com.example.ui.theme.*
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 
@@ -300,13 +302,27 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             ) {
                 // Top-Left: Inbox button
                 val unreadCount by SubscriptionManager.unreadMessagesCount.collectAsState()
+                val infiniteTransition = rememberInfiniteTransition(label = "inboxBtnAnim")
+                val scaleAnim by infiniteTransition.animateFloat(
+                    initialValue = 0.94f,
+                    targetValue = 1.06f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "inboxScale"
+                )
                 com.example.ui.components.HextechAnimatedIconButton(
                     onClick = { showInboxDialog = true },
                     size = 46.dp,
                     backgroundColor = activeTheme.surfaceVariant,
                     borderColor = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder,
                     glowColor = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.primary,
-                    enablePulse = unreadCount > 0
+                    enablePulse = true,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = scaleAnim
+                        scaleY = scaleAnim
+                    }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
@@ -347,12 +363,44 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
             Spacer(modifier = Modifier.height(6.dp))
 
+            var showBuyEssenceDialog by remember { mutableStateOf(false) }
+
             AuthHeader(
                 title = "Perfil de Invocador",
                 subtitle = "Sesión iniciada correctamente"
             )
-            
-            var showBuyEssenceDialog by remember { mutableStateOf(false) }
+
+            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Esencias Azules",
+                    color = activeTheme.textSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "$currentBlueEssence EA",
+                    color = HextechCyan,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                com.example.ui.components.HextechAnimatedButton(
+                    onClick = { showBuyEssenceDialog = true },
+                    modifier = Modifier.height(36.dp),
+                    backgroundColor = HextechCyan,
+                    glowColor = HextechCyan
+                ) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(16.dp), tint = HextechDarkBg)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Comprar", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = HextechDarkBg)
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (showInboxDialog) {
                 com.example.ui.components.UserInboxDialog(

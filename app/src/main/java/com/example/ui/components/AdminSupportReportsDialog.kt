@@ -1533,9 +1533,9 @@ private fun UnifiedReportAdminCard(
                                 shape = RoundedCornerShape(6.dp),
                                 contentPadding = PaddingValues(horizontal = 8.dp)
                             ) {
-                                Icon(Icons.Default.Edit, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
+                                Icon(Icons.Default.Reply, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Editar", color = HextechCyan, fontSize = 10.sp)
+                                Text("Responder de nuevo", color = HextechCyan, fontSize = 10.sp)
                             }
                             OutlinedButton(
                                 onClick = {

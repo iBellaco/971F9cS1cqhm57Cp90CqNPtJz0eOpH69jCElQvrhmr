@@ -133,6 +133,7 @@ fun SponsorCpmPanelDialog(
 
     var isHorizontalVideo by remember { mutableStateOf(false) }
     var isVerticalVideo by remember { mutableStateOf(false) }
+    var noticeToDelete by remember { mutableStateOf<AppNotice?>(null) }
 
     var currentMinute by remember { mutableStateOf(System.currentTimeMillis() / 60000L) }
     LaunchedEffect(Unit) {
@@ -397,35 +398,7 @@ fun SponsorCpmPanelDialog(
                     ) {
                         items(myNotices, key = { it.id }) { notice ->
                             SponsorNoticeCard(notice = notice, onDelete = {
-                                val updatedLocal = localPendingAds.filter { it.id != notice.id }
-                                localPendingAds = updatedLocal
-                                
-                                val jsonArray = org.json.JSONArray()
-                                updatedLocal.forEach { n ->
-                                    val obj = org.json.JSONObject()
-                                    obj.put("id", n.id)
-                                    obj.put("title", n.title)
-                                    obj.put("content", n.content)
-                                    obj.put("videoUrl", n.videoUrl)
-                                    obj.put("expandedImageUrl", n.expandedImageUrl)
-                                    obj.put("externalUrl", n.externalUrl)
-                                    obj.put("tag", n.tag)
-                                    obj.put("budget", n.budget)
-                                    obj.put("budgetUnit", n.budgetUnit)
-                                    obj.put("durationValue", n.durationValue)
-                                    obj.put("durationUnit", n.durationUnit)
-                                    obj.put("approvedAtMillis", n.approvedAtMillis)
-                                    obj.put("expiresAtMillis", n.expiresAtMillis)
-                                    obj.put("isApproved", n.isApproved)
-                                    obj.put("isEnabled", n.isEnabled)
-                                    obj.put("sponsorEmail", n.sponsorEmail)
-                                    jsonArray.put(obj)
-                                }
-                                prefs.edit().putString("pending_ads", jsonArray.toString()).apply()
-
-                                val updated = allNotices.filter { it.id != notice.id }
-                                AppNoticeManager.saveNotices(context, updated)
-                                Toast.makeText(context, "Anuncio eliminado", Toast.LENGTH_SHORT).show()
+                                noticeToDelete = notice
                             })
                         }
                     }
@@ -965,6 +938,75 @@ fun SponsorCpmPanelDialog(
                     Text("Cancelar", color = TextSecondary)
                 }
             }
+        )
+    }
+
+    if (noticeToDelete != null) {
+        val targetNotice = noticeToDelete!!
+        AlertDialog(
+            onDismissRequest = { noticeToDelete = null },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Delete, contentDescription = null, tint = DangerRed, modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Eliminar Anuncio", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            },
+            text = {
+                Text(
+                    "¿Estás seguro de que deseas eliminar permanentemente el anuncio \"${targetNotice.title}\"? Esta acción no se puede deshacer.",
+                    color = Color.White,
+                    fontSize = 13.sp
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val noticeId = targetNotice.id
+                        noticeToDelete = null
+
+                        val updatedLocal = localPendingAds.filter { it.id != noticeId }
+                        localPendingAds = updatedLocal
+
+                        val jsonArray = org.json.JSONArray()
+                        updatedLocal.forEach { n ->
+                            val obj = org.json.JSONObject()
+                            obj.put("id", n.id)
+                            obj.put("title", n.title)
+                            obj.put("content", n.content)
+                            obj.put("videoUrl", n.videoUrl)
+                            obj.put("expandedImageUrl", n.expandedImageUrl)
+                            obj.put("externalUrl", n.externalUrl)
+                            obj.put("tag", n.tag)
+                            obj.put("titleColor", n.titleColor)
+                            obj.put("budget", n.budget)
+                            obj.put("budgetUnit", n.budgetUnit)
+                            obj.put("durationValue", n.durationValue)
+                            obj.put("durationUnit", n.durationUnit)
+                            obj.put("approvedAtMillis", n.approvedAtMillis)
+                            obj.put("expiresAtMillis", n.expiresAtMillis)
+                            obj.put("isApproved", n.isApproved)
+                            obj.put("isEnabled", n.isEnabled)
+                            obj.put("sponsorEmail", n.sponsorEmail)
+                            jsonArray.put(obj)
+                        }
+                        prefs.edit().putString("pending_ads", jsonArray.toString()).apply()
+
+                        val updated = allNotices.filter { it.id != noticeId }
+                        AppNoticeManager.saveNotices(context, updated)
+                        Toast.makeText(context, "Anuncio eliminado permanentemente", Toast.LENGTH_SHORT).show()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { noticeToDelete = null }) {
+                    Text("Cancelar", color = TextSecondary)
+                }
+            },
+            containerColor = HextechSurfaceVariant
         )
     }
 }

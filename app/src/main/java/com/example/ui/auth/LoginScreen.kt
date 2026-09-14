@@ -61,8 +61,13 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            val domains = listOf("@gmail.com", "@hotmail.com", "@outlook.com", "@yahoo.com")
-            domains.forEach { domain ->
+            val options = listOf(
+                Pair("@", "@"),
+                Pair("Gmail", "@gmail.com"),
+                Pair("Outlook", "@outlook.com"),
+                Pair("Hotmail", "@hotmail.com")
+            )
+            options.forEach { (label, domain) ->
                 Surface(
                     shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
@@ -70,11 +75,17 @@ fun LoginScreen(
                     modifier = Modifier
                         .weight(1f)
                         .clickable {
-                            val base = email.substringBefore("@")
-                            if (base.isNotBlank()) {
-                                viewModel.updateEmail(base + domain)
+                            if (domain == "@") {
+                                if (!email.contains("@")) {
+                                    viewModel.updateEmail(email + "@")
+                                }
                             } else {
-                                viewModel.updateEmail(domain)
+                                val base = if (email.contains("@")) email.substringBefore("@") else email
+                                if (base.isNotBlank()) {
+                                    viewModel.updateEmail(base + domain)
+                                } else {
+                                    viewModel.updateEmail(domain)
+                                }
                             }
                         }
                 ) {
@@ -83,7 +94,7 @@ fun LoginScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = domain,
+                            text = label,
                             color = HextechCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
