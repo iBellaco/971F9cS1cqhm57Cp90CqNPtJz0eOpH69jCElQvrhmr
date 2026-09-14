@@ -77,6 +77,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.History
@@ -901,6 +902,7 @@ private fun FloatingOverlayContent(
     var isLegendaryQueue by state::isLegendaryQueue
     var isCompactBubble by state::isCompactBubble
     var showCalibrationPanel by remember { mutableStateOf(false) }
+    var showTenthPickLogsDialog by remember { mutableStateOf(false) }
 
     val defaultRoles = remember { listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT) }
     val allies = state.allies
@@ -1765,6 +1767,10 @@ private fun FloatingOverlayContent(
                                         DraftVisionScanner.showCalibrationBoxes.value = false
                                     }
                                 )
+                            } else if (showTenthPickLogsDialog) {
+                                TenthPickLogsSheet(
+                                    onDismiss = { showTenthPickLogsDialog = false }
+                                )
                             } else if (selectedChampionDetail != null) {
                                 com.example.ui.screens.ChampionDetailSheet(
                                     isOverlay = true,
@@ -1827,7 +1833,9 @@ private fun FloatingOverlayContent(
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },
-                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST }, onManualEdit = { autoScanEnabled = false }
+                                            onGoToTierList = { overlayHubTab = OverlayHubTab.TIER_LIST },
+                                            onManualEdit = { autoScanEnabled = false },
+                                            onOpenTenthPickLogs = { showTenthPickLogsDialog = true }
                                         )
                                     }
                                     OverlayHubTab.TIER_LIST -> {
@@ -2605,7 +2613,8 @@ private fun FloatingDraftCoachView(
     isSavedRecently: Boolean,
     onClearAll: () -> Unit,
     onGoToTierList: () -> Unit,
-    onManualEdit: () -> Unit
+    onManualEdit: () -> Unit,
+    onOpenTenthPickLogs: (() -> Unit)? = null
 ) {
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
 
@@ -2675,7 +2684,8 @@ private fun FloatingDraftCoachView(
                     }
                     onManualEdit()
                 }
-            }
+            },
+            onOpenTenthPickLogs = onOpenTenthPickLogs
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -2712,7 +2722,8 @@ private fun OverlayVersusDraftBoard(
     isLegendary: Boolean = false,
     onToggleLegendary: (() -> Unit)? = null,
     onPickChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
-    onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit
+    onRemoveChampionForRole: (isAlly: Boolean, LaneRole) -> Unit,
+    onOpenTenthPickLogs: (() -> Unit)? = null
 ) {
     val roles = listOf(
         Pair(LaneRole.TOP, "TOP"),
@@ -2778,6 +2789,28 @@ private fun OverlayVersusDraftBoard(
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.5.sp
                         )
+                    }
+                }
+
+                if (onOpenTenthPickLogs != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Surface(
+                        modifier = Modifier.clickable { onOpenTenthPickLogs() },
+                        shape = RoundedCornerShape(12.dp),
+                        color = HextechGold.copy(alpha = 0.15f),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Logs Selección 10",
+                                color = HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 9.5.sp
+                            )
+                        }
                     }
                 }
             }
@@ -3457,6 +3490,312 @@ private fun CoachContent(
                         }
                     }
                     
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TenthPickLogsSheet(
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val log = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickLog
+
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+        border = BorderStroke(1.5.dp, HextechGold)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp)
+        ) {
+            // Cabecera
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "DIAGNÓSTICO SELECCIÓN 10",
+                        color = HextechGold,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 12.sp
+                    )
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (log != null) {
+                        IconButton(
+                            onClick = {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                                val clip = android.content.ClipData.newPlainText("TenthPickLogs", log.formattedSummary)
+                                clipboard?.setPrimaryClip(clip)
+                                android.widget.Toast.makeText(context, "Logs copiados al portapapeles", android.widget.Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = "Copiar logs",
+                                tint = HextechCyan,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
+
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Cerrar",
+                            tint = TextMuted,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (log == null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Aún no se ha realizado ningún escaneo de la Selección 10.",
+                            color = TextSecondary,
+                            fontSize = 11.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "El análisis visual de la 10ª selección se activa automáticamente cuando se confirman los picks 1 al 9, analizando primero la preselección inferior y luego la barra superior.",
+                            color = TextMuted,
+                            fontSize = 9.5.sp,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    // Estado y Decisión
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (log.isConfirmed) Color(0xFF102A1E) else Color(0xFF261D0F)
+                        ),
+                        border = BorderStroke(1.dp, if (log.isConfirmed) Color(0xFF4CAF50) else Color(0xFFFFB300))
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = log.phaseName,
+                                    color = if (log.isConfirmed) Color(0xFF81C784) else Color(0xFFFFD54F),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp
+                                )
+                                Text(
+                                    text = if (log.isConfirmed) "CONFIRMADO 100%" else "PRESELECCIÓN (AUTO-SCAN ACTIVO)",
+                                    color = if (log.isConfirmed) Color(0xFF4CAF50) else HextechGold,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 9.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Decisión: ${log.selectedChampion?.name ?: "Sin coincidencia concluyente"} (${(log.confidence * 100).toInt()}%)",
+                                color = TextPrimary,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 1. CARACTERÍSTICAS ESCANEADAS
+                    Text(
+                        text = "1. CARACTERÍSTICAS ESCANEADAS (RECORTE DE PANTALLA)",
+                        color = HextechCyan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, HextechCardBorder)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text("• ROI: ${log.scannedMetrics.roiLabel} (${log.scannedMetrics.width}x${log.scannedMetrics.height} px)", color = TextSecondary, fontSize = 9.5.sp)
+                            Text("• Brillo Medio: ${log.scannedMetrics.avgLum.toInt()} | Contraste: ${log.scannedMetrics.contrast} (Avatar activo: ${if (log.scannedMetrics.isPopulated) "SÍ" else "NO / VACÍO"})", color = TextSecondary, fontSize = 9.5.sp)
+                            Text("• Color RGB Promedio: R=${log.scannedMetrics.avgR.toInt()}, G=${log.scannedMetrics.avgG.toInt()}, B=${log.scannedMetrics.avgB.toInt()}", color = TextSecondary, fontSize = 9.5.sp)
+                            Text("• Tono Dominante: Bin ${log.scannedMetrics.dominantHueBin} [${log.scannedMetrics.dominantHueName}] (${log.scannedMetrics.dominantHuePercent}%)", color = TextSecondary, fontSize = 9.5.sp)
+                            Text("• Histograma HUE: [${log.scannedMetrics.hueHistogram.joinToString(", ") { "${(it * 100).toInt()}%" }}]", color = TextMuted, fontSize = 8.5.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 2. CARACTERÍSTICAS COMPARADAS (CANDIDATOS)
+                    Text(
+                        text = "2. CARACTERÍSTICAS COMPARADAS (TOP CANDIDATOS)",
+                        color = HextechCyan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp
+                    )
+                    Text(
+                        text = "Evaluados ${log.candidatesEvaluatedCount} campeones (picks 1-9 excluidos). Criterios: Píxel 45% + HUE 35% + RGB 20%",
+                        color = TextMuted,
+                        fontSize = 8.5.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    if (log.topCandidates.isEmpty()) {
+                        Text("No hubo candidatos evaluados.", color = TextMuted, fontSize = 9.sp)
+                    } else {
+                        log.topCandidates.forEachIndexed { idx, c ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 2.dp),
+                                shape = RoundedCornerShape(6.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (idx == 0 && log.selectedChampion != null) HextechGold.copy(alpha = 0.12f) else HextechSurface
+                                ),
+                                border = BorderStroke(
+                                    1.dp,
+                                    if (idx == 0 && log.selectedChampion != null) HextechGold.copy(alpha = 0.6f) else HextechCardBorder.copy(alpha = 0.4f)
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(6.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "#${idx + 1} ${c.champion.name}",
+                                                color = if (idx == 0 && log.selectedChampion != null) HextechGold else TextPrimary,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 10.5.sp
+                                            )
+                                            if (c.roleBonus > 0) {
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text(
+                                                    text = "+Bonus Rol",
+                                                    color = HextechCyan,
+                                                    fontSize = 8.sp,
+                                                    fontWeight = FontWeight.SemiBold
+                                                )
+                                            }
+                                        }
+                                        Text(
+                                            text = "Píxel: ${(c.pixelSimilarity * 100).toInt()}% | HUE: ${(c.histSimilarity * 100).toInt()}% | RGB: ${(c.avgColorSim * 100).toInt()}%",
+                                            color = TextMuted,
+                                            fontSize = 8.5.sp
+                                        )
+                                    }
+                                    Text(
+                                        text = "${(c.compositeScore * 100).toInt()}%",
+                                        color = if (idx == 0 && log.selectedChampion != null) HextechGold else TextSecondary,
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // 3. MOTIVO DE LA DECISIÓN
+                    Text(
+                        text = "3. POR QUÉ SE DECIDIÓ ESTA SELECCIÓN",
+                        color = HextechCyan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, HextechCardBorder)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text(
+                                text = log.decisionReason,
+                                color = TextPrimary,
+                                fontSize = 9.5.sp,
+                                lineHeight = 13.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Botón para copiar resumen completo
+                    Button(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
+                            val clip = android.content.ClipData.newPlainText("TenthPickLogs", log.formattedSummary)
+                            clipboard?.setPrimaryClip(clip)
+                            android.widget.Toast.makeText(context, "Resumen copiado al portapapeles", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ContentCopy,
+                            contentDescription = null,
+                            tint = Color.Black,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Copiar Reporte Completo de Decisión",
+                            color = Color.Black,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 10.sp
+                        )
+                    }
                 }
             }
         }

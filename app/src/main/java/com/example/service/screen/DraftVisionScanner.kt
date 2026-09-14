@@ -592,11 +592,17 @@ object DraftVisionScanner {
                 }
 
                 // REGLA DEL USUARIO: En aliados, primero aparece la línea y luego el campeón.
-                // Si el slot aliado no tiene un campeón detectado por texto OCR, debe quedar vacío (null).
+                // Si el slot aliado no tiene un campeón detectado por texto OCR en este frame, pero ya estaba confirmado,
+                // se preserva como verdad absoluta inmutable (picks 1-9).
                 if (detectedChampInSlot != null && !isUnpickedTextPresent) {
                     allySlotConfirmedChampions[i] = detectedChampInSlot
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
+                    slot.confidencePercent = 100
+                    slot.isLikelyUnpicked = false
+                } else if (allySlotConfirmedChampions[i] != null) {
+                    // PRESERVAR VERDAD ABSOLUTA
+                    slot.champion = allySlotConfirmedChampions[i]
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
                 } else {
@@ -704,11 +710,17 @@ object DraftVisionScanner {
                 }
 
                 // REGLA DEL USUARIO: En rivales, solamente aparece el nombre del campeón cuando ya está seleccionado.
-                // Si muestra "Jugador X", esperando o no hay campeón detectado por texto OCR, el slot queda vacío (null).
+                // Si el slot enemigo no tiene un campeón detectado por texto OCR en este frame, pero ya estaba confirmado,
+                // se preserva como verdad absoluta inmutable (picks 1-9).
                 if (detectedEnemyChamp != null && !isWaitingPick && !isUnpickedTextPresent) {
                     enemySlotConfirmedChampions[i] = detectedEnemyChamp
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
+                    enemySlots[i].confidencePercent = 100
+                    enemySlots[i].isLikelyUnpicked = false
+                } else if (enemySlotConfirmedChampions[i] != null && !isWaitingPick) {
+                    // PRESERVAR VERDAD ABSOLUTA
+                    enemySlots[i].champion = enemySlotConfirmedChampions[i]
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
                 } else {
@@ -988,7 +1000,7 @@ object DraftVisionScanner {
                     context = context
                 )
 
-                if (superiorDecision != null) {
+                if (superiorDecision != null && superiorDecision.selectedChampion != null) {
                     val topPickChamp = superiorDecision.selectedChampion
                     lastPickVisualChampion = topPickChamp
                     lastPickVisualConfidence = 1.0f
@@ -1027,7 +1039,7 @@ object DraftVisionScanner {
                     context = context
                 )
 
-                if (inferiorDecision != null) {
+                if (inferiorDecision != null && inferiorDecision.selectedChampion != null) {
                     val hoverChamp = inferiorDecision.selectedChampion
                     val confidence = inferiorDecision.confidence
                     lastPickVisualChampion = hoverChamp
@@ -1135,8 +1147,8 @@ object DraftVisionScanner {
 
         val isLastPickConfirmedValue = if (isPreparationPhase) {
             true
-        } else if (slotsDismissed) {
-            isTenthConfirmed || (allAlliesConfirmed && allEnemiesConfirmed)
+        } else if (slotsDismissed && isTenthConfirmed) {
+            true
         } else {
             false
         }

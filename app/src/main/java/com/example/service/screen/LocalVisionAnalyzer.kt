@@ -66,7 +66,7 @@ object LocalVisionAnalyzer {
     )
 
     data class TenthPickDecisionLog(
-        val selectedChampion: Champion,
+        val selectedChampion: Champion?,
         val confidence: Float,
         val isConfirmed: Boolean,
         val phaseName: String,
@@ -267,7 +267,7 @@ object LocalVisionAnalyzer {
             }
         }
 
-        val isPopulated = samples >= 10 && (totalLum.toFloat() / samples) >= 22f && (maxLum - minLum) >= 25
+        val isPopulated = samples >= 10 && (totalLum.toFloat() / samples) >= 12f && (maxLum - minLum) >= 14
         val avgLum = if (samples > 0) totalLum.toFloat() / samples else 0f
         val contrast = if (samples > 0) maxLum - minLum else 0
 
@@ -339,8 +339,37 @@ object LocalVisionAnalyzer {
         isConfirmedPhase: Boolean = false
     ): TenthPickDecisionLog? {
         val populatedMetrics = extractScannedMetrics(crop, roiLabel)
+        val phaseName = if (isConfirmedPhase) "CONFIRMACIÓN DEFINITIVA (BARRA SUPERIOR)" else "PRESELECCIÓN PROVISIONAL (HOVER INFERIOR)"
+
         if (!populatedMetrics.isPopulated) {
-            AppLogger.d(TAG, "matchAvatarDetailed: Recorte en $roiLabel no contiene avatar poblado (avgLum=${populatedMetrics.avgLum.toInt()}, contrast=${populatedMetrics.contrast})")
+            val unpopReason = "Recorte en $roiLabel no contiene avatar activo (Brillo=${populatedMetrics.avgLum.toInt()}, Contraste=${populatedMetrics.contrast}, umbrales brillo>=12, contraste>=14). Slot vacío o en negro."
+            val unpopSummary = buildString {
+                appendLine("==================== [SELECCIÓN 10 - DIAGNÓSTICO VISUAL] ====================")
+                appendLine("Fase: $phaseName")
+                appendLine("Ubicación ROI: $roiLabel")
+                appendLine("")
+                appendLine("1. CARACTERÍSTICAS ESCANEADAS:")
+                appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
+                appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: NO / Slot vacío)")
+                appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
+                appendLine("")
+                appendLine("2. RESULTADO:")
+                appendLine("- $unpopReason")
+                appendLine("=============================================================================")
+            }
+            val unpopLog = TenthPickDecisionLog(
+                selectedChampion = null,
+                confidence = 0f,
+                isConfirmed = false,
+                phaseName = phaseName,
+                scannedMetrics = populatedMetrics,
+                candidatesEvaluatedCount = 0,
+                topCandidates = emptyList(),
+                decisionReason = unpopReason,
+                formattedSummary = unpopSummary
+            )
+            lastTenthPickLog = unpopLog
+            AppLogger.i(TAG, unpopSummary)
             return null
         }
 
@@ -352,13 +381,18 @@ object LocalVisionAnalyzer {
         val center = (FINGERPRINT_SIZE - 1) / 2.0f
         val maxRadius = FINGERPRINT_SIZE * 0.44f
 
+        val targetLumAvg = (targetFp.avgR + targetFp.avgG + targetFp.avgB) / 3f
+
         val candidateComparisons = mutableListOf<CandidateMatchComparison>()
 
         for (champ in candidates) {
             if (excludedChampionIds.contains(champ.id)) continue
             val sig = cachedSignatures[champ.id] ?: continue
 
-            // 1. Similitud RGB pixel a pixel en la región circular interior
+            val sigLumAvg = (sig.avgR + sig.avgG + sig.avgB) / 3f
+            val lumOffset = targetLumAvg - sigLumAvg
+
+            // 1. Similitud RGB pixel a pixel con compensación de iluminación media
             var pixelDiffSum = 0f
             var pixelCount = 0
 
@@ -372,9 +406,13 @@ object LocalVisionAnalyzer {
                     val p1 = targetFp.rgbPixels[idx]
                     val p2 = sig.rgbPixels[idx]
 
-                    val dr = abs(Color.red(p1) - Color.red(p2))
-                    val dg = abs(Color.green(p1) - Color.green(p2))
-                    val db = abs(Color.blue(p1) - Color.blue(p2))
+                    val expR = (Color.red(p2) + lumOffset).coerceIn(0f, 255f)
+                    val expG = (Color.green(p2) + lumOffset).coerceIn(0f, 255f)
+                    val expB = (Color.blue(p2) + lumOffset).coerceIn(0f, 255f)
+
+                    val dr = abs(Color.red(p1) - expR)
+                    val dg = abs(Color.green(p1) - expG)
+                    val db = abs(Color.blue(p1) - expB)
 
                     pixelDiffSum += (dr + dg + db) / (3f * 255f)
                     pixelCount++
@@ -385,7 +423,7 @@ object LocalVisionAnalyzer {
             val avgPixelDiff = pixelDiffSum / pixelCount.toFloat()
             val pixelSimilarity = (1.0f - avgPixelDiff).coerceIn(0f, 1f)
 
-            // 2. Similitud de Histograma de Tono (Intersección de histogramas)
+            // 2. Similitud de Histograma de Tono (Intersección de histogramas HSV)
             var histIntersection = 0f
             for (i in 0 until 8) {
                 histIntersection += min(targetFp.hueHistogram[i], sig.hueHistogram[i])
@@ -396,8 +434,8 @@ object LocalVisionAnalyzer {
             val avgColorDiff = (abs(targetFp.avgR - sig.avgR) + abs(targetFp.avgG - sig.avgG) + abs(targetFp.avgB - sig.avgB)) / (3f * 255f)
             val avgColorSim = (1.0f - avgColorDiff).coerceIn(0f, 1f)
 
-            // 4. Puntuación visual combinada
-            var compositeScore = (pixelSimilarity * 0.55f) + (histSimilarity * 0.30f) + (avgColorSim * 0.15f)
+            // 4. Puntuación visual combinada robusta
+            var compositeScore = (pixelSimilarity * 0.45f) + (histSimilarity * 0.35f) + (avgColorSim * 0.20f)
             var roleBonus = 0f
 
             // Ponderación contextual suave según el rol esperado para el slot
@@ -425,15 +463,62 @@ object LocalVisionAnalyzer {
         candidateComparisons.sortByDescending { it.compositeScore }
 
         val best = candidateComparisons.firstOrNull()
-        if (best == null || best.compositeScore < 0.45f) {
+        val runnerUp = candidateComparisons.getOrNull(1)
+        val topCandidates = candidateComparisons.take(5)
+
+        // Si ningún candidato supera el umbral de 0.38f, documentar detalladamente el diagnóstico y registrar
+        if (best == null || best.compositeScore < 0.38f) {
+            val delta = if (best != null && runnerUp != null) ((best.compositeScore - runnerUp.compositeScore) * 100).toInt() else 0
+            val failReason = if (best != null) {
+                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% (Píxeles: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo (38%). Requiere mayor nitidez o selección más clara."
+            } else {
+                "Sin candidatos válidos disponibles para comparar (todos los campeones evaluados estaban excluidos por selecciones 1-9)."
+            }
+
+            val failSummary = buildString {
+                appendLine("==================== [SELECCIÓN 10 - DIAGNÓSTICO VISUAL] ====================")
+                appendLine("Fase: $phaseName")
+                appendLine("Ubicación ROI: $roiLabel")
+                appendLine("")
+                appendLine("1. CARACTERÍSTICAS ESCANEADAS:")
+                appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
+                appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: Sí)")
+                appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
+                appendLine("- Tono Dominante: Bin ${populatedMetrics.dominantHueBin} [${populatedMetrics.dominantHueName}] (${populatedMetrics.dominantHuePercent}% píxeles con color)")
+                appendLine("- Histograma HUE: [${populatedMetrics.hueHistogram.joinToString(", ") { "${(it * 100).toInt()}%" }}]")
+                appendLine("")
+                appendLine("2. CARACTERÍSTICAS COMPARADAS:")
+                appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones (excluyendo picks 1-9)")
+                appendLine("- Rol esperado: ${expectedRole?.name ?: "Cualquiera"}")
+                appendLine("- Criterios: Píxeles 45% + Histograma HUE 35% + Color RGB 20% + Bonus Rol")
+                appendLine("- TOP CANDIDATOS MÁS CERCANOS:")
+                topCandidates.forEachIndexed { idx, c ->
+                    appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | Píxel=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | RGB=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | RolBonus=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                }
+                appendLine("")
+                appendLine("3. POR QUÉ SE RECHAZÓ / NO SE ASIGNÓ:")
+                appendLine("- $failReason")
+                appendLine("- El escaneo automático CONTINÚA ACTIVO en busca de mayor nitidez o selección definitiva.")
+                appendLine("=============================================================================")
+            }
+
+            val failLog = TenthPickDecisionLog(
+                selectedChampion = best?.champion,
+                confidence = best?.compositeScore ?: 0f,
+                isConfirmed = false,
+                phaseName = phaseName,
+                scannedMetrics = populatedMetrics,
+                candidatesEvaluatedCount = candidateComparisons.size,
+                topCandidates = topCandidates,
+                decisionReason = failReason,
+                formattedSummary = failSummary
+            )
+            lastTenthPickLog = failLog
+            AppLogger.i(TAG, failSummary)
             return null
         }
 
-        val runnerUp = candidateComparisons.getOrNull(1)
         val delta = ((best.compositeScore - (runnerUp?.compositeScore ?: 0f)) * 100).toInt()
-        val topCandidates = candidateComparisons.take(4)
-
-        val phaseName = if (isConfirmedPhase) "CONFIRMACIÓN DEFINITIVA (BARRA SUPERIOR)" else "PRESELECCIÓN PROVISIONAL (HOVER INFERIOR)"
 
         val decisionReason = "Seleccionado ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud global (Píxeles: ${(best.pixelSimilarity * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%, Color RGB: ${(best.avgColorSim * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%. Compatible con rol ${expectedRole?.name ?: "disponible"} y no colisiona con selecciones 1-9."
 
@@ -452,7 +537,7 @@ object LocalVisionAnalyzer {
             appendLine("2. CARACTERÍSTICAS COMPARADAS:")
             appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones (excluyendo picks 1-9)")
             appendLine("- Rol esperado: ${expectedRole?.name ?: "Cualquiera"}")
-            appendLine("- Criterios: Píxeles 55% + Histograma HUE 30% + Color RGB 15% + Bonus Rol")
+            appendLine("- Criterios: Píxeles 45% + Histograma HUE 35% + Color RGB 20% + Bonus Rol")
             appendLine("- TOP CANDIDATOS:")
             topCandidates.forEachIndexed { idx, c ->
                 appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | Píxel=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | RGB=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | RolBonus=+${(c.roleBonus * 100).toInt()}%" else ""}")
@@ -502,7 +587,8 @@ object LocalVisionAnalyzer {
             excludedChampionIds = excludedChampionIds,
             context = context
         ) ?: return null
-        return Pair(detailed.selectedChampion, detailed.confidence)
+        val champ = detailed.selectedChampion ?: return null
+        return Pair(champ, detailed.confidence)
     }
 
     /**
@@ -573,7 +659,8 @@ object LocalVisionAnalyzer {
         context: Context? = null
     ): Pair<Champion, Float>? {
         val detailed = identify10thPickInferiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, context) ?: return null
-        return Pair(detailed.selectedChampion, detailed.confidence)
+        val champ = detailed.selectedChampion ?: return null
+        return Pair(champ, detailed.confidence)
     }
 
     /**
@@ -647,7 +734,8 @@ object LocalVisionAnalyzer {
         context: Context? = null
     ): Pair<Champion, Float>? {
         val detailed = identify10thPickSuperiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, context) ?: return null
-        return Pair(detailed.selectedChampion, 1.0f)
+        val champ = detailed.selectedChampion ?: return null
+        return Pair(champ, 1.0f)
     }
 
     /**
