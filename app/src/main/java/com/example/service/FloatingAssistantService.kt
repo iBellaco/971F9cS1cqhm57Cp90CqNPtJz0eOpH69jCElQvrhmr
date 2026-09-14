@@ -1,10 +1,12 @@
 package com.example.service
+import android.graphics.Bitmap
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.BoxWithConstraints
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.collectAsState
@@ -3505,106 +3507,101 @@ private fun TenthPickScannerViewerDialog(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var calib by remember { mutableStateOf(com.example.service.screen.VisionCalibrationConfig.loadFromPrefs(context)) }
-    var showDpadControls by remember { mutableStateOf(false) }
-    var selectedTargetMode by remember { mutableStateOf(0) } // 0: 10º Pick Rival (Top), 1: 10º Pick Aliado (Top)
-    var isRefreshing by remember { mutableStateOf(false) }
+    var selectedSide by remember { mutableStateOf(1) } // 0: Izquierda (Aliados), 1: Derecha (Rivales)
+    var selectedSlotIndex by remember { mutableStateOf(4) } // 0..4 (Slot 1..5, default 5 / 10º pick)
+    var isLiveStreaming by remember { mutableStateOf(true) }
+    var isFastStep by remember { mutableStateOf(false) }
+    var topStripBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var currentCrop by remember { mutableStateOf<Bitmap?>(com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop) }
+    var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(com.example.service.screen.LocalVisionAnalyzer.lastTenthPickLog) }
+    var isEvaluating by remember { mutableStateOf(false) }
 
-    val log = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickLog
-    var currentCrop by remember { mutableStateOf(com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop) }
-    val coordinates = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCoordinates
-    val roiLabel = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickRoiLabel
+    val step = if (isFastStep) 0.010f else 0.002f
 
-    val refreshCurrentCrop: () -> Unit = {
-        coroutineScope.launch(Dispatchers.IO) {
-            isRefreshing = true
-            try {
-                if (screenCaptureManager?.isReady() == true) {
-                    val bmp = screenCaptureManager.captureCurrentFrame()
-                    if (bmp != null) {
-                        try {
-                            val allChamps = com.example.data.WildRiftRepository.champions
-                            // Forzar evaluación del slot superior con la calibración actualizada
-                            val dec = if (selectedTargetMode == 0) {
-                                com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
-                                    bitmap = bmp,
-                                    isFirstPick = true,
-                                    calib = calib,
-                                    allChamps = allChamps,
-                                    confirmedIds = emptySet(),
-                                    expectedRole = null,
-                                    context = context
-                                )
-                            } else {
-                                com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
-                                    bitmap = bmp,
-                                    isFirstPick = false,
-                                    calib = calib,
-                                    allChamps = allChamps,
-                                    confirmedIds = emptySet(),
-                                    expectedRole = null,
-                                    context = context
-                                )
-                            }
-                            withContext(Dispatchers.Main) {
-                                currentCrop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop
-                            }
-                        } finally {
-                            bmp.recycle()
-                        }
+    val performSingleEvaluation: suspend () -> Unit = {
+        if (screenCaptureManager?.isReady() == true) {
+            val bmp = screenCaptureManager.captureCurrentFrame()
+            if (bmp != null) {
+                try {
+                    val allChamps = com.example.data.WildRiftRepository.champions
+                    val strip = com.example.service.screen.LocalVisionAnalyzer.extractTopBarStrip(bmp, heightRatio = 0.16f)
+                    val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
+                        bitmap = bmp,
+                        isAlly = (selectedSide == 0),
+                        slotIndex = selectedSlotIndex,
+                        calib = calib,
+                        allChamps = allChamps,
+                        context = context
+                    )
+                    withContext(Dispatchers.Main) {
+                        topStripBitmap?.recycle()
+                        topStripBitmap = strip
+                        currentCrop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop
+                        currentLog = dec
                     }
-                }
-            } catch (_: Throwable) {
-            } finally {
-                withContext(Dispatchers.Main) {
-                    isRefreshing = false
+                } finally {
+                    bmp.recycle()
                 }
             }
         }
     }
 
+    // Bucle en Vivo (Live Stream): captura y actualiza la franja y el escaneo en tiempo real
+    LaunchedEffect(isLiveStreaming, selectedSide, selectedSlotIndex, calib) {
+        while (isLiveStreaming) {
+            try {
+                isEvaluating = true
+                performSingleEvaluation()
+            } catch (_: Throwable) {
+            } finally {
+                isEvaluating = false
+            }
+            delay(450)
+        }
+    }
+
     val adjustCoordinates: (Float, Float, Float) -> Unit = { dx, dy, dDiam ->
-        val updated = when (selectedTargetMode) {
-            0 -> {
-                val newX = (calib.topEnemy5XRatio + dx).coerceIn(0.50f, 0.99f)
-                val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.30f)
-                val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
-                val updatedEnemies = calib.topEnemyXRatios.toMutableList()
-                if (updatedEnemies.isNotEmpty()) {
-                    updatedEnemies[updatedEnemies.lastIndex] = newX
-                }
-                calib.copy(
-                    topEnemy5XRatio = newX,
-                    topAvatarYRatio = newY,
-                    topAvatarDiameterRatio = newDiam,
-                    topEnemyXRatios = updatedEnemies
-                )
+        val updated = if (selectedSide == 0) {
+            val updatedAllies = calib.topAllyXRatios.toMutableList()
+            val currentX = updatedAllies.getOrElse(selectedSlotIndex) { 0.028f + selectedSlotIndex * 0.035f }
+            val newX = (currentX + dx).coerceIn(0.005f, 0.49f)
+            if (selectedSlotIndex in updatedAllies.indices) {
+                updatedAllies[selectedSlotIndex] = newX
             }
-            else -> {
-                val newX = (calib.topAlly5XRatio + dx).coerceIn(0.01f, 0.50f)
-                val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.30f)
-                val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
-                val updatedAllies = calib.topAllyXRatios.toMutableList()
-                if (updatedAllies.isNotEmpty()) {
-                    updatedAllies[updatedAllies.lastIndex] = newX
-                }
-                calib.copy(
-                    topAlly5XRatio = newX,
-                    topAvatarYRatio = newY,
-                    topAvatarDiameterRatio = newDiam,
-                    topAllyXRatios = updatedAllies
-                )
+            val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.25f)
+            val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
+            calib.copy(
+                topAvatarYRatio = newY,
+                topAvatarDiameterRatio = newDiam,
+                topAllyXRatios = updatedAllies,
+                topAlly5XRatio = if (selectedSlotIndex == 4) newX else calib.topAlly5XRatio
+            )
+        } else {
+            val updatedEnemies = calib.topEnemyXRatios.toMutableList()
+            val currentX = updatedEnemies.getOrElse(selectedSlotIndex) { 0.816f + selectedSlotIndex * 0.035f }
+            val newX = (currentX + dx).coerceIn(0.51f, 0.995f)
+            if (selectedSlotIndex in updatedEnemies.indices) {
+                updatedEnemies[selectedSlotIndex] = newX
             }
+            val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.25f)
+            val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
+            calib.copy(
+                topAvatarYRatio = newY,
+                topAvatarDiameterRatio = newDiam,
+                topEnemyXRatios = updatedEnemies,
+                topEnemy5XRatio = if (selectedSlotIndex == 4) newX else calib.topEnemy5XRatio
+            )
         }
         calib = updated
         updated.saveToPrefs(context)
         com.example.service.screen.DraftVisionScanner.calibrationConfig = updated
-        refreshCurrentCrop()
+        coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
     }
 
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(4.dp),
+            .padding(2.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
         border = BorderStroke(1.5.dp, HextechGold)
@@ -3612,7 +3609,7 @@ private fun TenthPickScannerViewerDialog(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(10.dp)
+                .padding(8.dp)
         ) {
             // Cabecera del Visor
             Row(
@@ -3622,14 +3619,14 @@ private fun TenthPickScannerViewerDialog(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.Info,
+                        imageVector = Icons.Default.Videocam,
                         contentDescription = null,
-                        tint = HextechGold,
+                        tint = if (isLiveStreaming) Color(0xFF00FF7F) else HextechGold,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "VISOR DE ESCÁNER (10º PICK)",
+                        text = "VISOR EN VIVO DE SELECCIÓN",
                         color = HextechGold,
                         fontWeight = FontWeight.Black,
                         fontSize = 11.sp
@@ -3637,42 +3634,60 @@ private fun TenthPickScannerViewerDialog(
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Switch En Vivo
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (isLiveStreaming) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechSurface)
+                            .clickable { isLiveStreaming = !isLiveStreaming }
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .clip(CircleShape)
+                                .background(if (isLiveStreaming) Color(0xFF00FF7F) else TextMuted)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (isLiveStreaming) "EN VIVO" else "PAUSADO",
+                            color = if (isLiveStreaming) Color(0xFF00FF7F) else TextMuted,
+                            fontSize = 8.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
                     IconButton(
                         onClick = {
                             com.example.service.screen.LocalVisionAnalyzer.resetTenthPickData()
                             currentCrop = null
-                            android.widget.Toast.makeText(context, "Captura anterior limpiada", android.widget.Toast.LENGTH_SHORT).show()
+                            currentLog = null
+                            topStripBitmap?.recycle()
+                            topStripBitmap = null
+                            coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
+                            android.widget.Toast.makeText(context, "Capturas anteriores limpiadas", android.widget.Toast.LENGTH_SHORT).show()
                         },
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(26.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
                             contentDescription = "Limpiar Captura",
-                            tint = DangerRed.copy(alpha = 0.85f),
+                            tint = DangerRed,
                             modifier = Modifier.size(16.dp)
                         )
                     }
 
                     IconButton(
-                        onClick = refreshCurrentCrop,
-                        modifier = Modifier.size(28.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refrescar Captura",
-                            tint = HextechCyan,
-                            modifier = Modifier.size(17.dp)
-                        )
-                    }
-
-                    IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(26.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Cerrar",
-                            tint = TextMuted,
+                            tint = HextechGold,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -3681,336 +3696,406 @@ private fun TenthPickScannerViewerDialog(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+            // SELECTOR DE LADO (IZQUIERDA / ALIADOS vs DERECHA / RIVALES)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Estado del Escaneo
-                val isConfirmed = log?.isConfirmed == true
-                val hasMatch = log?.selectedChampion != null
+                // Lado Izquierdo (Aliados)
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp),
-                    color = when {
-                        isConfirmed -> Color(0xFF102A1E)
-                        hasMatch -> Color(0xFF261D0F)
-                        else -> HextechSurface
-                    },
-                    border = BorderStroke(
-                        1.dp,
-                        when {
-                            isConfirmed -> Color(0xFF4CAF50)
-                            hasMatch -> HextechGold
-                            else -> HextechCardBorder
-                        }
-                    )
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { selectedSide = 0 },
+                    shape = RoundedCornerShape(6.dp),
+                    color = if (selectedSide == 0) AllyBlue.copy(alpha = 0.25f) else HextechSurface,
+                    border = BorderStroke(1.dp, if (selectedSide == 0) AllyBlue else HextechCardBorder)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 5.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = if (isRefreshing) "REFRESCANDO FOTOGRAMA..." else (log?.phaseName ?: "SELECCIÓN 10"),
-                            color = if (isConfirmed) Color(0xFF81C784) else if (hasMatch) Color(0xFFFFD54F) else HextechCyan,
+                            text = "🔵 Lado Izquierdo (Aliados)",
+                            color = if (selectedSide == 0) AllyBlue else TextMuted,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 9.5.sp
-                        )
-                        Text(
-                            text = when {
-                                isConfirmed -> "CONFIRMADO (SUPERIOR)"
-                                hasMatch -> "PRESELECCIÓN"
-                                else -> "EN VIVO"
-                            },
-                            color = when {
-                                isConfirmed -> Color(0xFF4CAF50)
-                                hasMatch -> HextechGold
-                                else -> HextechCyan
-                            },
-                            fontWeight = FontWeight.Black,
-                            fontSize = 8.5.sp
+                            fontSize = 9.sp
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
-
-                // RECUADRO VISUAL: CÁMARA / VIEW-FINDER DEL ESCÁNER
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                // Lado Derecho (Rivales)
+                Surface(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { selectedSide = 1 },
+                    shape = RoundedCornerShape(6.dp),
+                    color = if (selectedSide == 1) DangerRed.copy(alpha = 0.25f) else HextechSurface,
+                    border = BorderStroke(1.dp, if (selectedSide == 1) DangerRed else HextechCardBorder)
                 ) {
-                    Text(
-                        text = "ÁREA DE ESCANEO EN PANTALLA (ROI)",
-                        color = HextechCyan,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 9.5.sp
-                    )
                     Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .background(if (showDpadControls) HextechGold.copy(alpha = 0.2f) else HextechSurface)
-                            .border(1.dp, if (showDpadControls) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
-                            .clickable { showDpadControls = !showDpadControls }
-                            .padding(horizontal = 6.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Tune,
-                            contentDescription = null,
-                            tint = if (showDpadControls) HextechGold else TextSecondary,
-                            modifier = Modifier.size(13.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (showDpadControls) "Ocultar Controles" else "Mover Visor",
-                            color = if (showDpadControls) HextechGold else TextSecondary,
-                            fontSize = 8.5.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "🔴 Lado Derecho (Rivales)",
+                            color = if (selectedSide == 1) DangerRed else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.sp
                         )
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
 
-                // PANEL DE CONTROL INTERACTIVO PARA MOVER EL VISOR EN VIVO (D-PAD)
-                AnimatedVisibility(visible = showDpadControls) {
-                    Card(
+            // SELECTOR DE SLOTS (1 al 5)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                val sidePrefix = if (selectedSide == 0) "A" else "R"
+                (0..4).forEach { idx ->
+                    val isSel = selectedSlotIndex == idx
+                    val isTenth = idx == 4
+                    val activeColor = if (selectedSide == 0) AllyBlue else DangerRed
+                    Surface(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                            .weight(1f)
+                            .clickable { selectedSlotIndex = idx },
+                        shape = RoundedCornerShape(5.dp),
+                        color = if (isSel) activeColor.copy(alpha = 0.3f) else HextechSurface,
+                        border = BorderStroke(1.dp, if (isSel) (if (isTenth) HextechGold else activeColor) else HextechCardBorder)
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
+                            modifier = Modifier.padding(vertical = 3.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            // Selector de ROI a Mover
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                val modes = listOf("10º Rival (Top)", "10º Aliado (Top)")
-                                modes.forEachIndexed { idx, label ->
-                                    val isSel = selectedTargetMode == idx
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .padding(horizontal = 2.dp)
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(if (isSel) HextechGold.copy(alpha = 0.25f) else HextechDarkBg)
-                                            .border(1.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(4.dp))
-                                            .clickable { 
-                                                selectedTargetMode = idx 
-                                                refreshCurrentCrop()
-                                            }
-                                            .padding(vertical = 4.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = label,
-                                            color = if (isSel) HextechGold else TextMuted,
-                                            fontSize = 8.5.sp,
-                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
-                                        )
-                                    }
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(6.dp))
-
-                            // D-PAD Y CONTROLES DE ZOOM
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Zoom - / +
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text("Tamaño (⌀)", color = TextMuted, fontSize = 7.5.sp)
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Row {
-                                        IconButton(
-                                            onClick = { adjustCoordinates(0f, 0f, -0.002f) },
-                                            modifier = Modifier.size(26.dp)
-                                        ) {
-                                            Icon(Icons.Default.Remove, contentDescription = "Reducir", tint = HextechCyan, modifier = Modifier.size(16.dp))
-                                        }
-                                        IconButton(
-                                            onClick = { adjustCoordinates(0f, 0f, 0.002f) },
-                                            modifier = Modifier.size(26.dp)
-                                        ) {
-                                            Icon(Icons.Default.Add, contentDescription = "Aumentar", tint = HextechGold, modifier = Modifier.size(16.dp))
-                                        }
-                                    }
-                                }
-
-                                // D-PAD Cruz Direccional
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    IconButton(
-                                        onClick = { adjustCoordinates(0f, -0.003f, 0f) },
-                                        modifier = Modifier.size(26.dp)
-                                    ) {
-                                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Arriba", tint = HextechGold, modifier = Modifier.size(20.dp))
-                                    }
-                                    Row {
-                                        IconButton(
-                                            onClick = { adjustCoordinates(-0.003f, 0f, 0f) },
-                                            modifier = Modifier.size(26.dp)
-                                        ) {
-                                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Izquierda", tint = HextechGold, modifier = Modifier.size(20.dp))
-                                        }
-                                        Box(
-                                            modifier = Modifier
-                                                .size(24.dp)
-                                                .clip(CircleShape)
-                                                .background(HextechDarkBg)
-                                                .border(1.dp, HextechCardBorder, CircleShape),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text("🎯", fontSize = 10.sp)
-                                        }
-                                        IconButton(
-                                            onClick = { adjustCoordinates(0.003f, 0f, 0f) },
-                                            modifier = Modifier.size(26.dp)
-                                        ) {
-                                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Derecha", tint = HextechGold, modifier = Modifier.size(20.dp))
-                                        }
-                                    }
-                                    IconButton(
-                                        onClick = { adjustCoordinates(0f, 0.003f, 0f) },
-                                        modifier = Modifier.size(26.dp)
-                                    ) {
-                                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Abajo", tint = HextechGold, modifier = Modifier.size(20.dp))
-                                    }
-                                }
-
-                                // Restablecer
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    IconButton(
-                                        onClick = {
-                                            calib = com.example.service.screen.VisionCalibrationConfig.resetToDefaults(context)
-                                            com.example.service.screen.DraftVisionScanner.calibrationConfig = calib
-                                            refreshCurrentCrop()
-                                            android.widget.Toast.makeText(context, "Posición restablecida por defecto", android.widget.Toast.LENGTH_SHORT).show()
-                                        },
-                                        modifier = Modifier.size(26.dp)
-                                    ) {
-                                        Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = TextMuted, modifier = Modifier.size(18.dp))
-                                    }
-                                    Text("Reset", color = TextMuted, fontSize = 7.5.sp)
-                                }
-                            }
-
-                            val currentTargetX = if (selectedTargetMode == 0) calib.topEnemy5XRatio else calib.topAlly5XRatio
                             Text(
-                                text = "X: ${(currentTargetX * 100).let { "%.1f".format(it) }}% | Y: ${(calib.topAvatarYRatio * 100).let { "%.1f".format(it) }}% | ⌀: ${(calib.topAvatarDiameterRatio * 100).let { "%.1f".format(it) }}%",
-                                color = HextechCyan,
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold
+                                text = "$sidePrefix${idx + 1}" + (if (isTenth) " 👑" else ""),
+                                color = if (isSel) (if (isTenth) HextechGold else activeColor) else TextPrimary,
+                                fontWeight = if (isSel) FontWeight.Black else FontWeight.Normal,
+                                fontSize = 9.sp
+                            )
+                            if (isTenth) {
+                                Text(
+                                    text = "10º Pick",
+                                    color = if (isSel) HextechGold else TextMuted,
+                                    fontSize = 6.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // FRANJA SUPERIOR EN VIVO Y POSICIÓN DE DIANA (RETÍCULA)
+            Text(
+                text = "FRANJA SUPERIOR EN VIVO Y POSICIÓN DE DIANA (RETÍCULA):",
+                color = HextechCyan,
+                fontWeight = FontWeight.Bold,
+                fontSize = 8.5.sp
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+
+            val currentStrip = topStripBitmap
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(Color.Black)
+                    .border(1.dp, HextechGold.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+            ) {
+                if (currentStrip != null && !currentStrip.isRecycled) {
+                    Image(
+                        bitmap = currentStrip.asImageBitmap(),
+                        contentDescription = "Franja Superior en Vivo",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillBounds
+                    )
+                } else {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = if (screenCaptureManager?.isReady() == true) "Cargando franja en directo..." else "Sin captura de pantalla disponible",
+                            color = TextMuted,
+                            fontSize = 9.sp
+                        )
+                    }
+                }
+
+                // DIBUJO DE RETÍCULAS DE TODOS LOS SLOTS SOBRE LA FRANJA
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val stripRatio = 0.16f
+                    val yNorm = (calib.topAvatarYRatio / stripRatio).coerceIn(0.05f, 0.95f)
+                    val centerY = size.height * yNorm
+                    val radius = (size.height * (calib.topAvatarDiameterRatio / stripRatio) * 0.5f).coerceIn(6f, size.height * 0.45f)
+
+                    // 1. Slots Aliados (Azul)
+                    calib.topAllyXRatios.forEachIndexed { idx, xRatio ->
+                        val centerX = size.width * xRatio
+                        val isCurrentTarget = (selectedSide == 0 && selectedSlotIndex == idx)
+                        if (!isCurrentTarget) {
+                            drawCircle(
+                                color = AllyBlue.copy(alpha = 0.65f),
+                                radius = radius,
+                                center = androidx.compose.ui.geometry.Offset(centerX, centerY),
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
                             )
                         }
                     }
+
+                    // 2. Slots Rivales (Rojo)
+                    calib.topEnemyXRatios.forEachIndexed { idx, xRatio ->
+                        val centerX = size.width * xRatio
+                        val isCurrentTarget = (selectedSide == 1 && selectedSlotIndex == idx)
+                        if (!isCurrentTarget) {
+                            drawCircle(
+                                color = DangerRed.copy(alpha = 0.65f),
+                                radius = radius,
+                                center = androidx.compose.ui.geometry.Offset(centerX, centerY),
+                                style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.5f)
+                            )
+                        }
+                    }
+
+                    // 3. RETÍCULA ACTIVA SELECCIONADA (Objetivo con Mira 🎯)
+                    val activeXRatio = if (selectedSide == 0) {
+                        calib.topAllyXRatios.getOrElse(selectedSlotIndex) { 0.028f + selectedSlotIndex * 0.035f }
+                    } else {
+                        calib.topEnemyXRatios.getOrElse(selectedSlotIndex) { 0.816f + selectedSlotIndex * 0.035f }
+                    }
+                    val targetCenterX = size.width * activeXRatio
+                    val reticleColor = if (selectedSlotIndex == 4) HextechGold else (if (selectedSide == 0) AllyBlue else DangerRed)
+
+                    // Anillo exterior brillante
+                    drawCircle(
+                        color = reticleColor,
+                        radius = radius,
+                        center = androidx.compose.ui.geometry.Offset(targetCenterX, centerY),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 3.5f)
+                    )
+                    // Punto central
+                    drawCircle(
+                        color = Color.White,
+                        radius = 3f,
+                        center = androidx.compose.ui.geometry.Offset(targetCenterX, centerY)
+                    )
+                    // Cruz horizontal
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.9f),
+                        start = androidx.compose.ui.geometry.Offset(targetCenterX - radius * 1.3f, centerY),
+                        end = androidx.compose.ui.geometry.Offset(targetCenterX + radius * 1.3f, centerY),
+                        strokeWidth = 1.2f
+                    )
+                    // Cruz vertical
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.9f),
+                        start = androidx.compose.ui.geometry.Offset(targetCenterX, centerY - radius * 1.3f),
+                        end = androidx.compose.ui.geometry.Offset(targetCenterX, centerY + radius * 1.3f),
+                        strokeWidth = 1.2f
+                    )
                 }
 
+                // Indicador de coordenadas flotante en esquina
+                val activeXRatioDisplay = if (selectedSide == 0) {
+                    calib.topAllyXRatios.getOrElse(selectedSlotIndex) { 0.028f + selectedSlotIndex * 0.035f }
+                } else {
+                    calib.topEnemyXRatios.getOrElse(selectedSlotIndex) { 0.816f + selectedSlotIndex * 0.035f }
+                }
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .background(Color.Black.copy(alpha = 0.85f), RoundedCornerShape(topStart = 4.dp))
+                        .padding(horizontal = 4.dp, vertical = 1.dp)
+                ) {
+                    Text(
+                        text = "X: ${(activeXRatioDisplay * 100).toInt()}% | Y: ${(calib.topAvatarYRatio * 100).toInt()}% | ⌀: ${(calib.topAvatarDiameterRatio * 100).toInt()}%",
+                        color = HextechGold,
+                        fontSize = 7.5.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // CONTENEDOR SCROLLABLE CON CONTROLES D-PAD Y COMPARATIVA
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // PANEL D-PAD DE CALIBRACIÓN EN VIVO
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
                     border = BorderStroke(1.dp, HextechCardBorder)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(6.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (currentCrop != null && !currentCrop!!.isRecycled) {
-                            Box(
-                                modifier = Modifier
-                                    .size(92.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(Color.Black)
-                                    .border(2.dp, if (isConfirmed) Color(0xFF4CAF50) else HextechGold, RoundedCornerShape(10.dp)),
-                                contentAlignment = Alignment.Center
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "🎮 CONTROLES DE MIRA (D-PAD EN VIVO)",
+                                color = HextechGold,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 9.sp
+                            )
+                            // Toggle de paso
+                            Surface(
+                                modifier = Modifier.clickable { isFastStep = !isFastStep },
+                                shape = RoundedCornerShape(4.dp),
+                                color = if (isFastStep) HextechGold.copy(alpha = 0.2f) else HextechDarkBg,
+                                border = BorderStroke(0.5.dp, if (isFastStep) HextechGold else HextechCardBorder)
                             ) {
-                                Image(
-                                    bitmap = currentCrop!!.asImageBitmap(),
-                                    contentDescription = "Recorte Escaneado",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
+                                Text(
+                                    text = if (isFastStep) "Paso: Rápido (1.0%)" else "Paso: Fino (0.2%)",
+                                    color = if (isFastStep) HextechGold else TextSecondary,
+                                    fontSize = 7.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
                                 )
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .border(0.5.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
-                                )
-                            }
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .size(92.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(HextechDarkBg)
-                                    .border(1.dp, HextechCardBorder, RoundedCornerShape(10.dp)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        imageVector = Icons.Default.Search,
-                                        contentDescription = null,
-                                        tint = HextechCyan.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Sin captura activa",
-                                        color = TextMuted,
-                                        fontSize = 8.5.sp
-                                    )
-                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        val displayLocation = if (roiLabel.isNotBlank()) roiLabel else (log?.scannedMetrics?.roiLabel ?: "Buscando barra superior...")
-                        Text(
-                            text = displayLocation,
-                            color = TextPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 9.5.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        if (coordinates.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = coordinates,
-                                color = HextechGold,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 8.sp,
-                                textAlign = TextAlign.Center
-                            )
+                        // Fila Arriba (▲)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = { adjustCoordinates(0f, -step, 0f) },
+                                modifier = Modifier.size(width = 54.dp, height = 26.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg),
+                                border = BorderStroke(1.dp, HextechGold),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("▲", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        // Fila Centro: Izquierda (◀), Diámetro/Zoom, Derecha (▶)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(
+                                onClick = { adjustCoordinates(-step, 0f, 0f) },
+                                modifier = Modifier.size(width = 54.dp, height = 26.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg),
+                                border = BorderStroke(1.dp, HextechGold),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("◀", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                            }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            // Zoom In / Out
+                            Button(
+                                onClick = { adjustCoordinates(0f, 0f, step) },
+                                modifier = Modifier.size(width = 44.dp, height = 26.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
+                                border = BorderStroke(1.dp, HextechCyan),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("+⌀", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+                            }
+
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Button(
+                                onClick = { adjustCoordinates(0f, 0f, -step) },
+                                modifier = Modifier.size(width = 44.dp, height = 26.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan.copy(alpha = 0.2f)),
+                                border = BorderStroke(1.dp, HextechCyan),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("-⌀", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 9.sp)
+                            }
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Button(
+                                onClick = { adjustCoordinates(step, 0f, 0f) },
+                                modifier = Modifier.size(width = 54.dp, height = 26.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg),
+                                border = BorderStroke(1.dp, HextechGold),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("▶", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        // Fila Abajo (▼) y Reset
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(
+                                onClick = { adjustCoordinates(0f, step, 0f) },
+                                modifier = Modifier.size(width = 54.dp, height = 26.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg),
+                                border = BorderStroke(1.dp, HextechGold),
+                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                            ) {
+                                Text("▼", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 11.sp)
+                            }
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Surface(
+                                modifier = Modifier.clickable {
+                                    val def = com.example.service.screen.VisionCalibrationConfig.resetToDefaults(context)
+                                    calib = def
+                                    com.example.service.screen.DraftVisionScanner.calibrationConfig = def
+                                    coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
+                                    android.widget.Toast.makeText(context, "Calibración restablecida", android.widget.Toast.LENGTH_SHORT).show()
+                                },
+                                shape = RoundedCornerShape(4.dp),
+                                color = DangerRed.copy(alpha = 0.15f),
+                                border = BorderStroke(0.5.dp, DangerRed)
+                            ) {
+                                Text(
+                                    text = "↺ Reset",
+                                    color = DangerRed,
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                                )
+                            }
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // COMPARATIVA LADO A LADO: PANTALLA VS CAMPEÓN
+                // COMPARATIVA LADO A LADO: RECORTE EN VIVO VS AVATAR DE REFERENCIA
                 Text(
-                    text = "COMPARATIVA VISUAL VS REFERENCIA",
+                    text = "COMPARATIVA EN VIVO VS REFERENCIA",
                     color = HextechCyan,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 9.5.sp
+                    fontSize = 9.sp
                 )
                 Spacer(modifier = Modifier.height(3.dp))
 
@@ -4028,12 +4113,13 @@ private fun TenthPickScannerViewerDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Recorte en vivo
+                        val displayCrop = currentCrop
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Recorte Pantalla", color = TextMuted, fontSize = 8.sp)
+                            Text("Recorte en Vivo", color = TextMuted, fontSize = 8.sp)
                             Spacer(modifier = Modifier.height(2.dp))
-                            if (currentCrop != null && !currentCrop!!.isRecycled) {
+                            if (displayCrop != null && !displayCrop.isRecycled) {
                                 Image(
-                                    bitmap = currentCrop!!.asImageBitmap(),
+                                    bitmap = displayCrop.asImageBitmap(),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(44.dp)
@@ -4054,9 +4140,9 @@ private fun TenthPickScannerViewerDialog(
                             }
                         }
 
-                        // Coincidencia
+                        // Similitud / Coincidencia
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            val score = ((log?.confidence ?: 0f) * 100).toInt()
+                            val score = ((currentLog?.confidence ?: 0f) * 100).toInt()
                             Text(
                                 text = "$score%",
                                 color = if (score >= 48) HextechGold else TextMuted,
@@ -4064,16 +4150,21 @@ private fun TenthPickScannerViewerDialog(
                                 fontSize = 13.sp
                             )
                             Text(
-                                text = if (score >= 48) "Similitud" else "Bajo umbral",
+                                text = if (score >= 48) "Similitud" else "Sin Bloquear",
                                 color = if (score >= 48) HextechCyan else TextMuted,
                                 fontSize = 7.5.sp
                             )
                         }
 
                         // Avatar Campeón Referencia
-                        val matchedChamp = log?.selectedChampion
+                        val matchedChamp = currentLog?.selectedChampion
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(matchedChamp?.name ?: "Sin asignar", color = if (matchedChamp != null) HextechGold else TextMuted, fontWeight = FontWeight.Bold, fontSize = 8.sp)
+                            Text(
+                                text = matchedChamp?.name ?: "Sin asignar",
+                                color = if (matchedChamp != null) HextechGold else TextMuted,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 8.sp
+                            )
                             Spacer(modifier = Modifier.height(2.dp))
                             if (matchedChamp != null) {
                                 ChampionAvatar(
@@ -4098,16 +4189,16 @@ private fun TenthPickScannerViewerDialog(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // TOP CANDIDATOS EVALUADOS
-                if (log != null && log.topCandidates.isNotEmpty()) {
+                if (currentLog != null && currentLog!!.topCandidates.isNotEmpty()) {
                     Text(
                         text = "TOP CANDIDATOS EVALUADOS",
                         color = HextechCyan,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 9.5.sp
+                        fontSize = 9.sp
                     )
                     Spacer(modifier = Modifier.height(3.dp))
-                    log.topCandidates.take(3).forEachIndexed { idx, c ->
-                        val isChosen = idx == 0 && log.selectedChampion != null
+                    currentLog!!.topCandidates.take(3).forEachIndexed { idx, c ->
+                        val isChosen = idx == 0 && currentLog!!.selectedChampion != null
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()

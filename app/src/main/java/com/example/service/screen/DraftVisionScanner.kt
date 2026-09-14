@@ -1146,20 +1146,36 @@ object DraftVisionScanner {
         val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validAllySlots, allChamps, auditList)
         val alliesMap = allyResolved.assignments.toMutableMap()
 
-        // Asignar cualquier campeón en slot explícito que no haya entrado en validAllySlots o haya quedado sin rol
-        for (i in 0..4) {
-            val slot = allySlots[i]
-            val champ = slot.champion
-            val role = slot.explicitRole ?: allySlotRolesCache[i] ?: defaultRolesList.getOrNull(i)
-            if (champ != null && role != null && !alliesMap.containsKey(role)) {
-                alliesMap[role] = champ
+        // Garantizar que NINGÚN campeón aliado sea omitido por colisión de rol
+        val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+        val assignedAllyChamps = alliesMap.values.map { it.id }.toSet()
+        for (slot in validAllySlots) {
+            val champ = slot.champion ?: continue
+            if (!assignedAllyChamps.contains(champ.id)) {
+                val availableRoles = standardRoles.filter { !alliesMap.containsKey(it) }
+                val targetRole = slot.explicitRole ?: slot.assignedRole ?: allySlotRolesCache[slot.slotIndex] ?: availableRoles.firstOrNull() ?: defaultRolesList.getOrNull(slot.slotIndex) ?: LaneRole.MID
+                alliesMap[targetRole] = champ
+                slot.assignedRole = targetRole
+                AppLogger.d(TAG, "Aliado ${champ.name} preservado y asignado a ${targetRole.shortName}")
             }
         }
 
         // 4.2 Enemigos: Asignación validada por roles primarios y secundarios de los picks seleccionados
         val validEnemySlots = enemySlots.filter { it.champion != null }
         val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validEnemySlots, allChamps, auditList, isAllyTeam = false)
-        val enemiesMap = enemyResolved.assignments
+        val enemiesMap = enemyResolved.assignments.toMutableMap()
+
+        val assignedEnemyChamps = enemiesMap.values.map { it.id }.toSet()
+        for (slot in validEnemySlots) {
+            val champ = slot.champion ?: continue
+            if (!assignedEnemyChamps.contains(champ.id)) {
+                val availableRoles = standardRoles.filter { !enemiesMap.containsKey(it) }
+                val targetRole = availableRoles.firstOrNull() ?: defaultRolesList.getOrNull(slot.slotIndex) ?: LaneRole.MID
+                enemiesMap[targetRole] = champ
+                slot.assignedRole = targetRole
+                AppLogger.d(TAG, "Rival ${champ.name} preservado y asignado a ${targetRole.shortName}")
+            }
+        }
 
         // Deduplicación: Un campeón aliado jamás puede aparecer en el equipo enemigo
         val allyChampIds = alliesMap.values.map { it.id }.toSet()

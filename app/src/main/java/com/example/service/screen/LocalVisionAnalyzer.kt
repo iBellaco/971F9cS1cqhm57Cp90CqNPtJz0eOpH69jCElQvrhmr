@@ -27,11 +27,11 @@ import kotlin.math.sqrt
 object LocalVisionAnalyzer {
 
     private const val TAG = "LocalVisionAnalyzer"
-    private const val FINGERPRINT_SIZE = 16
+    private const val FINGERPRINT_SIZE = 24
 
     data class AvatarFingerprint(
         val champId: String,
-        val rgbPixels: IntArray, // Array de tamaño 16x16 = 256
+        val rgbPixels: IntArray, // Array de tamaño 24x24 = 576
         val avgR: Float,
         val avgG: Float,
         val avgB: Float,
@@ -39,9 +39,16 @@ object LocalVisionAnalyzer {
         val chromaG: Float,
         val chromaB: Float,
         val satRatio: Float,
+        val rMean: Float,
+        val rStdDev: Float,
+        val gMean: Float,
+        val gStdDev: Float,
+        val bMean: Float,
+        val bStdDev: Float,
         val lumMean: Float,
         val lumStdDev: Float,
-        val hueHistogram: FloatArray // 8 bins de tono cromático
+        val colorHistogram: FloatArray, // 16 bins (12 Tono HUE + 4 Niveles Acromáticos/Brillo)
+        val spatialBlockRgb: FloatArray // 16 bloques espaciales (4x4) * 3 canales = 48 valores
     )
 
     data class ScannedCropMetrics(
@@ -66,6 +73,8 @@ object LocalVisionAnalyzer {
         val champion: Champion,
         val compositeScore: Float,
         val pixelSimilarity: Float,
+        val pixelColorSim: Float,
+        val blockSim: Float,
         val histSimilarity: Float,
         val avgColorSim: Float,
         val roleBonus: Float
@@ -154,7 +163,7 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Extrae la huella cromática de un bitmap normalizándolo a FINGERPRINT_SIZE x FINGERPRINT_SIZE.
+     * Extrae la huella cromática y espacial de un bitmap normalizándolo a FINGERPRINT_SIZE x FINGERPRINT_SIZE.
      */
     fun extractFingerprint(bitmap: Bitmap, id: String = ""): AvatarFingerprint? {
         if (bitmap.isRecycled || bitmap.width < 8 || bitmap.height < 8) return null
@@ -176,13 +185,16 @@ object LocalVisionAnalyzer {
         var sumB = 0f
         var count = 0
 
-        val hueBins = FloatArray(8)
+        val colorBins = FloatArray(16) // 0..11: 12 Hue bins, 12..15: 4 Achromatic brightness bins
         var validHueCount = 0
 
         val center = (FINGERPRINT_SIZE - 1) / 2.0f
-        val maxRadius = FINGERPRINT_SIZE * 0.44f // Máscara circular para omitir bordes/marcos
+        val maxRadius = FINGERPRINT_SIZE * 0.45f // Máscara circular para omitir marcos
 
         val lumValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
+        val rValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
+        val gValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
+        val bValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
 
         for (y in 0 until FINGERPRINT_SIZE) {
             for (x in 0 until FINGERPRINT_SIZE) {
@@ -199,6 +211,9 @@ object LocalVisionAnalyzer {
 
                 val lum = (r * 299 + g * 587 + b * 114) / 1000f
                 lumValues[idx] = lum
+                rValues[idx] = r.toFloat()
+                gValues[idx] = g.toFloat()
+                bValues[idx] = b.toFloat()
 
                 sumR += r
                 sumG += g
@@ -212,10 +227,19 @@ object LocalVisionAnalyzer {
                 val sat = hsv[1] // 0 a 1
                 val value = hsv[2] // 0 a 1
 
-                if (sat > 0.15f && value > 0.15f) {
-                    val bin = ((hue / 360f) * 8f).toInt().coerceIn(0, 7)
-                    hueBins[bin] += 1f
+                if (sat > 0.15f && value > 0.12f) {
+                    val bin = ((hue / 360f) * 12f).toInt().coerceIn(0, 11)
+                    colorBins[bin] += 1f
                     validHueCount++
+                } else {
+                    // Píxeles acromáticos (blanco, gris, negro): clasificar en bins 12..15
+                    val achroBin = when {
+                        value <= 0.22f -> 12 // Negro / sombras
+                        value <= 0.50f -> 13 // Gris oscuro
+                        value <= 0.78f -> 14 // Gris medio
+                        else -> 15           // Blanco / reflejo de hielo
+                    }
+                    colorBins[achroBin] += 1f
                 }
             }
         }
@@ -232,35 +256,83 @@ object LocalVisionAnalyzer {
 
         val satRatio = validHueCount.toFloat() / count.toFloat()
 
-        // Calcular media y desviación estándar de luminancia sobre la máscara circular
+        // Calcular medias y desviaciones estándar por canal sobre la máscara circular
         var sumLum = 0f
+        var sumRChan = 0f
+        var sumGChan = 0f
+        var sumBChan = 0f
         for (y in 0 until FINGERPRINT_SIZE) {
             for (x in 0 until FINGERPRINT_SIZE) {
                 val dx = x - center
                 val dy = y - center
                 if (sqrt(dx * dx + dy * dy) <= maxRadius) {
-                    sumLum += lumValues[y * FINGERPRINT_SIZE + x]
+                    val idx = y * FINGERPRINT_SIZE + x
+                    sumLum += lumValues[idx]
+                    sumRChan += rValues[idx]
+                    sumGChan += gValues[idx]
+                    sumBChan += bValues[idx]
                 }
             }
         }
         val lumMean = sumLum / count
-        var varSum = 0f
+        val rMean = sumRChan / count
+        val gMean = sumGChan / count
+        val bMean = sumBChan / count
+
+        var varLum = 0f
+        var varR = 0f
+        var varG = 0f
+        var varB = 0f
         for (y in 0 until FINGERPRINT_SIZE) {
             for (x in 0 until FINGERPRINT_SIZE) {
                 val dx = x - center
                 val dy = y - center
                 if (sqrt(dx * dx + dy * dy) <= maxRadius) {
-                    val diff = lumValues[y * FINGERPRINT_SIZE + x] - lumMean
-                    varSum += diff * diff
+                    val idx = y * FINGERPRINT_SIZE + x
+                    val dLum = lumValues[idx] - lumMean
+                    varLum += dLum * dLum
+                    val dR = rValues[idx] - rMean
+                    varR += dR * dR
+                    val dG = gValues[idx] - gMean
+                    varG += dG * dG
+                    val dB = bValues[idx] - bMean
+                    varB += dB * dB
                 }
             }
         }
-        val lumStdDev = sqrt(varSum / count).coerceAtLeast(1.0f)
+        val lumStdDev = sqrt(varLum / count).coerceAtLeast(1.0f)
+        val rStdDev = sqrt(varR / count).coerceAtLeast(1.0f)
+        val gStdDev = sqrt(varG / count).coerceAtLeast(1.0f)
+        val bStdDev = sqrt(varB / count).coerceAtLeast(1.0f)
 
-        // Normalizar histograma de tono
-        if (validHueCount > 0) {
-            for (i in 0 until 8) {
-                hueBins[i] /= validHueCount.toFloat()
+        // Normalizar histograma de 16 bins
+        for (i in 0 until 16) {
+            colorBins[i] /= count.toFloat()
+        }
+
+        // Extraer cuadrícula de 16 bloques espaciales (4x4)
+        val blockSize = FINGERPRINT_SIZE / 4 // 6x6 píxeles por bloque
+        val spatialBlockRgb = FloatArray(16 * 3)
+        for (by in 0 until 4) {
+            for (bx in 0 until 4) {
+                var blockR = 0f
+                var blockG = 0f
+                var blockB = 0f
+                var blockCount = 0
+                for (py in (by * blockSize) until ((by + 1) * blockSize)) {
+                    for (px in (bx * blockSize) until ((bx + 1) * blockSize)) {
+                        val pIdx = py * FINGERPRINT_SIZE + px
+                        val c = pixels[pIdx]
+                        blockR += Color.red(c)
+                        blockG += Color.green(c)
+                        blockB += Color.blue(c)
+                        blockCount++
+                    }
+                }
+                val blockIdx = (by * 4 + bx) * 3
+                spatialBlockRgb[blockIdx] = if (blockCount > 0) blockR / blockCount else 0f
+                spatialBlockRgb[blockIdx + 1] = if (blockCount > 0) blockG / blockCount else 0f
+                spatialBlockRgb[blockIdx + 2] = if (blockCount > 0) blockB / blockCount else 0f
             }
         }
 
@@ -274,9 +346,16 @@ object LocalVisionAnalyzer {
             chromaG = chromaG,
             chromaB = chromaB,
             satRatio = satRatio,
+            rMean = rMean,
+            rStdDev = rStdDev,
+            gMean = gMean,
+            gStdDev = gStdDev,
+            bMean = bMean,
+            bStdDev = bStdDev,
             lumMean = lumMean,
             lumStdDev = lumStdDev,
-            hueHistogram = hueBins
+            colorHistogram = colorBins,
+            spatialBlockRgb = spatialBlockRgb
         )
     }
 
@@ -460,9 +539,7 @@ object LocalVisionAnalyzer {
         val targetFp = extractFingerprint(crop, "target") ?: return null
 
         val center = (FINGERPRINT_SIZE - 1) / 2.0f
-        val maxRadius = FINGERPRINT_SIZE * 0.44f
-
-        val targetLumAvg = (targetFp.avgR + targetFp.avgG + targetFp.avgB) / 3f
+        val maxRadius = FINGERPRINT_SIZE * 0.45f
 
         val candidateComparisons = mutableListOf<CandidateMatchComparison>()
 
@@ -470,8 +547,11 @@ object LocalVisionAnalyzer {
             if (excludedChampionIds.contains(champ.id)) continue
             val sig = cachedSignatures[champ.id] ?: continue
 
-            // 1. Correlación Cruzada Normalizada de Media Cero (ZNCC) - Invariante a brillo/escala de luz
-            var znccSum = 0f
+            // 1. Correlación Cruzada Normalizada Multicanal (ZNCC R, G, B individual + Luminancia)
+            var znccSumR = 0f
+            var znccSumG = 0f
+            var znccSumB = 0f
+            var pixelColorDistSum = 0f
             var pixelCount = 0
 
             for (y in 0 until FINGERPRINT_SIZE) {
@@ -484,62 +564,93 @@ object LocalVisionAnalyzer {
                     val p1 = targetFp.rgbPixels[idx]
                     val p2 = sig.rgbPixels[idx]
 
-                    val lum1 = (Color.red(p1) * 299 + Color.green(p1) * 587 + Color.blue(p1) * 114) / 1000f
-                    val lum2 = (Color.red(p2) * 299 + Color.green(p2) * 587 + Color.blue(p2) * 114) / 1000f
+                    val r1 = Color.red(p1).toFloat()
+                    val g1 = Color.green(p1).toFloat()
+                    val b1 = Color.blue(p1).toFloat()
 
-                    val norm1 = (lum1 - targetFp.lumMean) / targetFp.lumStdDev
-                    val norm2 = (lum2 - sig.lumMean) / sig.lumStdDev
+                    val r2 = Color.red(p2).toFloat()
+                    val g2 = Color.green(p2).toFloat()
+                    val b2 = Color.blue(p2).toFloat()
 
-                    znccSum += norm1 * norm2
+                    // ZNCC por canal
+                    znccSumR += ((r1 - targetFp.rMean) / targetFp.rStdDev) * ((r2 - sig.rMean) / sig.rStdDev)
+                    znccSumG += ((g1 - targetFp.gMean) / targetFp.gStdDev) * ((g2 - sig.gMean) / sig.gStdDev)
+                    znccSumB += ((b1 - targetFp.bMean) / targetFp.bStdDev) * ((b2 - sig.bMean) / sig.bStdDev)
+
+                    // Distancia Euclídea de color por píxel (0.0 a 1.0)
+                    val dr = r1 - r2
+                    val dg = g1 - g2
+                    val db = b1 - b2
+                    val colorDist = sqrt(dr * dr + dg * dg + db * db) / 441.67f
+                    pixelColorDistSum += colorDist
+
                     pixelCount++
                 }
             }
 
             if (pixelCount == 0) continue
-            val rawZncc = znccSum / pixelCount.toFloat()
-            val pixelSimilarity = ((rawZncc + 1.0f) / 2.0f).coerceIn(0f, 1f)
 
-            // 2. Similitud de Balance Cromático Normalizado (Invariante a nivel de luz)
+            val rawZnccR = ((znccSumR / pixelCount.toFloat()) + 1.0f) / 2.0f
+            val rawZnccG = ((znccSumG / pixelCount.toFloat()) + 1.0f) / 2.0f
+            val rawZnccB = ((znccSumB / pixelCount.toFloat()) + 1.0f) / 2.0f
+            val pixelSimilarity = ((rawZnccR * 0.33f) + (rawZnccG * 0.33f) + (rawZnccB * 0.34f)).coerceIn(0f, 1f)
+
+            val avgPixelDist = pixelColorDistSum / pixelCount.toFloat()
+            val pixelColorSim = (1.0f - avgPixelDist).coerceIn(0f, 1f)
+
+            // 2. Similitud de Cuadrícula Espacial de 16 Bloques (4x4)
+            var blockDiffSum = 0f
+            for (b in 0 until 16) {
+                val bIdx = b * 3
+                val bTargetR = targetFp.spatialBlockRgb[bIdx]
+                val bTargetG = targetFp.spatialBlockRgb[bIdx + 1]
+                val bTargetB = targetFp.spatialBlockRgb[bIdx + 2]
+
+                val bSigR = sig.spatialBlockRgb[bIdx]
+                val bSigG = sig.spatialBlockRgb[bIdx + 1]
+                val bSigB = sig.spatialBlockRgb[bIdx + 2]
+
+                val bDiff = (abs(bTargetR - bSigR) + abs(bTargetG - bSigG) + abs(bTargetB - bSigB)) / (3f * 255f)
+                blockDiffSum += bDiff
+            }
+            val blockSim = (1.0f - (blockDiffSum / 16f)).coerceIn(0f, 1f)
+
+            // 3. Similitud de Balance Cromático Global
             val chromaDiff = (abs(targetFp.chromaR - sig.chromaR) +
                               abs(targetFp.chromaG - sig.chromaG) +
                               abs(targetFp.chromaB - sig.chromaB)) / 2.0f
             val avgColorSim = (1.0f - chromaDiff).coerceIn(0f, 1f)
 
-            // 3. Similitud de Perfil de Saturación (Distinción entre campeones acromáticos y saturados)
-            val satDiff = abs(targetFp.satRatio - sig.satRatio)
-            val satSimilarity = (1.0f - satDiff).coerceIn(0f, 1f)
-
-            // 4. Similitud de Histograma de Tono (Intersección de histogramas HSV)
+            // 4. Similitud de Histograma de 16 Bins (12 HUE + 4 Acromáticos)
             var histIntersection = 0f
-            for (i in 0 until 8) {
-                histIntersection += min(targetFp.hueHistogram[i], sig.hueHistogram[i])
+            for (i in 0 until 16) {
+                histIntersection += min(targetFp.colorHistogram[i], sig.colorHistogram[i])
             }
             val histSimilarity = histIntersection.coerceIn(0f, 1f)
 
-            // 5. Puntuación visual combinada adaptativa
-            val baseVisualScore = if (targetFp.satRatio < 0.40f || sig.satRatio < 0.40f) {
-                (pixelSimilarity * 0.50f) + (avgColorSim * 0.30f) + (satSimilarity * 0.10f) + (histSimilarity * 0.10f)
-            } else {
-                (pixelSimilarity * 0.40f) + (avgColorSim * 0.25f) + (histSimilarity * 0.25f) + (satSimilarity * 0.10f)
-            }
-            var roleBonus = 0f
+            // 5. Puntuación visual combinada de alta precisión
+            val baseVisualScore = (pixelSimilarity * 0.35f) +
+                                  (pixelColorSim * 0.30f) +
+                                  (blockSim * 0.20f) +
+                                  (histSimilarity * 0.15f)
 
-            // Ponderación contextual suave: SÓLO se aplica si el campeón ya tiene una similitud visual base razonable (>= 28%)
-            // para asegurar que ningún campeón sea seleccionado únicamente por rol sin parecerse al avatar
-            if (expectedRole != null && baseVisualScore >= 0.28f) {
+            var roleBonus = 0f
+            if (expectedRole != null && baseVisualScore >= 0.30f) {
                 if (champ.primaryRole == expectedRole) {
                     roleBonus = 0.03f
                 } else if (champ.secondaryRoles.contains(expectedRole)) {
                     roleBonus = 0.015f
                 }
             }
-            val compositeScore = baseVisualScore + roleBonus
+            val compositeScore = (baseVisualScore + roleBonus).coerceIn(0f, 1f)
 
             candidateComparisons.add(
                 CandidateMatchComparison(
                     champion = champ,
                     compositeScore = compositeScore,
                     pixelSimilarity = pixelSimilarity,
+                    pixelColorSim = pixelColorSim,
+                    blockSim = blockSim,
                     histSimilarity = histSimilarity,
                     avgColorSim = avgColorSim,
                     roleBonus = roleBonus
@@ -921,6 +1032,74 @@ object LocalVisionAnalyzer {
             return@withContext null
         } finally {
             try { crop.recycle() } catch (_: Throwable) {}
+        }
+    }
+
+    /**
+     * Inspección interactiva en tiempo real para cualquier slot superior (Aliado o Rival, 0..4)
+     * Utilizada por el Visor de Escáner interactivo para calibración y visualización en vivo.
+     */
+    suspend fun inspectSlotDetailed(
+        bitmap: Bitmap,
+        isAlly: Boolean,
+        slotIndex: Int,
+        calib: VisionCalibrationConfig,
+        allChamps: List<Champion>,
+        expectedRole: LaneRole? = null,
+        excludedChampionIds: Set<String> = emptySet(),
+        context: Context? = null
+    ): TenthPickDecisionLog? = withContext(Dispatchers.Default) {
+        if (bitmap.isRecycled) return@withContext null
+        val idx = slotIndex.coerceIn(0, 4)
+        val width = bitmap.width
+        val height = bitmap.height
+        val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
+        val topCenterY = (height * calib.topAvatarYRatio).toInt()
+        val targetXRatio = if (isAlly) {
+            calib.topAllyXRatios.getOrElse(idx) { 0.028f + idx * 0.035f }
+        } else {
+            calib.topEnemyXRatios.getOrElse(idx) { 0.816f + idx * 0.035f }
+        }
+        val topCenterX = (width * targetXRatio).toInt()
+        val side = if (isAlly) "Aliado" else "Rival"
+        val crop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
+
+        try {
+            lastTenthPickCrop?.recycle()
+            lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
+            lastTenthPickRoiLabel = "Barra Superior ($side ${idx + 1})"
+            lastTenthPickCoordinates = "X: ${topCenterX}px (${(topCenterX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+        } catch (_: Throwable) {}
+
+        try {
+            val detailed = matchAvatarDetailed(
+                crop = crop,
+                roiLabel = "Barra Superior ($side ${idx + 1})",
+                candidates = allChamps,
+                expectedRole = expectedRole,
+                excludedChampionIds = excludedChampionIds,
+                context = context,
+                isConfirmedPhase = true
+            )
+            if (detailed != null) {
+                lastTenthPickLog = detailed.copy(cropBitmap = lastTenthPickCrop)
+            }
+            return@withContext detailed
+        } finally {
+            try { crop.recycle() } catch (_: Throwable) {}
+        }
+    }
+
+    /**
+     * Extrae una franja de la parte superior de la pantalla para el visor en vivo.
+     */
+    fun extractTopBarStrip(bitmap: Bitmap, heightRatio: Float = 0.14f): Bitmap? {
+        if (bitmap.isRecycled || bitmap.width < 50 || bitmap.height < 30) return null
+        val stripHeight = (bitmap.height * heightRatio).toInt().coerceIn(24, bitmap.height)
+        return try {
+            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, stripHeight)
+        } catch (_: Throwable) {
+            null
         }
     }
 
