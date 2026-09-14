@@ -45,12 +45,12 @@ data class VisionCalibrationConfig(
     val enemyOcrMaxX: Float = 0.95f,
 
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
-    val topAvatarYRatio: Float = 0.044f,
-    val topAvatarDiameterRatio: Float = 0.058f,
+    val topAvatarYRatio: Float = 0.048f,
+    val topAvatarDiameterRatio: Float = 0.054f,
     val topAlly5XRatio: Float = 0.168f,
-    val topEnemy5XRatio: Float = 0.972f,
+    val topEnemy5XRatio: Float = 0.956f,
     val topAllyXRatios: List<Float> = listOf(0.028f, 0.063f, 0.098f, 0.133f, 0.168f),
-    val topEnemyXRatios: List<Float> = listOf(0.832f, 0.867f, 0.902f, 0.937f, 0.972f)
+    val topEnemyXRatios: List<Float> = listOf(0.816f, 0.851f, 0.886f, 0.921f, 0.956f)
 ) {
     fun toFormattedCoordinatesString(): String {
         val sb = StringBuilder()
@@ -125,6 +125,13 @@ VisionCalibrationConfig(
     }
 
     companion object {
+        fun resetToDefaults(context: Context): VisionCalibrationConfig {
+            val prefs = context.getSharedPreferences("vision_calibration_prefs", Context.MODE_PRIVATE)
+            prefs.edit().clear().apply()
+            val defaultConfig = VisionCalibrationConfig()
+            defaultConfig.saveToPrefs(context)
+            return defaultConfig
+        }
         fun loadFromPrefs(context: Context): VisionCalibrationConfig {
             val prefs = context.getSharedPreferences("vision_calibration_prefs", Context.MODE_PRIVATE)
             if (!prefs.contains("avatarDiameterRatio")) return VisionCalibrationConfig()

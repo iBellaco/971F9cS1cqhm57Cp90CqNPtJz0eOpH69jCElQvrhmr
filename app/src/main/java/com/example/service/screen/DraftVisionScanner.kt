@@ -216,7 +216,8 @@ object DraftVisionScanner {
         enemySlotConfirmedChampions.fill(null)
         allySlotFilters.forEach { it.reset() }
         enemySlotFilters.forEach { it.reset() }
-        AppLogger.d(TAG, "Memoria de roles e invocadores reiniciada")
+        LocalVisionAnalyzer.resetTenthPickData()
+        AppLogger.d(TAG, "Memoria de roles, invocadores y capturas de 10º pick reiniciada por completo")
     }
 
     private fun getRecognizer(): com.google.mlkit.vision.text.TextRecognizer? {

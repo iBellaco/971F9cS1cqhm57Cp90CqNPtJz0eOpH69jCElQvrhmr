@@ -96,6 +96,17 @@ object LocalVisionAnalyzer {
     @Volatile
     var lastTenthPickRoiLabel: String = ""
 
+    fun resetTenthPickData() {
+        lastTenthPickLog = null
+        try {
+            lastTenthPickCrop?.let { if (!it.isRecycled) it.recycle() }
+        } catch (_: Throwable) {}
+        lastTenthPickCrop = null
+        lastTenthPickCoordinates = ""
+        lastTenthPickRoiLabel = ""
+        AppLogger.d(TAG, "Datos de captura de 10º pick reiniciados")
+    }
+
     private val cachedSignatures = ConcurrentHashMap<String, AvatarFingerprint>()
     private var isInitialized = false
 

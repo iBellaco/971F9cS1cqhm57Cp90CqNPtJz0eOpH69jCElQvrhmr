@@ -77,6 +77,14 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
@@ -1007,10 +1015,9 @@ private fun FloatingOverlayContent(
                                                     assignAllySlot(idx, scannedAlly)
                                                     newAlliesAdded++
                                                 }
-                                            } else if (result.isSuccessful && allies[idx] != null) {
-                                                allies[idx] = null
-                                                state.allySummonerNames.remove(idx)
                                             }
+                                            // En Wild Rift los picks confirmados son inmutables.
+                                            // No se deseleccionan si un frame transitorio o la fase de preparación no contiene texto OCR.
                                         }
                                         if (manualLockedEnemySlots[idx] != true) {
                                             val scannedEnemy = result.enemiesByRole[role]
@@ -1019,10 +1026,8 @@ private fun FloatingOverlayContent(
                                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                                     if (enemies[idx] == null) newEnemiesAdded++
                                                 }
-                                            } else if (result.isSuccessful && enemies[idx] != null) {
-                                                enemies[idx] = null
-                                                state.enemyConfidences.remove(role)
                                             }
+                                            // Los picks rivales confirmados tampoco se deseleccionan arbitrariamente.
                                         }
                                     }
 
@@ -1137,18 +1142,12 @@ private fun FloatingOverlayContent(
                                 val scannedAlly = result.alliesByRole[role]
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
-                                } else if (result.isSuccessful && allies[idx] != null) {
-                                    allies[idx] = null
-                                    state.allySummonerNames.remove(idx)
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
                                 val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                } else if (result.isSuccessful && enemies[idx] != null) {
-                                    enemies[idx] = null
-                                    state.enemyConfidences.remove(role)
                                 }
                             }
                         }
@@ -1770,6 +1769,7 @@ private fun FloatingOverlayContent(
                                 )
                             } else if (showTenthPickLogsDialog) {
                                 TenthPickScannerViewerDialog(
+                                    screenCaptureManager = screenCaptureManager,
                                     onDismiss = { showTenthPickLogsDialog = false }
                                 )
                             } else if (selectedChampionDetail != null) {
@@ -3499,13 +3499,107 @@ private fun CoachContent(
 
 @Composable
 private fun TenthPickScannerViewerDialog(
+    screenCaptureManager: ScreenCaptureManager? = null,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var calib by remember { mutableStateOf(com.example.service.screen.VisionCalibrationConfig.loadFromPrefs(context)) }
+    var showDpadControls by remember { mutableStateOf(false) }
+    var selectedTargetMode by remember { mutableStateOf(0) } // 0: 10º Pick Rival (Top), 1: 10º Pick Aliado (Top)
+    var isRefreshing by remember { mutableStateOf(false) }
+
     val log = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickLog
-    val currentCrop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop
+    var currentCrop by remember { mutableStateOf(com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop) }
     val coordinates = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCoordinates
     val roiLabel = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickRoiLabel
+
+    val refreshCurrentCrop: () -> Unit = {
+        coroutineScope.launch(Dispatchers.IO) {
+            isRefreshing = true
+            try {
+                if (screenCaptureManager?.isReady() == true) {
+                    val bmp = screenCaptureManager.captureCurrentFrame()
+                    if (bmp != null) {
+                        try {
+                            val allChamps = com.example.data.WildRiftRepository.champions
+                            // Forzar evaluación del slot superior con la calibración actualizada
+                            val dec = if (selectedTargetMode == 0) {
+                                com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
+                                    bitmap = bmp,
+                                    isFirstPick = true,
+                                    calib = calib,
+                                    allChamps = allChamps,
+                                    confirmedIds = emptySet(),
+                                    expectedRole = null,
+                                    context = context
+                                )
+                            } else {
+                                com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
+                                    bitmap = bmp,
+                                    isFirstPick = false,
+                                    calib = calib,
+                                    allChamps = allChamps,
+                                    confirmedIds = emptySet(),
+                                    expectedRole = null,
+                                    context = context
+                                )
+                            }
+                            withContext(Dispatchers.Main) {
+                                currentCrop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop
+                            }
+                        } finally {
+                            bmp.recycle()
+                        }
+                    }
+                }
+            } catch (_: Throwable) {
+            } finally {
+                withContext(Dispatchers.Main) {
+                    isRefreshing = false
+                }
+            }
+        }
+    }
+
+    val adjustCoordinates: (Float, Float, Float) -> Unit = { dx, dy, dDiam ->
+        val updated = when (selectedTargetMode) {
+            0 -> {
+                val newX = (calib.topEnemy5XRatio + dx).coerceIn(0.50f, 0.99f)
+                val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.30f)
+                val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
+                val updatedEnemies = calib.topEnemyXRatios.toMutableList()
+                if (updatedEnemies.isNotEmpty()) {
+                    updatedEnemies[updatedEnemies.lastIndex] = newX
+                }
+                calib.copy(
+                    topEnemy5XRatio = newX,
+                    topAvatarYRatio = newY,
+                    topAvatarDiameterRatio = newDiam,
+                    topEnemyXRatios = updatedEnemies
+                )
+            }
+            else -> {
+                val newX = (calib.topAlly5XRatio + dx).coerceIn(0.01f, 0.50f)
+                val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.30f)
+                val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
+                val updatedAllies = calib.topAllyXRatios.toMutableList()
+                if (updatedAllies.isNotEmpty()) {
+                    updatedAllies[updatedAllies.lastIndex] = newX
+                }
+                calib.copy(
+                    topAlly5XRatio = newX,
+                    topAvatarYRatio = newY,
+                    topAvatarDiameterRatio = newDiam,
+                    topAllyXRatios = updatedAllies
+                )
+            }
+        }
+        calib = updated
+        updated.saveToPrefs(context)
+        com.example.service.screen.DraftVisionScanner.calibrationConfig = updated
+        refreshCurrentCrop()
+    }
 
     Card(
         modifier = Modifier
@@ -3538,11 +3632,39 @@ private fun TenthPickScannerViewerDialog(
                         text = "VISOR DE ESCÁNER (10º PICK)",
                         color = HextechGold,
                         fontWeight = FontWeight.Black,
-                        fontSize = 11.5.sp
+                        fontSize = 11.sp
                     )
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(
+                        onClick = {
+                            com.example.service.screen.LocalVisionAnalyzer.resetTenthPickData()
+                            currentCrop = null
+                            android.widget.Toast.makeText(context, "Captura anterior limpiada", android.widget.Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Limpiar Captura",
+                            tint = DangerRed.copy(alpha = 0.85f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = refreshCurrentCrop,
+                        modifier = Modifier.size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refrescar Captura",
+                            tint = HextechCyan,
+                            modifier = Modifier.size(17.dp)
+                        )
+                    }
+
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier.size(28.dp)
@@ -3557,7 +3679,7 @@ private fun TenthPickScannerViewerDialog(
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Column(
                 modifier = Modifier
@@ -3587,20 +3709,20 @@ private fun TenthPickScannerViewerDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                            .padding(horizontal = 8.dp, vertical = 5.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = log?.phaseName ?: "BUSCANDO SELECCIÓN 10",
+                            text = if (isRefreshing) "REFRESCANDO FOTOGRAMA..." else (log?.phaseName ?: "SELECCIÓN 10"),
                             color = if (isConfirmed) Color(0xFF81C784) else if (hasMatch) Color(0xFFFFD54F) else HextechCyan,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
+                            fontSize = 9.5.sp
                         )
                         Text(
                             text = when {
                                 isConfirmed -> "CONFIRMADO (SUPERIOR)"
-                                hasMatch -> "PRESELECCIÓN (INFERIOR)"
+                                hasMatch -> "PRESELECCIÓN"
                                 else -> "EN VIVO"
                             },
                             color = when {
@@ -3614,16 +3736,190 @@ private fun TenthPickScannerViewerDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 // RECUADRO VISUAL: CÁMARA / VIEW-FINDER DEL ESCÁNER
-                Text(
-                    text = "ÁREA DE ESCÁNEO EN PANTALLA (ROI)",
-                    color = HextechCyan,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 10.sp
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "ÁREA DE ESCANEO EN PANTALLA (ROI)",
+                        color = HextechCyan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 9.5.sp
+                    )
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (showDpadControls) HextechGold.copy(alpha = 0.2f) else HextechSurface)
+                            .border(1.dp, if (showDpadControls) HextechGold else HextechCardBorder, RoundedCornerShape(6.dp))
+                            .clickable { showDpadControls = !showDpadControls }
+                            .padding(horizontal = 6.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Tune,
+                            contentDescription = null,
+                            tint = if (showDpadControls) HextechGold else TextSecondary,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (showDpadControls) "Ocultar Controles" else "Mover Visor",
+                            color = if (showDpadControls) HextechGold else TextSecondary,
+                            fontSize = 8.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(4.dp))
+
+                // PANEL DE CONTROL INTERACTIVO PARA MOVER EL VISOR EN VIVO (D-PAD)
+                AnimatedVisibility(visible = showDpadControls) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 6.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Selector de ROI a Mover
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                val modes = listOf("10º Rival (Top)", "10º Aliado (Top)")
+                                modes.forEachIndexed { idx, label ->
+                                    val isSel = selectedTargetMode == idx
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(horizontal = 2.dp)
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(if (isSel) HextechGold.copy(alpha = 0.25f) else HextechDarkBg)
+                                            .border(1.dp, if (isSel) HextechGold else HextechCardBorder, RoundedCornerShape(4.dp))
+                                            .clickable { 
+                                                selectedTargetMode = idx 
+                                                refreshCurrentCrop()
+                                            }
+                                            .padding(vertical = 4.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            color = if (isSel) HextechGold else TextMuted,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            // D-PAD Y CONTROLES DE ZOOM
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Zoom - / +
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text("Tamaño (⌀)", color = TextMuted, fontSize = 7.5.sp)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Row {
+                                        IconButton(
+                                            onClick = { adjustCoordinates(0f, 0f, -0.002f) },
+                                            modifier = Modifier.size(26.dp)
+                                        ) {
+                                            Icon(Icons.Default.Remove, contentDescription = "Reducir", tint = HextechCyan, modifier = Modifier.size(16.dp))
+                                        }
+                                        IconButton(
+                                            onClick = { adjustCoordinates(0f, 0f, 0.002f) },
+                                            modifier = Modifier.size(26.dp)
+                                        ) {
+                                            Icon(Icons.Default.Add, contentDescription = "Aumentar", tint = HextechGold, modifier = Modifier.size(16.dp))
+                                        }
+                                    }
+                                }
+
+                                // D-PAD Cruz Direccional
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    IconButton(
+                                        onClick = { adjustCoordinates(0f, -0.003f, 0f) },
+                                        modifier = Modifier.size(26.dp)
+                                    ) {
+                                        Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Arriba", tint = HextechGold, modifier = Modifier.size(20.dp))
+                                    }
+                                    Row {
+                                        IconButton(
+                                            onClick = { adjustCoordinates(-0.003f, 0f, 0f) },
+                                            modifier = Modifier.size(26.dp)
+                                        ) {
+                                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Izquierda", tint = HextechGold, modifier = Modifier.size(20.dp))
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clip(CircleShape)
+                                                .background(HextechDarkBg)
+                                                .border(1.dp, HextechCardBorder, CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text("🎯", fontSize = 10.sp)
+                                        }
+                                        IconButton(
+                                            onClick = { adjustCoordinates(0.003f, 0f, 0f) },
+                                            modifier = Modifier.size(26.dp)
+                                        ) {
+                                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Derecha", tint = HextechGold, modifier = Modifier.size(20.dp))
+                                        }
+                                    }
+                                    IconButton(
+                                        onClick = { adjustCoordinates(0f, 0.003f, 0f) },
+                                        modifier = Modifier.size(26.dp)
+                                    ) {
+                                        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Abajo", tint = HextechGold, modifier = Modifier.size(20.dp))
+                                    }
+                                }
+
+                                // Restablecer
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    IconButton(
+                                        onClick = {
+                                            calib = com.example.service.screen.VisionCalibrationConfig.resetToDefaults(context)
+                                            com.example.service.screen.DraftVisionScanner.calibrationConfig = calib
+                                            refreshCurrentCrop()
+                                            android.widget.Toast.makeText(context, "Posición restablecida por defecto", android.widget.Toast.LENGTH_SHORT).show()
+                                        },
+                                        modifier = Modifier.size(26.dp)
+                                    ) {
+                                        Icon(Icons.Default.RestartAlt, contentDescription = "Restablecer", tint = TextMuted, modifier = Modifier.size(18.dp))
+                                    }
+                                    Text("Reset", color = TextMuted, fontSize = 7.5.sp)
+                                }
+                            }
+
+                            val currentTargetX = if (selectedTargetMode == 0) calib.topEnemy5XRatio else calib.topAlly5XRatio
+                            Text(
+                                text = "X: ${(currentTargetX * 100).let { "%.1f".format(it) }}% | Y: ${(calib.topAvatarYRatio * 100).let { "%.1f".format(it) }}% | ⌀: ${(calib.topAvatarDiameterRatio * 100).let { "%.1f".format(it) }}%",
+                                color = HextechCyan,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -3637,7 +3933,7 @@ private fun TenthPickScannerViewerDialog(
                             .padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        if (currentCrop != null && !currentCrop.isRecycled) {
+                        if (currentCrop != null && !currentCrop!!.isRecycled) {
                             Box(
                                 modifier = Modifier
                                     .size(92.dp)
@@ -3647,7 +3943,7 @@ private fun TenthPickScannerViewerDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
-                                    bitmap = currentCrop.asImageBitmap(),
+                                    bitmap = currentCrop!!.asImageBitmap(),
                                     contentDescription = "Recorte Escaneado",
                                     modifier = Modifier.fillMaxSize(),
                                     contentScale = ContentScale.Crop
@@ -3676,7 +3972,7 @@ private fun TenthPickScannerViewerDialog(
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Esperando slot...",
+                                        text = "Sin captura activa",
                                         color = TextMuted,
                                         fontSize = 8.5.sp
                                     )
@@ -3684,14 +3980,14 @@ private fun TenthPickScannerViewerDialog(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
 
-                        val displayLocation = if (roiLabel.isNotBlank()) roiLabel else (log?.scannedMetrics?.roiLabel ?: "Buscando barra de selección...")
+                        val displayLocation = if (roiLabel.isNotBlank()) roiLabel else (log?.scannedMetrics?.roiLabel ?: "Buscando barra superior...")
                         Text(
                             text = displayLocation,
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp,
+                            fontSize = 9.5.sp,
                             textAlign = TextAlign.Center
                         )
                         if (coordinates.isNotBlank()) {
@@ -3700,23 +3996,23 @@ private fun TenthPickScannerViewerDialog(
                                 text = coordinates,
                                 color = HextechGold,
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 8.5.sp,
+                                fontSize = 8.sp,
                                 textAlign = TextAlign.Center
                             )
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 // COMPARATIVA LADO A LADO: PANTALLA VS CAMPEÓN
                 Text(
                     text = "COMPARATIVA VISUAL VS REFERENCIA",
                     color = HextechCyan,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 10.sp
+                    fontSize = 9.5.sp
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -3733,14 +4029,14 @@ private fun TenthPickScannerViewerDialog(
                     ) {
                         // Recorte en vivo
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Recorte Pantalla", color = TextMuted, fontSize = 8.5.sp)
-                            Spacer(modifier = Modifier.height(3.dp))
-                            if (currentCrop != null && !currentCrop.isRecycled) {
+                            Text("Recorte Pantalla", color = TextMuted, fontSize = 8.sp)
+                            Spacer(modifier = Modifier.height(2.dp))
+                            if (currentCrop != null && !currentCrop!!.isRecycled) {
                                 Image(
-                                    bitmap = currentCrop.asImageBitmap(),
+                                    bitmap = currentCrop!!.asImageBitmap(),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(46.dp)
+                                        .size(44.dp)
                                         .clip(CircleShape)
                                         .border(1.5.dp, HextechCyan, CircleShape),
                                     contentScale = ContentScale.Crop
@@ -3748,7 +4044,7 @@ private fun TenthPickScannerViewerDialog(
                             } else {
                                 Box(
                                     modifier = Modifier
-                                        .size(46.dp)
+                                        .size(44.dp)
                                         .clip(CircleShape)
                                         .background(HextechDarkBg),
                                     contentAlignment = Alignment.Center
@@ -3765,7 +4061,7 @@ private fun TenthPickScannerViewerDialog(
                                 text = "$score%",
                                 color = if (score >= 48) HextechGold else TextMuted,
                                 fontWeight = FontWeight.Black,
-                                fontSize = 14.sp
+                                fontSize = 13.sp
                             )
                             Text(
                                 text = if (score >= 48) "Similitud" else "Bajo umbral",
@@ -3777,29 +4073,29 @@ private fun TenthPickScannerViewerDialog(
                         // Avatar Campeón Referencia
                         val matchedChamp = log?.selectedChampion
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(matchedChamp?.name ?: "Sin asignar", color = if (matchedChamp != null) HextechGold else TextMuted, fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(matchedChamp?.name ?: "Sin asignar", color = if (matchedChamp != null) HextechGold else TextMuted, fontWeight = FontWeight.Bold, fontSize = 8.sp)
+                            Spacer(modifier = Modifier.height(2.dp))
                             if (matchedChamp != null) {
                                 ChampionAvatar(
                                     champion = matchedChamp,
-                                    size = 46.dp
+                                    size = 44.dp
                                 )
                             } else {
                                 Box(
                                     modifier = Modifier
-                                        .size(46.dp)
+                                        .size(44.dp)
                                         .clip(CircleShape)
                                         .background(HextechDarkBg),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(20.dp))
+                                    Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(18.dp))
                                 }
                             }
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 // TOP CANDIDATOS EVALUADOS
                 if (log != null && log.topCandidates.isNotEmpty()) {
@@ -3807,9 +4103,9 @@ private fun TenthPickScannerViewerDialog(
                         text = "TOP CANDIDATOS EVALUADOS",
                         color = HextechCyan,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
+                        fontSize = 9.5.sp
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
                     log.topCandidates.take(3).forEachIndexed { idx, c ->
                         val isChosen = idx == 0 && log.selectedChampion != null
                         Surface(
@@ -3826,7 +4122,7 @@ private fun TenthPickScannerViewerDialog(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                                    .padding(horizontal = 8.dp, vertical = 4.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -3838,7 +4134,7 @@ private fun TenthPickScannerViewerDialog(
                                         text = "#${idx + 1}",
                                         color = if (isChosen) HextechGold else TextMuted,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 9.sp
+                                        fontSize = 8.5.sp
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     ChampionAvatar(
@@ -3850,14 +4146,14 @@ private fun TenthPickScannerViewerDialog(
                                         text = c.champion.name,
                                         color = if (isChosen) HextechGold else TextPrimary,
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 10.sp
+                                        fontSize = 9.5.sp
                                     )
                                 }
                                 Text(
                                     text = "${(c.compositeScore * 100).toInt()}%",
                                     color = if (isChosen) HextechGold else TextSecondary,
                                     fontWeight = FontWeight.Black,
-                                    fontSize = 11.sp
+                                    fontSize = 10.5.sp
                                 )
                             }
                         }
