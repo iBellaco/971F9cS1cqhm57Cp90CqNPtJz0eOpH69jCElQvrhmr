@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.text.font.FontWeight
@@ -649,18 +650,88 @@ fun UserInboxDialog(
                                         adminReply.isNotBlank()
 
                                     if (isSupportTicket) {
-                                        UserSupportThreadCard(
-                                            reportId = reportId,
-                                            originalContent = content,
-                                            initialConversation = conversationEntries,
-                                            adminReply = adminReply,
-                                            repliedBy = repliedBy,
-                                            timestamp = timestamp,
-                                            userName = resolvedUserName,
-                                            userUid = userUid,
-                                            userEmail = userEmail,
-                                            ticketStatus = normalizedStatus
-                                        )
+                                        var showSupportPopup by remember(id) { mutableStateOf(false) }
+
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { showSupportPopup = true }
+                                        ) {
+                                            if (sender.isNotBlank()) {
+                                                Text("Remitente: $sender", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                                                Spacer(modifier = Modifier.height(2.dp))
+                                            }
+                                            Text(
+                                                text = if (content.length > 90) content.substring(0, 90) + "..." else content,
+                                                color = Color.LightGray,
+                                                fontSize = 13.sp,
+                                                maxLines = 2
+                                            )
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text("Toca para abrir pop-up de soporte", color = Color(0xFF0EA5E9), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                                Icon(Icons.Default.OpenInNew, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(14.dp))
+                                            }
+                                        }
+
+                                        if (showSupportPopup) {
+                                            Dialog(
+                                                onDismissRequest = { showSupportPopup = false },
+                                                properties = DialogProperties(usePlatformDefaultWidth = false)
+                                            ) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .background(Color.Black.copy(alpha = 0.8f))
+                                                        .clickable { showSupportPopup = false },
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth(0.95f)
+                                                            .fillMaxHeight(0.85f)
+                                                            .background(Color(0xFF0F172A), RoundedCornerShape(16.dp))
+                                                            .border(1.dp, Color(0xFF0EA5E9), RoundedCornerShape(16.dp))
+                                                            .padding(16.dp)
+                                                            .clickable(enabled = false) {}
+                                                    ) {
+                                                        Column(modifier = Modifier.fillMaxSize()) {
+                                                            Row(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                                                IconButton(onClick = { showSupportPopup = false }) {
+                                                                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray)
+                                                                }
+                                                            }
+                                                            Spacer(modifier = Modifier.height(8.dp))
+                                                            Divider(color = Color(0xFF334155))
+                                                            Spacer(modifier = Modifier.height(8.dp))
+                                                            Box(modifier = Modifier.weight(1f)) {
+                                                                UserSupportThreadCard(
+                                                                    reportId = reportId,
+                                                                    originalContent = content,
+                                                                    initialConversation = conversationEntries,
+                                                                    adminReply = adminReply,
+                                                                    repliedBy = repliedBy,
+                                                                    timestamp = timestamp,
+                                                                    userName = resolvedUserName,
+                                                                    userUid = userUid,
+                                                                    userEmail = userEmail,
+                                                                    ticketStatus = normalizedStatus
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     } else {
                                         if (sender.isNotBlank()) {
                                             Text("Enviado por: $sender", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Medium)

@@ -230,7 +230,6 @@ fun AdminDashboardDialog(
                     onOpenNotice = { showNoticeConfigDialog = true },
                     onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
                     onOpenDatabaseConsumption = { showDatabaseConsumptionDialog = true },
-                    onOpenSponsorModeration = { showSponsorModerationDialog = true },
                     onOpenSponsorPanel = { showSponsorPanelDialog = true },
                     isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
@@ -274,7 +273,6 @@ private fun AdminDashboardHeader(
     onOpenNotice: () -> Unit,
     onOpenCpmAnalytics: () -> Unit = {},
     onOpenDatabaseConsumption: () -> Unit = {},
-    onOpenSponsorModeration: () -> Unit = {},
     onOpenSponsorPanel: () -> Unit = {},
     isFullAdmin: Boolean = true
 ) {
@@ -409,19 +407,6 @@ private fun AdminDashboardHeader(
                     Icon(Icons.Default.Storage, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(2.dp))
                     Text("Base Datos", fontSize = 9.sp, color = HextechGold, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                }
-
-                // Botón Patrocinios / Moderación
-                AnimatedAdminActionButton(
-                    onClick = onOpenSponsorModeration,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B).copy(alpha = 0.2f)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
-                ) {
-                    Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(12.dp))
-                    Spacer(modifier = Modifier.width(2.dp))
-                    Text("Patrocinios", fontSize = 9.sp, color = Color(0xFFFBBF24), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
 

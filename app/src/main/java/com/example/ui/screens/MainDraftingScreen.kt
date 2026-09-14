@@ -781,6 +781,8 @@ fun NoticeCategoryCard(
     val tagColor = getNoticeTagColor(categoryTag)
     val tagIcon = getNoticeTagIcon(categoryTag)
     val isSponsored = currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("Publicidad", true)
+    val isPublicidad = categoryTag.equals("Publicidad", true) || currentNotice.tag.equals("Publicidad", true)
+    val displayTag = if (isPublicidad) "Patrocinado" else categoryTag
 
     // Registro de impresiones analíticas
     LaunchedEffect(currentNotice.id) {
@@ -827,15 +829,17 @@ fun NoticeCategoryCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = tagIcon,
-                            contentDescription = null,
-                            tint = tagColor,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                        if (!isPublicidad) {
+                            Icon(
+                                imageVector = tagIcon,
+                                contentDescription = null,
+                                tint = tagColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                        }
                         Text(
-                            text = categoryTag,
+                            text = displayTag,
                             color = tagColor,
                             fontSize = 13.5.sp,
                             fontWeight = FontWeight.Bold

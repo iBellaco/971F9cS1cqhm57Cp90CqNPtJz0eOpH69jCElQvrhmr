@@ -1012,13 +1012,18 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // Panel de Moderador
+                val allNoticesForSponsor by com.example.data.AppNoticeManager.notices.collectAsState()
+                val hasPendingSponsorsForAuth = remember(allNoticesForSponsor) {
+                    allNoticesForSponsor.any { (it.tag.equals("Publicidad", true) || it.sponsorEmail.isNotBlank()) && !it.isApproved }
+                }
+
                 com.example.ui.components.HextechAnimatedButton(
                     onClick = { showSponsorModerationDialog = true },
                     backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
-                        listOf(Color(0xFFF97316), Color(0xFFEA580C))
+                        if (hasPendingSponsorsForAuth) listOf(Color(0xFFEF4444), Color(0xFFB91C1C)) else listOf(Color(0xFFF97316), Color(0xFFEA580C))
                     ),
-                    borderColor = com.example.ui.theme.HextechGold,
-                    glowColor = Color(0xFFF97316),
+                    borderColor = if (hasPendingSponsorsForAuth) Color(0xFFFFD700) else com.example.ui.theme.HextechGold,
+                    glowColor = if (hasPendingSponsorsForAuth) Color(0xFFFF4500) else Color(0xFFF97316),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -1026,17 +1031,38 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     enableShimmer = true,
                     enablePulse = true
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Verified,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Panel de Moderador",
-                        color = Color.White,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                    )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Verified,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = if (hasPendingSponsorsForAuth) "Panel de Moderador (¡Solicitud Pendiente!)" else "Panel de Moderador",
+                                color = Color.White,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                            )
+                        }
+                        if (hasPendingSponsorsForAuth) {
+                            Badge(
+                                containerColor = Color.White,
+                                contentColor = Color.Red,
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 16.dp)
+                            ) {
+                                Text("!")
+                            }
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
 

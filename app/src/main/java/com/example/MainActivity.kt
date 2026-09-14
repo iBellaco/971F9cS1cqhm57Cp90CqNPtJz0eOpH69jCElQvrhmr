@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
 import com.example.util.LocalLanguage
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -542,19 +543,38 @@ fun DashboardScreen(
                         onClick = { coroutineScope.launch { pagerState.animateScrollToPage(4) } },
                         icon = { 
                             val unreadCount by com.example.util.SubscriptionManager.unreadMessagesCount.collectAsStateWithLifecycle(0)
+                            val allNotices by com.example.data.AppNoticeManager.notices.collectAsStateWithLifecycle(com.example.data.AppNoticeManager.notices.value)
+                            val hasPendingSponsors = remember(allNotices) {
+                                allNotices.any { (it.tag.equals("Publicidad", true) || it.sponsorEmail.isNotBlank()) && !it.isApproved }
+                            }
+
+                            val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition(label = "nav_sponsor_pulse")
+                            val scale by infiniteTransition.animateFloat(
+                                initialValue = 1f,
+                                targetValue = 1.35f,
+                                animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                                    animation = androidx.compose.animation.core.tween(500, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                                    repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                                ),
+                                label = "scale"
+                            )
+
                             BadgedBox(
                                 badge = {
-                                    if (unreadCount > 0) {
+                                    if (unreadCount > 0 || hasPendingSponsors) {
                                         Badge(
-                                            containerColor = com.example.ui.theme.DangerRed,
-                                            contentColor = Color.White
+                                            containerColor = if (hasPendingSponsors) Color(0xFFEF4444) else com.example.ui.theme.DangerRed,
+                                            contentColor = Color.White,
+                                            modifier = if (hasPendingSponsors) Modifier.graphicsLayer(scaleX = scale, scaleY = scale) else Modifier
                                         ) {
-                                            Text(unreadCount.toString())
+                                            Text(if (hasPendingSponsors) "!" else unreadCount.toString())
                                         }
                                     }
                                 }
                             ) {
-                                Icon(Icons.Default.Person, contentDescription = "Usuario")
+                                Box(modifier = if (hasPendingSponsors) Modifier.graphicsLayer(scaleX = scale, scaleY = scale) else Modifier) {
+                                    Icon(Icons.Default.Person, contentDescription = "Usuario", tint = if (hasPendingSponsors) Color(0xFFF97316) else LocalContentColor.current)
+                                }
                             }
                         },
                         label = { Text(tr("Usuario")) },
