@@ -594,24 +594,21 @@ object DraftVisionScanner {
                 // REGLA DEL USUARIO: En aliados, primero aparece la línea y luego el campeón.
                 // Si el slot aliado no tiene un campeón detectado por texto OCR en este frame, pero ya estaba confirmado,
                 // se preserva como verdad absoluta inmutable (picks 1-9).
-                if (detectedChampInSlot != null && !isUnpickedTextPresent) {
+                if (detectedChampInSlot != null) {
                     allySlotConfirmedChampions[i] = detectedChampInSlot
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
                 } else if (allySlotConfirmedChampions[i] != null) {
-                    // PRESERVAR VERDAD ABSOLUTA
+                    // PRESERVAR VERDAD ABSOLUTA INMUTABLE
                     slot.champion = allySlotConfirmedChampions[i]
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
                 } else {
-                    allySlotConfirmedChampions[i] = null
-                    allyOcrChampions[i] = null
                     slot.champion = null
                     slot.confidencePercent = 0
                     slot.isLikelyUnpicked = true
-                    allySlotFilters[i].reset()
                 }
 
                 if (allySlotRolesCache[i] != null) {
@@ -712,24 +709,21 @@ object DraftVisionScanner {
                 // REGLA DEL USUARIO: En rivales, solamente aparece el nombre del campeón cuando ya está seleccionado.
                 // Si el slot enemigo no tiene un campeón detectado por texto OCR en este frame, pero ya estaba confirmado,
                 // se preserva como verdad absoluta inmutable (picks 1-9).
-                if (detectedEnemyChamp != null && !isWaitingPick && !isUnpickedTextPresent) {
+                if (detectedEnemyChamp != null) {
                     enemySlotConfirmedChampions[i] = detectedEnemyChamp
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
-                } else if (enemySlotConfirmedChampions[i] != null && !isWaitingPick) {
-                    // PRESERVAR VERDAD ABSOLUTA
+                } else if (enemySlotConfirmedChampions[i] != null) {
+                    // PRESERVAR VERDAD ABSOLUTA INMUTABLE
                     enemySlots[i].champion = enemySlotConfirmedChampions[i]
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
                 } else {
-                    enemySlotConfirmedChampions[i] = null
-                    enemyOcrChampions[i] = null
                     enemySlots[i].champion = null
                     enemySlots[i].confidencePercent = 0
                     enemySlots[i].isLikelyUnpicked = true
-                    enemySlotFilters[i].reset()
                 }
             }
         } catch (e: Exception) {

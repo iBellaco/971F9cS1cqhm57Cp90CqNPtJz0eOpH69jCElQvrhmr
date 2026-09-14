@@ -1,5 +1,6 @@
 package com.example.service
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -1768,7 +1769,7 @@ private fun FloatingOverlayContent(
                                     }
                                 )
                             } else if (showTenthPickLogsDialog) {
-                                TenthPickLogsSheet(
+                                TenthPickScannerViewerDialog(
                                     onDismiss = { showTenthPickLogsDialog = false }
                                 )
                             } else if (selectedChampionDetail != null) {
@@ -2805,7 +2806,7 @@ private fun OverlayVersusDraftBoard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Logs Selección 10",
+                                text = "👁️ " + tr("Visor Escáner 10"),
                                 color = HextechGold,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.5.sp
@@ -3497,11 +3498,14 @@ private fun CoachContent(
 }
 
 @Composable
-private fun TenthPickLogsSheet(
+private fun TenthPickScannerViewerDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
     val log = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickLog
+    val currentCrop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop
+    val coordinates = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCoordinates
+    val roiLabel = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickRoiLabel
 
     Card(
         modifier = Modifier
@@ -3516,7 +3520,7 @@ private fun TenthPickLogsSheet(
                 .fillMaxSize()
                 .padding(10.dp)
         ) {
-            // Cabecera
+            // Cabecera del Visor
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -3531,34 +3535,14 @@ private fun TenthPickLogsSheet(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "DIAGNÓSTICO SELECCIÓN 10",
+                        text = "VISOR DE ESCÁNER (10º PICK)",
                         color = HextechGold,
                         fontWeight = FontWeight.Black,
-                        fontSize = 12.sp
+                        fontSize = 11.5.sp
                     )
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (log != null) {
-                        IconButton(
-                            onClick = {
-                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
-                                val clip = android.content.ClipData.newPlainText("TenthPickLogs", log.formattedSummary)
-                                clipboard?.setPrimaryClip(clip)
-                                android.widget.Toast.makeText(context, "Logs copiados al portapapeles", android.widget.Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.size(28.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ContentCopy,
-                                contentDescription = "Copiar logs",
-                                tint = HextechCyan,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-
                     IconButton(
                         onClick = onDismiss,
                         modifier = Modifier.size(28.dp)
@@ -3573,228 +3557,310 @@ private fun TenthPickLogsSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
-            if (log == null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                // Estado del Escaneo
+                val isConfirmed = log?.isConfirmed == true
+                val hasMatch = log?.selectedChampion != null
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    color = when {
+                        isConfirmed -> Color(0xFF102A1E)
+                        hasMatch -> Color(0xFF261D0F)
+                        else -> HextechSurface
+                    },
+                    border = BorderStroke(
+                        1.dp,
+                        when {
+                            isConfirmed -> Color(0xFF4CAF50)
+                            hasMatch -> HextechGold
+                            else -> HextechCardBorder
+                        }
+                    )
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = "Aún no se ha realizado ningún escaneo de la Selección 10.",
-                            color = TextSecondary,
-                            fontSize = 11.sp,
-                            textAlign = TextAlign.Center
+                            text = log?.phaseName ?: "BUSCANDO SELECCIÓN 10",
+                            color = if (isConfirmed) Color(0xFF81C784) else if (hasMatch) Color(0xFFFFD54F) else HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
                         )
-                        Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "El análisis visual de la 10ª selección se activa automáticamente cuando se confirman los picks 1 al 9, analizando primero la preselección inferior y luego la barra superior.",
-                            color = TextMuted,
-                            fontSize = 9.5.sp,
-                            textAlign = TextAlign.Center
+                            text = when {
+                                isConfirmed -> "CONFIRMADO (SUPERIOR)"
+                                hasMatch -> "PRESELECCIÓN (INFERIOR)"
+                                else -> "EN VIVO"
+                            },
+                            color = when {
+                                isConfirmed -> Color(0xFF4CAF50)
+                                hasMatch -> HextechGold
+                                else -> HextechCyan
+                            },
+                            fontWeight = FontWeight.Black,
+                            fontSize = 8.5.sp
                         )
                     }
                 }
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // RECUADRO VISUAL: CÁMARA / VIEW-FINDER DEL ESCÁNER
+                Text(
+                    text = "ÁREA DE ESCÁNEO EN PANTALLA (ROI)",
+                    color = HextechCyan,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(1.dp, HextechCardBorder)
                 ) {
-                    // Estado y Decisión
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (log.isConfirmed) Color(0xFF102A1E) else Color(0xFF261D0F)
-                        ),
-                        border = BorderStroke(1.dp, if (log.isConfirmed) Color(0xFF4CAF50) else Color(0xFFFFB300))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                        if (currentCrop != null && !currentCrop.isRecycled) {
+                            Box(
+                                modifier = Modifier
+                                    .size(92.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color.Black)
+                                    .border(2.dp, if (isConfirmed) Color(0xFF4CAF50) else HextechGold, RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Text(
-                                    text = log.phaseName,
-                                    color = if (log.isConfirmed) Color(0xFF81C784) else Color(0xFFFFD54F),
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 10.sp
+                                Image(
+                                    bitmap = currentCrop.asImageBitmap(),
+                                    contentDescription = "Recorte Escaneado",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
                                 )
-                                Text(
-                                    text = if (log.isConfirmed) "CONFIRMADO 100%" else "PRESELECCIÓN (AUTO-SCAN ACTIVO)",
-                                    color = if (log.isConfirmed) Color(0xFF4CAF50) else HextechGold,
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 9.sp
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .border(0.5.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
                                 )
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Decisión: ${log.selectedChampion?.name ?: "Sin coincidencia concluyente"} (${(log.confidence * 100).toInt()}%)",
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Black,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // 1. CARACTERÍSTICAS ESCANEADAS
-                    Text(
-                        text = "1. CARACTERÍSTICAS ESCANEADAS (RECORTE DE PANTALLA)",
-                        color = HextechCyan,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = BorderStroke(1.dp, HextechCardBorder)
-                    ) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            Text("• ROI: ${log.scannedMetrics.roiLabel} (${log.scannedMetrics.width}x${log.scannedMetrics.height} px)", color = TextSecondary, fontSize = 9.5.sp)
-                            Text("• Brillo Medio: ${log.scannedMetrics.avgLum.toInt()} | Contraste: ${log.scannedMetrics.contrast} (Avatar activo: ${if (log.scannedMetrics.isPopulated) "SÍ" else "NO / VACÍO"})", color = TextSecondary, fontSize = 9.5.sp)
-                            Text("• Color RGB Promedio: R=${log.scannedMetrics.avgR.toInt()}, G=${log.scannedMetrics.avgG.toInt()}, B=${log.scannedMetrics.avgB.toInt()}", color = TextSecondary, fontSize = 9.5.sp)
-                            Text("• Tono Dominante: Bin ${log.scannedMetrics.dominantHueBin} [${log.scannedMetrics.dominantHueName}] (${log.scannedMetrics.dominantHuePercent}%)", color = TextSecondary, fontSize = 9.5.sp)
-                            Text("• Histograma HUE: [${log.scannedMetrics.hueHistogram.joinToString(", ") { "${(it * 100).toInt()}%" }}]", color = TextMuted, fontSize = 8.5.sp)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // 2. CARACTERÍSTICAS COMPARADAS (CANDIDATOS)
-                    Text(
-                        text = "2. CARACTERÍSTICAS COMPARADAS (TOP CANDIDATOS)",
-                        color = HextechCyan,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp
-                    )
-                    Text(
-                        text = "Evaluados ${log.candidatesEvaluatedCount} campeones (picks 1-9 excluidos). Criterios: Píxel 45% + HUE 35% + RGB 20%",
-                        color = TextMuted,
-                        fontSize = 8.5.sp
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    if (log.topCandidates.isEmpty()) {
-                        Text("No hubo candidatos evaluados.", color = TextMuted, fontSize = 9.sp)
-                    } else {
-                        log.topCandidates.forEachIndexed { idx, c ->
-                            Card(
+                        } else {
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 2.dp),
-                                shape = RoundedCornerShape(6.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (idx == 0 && log.selectedChampion != null) HextechGold.copy(alpha = 0.12f) else HextechSurface
-                                ),
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (idx == 0 && log.selectedChampion != null) HextechGold.copy(alpha = 0.6f) else HextechCardBorder.copy(alpha = 0.4f)
-                                )
+                                    .size(92.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(HextechDarkBg)
+                                    .border(1.dp, HextechCardBorder, RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(6.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(
-                                                text = "#${idx + 1} ${c.champion.name}",
-                                                color = if (idx == 0 && log.selectedChampion != null) HextechGold else TextPrimary,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 10.5.sp
-                                            )
-                                            if (c.roleBonus > 0) {
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                                Text(
-                                                    text = "+Bonus Rol",
-                                                    color = HextechCyan,
-                                                    fontSize = 8.sp,
-                                                    fontWeight = FontWeight.SemiBold
-                                                )
-                                            }
-                                        }
-                                        Text(
-                                            text = "Píxel: ${(c.pixelSimilarity * 100).toInt()}% | HUE: ${(c.histSimilarity * 100).toInt()}% | RGB: ${(c.avgColorSim * 100).toInt()}%",
-                                            color = TextMuted,
-                                            fontSize = 8.5.sp
-                                        )
-                                    }
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = null,
+                                        tint = HextechCyan.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "${(c.compositeScore * 100).toInt()}%",
-                                        color = if (idx == 0 && log.selectedChampion != null) HextechGold else TextSecondary,
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 12.sp
+                                        text = "Esperando slot...",
+                                        color = TextMuted,
+                                        fontSize = 8.5.sp
                                     )
                                 }
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        val displayLocation = if (roiLabel.isNotBlank()) roiLabel else (log?.scannedMetrics?.roiLabel ?: "Buscando barra de selección...")
+                        Text(
+                            text = displayLocation,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        if (coordinates.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = coordinates,
+                                color = HextechGold,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 8.5.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    // 3. MOTIVO DE LA DECISIÓN
+                // COMPARATIVA LADO A LADO: PANTALLA VS CAMPEÓN
+                Text(
+                    text = "COMPARATIVA VISUAL VS REFERENCIA",
+                    color = HextechCyan,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                    border = BorderStroke(1.dp, HextechCardBorder)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Recorte en vivo
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Recorte Pantalla", color = TextMuted, fontSize = 8.5.sp)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            if (currentCrop != null && !currentCrop.isRecycled) {
+                                Image(
+                                    bitmap = currentCrop.asImageBitmap(),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(CircleShape)
+                                        .border(1.5.dp, HextechCyan, CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechDarkBg),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text("—", color = TextMuted)
+                                }
+                            }
+                        }
+
+                        // Coincidencia
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            val score = ((log?.confidence ?: 0f) * 100).toInt()
+                            Text(
+                                text = "$score%",
+                                color = if (score >= 48) HextechGold else TextMuted,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = if (score >= 48) "Similitud" else "Bajo umbral",
+                                color = if (score >= 48) HextechCyan else TextMuted,
+                                fontSize = 7.5.sp
+                            )
+                        }
+
+                        // Avatar Campeón Referencia
+                        val matchedChamp = log?.selectedChampion
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(matchedChamp?.name ?: "Sin asignar", color = if (matchedChamp != null) HextechGold else TextMuted, fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
+                            Spacer(modifier = Modifier.height(3.dp))
+                            if (matchedChamp != null) {
+                                ChampionAvatar(
+                                    champion = matchedChamp,
+                                    size = 46.dp
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .clip(CircleShape)
+                                        .background(HextechDarkBg),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Info, contentDescription = null, tint = TextMuted, modifier = Modifier.size(20.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // TOP CANDIDATOS EVALUADOS
+                if (log != null && log.topCandidates.isNotEmpty()) {
                     Text(
-                        text = "3. POR QUÉ SE DECIDIÓ ESTA SELECCIÓN",
+                        text = "TOP CANDIDATOS EVALUADOS",
                         color = HextechCyan,
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.sp
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = BorderStroke(1.dp, HextechCardBorder)
-                    ) {
-                        Column(modifier = Modifier.padding(8.dp)) {
-                            Text(
-                                text = log.decisionReason,
-                                color = TextPrimary,
-                                fontSize = 9.5.sp,
-                                lineHeight = 13.sp
+                    log.topCandidates.take(3).forEachIndexed { idx, c ->
+                        val isChosen = idx == 0 && log.selectedChampion != null
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            shape = RoundedCornerShape(6.dp),
+                            color = if (isChosen) HextechGold.copy(alpha = 0.12f) else HextechSurface,
+                            border = BorderStroke(
+                                1.dp,
+                                if (isChosen) HextechGold.copy(alpha = 0.6f) else HextechCardBorder.copy(alpha = 0.4f)
                             )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 5.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = "#${idx + 1}",
+                                        color = if (isChosen) HextechGold else TextMuted,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 9.sp
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ChampionAvatar(
+                                        champion = c.champion,
+                                        size = 20.dp
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        text = c.champion.name,
+                                        color = if (isChosen) HextechGold else TextPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp
+                                    )
+                                }
+                                Text(
+                                    text = "${(c.compositeScore * 100).toInt()}%",
+                                    color = if (isChosen) HextechGold else TextSecondary,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 11.sp
+                                )
+                            }
                         }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Botón para copiar resumen completo
-                    Button(
-                        onClick = {
-                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
-                            val clip = android.content.ClipData.newPlainText("TenthPickLogs", log.formattedSummary)
-                            clipboard?.setPrimaryClip(clip)
-                            android.widget.Toast.makeText(context, "Resumen copiado al portapapeles", android.widget.Toast.LENGTH_SHORT).show()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ContentCopy,
-                            contentDescription = null,
-                            tint = Color.Black,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Copiar Reporte Completo de Decisión",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 10.sp
-                        )
                     }
                 }
             }

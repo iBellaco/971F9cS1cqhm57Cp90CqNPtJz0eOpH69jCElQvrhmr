@@ -80,11 +80,21 @@ object LocalVisionAnalyzer {
         val candidatesEvaluatedCount: Int,
         val topCandidates: List<CandidateMatchComparison>,
         val decisionReason: String,
-        val formattedSummary: String
+        val formattedSummary: String,
+        val cropBitmap: Bitmap? = null
     )
 
     @Volatile
     var lastTenthPickLog: TenthPickDecisionLog? = null
+
+    @Volatile
+    var lastTenthPickCrop: Bitmap? = null
+
+    @Volatile
+    var lastTenthPickCoordinates: String = ""
+
+    @Volatile
+    var lastTenthPickRoiLabel: String = ""
 
     private val cachedSignatures = ConcurrentHashMap<String, AvatarFingerprint>()
     private var isInitialized = false
@@ -532,10 +542,10 @@ object LocalVisionAnalyzer {
         val runnerUp = candidateComparisons.getOrNull(1)
         val topCandidates = candidateComparisons.take(5)
 
-        // Si ningún candidato supera el umbral de 0.38f, documentar detalladamente el diagnóstico y registrar
-        if (best == null || best.compositeScore < 0.38f) {
+        // Si ningún candidato supera el umbral de 0.48f, documentar detalladamente el diagnóstico y registrar
+        if (best == null || best.compositeScore < 0.48f) {
             val failReason = if (best != null) {
-                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (Píxeles: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (38%). Requiere mayor nitidez o confirmación definitiva."
+                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (48%). Requiere mayor nitidez o confirmación definitiva."
             } else {
                 "Sin candidatos válidos disponibles para comparar (todos los campeones evaluados estaban excluidos por selecciones 1-9)."
             }
@@ -699,6 +709,16 @@ object LocalVisionAnalyzer {
         val innerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 0.88f).toInt())
         val outerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 1.08f).toInt())
 
+        // Preservar copia del recorte para el Visor de Escaneo
+        try {
+            standardCrop?.let { crop ->
+                lastTenthPickCrop?.recycle()
+                lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
+                lastTenthPickRoiLabel = sideDesc
+                lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotAvatarDiam}px"
+            }
+        } catch (_: Throwable) {}
+
         val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
         try {
             if (standardCrop != null) {
@@ -718,7 +738,7 @@ object LocalVisionAnalyzer {
 
         val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
         if (bestDecision != null) {
-            lastTenthPickLog = bestDecision
+            lastTenthPickLog = bestDecision.copy(cropBitmap = lastTenthPickCrop)
         }
         return@withContext bestDecision
     }
@@ -783,6 +803,18 @@ object LocalVisionAnalyzer {
             val innerCrop = safeCrop(bitmap, topCenterX, topCenterY, (topDiam * 0.88f).toInt())
             val outerCrop = safeCrop(bitmap, topCenterX, topCenterY, (topDiam * 1.08f).toInt())
 
+            // Preservar copia del recorte para el Visor de Escaneo
+            if (topCenterX == targetX) {
+                try {
+                    standardCrop?.let { crop ->
+                        lastTenthPickCrop?.recycle()
+                        lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
+                        lastTenthPickRoiLabel = sideDesc
+                        lastTenthPickCoordinates = "X: ${targetX}px (${(targetX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+                    }
+                } catch (_: Throwable) {}
+            }
+
             try {
                 if (standardCrop != null) {
                     matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
@@ -802,7 +834,7 @@ object LocalVisionAnalyzer {
 
         val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
         if (bestDecision != null) {
-            lastTenthPickLog = bestDecision
+            lastTenthPickLog = bestDecision.copy(cropBitmap = lastTenthPickCrop)
         }
         return@withContext bestDecision
     }
@@ -850,6 +882,14 @@ object LocalVisionAnalyzer {
         val topCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"
         val crop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
+        if (idx == 4) {
+            try {
+                lastTenthPickCrop?.recycle()
+                lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
+                lastTenthPickRoiLabel = "Barra Superior ($side 5 - 10º Pick)"
+                lastTenthPickCoordinates = "X: ${topCenterX}px (${(topCenterX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+            } catch (_: Throwable) {}
+        }
         try {
             val detailed = matchAvatarDetailed(
                 crop = crop,
@@ -861,7 +901,10 @@ object LocalVisionAnalyzer {
                 isConfirmedPhase = true
             ) ?: return@withContext null
             val champ = detailed.selectedChampion ?: return@withContext null
-            if (detailed.confidence >= 0.40f) {
+            if (detailed.confidence >= 0.48f) {
+                if (idx == 4) {
+                    lastTenthPickLog = detailed.copy(cropBitmap = lastTenthPickCrop)
+                }
                 return@withContext Pair(champ, detailed.confidence)
             }
             return@withContext null
