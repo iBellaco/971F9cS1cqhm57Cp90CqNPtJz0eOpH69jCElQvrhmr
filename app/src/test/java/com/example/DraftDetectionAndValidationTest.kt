@@ -519,5 +519,32 @@ class DraftDetectionAndValidationTest {
         assertTrue("En escaneo superior el pick debe figurar como confirmado", detailedSuperior?.isConfirmed ?: false)
         assertTrue("El resumen formateado superior debe indicar confirmación definitiva", detailedSuperior?.formattedSummary?.contains("CONFIRMACIÓN DEFINITIVA") ?: false)
     }
+
+    @Test
+    fun testVolibearInGameCropMatchingWithZNCC() = kotlinx.coroutines.test.runTest {
+        val champs = getSafeChamps()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val assetManager = context.assets
+        val stream = assetManager.open("champions/volibear.png")
+        val volibearBmp = android.graphics.BitmapFactory.decodeStream(stream)!!
+
+        // Crear una simulación de avatar con shading oscuro en los bordes como en Wild Rift
+        val crop61 = android.graphics.Bitmap.createScaledBitmap(volibearBmp, 61, 61, true)
+        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+
+        val detailed = com.example.service.screen.LocalVisionAnalyzer.matchAvatarDetailed(
+            crop = crop61,
+            roiLabel = "Superior Derecha (Rival 5 - 10º Pick)",
+            candidates = champs,
+            expectedRole = LaneRole.JUNGLE,
+            excludedChampionIds = setOf("malphite", "lux", "ashe", "jax", "sett", "vi", "viktor", "smolder", "senna"),
+            context = context,
+            isConfirmedPhase = true
+        )
+
+        assertNotNull("Debe generar log detallado de matching", detailed)
+        assertEquals("volibear", detailed?.selectedChampion?.id)
+        println("VOLIBEAR SCORE: ${detailed?.confidence} top: ${detailed?.topCandidates?.map { "${it.champion.name}=${it.compositeScore}" }}")
+    }
 }
 

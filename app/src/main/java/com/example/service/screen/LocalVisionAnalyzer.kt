@@ -35,6 +35,12 @@ object LocalVisionAnalyzer {
         val avgR: Float,
         val avgG: Float,
         val avgB: Float,
+        val chromaR: Float,
+        val chromaG: Float,
+        val chromaB: Float,
+        val satRatio: Float,
+        val lumMean: Float,
+        val lumStdDev: Float,
         val hueHistogram: FloatArray // 8 bins de tono cromático
     )
 
@@ -155,6 +161,8 @@ object LocalVisionAnalyzer {
         val center = (FINGERPRINT_SIZE - 1) / 2.0f
         val maxRadius = FINGERPRINT_SIZE * 0.44f // Máscara circular para omitir bordes/marcos
 
+        val lumValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
+
         for (y in 0 until FINGERPRINT_SIZE) {
             for (x in 0 until FINGERPRINT_SIZE) {
                 val dx = x - center
@@ -162,10 +170,14 @@ object LocalVisionAnalyzer {
                 val dist = sqrt(dx * dx + dy * dy)
                 if (dist > maxRadius) continue
 
-                val color = pixels[y * FINGERPRINT_SIZE + x]
+                val idx = y * FINGERPRINT_SIZE + x
+                val color = pixels[idx]
                 val r = Color.red(color)
                 val g = Color.green(color)
                 val b = Color.blue(color)
+
+                val lum = (r * 299 + g * 587 + b * 114) / 1000f
+                lumValues[idx] = lum
 
                 sumR += r
                 sumG += g
@@ -189,6 +201,41 @@ object LocalVisionAnalyzer {
 
         if (count == 0) return null
 
+        val avgR = sumR / count
+        val avgG = sumG / count
+        val avgB = sumB / count
+        val totalRgb = (avgR + avgG + avgB).coerceAtLeast(1f)
+        val chromaR = avgR / totalRgb
+        val chromaG = avgG / totalRgb
+        val chromaB = avgB / totalRgb
+
+        val satRatio = validHueCount.toFloat() / count.toFloat()
+
+        // Calcular media y desviación estándar de luminancia sobre la máscara circular
+        var sumLum = 0f
+        for (y in 0 until FINGERPRINT_SIZE) {
+            for (x in 0 until FINGERPRINT_SIZE) {
+                val dx = x - center
+                val dy = y - center
+                if (sqrt(dx * dx + dy * dy) <= maxRadius) {
+                    sumLum += lumValues[y * FINGERPRINT_SIZE + x]
+                }
+            }
+        }
+        val lumMean = sumLum / count
+        var varSum = 0f
+        for (y in 0 until FINGERPRINT_SIZE) {
+            for (x in 0 until FINGERPRINT_SIZE) {
+                val dx = x - center
+                val dy = y - center
+                if (sqrt(dx * dx + dy * dy) <= maxRadius) {
+                    val diff = lumValues[y * FINGERPRINT_SIZE + x] - lumMean
+                    varSum += diff * diff
+                }
+            }
+        }
+        val lumStdDev = sqrt(varSum / count).coerceAtLeast(1.0f)
+
         // Normalizar histograma de tono
         if (validHueCount > 0) {
             for (i in 0 until 8) {
@@ -199,9 +246,15 @@ object LocalVisionAnalyzer {
         return AvatarFingerprint(
             champId = id,
             rgbPixels = pixels,
-            avgR = sumR / count,
-            avgG = sumG / count,
-            avgB = sumB / count,
+            avgR = avgR,
+            avgG = avgG,
+            avgB = avgB,
+            chromaR = chromaR,
+            chromaG = chromaG,
+            chromaB = chromaB,
+            satRatio = satRatio,
+            lumMean = lumMean,
+            lumStdDev = lumStdDev,
             hueHistogram = hueBins
         )
     }
@@ -396,11 +449,8 @@ object LocalVisionAnalyzer {
             if (excludedChampionIds.contains(champ.id)) continue
             val sig = cachedSignatures[champ.id] ?: continue
 
-            val sigLumAvg = (sig.avgR + sig.avgG + sig.avgB) / 3f
-            val lumOffset = targetLumAvg - sigLumAvg
-
-            // 1. Similitud RGB pixel a pixel con compensación de iluminación media
-            var pixelDiffSum = 0f
+            // 1. Correlación Cruzada Normalizada de Media Cero (ZNCC) - Invariante a brillo/escala de luz
+            var znccSum = 0f
             var pixelCount = 0
 
             for (y in 0 until FINGERPRINT_SIZE) {
@@ -413,36 +463,44 @@ object LocalVisionAnalyzer {
                     val p1 = targetFp.rgbPixels[idx]
                     val p2 = sig.rgbPixels[idx]
 
-                    val expR = (Color.red(p2) + lumOffset).coerceIn(0f, 255f)
-                    val expG = (Color.green(p2) + lumOffset).coerceIn(0f, 255f)
-                    val expB = (Color.blue(p2) + lumOffset).coerceIn(0f, 255f)
+                    val lum1 = (Color.red(p1) * 299 + Color.green(p1) * 587 + Color.blue(p1) * 114) / 1000f
+                    val lum2 = (Color.red(p2) * 299 + Color.green(p2) * 587 + Color.blue(p2) * 114) / 1000f
 
-                    val dr = abs(Color.red(p1) - expR)
-                    val dg = abs(Color.green(p1) - expG)
-                    val db = abs(Color.blue(p1) - expB)
+                    val norm1 = (lum1 - targetFp.lumMean) / targetFp.lumStdDev
+                    val norm2 = (lum2 - sig.lumMean) / sig.lumStdDev
 
-                    pixelDiffSum += (dr + dg + db) / (3f * 255f)
+                    znccSum += norm1 * norm2
                     pixelCount++
                 }
             }
 
             if (pixelCount == 0) continue
-            val avgPixelDiff = pixelDiffSum / pixelCount.toFloat()
-            val pixelSimilarity = (1.0f - avgPixelDiff).coerceIn(0f, 1f)
+            val rawZncc = znccSum / pixelCount.toFloat()
+            val pixelSimilarity = ((rawZncc + 1.0f) / 2.0f).coerceIn(0f, 1f)
 
-            // 2. Similitud de Histograma de Tono (Intersección de histogramas HSV)
+            // 2. Similitud de Balance Cromático Normalizado (Invariante a nivel de luz)
+            val chromaDiff = (abs(targetFp.chromaR - sig.chromaR) +
+                              abs(targetFp.chromaG - sig.chromaG) +
+                              abs(targetFp.chromaB - sig.chromaB)) / 2.0f
+            val avgColorSim = (1.0f - chromaDiff).coerceIn(0f, 1f)
+
+            // 3. Similitud de Perfil de Saturación (Distinción entre campeones acromáticos y saturados)
+            val satDiff = abs(targetFp.satRatio - sig.satRatio)
+            val satSimilarity = (1.0f - satDiff).coerceIn(0f, 1f)
+
+            // 4. Similitud de Histograma de Tono (Intersección de histogramas HSV)
             var histIntersection = 0f
             for (i in 0 until 8) {
                 histIntersection += min(targetFp.hueHistogram[i], sig.hueHistogram[i])
             }
             val histSimilarity = histIntersection.coerceIn(0f, 1f)
 
-            // 3. Similitud de color promedio
-            val avgColorDiff = (abs(targetFp.avgR - sig.avgR) + abs(targetFp.avgG - sig.avgG) + abs(targetFp.avgB - sig.avgB)) / (3f * 255f)
-            val avgColorSim = (1.0f - avgColorDiff).coerceIn(0f, 1f)
-
-            // 4. Puntuación visual combinada robusta
-            val baseVisualScore = (pixelSimilarity * 0.45f) + (histSimilarity * 0.35f) + (avgColorSim * 0.20f)
+            // 5. Puntuación visual combinada adaptativa
+            val baseVisualScore = if (targetFp.satRatio < 0.40f || sig.satRatio < 0.40f) {
+                (pixelSimilarity * 0.50f) + (avgColorSim * 0.30f) + (satSimilarity * 0.10f) + (histSimilarity * 0.10f)
+            } else {
+                (pixelSimilarity * 0.40f) + (avgColorSim * 0.25f) + (histSimilarity * 0.25f) + (satSimilarity * 0.10f)
+            }
             var roleBonus = 0f
 
             // Ponderación contextual suave: SÓLO se aplica si el campeón ya tiene una similitud visual base razonable (>= 28%)
@@ -499,10 +557,10 @@ object LocalVisionAnalyzer {
                 appendLine("")
                 appendLine("3. COMPARACIÓN CON CANDIDATOS (EXCLUYENDO PICKS 1-9):")
                 appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones")
-                appendLine("- Criterios: Píxeles 45% + Histograma HUE 35% + Color RGB 20% + Bonus Rol")
+                appendLine("- Criterios: Estructura ZNCC 45% + Balance Cromático 25% + Histograma HUE 20% + Saturación 10% + Bonus Rol")
                 appendLine("- TOP CANDIDATOS MÁS CERCANOS:")
                 topCandidates.forEachIndexed { idx, c ->
-                    appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | Píxel=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | RGB=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                    appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
                 }
                 appendLine("")
                 appendLine("4. POR QUÉ SE RECHAZÓ / NO SE ASIGNÓ:")
@@ -529,7 +587,7 @@ object LocalVisionAnalyzer {
 
         val delta = ((best.compositeScore - (runnerUp?.compositeScore ?: 0f)) * 100).toInt()
 
-        val decisionReason = "Seleccionado ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud global (Píxeles: ${(best.pixelSimilarity * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%, Color RGB: ${(best.avgColorSim * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%. Compatible con $roleLine y no colisiona con selecciones 1-9."
+        val decisionReason = "Seleccionado ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud global (Estructura ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Balance Cromático: ${(best.avgColorSim * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%. Compatible con $roleLine y no colisiona con selecciones 1-9."
 
         val summary = buildString {
             appendLine("==================== [SELECCIÓN 10 - ANÁLISIS DE VISIÓN] ====================")
@@ -548,10 +606,10 @@ object LocalVisionAnalyzer {
             appendLine("")
             appendLine("3. COMPARACIÓN CON CANDIDATOS (EXCLUYENDO PICKS 1-9):")
             appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones")
-            appendLine("- Criterios: Píxeles 45% + Histograma HUE 35% + Color RGB 20% + Bonus Rol")
+            appendLine("- Criterios: Estructura ZNCC 45% + Balance Cromático 25% + Histograma HUE 20% + Saturación 10% + Bonus Rol")
             appendLine("- TOP CANDIDATOS:")
             topCandidates.forEachIndexed { idx, c ->
-                appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | Píxel=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | RGB=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
             }
             appendLine("")
             appendLine("4. POR QUÉ SE DECIDIÓ ESTA SELECCIÓN:")
