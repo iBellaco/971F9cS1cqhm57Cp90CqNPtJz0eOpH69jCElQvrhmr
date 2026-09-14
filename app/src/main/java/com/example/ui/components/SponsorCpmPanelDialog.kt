@@ -101,9 +101,10 @@ fun SponsorCpmPanelDialog(
     val sevenDaysMillis = 7 * 24 * 60 * 60 * 1000L
 
     val myNotices = remember(allNotices, userEmail, localPendingAds, now) {
-        val remoteAds = allNotices.filter { it.sponsorEmail.isNotBlank() || it.tag.equals("Publicidad", true) }
+        val remoteAds = allNotices.filter { it.sponsorEmail.equals(userEmail, true) || (it.sponsorEmail.isBlank() && it.tag.equals("Publicidad", true)) }
+        val localFiltered = localPendingAds.filter { it.sponsorEmail.equals(userEmail, true) || it.sponsorEmail.isBlank() }
         val remoteAdIds = remoteAds.map { it.id }.toSet()
-        val combined = remoteAds + localPendingAds.filter { it.id !in remoteAdIds }
+        val combined = remoteAds + localFiltered.filter { it.id !in remoteAdIds }
         
         // Conservar visibles durante 7 días después de haber expirado con contador regresivo de eliminación
         combined.filter { notice ->
@@ -118,11 +119,13 @@ fun SponsorCpmPanelDialog(
     }
 
     var showCreateDialog by remember { mutableStateOf(false) }
+    var showConfirmReviewDialog by remember { mutableStateOf(false) }
     var titleInput by remember { mutableStateOf("") }
     var contentInput by remember { mutableStateOf("") }
     var horizontalMediaInput by remember { mutableStateOf("") } // Banner horizontal o video horizontal
     var verticalMediaInput by remember { mutableStateOf("") } // Media vertical para pantalla completa
     var externalUrlInput by remember { mutableStateOf("") }
+    var titleColor by remember { mutableStateOf("#FFD700") }
     var durationValueInput by remember { mutableStateOf("1") }
     var selectedDurationUnit by remember { mutableStateOf("day") } // "hour", "day", "week", "month" (sin opción de 1 año)
     var isUploadingMedia by remember { mutableStateOf(false) }
@@ -146,13 +149,21 @@ fun SponsorCpmPanelDialog(
     var budgetInput by remember { mutableStateOf("10.00") }
     LaunchedEffect(autoBudget) { budgetInput = autoBudget }
 
-    // Launcher para seleccionar multimedia horizontal (imagen máx 10MB o video máx 10s)
+    // Launcher para seleccionar multimedia horizontal (imágenes solo PNG, videos solo MP4 máx 10s, máx 10MB)
     val horizontalPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val isVideo = NoticeMediaStorageManager.isUriVideo(context, uri)
+        val mimeType = context.contentResolver.getType(uri) ?: ""
+        val path = uri.toString().lowercase()
+        val isVideo = NoticeMediaStorageManager.isUriVideo(context, uri) || mimeType.startsWith("video")
+
         if (isVideo) {
+            val isMp4 = mimeType.equals("video/mp4", true) || path.endsWith(".mp4")
+            if (!isMp4) {
+                Toast.makeText(context, "Los videos deben estar estrictamente en formato MP4", Toast.LENGTH_LONG).show()
+                return@rememberLauncherForActivityResult
+            }
             try {
                 val retriever = MediaMetadataRetriever()
                 retriever.setDataSource(context, uri)
@@ -160,11 +171,16 @@ fun SponsorCpmPanelDialog(
                 val durMs = durStr?.toLongOrNull() ?: 0L
                 retriever.release()
                 if (durMs > 10_500L) {
-                    Toast.makeText(context, "El video no puede superar los 10 segundos de reproducción", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "El video no puede superar los 10 segundos de duración", Toast.LENGTH_LONG).show()
                     return@rememberLauncherForActivityResult
                 }
             } catch (_: Exception) {}
         } else {
+            val isPng = mimeType.equals("image/png", true) || path.endsWith(".png")
+            if (!isPng) {
+                Toast.makeText(context, "Las imágenes de galería deben estar estrictamente en formato PNG", Toast.LENGTH_LONG).show()
+                return@rememberLauncherForActivityResult
+            }
             try {
                 val pfd = context.contentResolver.openFileDescriptor(uri, "r")
                 val size = pfd?.statSize ?: 0L
@@ -185,17 +201,25 @@ fun SponsorCpmPanelDialog(
             }
             horizontalMediaInput = result
             isUploadingMedia = false
-            Toast.makeText(context, "Multimedia horizontal cargada", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Multimedia horizontal cargada (PNG/MP4)", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Launcher para seleccionar multimedia vertical (imagen máx 10MB o video máx 10s)
+    // Launcher para seleccionar multimedia vertical (imágenes solo PNG, videos solo MP4 máx 10s, máx 10MB)
     val verticalPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val isVideo = NoticeMediaStorageManager.isUriVideo(context, uri)
+        val mimeType = context.contentResolver.getType(uri) ?: ""
+        val path = uri.toString().lowercase()
+        val isVideo = NoticeMediaStorageManager.isUriVideo(context, uri) || mimeType.startsWith("video")
+
         if (isVideo) {
+            val isMp4 = mimeType.equals("video/mp4", true) || path.endsWith(".mp4")
+            if (!isMp4) {
+                Toast.makeText(context, "Los videos deben estar estrictamente en formato MP4", Toast.LENGTH_LONG).show()
+                return@rememberLauncherForActivityResult
+            }
             try {
                 val retriever = MediaMetadataRetriever()
                 retriever.setDataSource(context, uri)
@@ -203,11 +227,16 @@ fun SponsorCpmPanelDialog(
                 val durMs = durStr?.toLongOrNull() ?: 0L
                 retriever.release()
                 if (durMs > 10_500L) {
-                    Toast.makeText(context, "El video no puede superar los 10 segundos de reproducción", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "El video no puede superar los 10 segundos de duración", Toast.LENGTH_LONG).show()
                     return@rememberLauncherForActivityResult
                 }
             } catch (_: Exception) {}
         } else {
+            val isPng = mimeType.equals("image/png", true) || path.endsWith(".png")
+            if (!isPng) {
+                Toast.makeText(context, "Las imágenes de galería deben estar estrictamente en formato PNG", Toast.LENGTH_LONG).show()
+                return@rememberLauncherForActivityResult
+            }
             try {
                 val pfd = context.contentResolver.openFileDescriptor(uri, "r")
                 val size = pfd?.statSize ?: 0L
@@ -228,7 +257,7 @@ fun SponsorCpmPanelDialog(
             }
             verticalMediaInput = result
             isUploadingMedia = false
-            Toast.makeText(context, "Multimedia vertical cargada", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Multimedia vertical cargada (PNG/MP4)", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -390,6 +419,38 @@ fun SponsorCpmPanelDialog(
                             unfocusedTextColor = Color.White
                         )
                     )
+
+                    // Opción de Color del Título
+                    Text("Color del Título:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        val colorsList = listOf(
+                            "Dorado" to "#FFD700",
+                            "Cian" to "#00F2FE",
+                            "Blanco" to "#FFFFFF",
+                            "Verde" to "#00FF66",
+                            "Naranja" to "#FF9900",
+                            "Rojo" to "#FF3333",
+                            "Morado" to "#CC66FF"
+                        )
+                        colorsList.forEach { (name, hex) ->
+                            val isSelected = titleColor.equals(hex, true)
+                            val parsedColor = try { Color(android.graphics.Color.parseColor(hex)) } catch (_: Exception) { HextechGold }
+                            Button(
+                                onClick = { titleColor = hex },
+                                shape = RoundedCornerShape(6.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isSelected) parsedColor else HextechSurfaceVariant
+                                ),
+                                border = BorderStroke(1.dp, parsedColor)
+                            ) {
+                                Text(name, color = if (isSelected) HextechDarkBg else parsedColor, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
 
                     // Multimedia Horizontal (Banner/Video horizontal para inicio)
                     Text("1. Multimedia Horizontal (Banner de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
@@ -610,17 +671,54 @@ fun SponsorCpmPanelDialog(
                             showBuyEssenceDialog = true
                             return@Button
                         }
-                        
-                        val descriptionStr = """
-                            Presupuesto: $autoBudget USD
-                            Duración: $durationValueInt $selectedDurationUnit
-                            Media Horizontal: $horizontalMediaInput
-                            Media Vertical: $verticalMediaInput
-                            Enlace: $externalUrlInput
-                            
-                            $contentInput
-                        """.trimIndent()
-                        
+                        showConfirmReviewDialog = true
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                    enabled = !isUploadingMedia
+                ) {
+                    if (isUploadingMedia) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechDarkBg, strokeWidth = 2.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    Text("Enviar a Revisión", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCreateDialog = false }) {
+                    Text("Cancelar", color = TextSecondary)
+                }
+            }
+        )
+    }
+
+    if (showConfirmReviewDialog) {
+        val parsedBudget = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+        val requiredEssences = (parsedBudget * 10).toLong()
+
+        AlertDialog(
+            onDismissRequest = { showConfirmReviewDialog = false },
+            containerColor = HextechSurface,
+            title = { Text("⚠️ Advertencia de Envío a Revisión", color = Color(0xFFEF4444), fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "• Una vez enviado el anuncio a revisión, NO SE PUEDE MODIFICAR.\n" +
+                        "• NO EXISTEN DEVOLUCIONES de esencias azules bajo ninguna circunstancia.\n" +
+                        "• Formatos estrictos: Imágenes en formato PNG y Videos en formato MP4 (máximo 10 segundos).\n" +
+                        "• Regla de Seguridad y Enlaces: Está estrictamente prohibido agregar enlaces maliciosos, contenido inapropiado o incumplir cualquiera de las normas.\n" +
+                        "• Penalización: Si se infringe cualquier regla, el anuncio será rechazado permanentemente y se perderán todas las esencias azules invertidas sin derecho a reclamo ni apelación.",
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
+                    Text("¿Estás completamente seguro de enviar el anuncio?", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showConfirmReviewDialog = false
+                        showCreateDialog = false
+
                         val newPendingNotice = AppNotice(
                             id = UUID.randomUUID().toString(),
                             title = titleInput.trim(),
@@ -629,6 +727,7 @@ fun SponsorCpmPanelDialog(
                             expandedImageUrl = verticalMediaInput.trim().ifBlank { horizontalMediaInput.trim() },
                             externalUrl = externalUrlInput.trim(),
                             tag = "Publicidad",
+                            titleColor = titleColor,
                             budget = parsedBudget,
                             budgetUnit = selectedDurationUnit,
                             durationValue = durationValueInt,
@@ -638,7 +737,6 @@ fun SponsorCpmPanelDialog(
                             sponsorEmail = userEmail
                         )
 
-                        // Guardar en localPendingAds y registrar en AppNoticeManager para moderación
                         val updatedLocalList = localPendingAds + newPendingNotice
                         localPendingAds = updatedLocalList
                         AppNoticeManager.submitPendingSponsorNotice(context, newPendingNotice)
@@ -653,6 +751,7 @@ fun SponsorCpmPanelDialog(
                             obj.put("expandedImageUrl", n.expandedImageUrl)
                             obj.put("externalUrl", n.externalUrl)
                             obj.put("tag", n.tag)
+                            obj.put("titleColor", n.titleColor)
                             obj.put("budget", n.budget)
                             obj.put("budgetUnit", n.budgetUnit)
                             obj.put("durationValue", n.durationValue)
@@ -670,20 +769,14 @@ fun SponsorCpmPanelDialog(
                         }
 
                         Toast.makeText(context, "Anuncio enviado a revisión. Se descontaron $requiredEssences EA.", Toast.LENGTH_LONG).show()
-                        showCreateDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                    enabled = !isUploadingMedia
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444))
                 ) {
-                    if (isUploadingMedia) {
-                        CircularProgressIndicator(modifier = Modifier.size(16.dp), color = HextechDarkBg, strokeWidth = 2.dp)
-                        Spacer(modifier = Modifier.width(6.dp))
-                    }
-                    Text("Enviar a Revisión", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                    Text("Aceptar y Enviar", color = Color.White, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) {
+                TextButton(onClick = { showConfirmReviewDialog = false }) {
                     Text("Cancelar", color = TextSecondary)
                 }
             }

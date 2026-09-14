@@ -554,28 +554,13 @@ object SupportReplyManager {
                 "updatedAt" to Timestamp.now()
             )
 
-            // 1. Actualizar ticket principal en Firestore por ID directo
-            var resolvedDocId = reportId
+            // 1. Actualizar ticket principal en Firestore por ID directo de forma única
+            val resolvedDocId = reportId
             try {
                 db.collection("support_reports").document(reportId)
                     .set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
             } catch (e: Exception) {
                 Log.w(TAG, "Error al actualizar support_reports por document($reportId): ${e.message}")
-            }
-
-            // Si reportId es un ID de Supabase o no coincidió, buscar en support_reports por título o campos
-            if (!reportTitle.isNullOrBlank()) {
-                try {
-                    val matchingDocs = db.collection("support_reports")
-                        .whereEqualTo("title", reportTitle.trim())
-                        .limit(5)
-                        .get().await()
-                    for (doc in matchingDocs.documents) {
-                        resolvedDocId = doc.id
-                        db.collection("support_reports").document(doc.id)
-                            .set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
-                    }
-                } catch (_: Exception) {}
             }
 
             // 2. Resolver userId si no se especificó

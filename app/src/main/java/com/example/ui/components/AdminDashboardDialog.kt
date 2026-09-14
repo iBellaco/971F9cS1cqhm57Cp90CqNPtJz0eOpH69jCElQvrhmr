@@ -411,6 +411,19 @@ private fun AdminDashboardHeader(
                     Text("Base Datos", fontSize = 9.sp, color = HextechGold, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
+                // Botón Patrocinios / Moderación
+                AnimatedAdminActionButton(
+                    onClick = onOpenSponsorModeration,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF59E0B).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Verified, contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Patrocinios", fontSize = 9.sp, color = Color(0xFFFBBF24), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
+
 
             }
         }
@@ -2669,6 +2682,7 @@ fun UserDetailManagementDialog(
     val uid = user["uid"] as? String ?: ""
     var currentName by remember { mutableStateOf(user["name"] as? String ?: "Sin Nombre") }
     val email = user["email"] as? String ?: ""
+    var currentEmailInput by remember { mutableStateOf(email) }
     var currentRole by remember { mutableStateOf(user["role"] as? String ?: "free") }
     var currentBanned by remember { mutableStateOf((user["banned"] as? Boolean) == true || currentRole == "banned") }
     var currentPremiumUntil by remember { mutableStateOf((user["premiumUntil"] as? Number)?.toLong()) }
@@ -2764,6 +2778,58 @@ fun UserDetailManagementDialog(
                         .weight(1f),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
+                    // SECCIÓN: EDITAR CORREO ELECTRÓNICO
+                    item {
+                        Surface(
+                            color = HextechSurfaceBg,
+                            shape = RoundedCornerShape(10.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Email, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("Cambiar Correo Electrónico", fontWeight = FontWeight.Bold, color = HextechCyan, fontSize = 13.sp)
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                OutlinedTextField(
+                                    value = currentEmailInput,
+                                    onValueChange = { currentEmailInput = it },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true,
+                                    label = { Text("Nuevo Correo Electrónico", color = TextSecondary, fontSize = 11.sp) },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = HextechCyan,
+                                        unfocusedBorderColor = HextechCardBorder,
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White,
+                                        cursorColor = HextechCyan
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(
+                                    onClick = {
+                                        if (currentEmailInput.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(currentEmailInput.trim()).matches()) {
+                                            Toast.makeText(context, "Ingresa un correo electrónico válido", Toast.LENGTH_SHORT).show()
+                                            return@Button
+                                        }
+                                        updateUserEmail(context, uid, currentEmailInput.trim()) { newEmail ->
+                                            onUserUpdated(user.toMutableMap().apply {
+                                                put("email", newEmail)
+                                            })
+                                        }
+                                    },
+                                    modifier = Modifier.align(Alignment.End),
+                                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                                    shape = RoundedCornerShape(6.dp),
+                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text("Guardar Correo", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    }
+
                     // SECCIÓN 1: ASIGNACIÓN DE SUSCRIPCIÓN PREMIUM
                     item {
                         Surface(
@@ -4556,4 +4622,26 @@ private fun ServerScraperHealthCard() {
             }
         }
     }
+}
+
+private fun updateUserEmail(
+    context: Context,
+    uid: String,
+    newEmail: String,
+    onSuccess: (String) -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+    val updatePayload = hashMapOf<String, Any>(
+        "email" to newEmail.trim(),
+        "lastModifiedByAdmin" to System.currentTimeMillis()
+    )
+    db.collection("users").document(uid)
+        .set(updatePayload, SetOptions.merge())
+        .addOnSuccessListener {
+            Toast.makeText(context, "Correo electrónico actualizado exitosamente", Toast.LENGTH_SHORT).show()
+            onSuccess(newEmail.trim())
+        }
+        .addOnFailureListener { e ->
+            Toast.makeText(context, "Error al actualizar correo: ${e.message}", Toast.LENGTH_LONG).show()
+        }
 }

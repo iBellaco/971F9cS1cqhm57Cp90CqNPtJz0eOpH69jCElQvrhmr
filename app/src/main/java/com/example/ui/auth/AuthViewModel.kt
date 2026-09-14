@@ -102,7 +102,33 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
-                auth.signInWithEmailAndPassword(_email.value, _password.value).await()
+                val result = auth.signInWithEmailAndPassword(_email.value.trim(), _password.value).await()
+                val firebaseUser = result.user
+                if (firebaseUser != null) {
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    val userDocRef = db.collection("users").document(firebaseUser.uid)
+                    val snap = userDocRef.get().await()
+                    val userData = mutableMapOf<String, Any>(
+                        "uid" to firebaseUser.uid,
+                        "email" to (firebaseUser.email ?: _email.value.trim()),
+                        "name" to (firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Usuario"),
+                        "last_active" to System.currentTimeMillis(),
+                        "is_online" to true
+                    )
+                    if (!snap.exists()) {
+                        userData["role"] = if ((firebaseUser.email ?: "").equals("barbadiego695@gmail.com", true)) "admin" else "user"
+                        userData["createdAt"] = System.currentTimeMillis()
+                        userData["blueEssences"] = 100L
+                        userDocRef.set(userData, com.google.firebase.firestore.SetOptions.merge()).await()
+                    } else {
+                        userDocRef.update(
+                            mapOf(
+                                "last_active" to System.currentTimeMillis(),
+                                "is_online" to true
+                            )
+                        ).await()
+                    }
+                }
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
                 val errorMsg = e.localizedMessage ?: "Error de autenticación. Verifica tus credenciales."
@@ -142,11 +168,29 @@ class AuthViewModel : ViewModel() {
             _uiState.update { it.copy(isLoading = true, error = null) }
             try {
                 val result = auth.createUserWithEmailAndPassword(_email.value.trim(), _password.value).await()
+                val firebaseUser = result.user
                 val profileUpdates = com.google.firebase.auth.UserProfileChangeRequest.Builder()
                     .setDisplayName(_username.value.trim())
                     .build()
-                result.user?.updateProfile(profileUpdates)?.await()
-                result.user?.sendEmailVerification()?.await()
+                firebaseUser?.updateProfile(profileUpdates)?.await()
+                firebaseUser?.sendEmailVerification()?.await()
+
+                if (firebaseUser != null) {
+                    val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                    val userDocRef = db.collection("users").document(firebaseUser.uid)
+                    val userData = mapOf(
+                        "uid" to firebaseUser.uid,
+                        "email" to (firebaseUser.email ?: _email.value.trim()),
+                        "name" to _username.value.trim(),
+                        "role" to if ((firebaseUser.email ?: "").equals("barbadiego695@gmail.com", true)) "admin" else "user",
+                        "createdAt" to System.currentTimeMillis(),
+                        "blueEssences" to 100L,
+                        "last_active" to System.currentTimeMillis(),
+                        "is_online" to true
+                    )
+                    userDocRef.set(userData, com.google.firebase.firestore.SetOptions.merge()).await()
+                }
+
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             } catch (e: Exception) {
                 val rawMsg = e.localizedMessage ?: ""
