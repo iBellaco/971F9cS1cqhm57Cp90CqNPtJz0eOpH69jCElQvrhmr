@@ -46,11 +46,12 @@ object LocalVisionAnalyzer {
      * Es ultra ligero (~120 KB de memoria total).
      */
     fun ensureInitialized(context: Context? = null) {
-        if (isInitialized && cachedSignatures.isNotEmpty()) return
-
         val ctx = context ?: WildRiftApp.instance ?: return
         try {
-            val allChamps = WildRiftRepository.champions
+            val allChamps = WildRiftRepository.champions.toList()
+            if (allChamps.isEmpty()) return
+            if (isInitialized && cachedSignatures.size >= allChamps.size) return
+
             val assetManager = ctx.assets
 
             for (champ in allChamps) {
@@ -306,6 +307,187 @@ object LocalVisionAnalyzer {
     }
 
     /**
+     * Escaneo del 10º Pick en la PARTE INFERIOR:
+     * - Si es Primera Selección (Aliados): el 10º pick es Rival -> escanea la parte INFERIOR DERECHA (Slot 4 del Rival).
+     * - Si NO es Primera Selección (Rivales): el 10º pick es Aliado -> escanea la parte INFERIOR IZQUIERDA (Slot 4 del Aliado).
+     *
+     * Nota: En la parte inferior el jugador puede estar mostrando un campeón (hover/preselección)
+     * y cambiar a otro antes de fijar.
+     */
+    suspend fun identify10thPickInferior(
+        bitmap: Bitmap,
+        isFirstPick: Boolean,
+        calib: VisionCalibrationConfig,
+        allChamps: List<Champion>,
+        confirmedIds: Set<String>,
+        expectedRole: LaneRole?,
+        context: Context? = null
+    ): Pair<Champion, Float>? = withContext(Dispatchers.Default) {
+        if (bitmap.isRecycled) return@withContext null
+
+        val width = bitmap.width
+        val height = bitmap.height
+
+        // Si es primera selección -> 10º pick es Rival (INFERIOR DERECHA, Slot 4)
+        // Si NO es primera selección -> 10º pick es Aliado (INFERIOR IZQUIERDA, Slot 4)
+        val isAlly = !isFirstPick
+        val slotAvatarDiam = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
+        val slotCenterX = if (isAlly) {
+            (width * calib.allyAvatarCenterX).toInt()
+        } else {
+            (width * calib.enemyAvatarCenterX).toInt()
+        }
+        val slotCenterY = if (isAlly) {
+            (height * calib.allySlotYRatios[4]).toInt()
+        } else {
+            (height * calib.enemySlotYRatios[4]).toInt()
+        }
+
+        val standardCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotAvatarDiam)
+        val innerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 0.88f).toInt())
+        val outerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 1.08f).toInt())
+
+        val candidateMatches = mutableListOf<Pair<Champion, Float>>()
+        try {
+            if (standardCrop != null) {
+                matchAvatar(standardCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+            }
+            if (innerCrop != null) {
+                matchAvatar(innerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+            }
+            if (outerCrop != null) {
+                matchAvatar(outerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+            }
+        } finally {
+            try { standardCrop?.recycle() } catch (_: Throwable) {}
+            try { innerCrop?.recycle() } catch (_: Throwable) {}
+            try { outerCrop?.recycle() } catch (_: Throwable) {}
+        }
+
+        val best = candidateMatches.maxByOrNull { it.second }
+        if (best != null) {
+            val sideDesc = if (isAlly) "inferior izquierda (Aliado 5)" else "inferior derecha (Rival 5)"
+            AppLogger.d(TAG, "10º Pick preseleccionado en parte $sideDesc: ${best.first.name} (${(best.second * 100).toInt()}%)")
+        }
+        return@withContext best
+    }
+
+    /**
+     * Confirmación del 10º Pick en la PARTE SUPERIOR (100% Certera):
+     * Una vez que desaparecen los slots de avatares de selección, el campeón queda fijado.
+     * En la parte superior se visualiza 100% la selección definitiva:
+     * - Si fue Primera Selección: el 10º pick fue el 5º Rival -> confirma en la PARTE SUPERIOR DERECHA.
+     * - Si NO fue Primera Selección: el 10º pick fue el 5º Aliado -> confirma en la PARTE SUPERIOR IZQUIERDA.
+     */
+    suspend fun identify10thPickSuperior(
+        bitmap: Bitmap,
+        isFirstPick: Boolean,
+        calib: VisionCalibrationConfig,
+        allChamps: List<Champion>,
+        confirmedIds: Set<String>,
+        expectedRole: LaneRole?,
+        context: Context? = null
+    ): Pair<Champion, Float>? = withContext(Dispatchers.Default) {
+        if (bitmap.isRecycled) return@withContext null
+
+        val width = bitmap.width
+        val height = bitmap.height
+
+        val isAlly = !isFirstPick
+        val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
+        val topCenterY = (height * calib.topAvatarYRatio).toInt()
+
+        val candidateXs = if (isAlly) {
+            listOf((width * calib.topAlly5XRatio).toInt())
+        } else {
+            listOf(
+                (width * calib.topEnemy5XRatio).toInt(),
+                (width * (calib.topEnemyXRatios.firstOrNull() ?: 0.856f)).toInt()
+            )
+        }
+
+        val candidateMatches = mutableListOf<Pair<Champion, Float>>()
+
+        for (topCenterX in candidateXs) {
+            val standardCrop = safeCrop(bitmap, topCenterX, topCenterY, topDiam)
+            val innerCrop = safeCrop(bitmap, topCenterX, topCenterY, (topDiam * 0.88f).toInt())
+            val outerCrop = safeCrop(bitmap, topCenterX, topCenterY, (topDiam * 1.08f).toInt())
+
+            try {
+                if (standardCrop != null) {
+                    matchAvatar(standardCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                }
+                if (innerCrop != null) {
+                    matchAvatar(innerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                }
+                if (outerCrop != null) {
+                    matchAvatar(outerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                }
+            } finally {
+                try { standardCrop?.recycle() } catch (_: Throwable) {}
+                try { innerCrop?.recycle() } catch (_: Throwable) {}
+                try { outerCrop?.recycle() } catch (_: Throwable) {}
+            }
+        }
+
+        val best = candidateMatches.maxByOrNull { it.second }
+        if (best != null) {
+            val sideDesc = if (isAlly) "superior izquierda (Aliado 5)" else "superior derecha (Rival 5)"
+            AppLogger.d(TAG, "10º Pick confirmado al 100% en parte $sideDesc: ${best.first.name} (${(best.second * 100).toInt()}%)")
+            return@withContext Pair(best.first, 1.0f)
+        }
+
+        return@withContext null
+    }
+
+    /**
+     * Detecta si los slots/cuadrícula de avatares de selección del centro/inferior
+     * han desaparecido, lo cual indica que el 10º pick ya fijó y la selección concluyó.
+     */
+    fun areAvatarSlotsDismissed(bitmap: Bitmap, isPrepPhaseDetected: Boolean): Boolean {
+        if (isPrepPhaseDetected) return true
+        if (bitmap.isRecycled) return false
+
+        val width = bitmap.width
+        val height = bitmap.height
+
+        val checkAreaLeft = (width * 0.35f).toInt()
+        val checkAreaTop = (height * 0.72f).toInt()
+        val checkAreaWidth = (width * 0.30f).toInt()
+        val checkAreaHeight = (height * 0.15f).toInt()
+
+        if (checkAreaLeft + checkAreaWidth > width || checkAreaTop + checkAreaHeight > height) return false
+
+        return try {
+            val sampleColors = mutableListOf<Int>()
+            val step = 8
+
+            for (y in checkAreaTop until (checkAreaTop + checkAreaHeight) step step) {
+                for (x in checkAreaLeft until (checkAreaLeft + checkAreaWidth) step step) {
+                    sampleColors.add(bitmap.getPixel(x, y))
+                }
+            }
+
+            if (sampleColors.isEmpty()) return false
+
+            val brightnesses = sampleColors.map {
+                val r = (it shr 16) and 0xFF
+                val g = (it shr 8) and 0xFF
+                val b = it and 0xFF
+                (r * 0.299 + g * 0.587 + b * 0.114).toInt()
+            }
+            val mean = brightnesses.average()
+            val stdDev = Math.sqrt(brightnesses.map { Math.pow(it - mean, 2.0) }.average())
+
+            // Con la cuadrícula de avatares activa, la desviación estándar es alta (> 38).
+            // Al cerrarse la cuadrícula, la zona central queda plana/oscura (desviación baja).
+            stdDev < 28.0
+        } catch (_: Throwable) {
+            false
+        }
+    }
+
+    /**
      * Identificación visual del 10º Pick comparando el slot vertical correspondiente
      * contra el catálogo local de avatares en assets/champions.
      * Utiliza muestreo multi-escala (estándar, enfoque interior al 88% para eliminar halos de selección
@@ -375,7 +557,6 @@ object LocalVisionAnalyzer {
             return@withContext null
         }
 
-        // Seleccionar el candidato con mayor similitud visual respecto al catálogo local de avatares
         val bestCandidate = candidateMatches.maxByOrNull { it.second }
         if (bestCandidate != null) {
             AppLogger.d(TAG, "10º Pick detectado con precisión visual local en slot $slotIdx: ${bestCandidate.first.name} (Confianza: ${(bestCandidate.second * 100).toInt()}%)")

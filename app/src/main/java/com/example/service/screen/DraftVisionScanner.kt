@@ -940,69 +940,110 @@ object DraftVisionScanner {
         // 1. De la selección 1 hasta la 9 se visualiza el nombre del campeón y dependiendo del nombre
         //    del campeón es que se selecciona (OCR de texto 100%).
         // 2. SOLAMENTE la selección número 10 no aparece su nombre de campeón y es reconocimiento de imagen.
-        // 3. Antes de aparecer el nombre del campeón aparece el nombre de su línea (solo aliados).
-        // 4. En el rival solamente aparece el nombre del campeón cuando ya está seleccionado.
+        // 3. Primero escanea en la PARTE INFERIOR dependiendo si es o no es primera selección:
+        //    - Si es primera selección -> escanea la parte INFERIOR DERECHA (Rival 5).
+        //    - Si NO es primera selección -> escanea la parte INFERIOR IZQUIERDA (Aliado 5).
+        // 4. En la parte inferior puede que solamente lo muestre (hover) y luego seleccione otro campeón.
+        // 5. Después que desaparezcan los slots de los avatares, quiere decir que ya seleccionó el campeón:
+        //    entonces se confirma en la PARTE SUPERIOR, donde se visualiza 100% la selección definitiva.
         // -----------------------------------------------------------------------------------------
-        val totalAllyOcrConfirmed = allySlots.count { it.champion != null }
-        val totalEnemyOcrConfirmed = enemySlots.count { it.champion != null }
-        val totalOcrConfirmed = totalAllyOcrConfirmed + totalEnemyOcrConfirmed
+        val tenthTargetIsAlly = !effectiveFirstPick
+        val targetSlot = if (tenthTargetIsAlly) allySlots[4] else enemySlots[4]
+
+        val totalAllyOcrConfirmed = allySlots.count { it != targetSlot && it.champion != null }
+        val totalEnemyOcrConfirmed = enemySlots.count { it != targetSlot && it.champion != null }
+        val otherPicksConfirmed = totalAllyOcrConfirmed + totalEnemyOcrConfirmed
 
         var isTenthConfirmed = false
+        val eligibleFor10thPick = otherPicksConfirmed >= 8 || isPreparationPhase
 
-        // La selección número 10 ocurre ÚNICAMENTE cuando exactamente 9 campeones ya han sido seleccionados
-        // (o durante fase de preparación final donde ya se fijaron los picks).
-        if (totalOcrConfirmed == 9 || (isPreparationPhase && totalOcrConfirmed >= 8)) {
-            val tenthTargetIsAlly = (totalAllyOcrConfirmed < 5 && totalEnemyOcrConfirmed == 5)
-            val tenthTargetIsEnemy = (totalEnemyOcrConfirmed < 5 && totalAllyOcrConfirmed == 5)
+        if (eligibleFor10thPick) {
+            val confirmedIds = (allySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id } +
+                                enemySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id }).toSet()
 
-            val targetSlot = if (tenthTargetIsAlly) {
-                allySlots.firstOrNull { it.champion == null } ?: allySlots[4]
+            val expectedRole = if (!tenthTargetIsAlly) {
+                val assignedEnemyRoles = enemySlots.filter { it.champion != null && it != targetSlot }.mapNotNull { it.champion?.primaryRole }.toSet()
+                defaultRolesList.firstOrNull { !assignedEnemyRoles.contains(it) } ?: defaultRolesList[4]
             } else {
-                enemySlots.firstOrNull { it.champion == null } ?: enemySlots[4]
-            }
-
-            val confirmedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
-
-            val expectedRole = if (tenthTargetIsEnemy) {
-                val assignedEnemyRoles = enemySlots.filter { it.champion != null }.mapNotNull { it.champion?.primaryRole }.toSet()
-                defaultRolesList.firstOrNull { !assignedEnemyRoles.contains(it) } ?: defaultRolesList[targetSlot.slotIndex]
-            } else {
-                allySlotRolesCache[targetSlot.slotIndex] ?: run {
-                    val assignedAllyRoles = allySlots.filter { it.champion != null }.mapNotNull { it.explicitRole ?: it.assignedRole }.toSet()
-                    defaultRolesList.firstOrNull { !assignedAllyRoles.contains(it) } ?: defaultRolesList[targetSlot.slotIndex]
+                allySlotRolesCache[4] ?: run {
+                    val assignedAllyRoles = allySlots.filter { it.champion != null && it != targetSlot }.mapNotNull { it.explicitRole ?: it.assignedRole }.toSet()
+                    defaultRolesList.firstOrNull { !assignedAllyRoles.contains(it) } ?: defaultRolesList[4]
                 }
             }
 
-            val localPickMatch = LocalVisionAnalyzer.identify10thPickLocal(
-                bitmap = bitmap,
-                isAlly = tenthTargetIsAlly,
-                targetSlotIndex = targetSlot.slotIndex,
-                calib = calib,
-                allChamps = allChamps,
-                confirmedIds = confirmedIds,
-                expectedRole = expectedRole,
-                context = context
-            )
+            val slotsDismissed = isPreparationPhase || LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
 
-            if (localPickMatch != null) {
-                val (topPickChamp, confidence) = localPickMatch
-                lastPickVisualChampion = topPickChamp
-                lastPickVisualConfidence = confidence
-                isLastPickVisualRecognized = true
-                isTenthConfirmed = true
+            if (slotsDismissed) {
+                // FASE B: Desaparecieron los slots de avatar de selección -> CONFIRMACIÓN 100% EN PARTE SUPERIOR
+                val superiorMatch = LocalVisionAnalyzer.identify10thPickSuperior(
+                    bitmap = bitmap,
+                    isFirstPick = effectiveFirstPick,
+                    calib = calib,
+                    allChamps = allChamps,
+                    confirmedIds = confirmedIds,
+                    expectedRole = expectedRole,
+                    context = context
+                )
 
-                targetSlot.champion = topPickChamp
-                targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(80, 99)
-                targetSlot.isLikelyUnpicked = false
+                if (superiorMatch != null) {
+                    val (topPickChamp, confidence) = superiorMatch
+                    lastPickVisualChampion = topPickChamp
+                    lastPickVisualConfidence = 1.0f
+                    isLastPickVisualRecognized = true
+                    isTenthConfirmed = true
 
-                if (tenthTargetIsAlly) {
-                    allySlotConfirmedChampions[targetSlot.slotIndex] = topPickChamp
-                    allyOcrChampions[targetSlot.slotIndex] = topPickChamp
-                    AppLogger.d(TAG, "10º Pick Aliado detectado visualmente por imagen: ${topPickChamp.name} (${(confidence * 100).toInt()}%)")
-                } else {
-                    enemySlotConfirmedChampions[targetSlot.slotIndex] = topPickChamp
-                    enemyOcrChampions[targetSlot.slotIndex] = topPickChamp
-                    AppLogger.d(TAG, "10º Pick Rival detectado visualmente por imagen: ${topPickChamp.name} (${(confidence * 100).toInt()}%)")
+                    targetSlot.champion = topPickChamp
+                    targetSlot.confidencePercent = 100
+                    targetSlot.isLikelyUnpicked = false
+
+                    if (tenthTargetIsAlly) {
+                        allySlotConfirmedChampions[4] = topPickChamp
+                        allyOcrChampions[4] = topPickChamp
+                        AppLogger.d(TAG, "10º Pick Aliado confirmado 100% en barra superior: ${topPickChamp.name}")
+                    } else {
+                        enemySlotConfirmedChampions[4] = topPickChamp
+                        enemyOcrChampions[4] = topPickChamp
+                        AppLogger.d(TAG, "10º Pick Rival confirmado 100% en barra superior: ${topPickChamp.name}")
+                    }
+                } else if (lastPickVisualChampion != null) {
+                    // Si ya se había detectado previamente y ratificado, mantener con máxima certeza
+                    targetSlot.champion = lastPickVisualChampion
+                    targetSlot.confidencePercent = 100
+                    targetSlot.isLikelyUnpicked = false
+                    isTenthConfirmed = true
+                }
+            } else {
+                // FASE A: Mientras está en selección -> ESCANEO EN LA PARTE INFERIOR (Hover / Preselección)
+                val inferiorMatch = LocalVisionAnalyzer.identify10thPickInferior(
+                    bitmap = bitmap,
+                    isFirstPick = effectiveFirstPick,
+                    calib = calib,
+                    allChamps = allChamps,
+                    confirmedIds = confirmedIds,
+                    expectedRole = expectedRole,
+                    context = context
+                )
+
+                if (inferiorMatch != null) {
+                    val (hoverChamp, confidence) = inferiorMatch
+                    lastPickVisualChampion = hoverChamp
+                    lastPickVisualConfidence = confidence
+                    isLastPickVisualRecognized = true
+
+                    targetSlot.champion = hoverChamp
+                    targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(75, 95)
+                    targetSlot.isLikelyUnpicked = false
+
+                    // Se actualiza en el slot provisionalmente sin sellar definitivamente
+                    if (tenthTargetIsAlly) {
+                        allySlotConfirmedChampions[4] = hoverChamp
+                        allyOcrChampions[4] = hoverChamp
+                        AppLogger.d(TAG, "10º Pick Aliado preseleccionado en parte inferior izquierda: ${hoverChamp.name} (${(confidence * 100).toInt()}%)")
+                    } else {
+                        enemySlotConfirmedChampions[4] = hoverChamp
+                        enemyOcrChampions[4] = hoverChamp
+                        AppLogger.d(TAG, "10º Pick Rival preseleccionado en parte inferior derecha: ${hoverChamp.name} (${(confidence * 100).toInt()}%)")
+                    }
                 }
             }
         } else {

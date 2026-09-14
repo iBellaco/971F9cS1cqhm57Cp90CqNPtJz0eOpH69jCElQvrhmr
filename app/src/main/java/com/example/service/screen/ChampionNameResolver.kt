@@ -218,17 +218,15 @@ object ChampionNameResolver {
     fun findChampionInText(text: String, allChampions: List<Champion>): Champion? {
         val trimmed = text.trim()
         if (trimmed.isBlank() || trimmed.length < 2) return null
-
-        // Si la línea es claramente un nombre de invocador con clanes, números o sufijos, descartar
-        if (DraftValidationLayer.isLikelySummonerName(trimmed)) {
-            return null
+        val safeChamps = synchronized(WildRiftRepository) {
+            ArrayList(allChampions)
         }
 
         // Si la línea contiene paréntesis (ej: "XCS Junior (Jarvan IV): ¡Combatamos!"), extraer el contenido de los paréntesis
         val parenthesisMatch = Regex("\\(([^)]+)\\)").find(trimmed)
         if (parenthesisMatch != null) {
             val insideText = parenthesisMatch.groupValues[1]
-            val insideChamp = findChampionInText(insideText, allChampions)
+            val insideChamp = findChampionInText(insideText, safeChamps)
             if (insideChamp != null) return insideChamp
         }
 
@@ -240,26 +238,28 @@ object ChampionNameResolver {
 
         // 1. Coincidencia directa por mapa de nombres canónicos
         KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
-            val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null) return found
+            val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed)) return found
         }
         KNOWN_CHAMPIONS_MAP[compact]?.let { id ->
-            val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null) return found
+            val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed)) return found
         }
 
         // 2. Coincidencia exacta por lista de campeones en memoria
-        for (champ in allChampions) {
+        for (champ in safeChamps) {
             val champNorm = normalize(champ.name)
             val champCompact = normalizeCompact(champ.name)
             val champIdCompact = normalizeCompact(champ.id)
 
             if (clean == champNorm || compact == champCompact || compact == champIdCompact) {
-                return champ
+                if (!DraftValidationLayer.isLikelySummonerName(trimmed)) {
+                    return champ
+                }
             }
         }
 
-        // 3. Coincidencia por palabra contenida (ej: "WUKONG" en bloque de selección)
+        // 3. Coincidencia por palabra contenida (ej: "WUKONG" en "WUKONG XCS Alee22")
         val words = clean.split(" ").filter { it.length >= 2 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
             // Para nombres ultracortos de 2 letras (ej: "VI"), exigir que la línea completa sea sólo esa palabra
@@ -268,12 +268,12 @@ object ChampionNameResolver {
             }
 
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
-                val found = allChampions.find { it.id.equals(id, ignoreCase = true) }
+                val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
                 if (found != null && DraftValidationLayer.isValidChampionToken(word, found.id)) {
                     return found
                 }
             }
-            for (champ in allChampions) {
+            for (champ in safeChamps) {
                 val champNorm = normalize(champ.name)
                 val champCompact = normalizeCompact(champ.name)
                 if (champNorm == word || champCompact == word) {
@@ -283,7 +283,7 @@ object ChampionNameResolver {
                 }
                 // Si el icono de carril recortó la 1era letra (ej: GALIO -> ALIO, VEIGAR -> EIGAR)
                 if (word.length >= 4 && champNorm.length == word.length + 1 && champNorm.endsWith(word)) {
-                    if (!DraftValidationLayer.isLikelySummonerName(trimmed)) {
+                    if (DraftValidationLayer.isValidChampionToken(word, champ.id)) {
                         return champ
                     }
                 }

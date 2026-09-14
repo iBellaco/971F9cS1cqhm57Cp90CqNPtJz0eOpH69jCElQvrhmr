@@ -198,6 +198,7 @@ object WildRiftRepository {
     private val baseChampions = mutableListOf<Champion>()
     var activeRegionName by mutableStateOf("Global")
 
+    @Synchronized
     fun initChampions(context: android.content.Context, forceReload: Boolean = false) {
         if (champions.isNotEmpty() && !forceReload) return
         try {

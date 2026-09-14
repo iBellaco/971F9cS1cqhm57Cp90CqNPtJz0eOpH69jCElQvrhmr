@@ -22,7 +22,10 @@ class DraftDetectionAndValidationTest {
 
     private fun initChamps() {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        WildRiftRepository.initChampions(context)
+        synchronized(WildRiftRepository) {
+            WildRiftRepository.initChampions(context)
+            com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+        }
     }
 
     @Test
@@ -422,6 +425,70 @@ class DraftDetectionAndValidationTest {
         assertNotNull("Volibear con recorte interior (88%) debe coincidir", matchInner)
         assertEquals("volibear", matchInner?.first?.id)
         assertTrue("La confianza debe ser >= 0.70", (matchInner?.second ?: 0f) >= 0.70f)
+    }
+
+    @Test
+    fun test10thPickInferiorAndSuperiorFlow() = kotlinx.coroutines.test.runTest {
+        initChamps()
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+        val champs = WildRiftRepository.champions
+        val calib = com.example.service.screen.VisionCalibrationConfig()
+
+        // Creamos un lienzo 1920x1080 simulando pantalla de Wild Rift
+        val width = 1920
+        val height = 1080
+        val frame = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(frame)
+
+        val assetManager = context.assets
+        val stream = assetManager.open("champions/volibear.png")
+        val volibearBmp = android.graphics.BitmapFactory.decodeStream(stream)!!
+
+        // 1. Simular Volibear en la PARTE INFERIOR DERECHA (Slot 4 Rival para Primera Selección)
+        val enemyInferiorX = (width * calib.enemyAvatarCenterX).toInt()
+        val enemyInferiorY = (height * calib.enemySlotYRatios[4]).toInt()
+        val diamInferior = (height * calib.avatarDiameterRatio).toInt()
+        val scaledInferior = android.graphics.Bitmap.createScaledBitmap(volibearBmp, diamInferior, diamInferior, true)
+        canvas.drawBitmap(scaledInferior, (enemyInferiorX - diamInferior / 2).toFloat(), (enemyInferiorY - diamInferior / 2).toFloat(), null)
+
+        // Comprobamos escaneo en parte inferior con isFirstPick = true (debe mirar inferior derecha)
+        val matchInferiorFP = com.example.service.screen.LocalVisionAnalyzer.identify10thPickInferior(
+            bitmap = frame,
+            isFirstPick = true,
+            calib = calib,
+            allChamps = champs,
+            confirmedIds = emptySet(),
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+        assertNotNull("Debe detectar a Volibear en la parte inferior derecha con First Pick = true", matchInferiorFP)
+        assertEquals("volibear", matchInferiorFP?.first?.id)
+
+        // 2. Simular Volibear en la PARTE SUPERIOR DERECHA (Barra superior rival)
+        val topEnemyX = (width * calib.topEnemy5XRatio).toInt()
+        val topEnemyY = (height * calib.topAvatarYRatio).toInt()
+        val diamTop = (height * calib.topAvatarDiameterRatio).toInt()
+        val scaledTop = android.graphics.Bitmap.createScaledBitmap(volibearBmp, diamTop, diamTop, true)
+        canvas.drawBitmap(scaledTop, (topEnemyX - diamTop / 2).toFloat(), (topEnemyY - diamTop / 2).toFloat(), null)
+
+        // Comprobamos confirmación en parte superior con isFirstPick = true (debe mirar superior derecha y dar 100% de certeza)
+        val matchSuperiorFP = com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperior(
+            bitmap = frame,
+            isFirstPick = true,
+            calib = calib,
+            allChamps = champs,
+            confirmedIds = emptySet(),
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+        assertNotNull("Debe confirmar a Volibear en la parte superior derecha con First Pick = true", matchSuperiorFP)
+        assertEquals("volibear", matchSuperiorFP?.first?.id)
+        assertEquals(1.0f, matchSuperiorFP?.second ?: 0f, 0.001f)
+
+        // 3. Comprobación de desaparición de slots de avatares en fase de preparación
+        val dismissedInPrep = com.example.service.screen.LocalVisionAnalyzer.areAvatarSlotsDismissed(frame, isPrepPhaseDetected = true)
+        assertTrue("En fase de preparación los slots de avatares deben considerarse desaparecidos", dismissedInPrep)
     }
 }
 
