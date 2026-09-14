@@ -429,7 +429,7 @@ fun MainDraftingScreen(
                 }
 
                 val groupedNotices = remember(activeNotices) {
-                    val orderPriority = listOf("Anuncios importantes", "Ofertas", "Publicidad", "Mantenimiento", "Noticias", "Streamers")
+                    val orderPriority = listOf("Anuncios importantes", "Publicidad", "Ofertas", "Mantenimiento", "Noticias", "Streamers")
                     activeNotices.groupBy { normalizeNoticeTag(it.tag) }
                         .toList()
                         .sortedBy { (cat, _) ->
@@ -781,8 +781,7 @@ fun NoticeCategoryCard(
     val tagColor = getNoticeTagColor(categoryTag)
     val tagIcon = getNoticeTagIcon(categoryTag)
     val isSponsored = currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("Publicidad", true)
-    val isPublicidad = categoryTag.equals("Publicidad", true) || currentNotice.tag.equals("Publicidad", true)
-    val displayTag = if (isPublicidad) "Patrocinado" else categoryTag
+    val displayTag = categoryTag
 
     // Registro de impresiones analíticas
     LaunchedEffect(currentNotice.id) {
@@ -829,15 +828,13 @@ fun NoticeCategoryCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (!isPublicidad) {
-                            Icon(
-                                imageVector = tagIcon,
-                                contentDescription = null,
-                                tint = tagColor,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                        }
+                        Icon(
+                            imageVector = tagIcon,
+                            contentDescription = null,
+                            tint = tagColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = displayTag,
                             color = tagColor,

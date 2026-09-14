@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.UUID
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun SponsorCpmPanelDialog(
     onDismiss: () -> Unit
@@ -130,12 +131,30 @@ fun SponsorCpmPanelDialog(
     var selectedDurationUnit by remember { mutableStateOf("day") } // "hour", "day", "week", "month" (sin opción de 1 año)
     var isUploadingMedia by remember { mutableStateOf(false) }
 
+    var isHorizontalVideo by remember { mutableStateOf(false) }
+    var isVerticalVideo by remember { mutableStateOf(false) }
+
+    var currentMinute by remember { mutableStateOf(System.currentTimeMillis() / 60000L) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(10000L) // check every 10s is fine
+            currentMinute = System.currentTimeMillis() / 60000L
+        }
+    }
+
     val durationValueInt = remember(durationValueInput) {
         durationValueInput.toIntOrNull()?.coerceAtLeast(1) ?: 1
     }
 
-    // El presupuesto se calcula automáticamente según la unidad y la cantidad
-    val autoBudget = remember(selectedDurationUnit, durationValueInt) {
+    // El presupuesto se calcula automáticamente de forma dinámica
+    val autoBudget = remember(
+        selectedDurationUnit, 
+        durationValueInt,
+        isHorizontalVideo,
+        isVerticalVideo,
+        externalUrlInput,
+        currentMinute
+    ) {
         val unitPrice = when (selectedDurationUnit) {
             "hour" -> 1.50
             "day" -> 10.00
@@ -143,7 +162,22 @@ fun SponsorCpmPanelDialog(
             "month" -> 150.00
             else -> 10.00
         }
-        val total = unitPrice * durationValueInt
+        var total = unitPrice * durationValueInt
+        
+        // Premium for video content
+        if (isHorizontalVideo || isVerticalVideo) {
+            total *= 1.35 // 35% extra for video
+        }
+        
+        // Premium for external link
+        if (externalUrlInput.isNotBlank()) {
+            total *= 1.15 // 15% extra for outbound links
+        }
+        
+        // Dynamic demand factor (varies by minute, up to 50% more depending on simulated active users)
+        val demandMultiplier = 1.0 + (currentMinute % 50) / 100.0
+        total *= demandMultiplier
+
         String.format(Locale.US, "%.2f", total)
     }
     var budgetInput by remember { mutableStateOf("10.00") }
@@ -200,6 +234,7 @@ fun SponsorCpmPanelDialog(
                 NoticeMediaStorageManager.convertImageToCloudDataUrl(context, uri)
             }
             horizontalMediaInput = result
+            isHorizontalVideo = isVideo
             isUploadingMedia = false
             Toast.makeText(context, "Multimedia horizontal cargada (PNG/MP4)", Toast.LENGTH_SHORT).show()
         }
@@ -256,6 +291,7 @@ fun SponsorCpmPanelDialog(
                 NoticeMediaStorageManager.convertImageToCloudDataUrl(context, uri)
             }
             verticalMediaInput = result
+            isVerticalVideo = isVideo
             isUploadingMedia = false
             Toast.makeText(context, "Multimedia vertical cargada (PNG/MP4)", Toast.LENGTH_SHORT).show()
         }
@@ -422,9 +458,10 @@ fun SponsorCpmPanelDialog(
 
                     // Opción de Color del Título
                     Text("Color del Título:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    Row(
+                    FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         val colorsList = listOf(
                             "Dorado" to "#FFD700",
