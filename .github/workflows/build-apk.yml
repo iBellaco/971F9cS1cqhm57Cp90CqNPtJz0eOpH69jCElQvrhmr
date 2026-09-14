@@ -33,13 +33,28 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Accept Android SDK Licenses
+      - name: Configure Android SDK Environment
         run: |
-          yes | sdkmanager --licenses || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools" || true
+          ANDROID_ROOT="/usr/local/lib/android/sdk"
+          if [ ! -d "$ANDROID_ROOT" ]; then
+            ANDROID_ROOT="$HOME/Android/Sdk"
+          fi
+          echo "ANDROID_HOME=$ANDROID_ROOT" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$ANDROID_ROOT" >> $GITHUB_ENV
+          
+          # Find sdkmanager
+          SDKMANAGER_PATH=$(find $ANDROID_ROOT/cmdline-tools -name sdkmanager 2>/dev/null | head -n 1)
+          if [ -z "$SDKMANAGER_PATH" ]; then
+            SDKMANAGER_PATH=$(which sdkmanager || true)
+          fi
+          
+          if [ -n "$SDKMANAGER_PATH" ]; then
+            SDK_BIN_DIR=$(dirname "$SDKMANAGER_PATH")
+            echo "$SDK_BIN_DIR" >> $GITHUB_PATH
+            echo "Using sdkmanager from: $SDKMANAGER_PATH"
+            yes | "$SDKMANAGER_PATH" --licenses || true
+            "$SDKMANAGER_PATH" "platforms;android-36" "build-tools;36.0.0" "platform-tools" || true
+          fi
 
       - name: Prepare environment files
         run: |
