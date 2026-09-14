@@ -224,7 +224,7 @@ private fun PrivacyPolicyContent() {
 
     PolicySection(
         title = tr("2. Permisos del Asistente Flotante y Captura en Vivo"),
-        body = tr("Para brindar asistencia en tiempo real durante la selección de campeones, la app solicita permiso de superposición (Overlay) y proyección de pantalla. Dichas capturas se envían de forma temporal y cifrada a servicios de Inteligencia Artificial (como Google Gemini) para su análisis táctico e identificación de elementos en pantalla. Las imágenes no se almacenan permanentemente, no se utilizan para entrenar modelos públicos y son descartadas inmediatamente después de generar la recomendación. Ninguna grabación continua de video se almacena ni se transmite.")
+        body = tr("Para brindar asistencia en tiempo real durante la selección de campeones, la app solicita permiso de superposición (Overlay) y proyección de pantalla. Dichas capturas se procesan de forma 100% local y autónoma en tu dispositivo mediante algoritmos de visión en tiempo real y OCR. Las imágenes no se envían a servidores externos, no se almacenan permanentemente y se descartan inmediatamente tras procesarse. Ninguna grabación de video se almacena ni se transmite.")
     )
 
     PolicySection(
@@ -279,8 +279,8 @@ private fun ThirdPartyAgreementsContent() {
     )
 
     PolicySection(
-        title = tr("2. Proveedores de Infraestructura en la Nube e Inteligencia Artificial"),
-        body = tr("Utilizamos infraestructura en la nube con servidores seguros y bases de datos cifradas para la sincronización de perfiles, autenticación y almacenamiento de estados de suscripción. Además, utilizamos servicios de Inteligencia Artificial (como Google Gemini API) para el análisis avanzado de imágenes en tiempo real, operando bajo estrictas normas de seguridad y privacidad empresarial.")
+        title = tr("2. Proveedores de Infraestructura en la Nube"),
+        body = tr("Utilizamos infraestructura en la nube con servidores seguros y bases de datos cifradas para la sincronización de perfiles, autenticación y almacenamiento de estados de suscripción, operando bajo estrictas normas de seguridad y privacidad.")
     )
 
     PolicySection(

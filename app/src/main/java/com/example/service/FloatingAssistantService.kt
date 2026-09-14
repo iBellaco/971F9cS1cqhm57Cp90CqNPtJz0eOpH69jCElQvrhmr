@@ -850,7 +850,7 @@ class OverlayState {
     var isRoleManuallySelected by androidx.compose.runtime.mutableStateOf(false)
     var isFirstPick by androidx.compose.runtime.mutableStateOf(false)
     var isLegendaryQueue by androidx.compose.runtime.mutableStateOf(false)
-    var hasCalledGeminiFor10thPick by androidx.compose.runtime.mutableStateOf(false)
+    var hasScanned10thPick by androidx.compose.runtime.mutableStateOf(false)
     var isCompactBubble by androidx.compose.runtime.mutableStateOf(false)
     var isScanning by androidx.compose.runtime.mutableStateOf(false)
     var autoScanEnabled by androidx.compose.runtime.mutableStateOf(false)
@@ -1045,7 +1045,7 @@ private fun FloatingOverlayContent(
                                     val totalAlliesPicked = allies.filterNotNull().size
                                     val totalEnemiesPicked = enemies.filterNotNull().size
 
-                                    // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior y carrusel de aspectos con Gemini Vision
+                                    // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior de forma local
                                     if (result.isPreparationPhase && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
                                         val prepResult = withContext(Dispatchers.IO) {
                                             com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
@@ -1213,7 +1213,7 @@ private fun FloatingOverlayContent(
                         val totalAlliesPicked = allies.filterNotNull().size
                         val totalEnemiesPicked = enemies.filterNotNull().size
 
-                        // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior y carrusel con Gemini Vision
+                        // Si estamos en Fase de Preparación y faltan picks, escanear la barra superior de forma local
                         if (result.isPreparationPhase && (totalAlliesPicked < 5 || totalEnemiesPicked < 5)) {
                             val prepResult = withContext(Dispatchers.IO) {
                                 com.example.service.gemini.GeminiVisionService.scanFullPreparationScreen(bitmap)
@@ -1908,7 +1908,7 @@ private fun FloatingOverlayContent(
                                                 state.allySpells.clear()
                                                 state.enemySpells.clear()
                                                 state.isRoleManuallySelected = false
-                                                state.hasCalledGeminiFor10thPick = false
+                                                state.hasScanned10thPick = false
                                                 DraftVisionScanner.resetSlotMemory()
                                                 android.widget.Toast.makeText(context, "Equipos vaciados", android.widget.Toast.LENGTH_SHORT).show()
                                             },

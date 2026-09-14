@@ -20,8 +20,8 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 423
-    versionName = "1.1.0.15"
+    versionCode = 424
+    versionName = "1.1.0.16"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: System.getenv("GEMINI_API_KEY") ?: ""
     buildConfigField("String", "GEMINI_API_KEY", "\"${geminiKey}\"")
@@ -128,7 +128,7 @@ dependencies {
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.kotlinx.coroutines.play.services)
   implementation(libs.okhttp)
-  implementation(libs.generativeai)
+  // implementation(libs.generativeai) // Removido para funcionamiento 100% offline y reduccion de peso
   implementation("com.squareup.retrofit2:retrofit:2.12.0")
   implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.12.0")
   implementation(libs.supabase.postgrest)
