@@ -100,6 +100,7 @@ data class DraftScanResult(
     val allySpellsByRole: Map<LaneRole, List<String>> = emptyMap(),
     val isLegendaryRanked: Boolean = false,
     val isPreparationPhase: Boolean = false,
+    val tenthPickLog: String? = null,
     val isSuccessful: Boolean,
     val statusMessage: String
 )
@@ -955,6 +956,7 @@ object DraftVisionScanner {
         val otherPicksConfirmed = totalAllyOcrConfirmed + totalEnemyOcrConfirmed
 
         var isTenthConfirmed = false
+        var slotsDismissed = false
         val eligibleFor10thPick = otherPicksConfirmed >= 8 || isPreparationPhase
 
         if (eligibleFor10thPick) {
@@ -971,11 +973,12 @@ object DraftVisionScanner {
                 }
             }
 
-            val slotsDismissed = isPreparationPhase || LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
+            slotsDismissed = isPreparationPhase || LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
 
             if (slotsDismissed) {
                 // FASE B: Desaparecieron los slots de avatar de selección -> CONFIRMACIÓN 100% EN PARTE SUPERIOR
-                val superiorMatch = LocalVisionAnalyzer.identify10thPickSuperior(
+                AppLogger.d(TAG, "[10º PICK] Cuadrícula cerrada -> Buscando confirmación definitiva en barra superior...")
+                val superiorDecision = LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
                     bitmap = bitmap,
                     isFirstPick = effectiveFirstPick,
                     calib = calib,
@@ -985,8 +988,8 @@ object DraftVisionScanner {
                     context = context
                 )
 
-                if (superiorMatch != null) {
-                    val (topPickChamp, confidence) = superiorMatch
+                if (superiorDecision != null) {
+                    val topPickChamp = superiorDecision.selectedChampion
                     lastPickVisualChampion = topPickChamp
                     lastPickVisualConfidence = 1.0f
                     isLastPickVisualRecognized = true
@@ -999,22 +1002,22 @@ object DraftVisionScanner {
                     if (tenthTargetIsAlly) {
                         allySlotConfirmedChampions[4] = topPickChamp
                         allyOcrChampions[4] = topPickChamp
-                        AppLogger.d(TAG, "10º Pick Aliado confirmado 100% en barra superior: ${topPickChamp.name}")
+                        AppLogger.i(TAG, "10º Pick Aliado CONFIRMADO 100% en barra superior: ${topPickChamp.name}")
                     } else {
                         enemySlotConfirmedChampions[4] = topPickChamp
                         enemyOcrChampions[4] = topPickChamp
-                        AppLogger.d(TAG, "10º Pick Rival confirmado 100% en barra superior: ${topPickChamp.name}")
+                        AppLogger.i(TAG, "10º Pick Rival CONFIRMADO 100% en barra superior: ${topPickChamp.name}")
                     }
-                } else if (lastPickVisualChampion != null) {
-                    // Si ya se había detectado previamente y ratificado, mantener con máxima certeza
+                } else if (lastPickVisualChampion != null && isTenthConfirmed) {
+                    // Si ya se había ratificado previamente en barra superior, mantener con certeza 100%
                     targetSlot.champion = lastPickVisualChampion
                     targetSlot.confidencePercent = 100
                     targetSlot.isLikelyUnpicked = false
-                    isTenthConfirmed = true
                 }
             } else {
                 // FASE A: Mientras está en selección -> ESCANEO EN LA PARTE INFERIOR (Hover / Preselección)
-                val inferiorMatch = LocalVisionAnalyzer.identify10thPickInferior(
+                AppLogger.d(TAG, "[10º PICK] Cuadrícula activa -> Escaneando preselección (hover) en parte inferior...")
+                val inferiorDecision = LocalVisionAnalyzer.identify10thPickInferiorDetailed(
                     bitmap = bitmap,
                     isFirstPick = effectiveFirstPick,
                     calib = calib,
@@ -1024,11 +1027,13 @@ object DraftVisionScanner {
                     context = context
                 )
 
-                if (inferiorMatch != null) {
-                    val (hoverChamp, confidence) = inferiorMatch
+                if (inferiorDecision != null) {
+                    val hoverChamp = inferiorDecision.selectedChampion
+                    val confidence = inferiorDecision.confidence
                     lastPickVisualChampion = hoverChamp
                     lastPickVisualConfidence = confidence
                     isLastPickVisualRecognized = true
+                    isTenthConfirmed = false // PRESELECCIÓN: AÚN NO CONFIRMADO DEFINITIVAMENTE
 
                     targetSlot.champion = hoverChamp
                     targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(75, 95)
@@ -1038,11 +1043,11 @@ object DraftVisionScanner {
                     if (tenthTargetIsAlly) {
                         allySlotConfirmedChampions[4] = hoverChamp
                         allyOcrChampions[4] = hoverChamp
-                        AppLogger.d(TAG, "10º Pick Aliado preseleccionado en parte inferior izquierda: ${hoverChamp.name} (${(confidence * 100).toInt()}%)")
+                        AppLogger.i(TAG, "10º Pick Aliado preseleccionado en parte inferior izquierda: ${hoverChamp.name} (${(confidence * 100).toInt()}%) [Auto-Scan permanece activo]")
                     } else {
                         enemySlotConfirmedChampions[4] = hoverChamp
                         enemyOcrChampions[4] = hoverChamp
-                        AppLogger.d(TAG, "10º Pick Rival preseleccionado en parte inferior derecha: ${hoverChamp.name} (${(confidence * 100).toInt()}%)")
+                        AppLogger.i(TAG, "10º Pick Rival preseleccionado en parte inferior derecha: ${hoverChamp.name} (${(confidence * 100).toInt()}%) [Auto-Scan permanece activo]")
                     }
                 }
             }
@@ -1120,17 +1125,20 @@ object DraftVisionScanner {
 
         val tenthTurn = pickSequence.last()
         val tenthSlot = if (tenthTurn.isAlly) allySlots.getOrNull(tenthTurn.slotIndex) else enemySlots.getOrNull(tenthTurn.slotIndex)
-        val isTenthOcr = tenthSlot != null && tenthSlot.champion != null
-        val isTenthVisualConfirmed = isLastPickVisualRecognized
-        isTenthConfirmed = isTenthConfirmed || isTenthOcr || isTenthVisualConfirmed || total == 10
 
-        // Finalizar cuando existan 5 aliados + 5 rivales o el 10º pick esté confirmado
+        // El 10º pick sólo se da por 100% confirmado si:
+        // 1. Ya estamos en fase de preparación final (isPreparationPhase == true), O
+        // 2. Desapareció la cuadrícula de avatares (slotsDismissed == true) Y se confirmó en la barra superior (isTenthConfirmed == true).
+        // Mientras la cuadrícula esté visible (!slotsDismissed), el 10º pick es provisional (hover) y el auto-scan NUNCA debe desactivarse.
         val allAlliesConfirmed = allySlots.all { it.champion != null }
         val allEnemiesConfirmed = enemySlots.all { it.champion != null }
-        val isLastPickConfirmedValue = if (isPreparationPhase && (isTenthConfirmed || total == 10)) {
+
+        val isLastPickConfirmedValue = if (isPreparationPhase) {
             true
+        } else if (slotsDismissed) {
+            isTenthConfirmed || (allAlliesConfirmed && allEnemiesConfirmed)
         } else {
-            (total == 10 || (allAlliesConfirmed && allEnemiesConfirmed) || (total >= 9 && isTenthConfirmed))
+            false
         }
 
         return DraftScanResult(
@@ -1157,6 +1165,7 @@ object DraftVisionScanner {
             allySpellsByRole = allySpellsByRole,
             isLegendaryRanked = isLegendaryRanked,
             isPreparationPhase = isPreparationPhase,
+            tenthPickLog = LocalVisionAnalyzer.lastTenthPickLog?.formattedSummary,
             isSuccessful = hasDraftActivity,
             statusMessage = statusMsg
         )

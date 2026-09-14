@@ -38,6 +38,48 @@ object LocalVisionAnalyzer {
         val hueHistogram: FloatArray // 8 bins de tono cromático
     )
 
+    data class ScannedCropMetrics(
+        val roiLabel: String,
+        val width: Int,
+        val height: Int,
+        val avgLum: Float,
+        val contrast: Int,
+        val minLum: Int,
+        val maxLum: Int,
+        val isPopulated: Boolean,
+        val avgR: Float,
+        val avgG: Float,
+        val avgB: Float,
+        val dominantHueBin: Int,
+        val dominantHueName: String,
+        val dominantHuePercent: Int,
+        val hueHistogram: FloatArray
+    )
+
+    data class CandidateMatchComparison(
+        val champion: Champion,
+        val compositeScore: Float,
+        val pixelSimilarity: Float,
+        val histSimilarity: Float,
+        val avgColorSim: Float,
+        val roleBonus: Float
+    )
+
+    data class TenthPickDecisionLog(
+        val selectedChampion: Champion,
+        val confidence: Float,
+        val isConfirmed: Boolean,
+        val phaseName: String,
+        val scannedMetrics: ScannedCropMetrics,
+        val candidatesEvaluatedCount: Int,
+        val topCandidates: List<CandidateMatchComparison>,
+        val decisionReason: String,
+        val formattedSummary: String
+    )
+
+    @Volatile
+    var lastTenthPickLog: TenthPickDecisionLog? = null
+
     private val cachedSignatures = ConcurrentHashMap<String, AvatarFingerprint>()
     private var isInitialized = false
 
@@ -165,11 +207,9 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Verifica si el recorte de avatar contiene un campeón real (contraste y brillo mínimos).
-     * Retorna falso si el slot está vacío, negro o esperando selección.
+     * Extrae métricas cuantitativas del recorte (brillo, contraste, RGB promedio e histograma HUE).
      */
-    fun isAvatarPopulated(crop: Bitmap): Boolean {
-        if (crop.isRecycled || crop.width < 12 || crop.height < 12) return false
+    fun extractScannedMetrics(crop: Bitmap, roiLabel: String): ScannedCropMetrics {
         val w = crop.width
         val h = crop.height
 
@@ -182,6 +222,14 @@ object LocalVisionAnalyzer {
         val cx = w / 2
         val cy = h / 2
         val maxR = min(w, h) * 0.38f
+
+        var sumR = 0f
+        var sumG = 0f
+        var sumB = 0f
+        var colorSamples = 0
+
+        val hueBins = FloatArray(8)
+        var validHueCount = 0
 
         for (y in 0 until h step step) {
             for (x in 0 until w step step) {
@@ -199,30 +247,100 @@ object LocalVisionAnalyzer {
                 if (lum < minLum) minLum = lum
                 if (lum > maxLum) maxLum = lum
                 samples++
+
+                sumR += r
+                sumG += g
+                sumB += b
+                colorSamples++
+
+                val hsv = FloatArray(3)
+                Color.RGBToHSV(r, g, b, hsv)
+                val hue = hsv[0]
+                val sat = hsv[1]
+                val value = hsv[2]
+
+                if (sat > 0.15f && value > 0.15f) {
+                    val bin = ((hue / 360f) * 8f).toInt().coerceIn(0, 7)
+                    hueBins[bin] += 1f
+                    validHueCount++
+                }
             }
         }
 
-        if (samples < 10) return false
-        val avgLum = totalLum.toFloat() / samples
-        val contrast = maxLum - minLum
+        val isPopulated = samples >= 10 && (totalLum.toFloat() / samples) >= 22f && (maxLum - minLum) >= 25
+        val avgLum = if (samples > 0) totalLum.toFloat() / samples else 0f
+        val contrast = if (samples > 0) maxLum - minLum else 0
 
-        // Un slot vacío o sin pick es muy oscuro (< 20 lum) o prácticamente plano (< 18 contraste)
-        return avgLum >= 22f && contrast >= 25
+        if (validHueCount > 0) {
+            for (i in 0 until 8) {
+                hueBins[i] /= validHueCount.toFloat()
+            }
+        }
+
+        var dominantBin = 0
+        var maxBinVal = 0f
+        for (i in 0 until 8) {
+            if (hueBins[i] > maxBinVal) {
+                maxBinVal = hueBins[i]
+                dominantBin = i
+            }
+        }
+
+        val dominantName = when (dominantBin) {
+            0 -> "Rojo / Naranja (0°-45°)"
+            1 -> "Amarillo / Oro (45°-90°)"
+            2 -> "Verde Claro (90°-135°)"
+            3 -> "Verde / Esmeralda (135°-180°)"
+            4 -> "Cian / Celeste (180°-225°)"
+            5 -> "Azul / Índigo (225°-270°)"
+            6 -> "Púrpura / Violeta (270°-315°)"
+            else -> "Magenta / Carmesí (315°-360°)"
+        }
+
+        return ScannedCropMetrics(
+            roiLabel = roiLabel,
+            width = w,
+            height = h,
+            avgLum = avgLum,
+            contrast = contrast,
+            minLum = minLum,
+            maxLum = maxLum,
+            isPopulated = isPopulated,
+            avgR = if (colorSamples > 0) sumR / colorSamples else 0f,
+            avgG = if (colorSamples > 0) sumG / colorSamples else 0f,
+            avgB = if (colorSamples > 0) sumB / colorSamples else 0f,
+            dominantHueBin = dominantBin,
+            dominantHueName = dominantName,
+            dominantHuePercent = (maxBinVal * 100).toInt(),
+            hueHistogram = hueBins
+        )
     }
 
     /**
-     * Compara un recorte de pantalla contra el catálogo local de campeones.
-     * Devuelve el mejor campeón coincidente y la puntuación de confianza (0.0 a 1.0).
+     * Verifica si el recorte de avatar contiene un campeón real (contraste y brillo mínimos).
+     * Retorna falso si el slot está vacío, negro o esperando selección.
      */
-    fun matchAvatar(
+    fun isAvatarPopulated(crop: Bitmap): Boolean {
+        if (crop.isRecycled || crop.width < 12 || crop.height < 12) return false
+        return extractScannedMetrics(crop, "").isPopulated
+    }
+
+    /**
+     * Comparación detallada de un recorte contra el catálogo local de campeones.
+     * Retorna un log exhaustivo de métricas escaneadas, métricas comparadas y justificación de decisión.
+     */
+    fun matchAvatarDetailed(
         crop: Bitmap,
+        roiLabel: String,
         candidates: List<Champion>,
         expectedRole: LaneRole? = null,
         excludedChampionIds: Set<String> = emptySet(),
-        context: Context? = null
-    ): Pair<Champion, Float>? {
-        if (!isAvatarPopulated(crop)) {
-            AppLogger.d(TAG, "matchAvatar: El recorte no contiene un avatar poblado (slot vacío)")
+        context: Context? = null,
+        isConfirmedPhase: Boolean = false
+    ): TenthPickDecisionLog? {
+        val populatedMetrics = extractScannedMetrics(crop, roiLabel)
+        if (!populatedMetrics.isPopulated) {
+            AppLogger.d(TAG, "matchAvatarDetailed: Recorte en $roiLabel no contiene avatar poblado (avgLum=${populatedMetrics.avgLum.toInt()}, contrast=${populatedMetrics.contrast})")
             return null
         }
 
@@ -231,15 +349,13 @@ object LocalVisionAnalyzer {
 
         val targetFp = extractFingerprint(crop, "target") ?: return null
 
-        var bestChamp: Champion? = null
-        var bestScore = 0.0f
-
         val center = (FINGERPRINT_SIZE - 1) / 2.0f
         val maxRadius = FINGERPRINT_SIZE * 0.44f
 
+        val candidateComparisons = mutableListOf<CandidateMatchComparison>()
+
         for (champ in candidates) {
             if (excludedChampionIds.contains(champ.id)) continue
-
             val sig = cachedSignatures[champ.id] ?: continue
 
             // 1. Similitud RGB pixel a pixel en la región circular interior
@@ -280,41 +396,121 @@ object LocalVisionAnalyzer {
             val avgColorDiff = (abs(targetFp.avgR - sig.avgR) + abs(targetFp.avgG - sig.avgG) + abs(targetFp.avgB - sig.avgB)) / (3f * 255f)
             val avgColorSim = (1.0f - avgColorDiff).coerceIn(0f, 1f)
 
-            // Puntuación visual combinada
+            // 4. Puntuación visual combinada
             var compositeScore = (pixelSimilarity * 0.55f) + (histSimilarity * 0.30f) + (avgColorSim * 0.15f)
+            var roleBonus = 0f
 
-            // Ponderación contextual suave según el rol esperado para el slot (sin sesgar la similitud visual del avatar)
+            // Ponderación contextual suave según el rol esperado para el slot
             if (expectedRole != null) {
                 if (champ.primaryRole == expectedRole) {
-                    compositeScore += 0.03f
+                    roleBonus = 0.03f
                 } else if (champ.secondaryRoles.contains(expectedRole)) {
-                    compositeScore += 0.015f
+                    roleBonus = 0.015f
                 }
+                compositeScore += roleBonus
             }
 
-            if (compositeScore > bestScore) {
-                bestScore = compositeScore
-                bestChamp = champ
+            candidateComparisons.add(
+                CandidateMatchComparison(
+                    champion = champ,
+                    compositeScore = compositeScore,
+                    pixelSimilarity = pixelSimilarity,
+                    histSimilarity = histSimilarity,
+                    avgColorSim = avgColorSim,
+                    roleBonus = roleBonus
+                )
+            )
+        }
+
+        candidateComparisons.sortByDescending { it.compositeScore }
+
+        val best = candidateComparisons.firstOrNull()
+        if (best == null || best.compositeScore < 0.45f) {
+            return null
+        }
+
+        val runnerUp = candidateComparisons.getOrNull(1)
+        val delta = ((best.compositeScore - (runnerUp?.compositeScore ?: 0f)) * 100).toInt()
+        val topCandidates = candidateComparisons.take(4)
+
+        val phaseName = if (isConfirmedPhase) "CONFIRMACIÓN DEFINITIVA (BARRA SUPERIOR)" else "PRESELECCIÓN PROVISIONAL (HOVER INFERIOR)"
+
+        val decisionReason = "Seleccionado ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud global (Píxeles: ${(best.pixelSimilarity * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%, Color RGB: ${(best.avgColorSim * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%. Compatible con rol ${expectedRole?.name ?: "disponible"} y no colisiona con selecciones 1-9."
+
+        val summary = buildString {
+            appendLine("==================== [SELECCIÓN 10 - ANÁLISIS DE VISIÓN] ====================")
+            appendLine("Fase: $phaseName")
+            appendLine("Ubicación ROI: $roiLabel")
+            appendLine("")
+            appendLine("1. CARACTERÍSTICAS ESCANEADAS:")
+            appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
+            appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: Sí)")
+            appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
+            appendLine("- Tono Dominante: Bin ${populatedMetrics.dominantHueBin} [${populatedMetrics.dominantHueName}] (${populatedMetrics.dominantHuePercent}% píxeles con color)")
+            appendLine("- Histograma HUE (8 Bins): [${populatedMetrics.hueHistogram.joinToString(", ") { "${(it * 100).toInt()}%" }}]")
+            appendLine("")
+            appendLine("2. CARACTERÍSTICAS COMPARADAS:")
+            appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones (excluyendo picks 1-9)")
+            appendLine("- Rol esperado: ${expectedRole?.name ?: "Cualquiera"}")
+            appendLine("- Criterios: Píxeles 55% + Histograma HUE 30% + Color RGB 15% + Bonus Rol")
+            appendLine("- TOP CANDIDATOS:")
+            topCandidates.forEachIndexed { idx, c ->
+                appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | Píxel=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | RGB=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | RolBonus=+${(c.roleBonus * 100).toInt()}%" else ""}")
             }
+            appendLine("")
+            appendLine("3. POR QUÉ SE DECIDIÓ ESTA SELECCIÓN:")
+            appendLine("- Decisión: ${best.champion.name}")
+            appendLine("- Motivo: $decisionReason")
+            appendLine("- Estado Escaneo: ${if (isConfirmedPhase) "CONFIRMADO AL 100%. Selección sellada." else "PRESELECCIÓN PROVISIONAL. El escaneo automático CONTINÚA ACTIVO esperando confirmación final."}")
+            appendLine("=============================================================================")
         }
 
-        if (bestChamp != null && bestScore >= 0.45f) {
-            AppLogger.d(TAG, "Coincidencia local para avatar: ${bestChamp.name} (Confianza: ${(bestScore * 100).toInt()}%)")
-            return Pair(bestChamp, bestScore)
-        }
+        val decisionLog = TenthPickDecisionLog(
+            selectedChampion = best.champion,
+            confidence = best.compositeScore,
+            isConfirmed = isConfirmedPhase,
+            phaseName = phaseName,
+            scannedMetrics = populatedMetrics,
+            candidatesEvaluatedCount = candidateComparisons.size,
+            topCandidates = topCandidates,
+            decisionReason = decisionReason,
+            formattedSummary = summary
+        )
 
-        return null
+        lastTenthPickLog = decisionLog
+        AppLogger.i(TAG, summary)
+
+        return decisionLog
     }
 
     /**
-     * Escaneo del 10º Pick en la PARTE INFERIOR:
+     * Compara un recorte de pantalla contra el catálogo local de campeones.
+     * Devuelve el mejor campeón coincidente y la puntuación de confianza (0.0 a 1.0).
+     */
+    fun matchAvatar(
+        crop: Bitmap,
+        candidates: List<Champion>,
+        expectedRole: LaneRole? = null,
+        excludedChampionIds: Set<String> = emptySet(),
+        context: Context? = null
+    ): Pair<Champion, Float>? {
+        val detailed = matchAvatarDetailed(
+            crop = crop,
+            roiLabel = "Avatar Slot",
+            candidates = candidates,
+            expectedRole = expectedRole,
+            excludedChampionIds = excludedChampionIds,
+            context = context
+        ) ?: return null
+        return Pair(detailed.selectedChampion, detailed.confidence)
+    }
+
+    /**
+     * Escaneo del 10º Pick en la PARTE INFERIOR con métricas y justificación completa:
      * - Si es Primera Selección (Aliados): el 10º pick es Rival -> escanea la parte INFERIOR DERECHA (Slot 4 del Rival).
      * - Si NO es Primera Selección (Rivales): el 10º pick es Aliado -> escanea la parte INFERIOR IZQUIERDA (Slot 4 del Aliado).
-     *
-     * Nota: En la parte inferior el jugador puede estar mostrando un campeón (hover/preselección)
-     * y cambiar a otro antes de fijar.
      */
-    suspend fun identify10thPickInferior(
+    suspend fun identify10thPickInferiorDetailed(
         bitmap: Bitmap,
         isFirstPick: Boolean,
         calib: VisionCalibrationConfig,
@@ -322,14 +518,12 @@ object LocalVisionAnalyzer {
         confirmedIds: Set<String>,
         expectedRole: LaneRole?,
         context: Context? = null
-    ): Pair<Champion, Float>? = withContext(Dispatchers.Default) {
+    ): TenthPickDecisionLog? = withContext(Dispatchers.Default) {
         if (bitmap.isRecycled) return@withContext null
 
         val width = bitmap.width
         val height = bitmap.height
 
-        // Si es primera selección -> 10º pick es Rival (INFERIOR DERECHA, Slot 4)
-        // Si NO es primera selección -> 10º pick es Aliado (INFERIOR IZQUIERDA, Slot 4)
         val isAlly = !isFirstPick
         val slotAvatarDiam = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
         val slotCenterX = if (isAlly) {
@@ -343,20 +537,22 @@ object LocalVisionAnalyzer {
             (height * calib.enemySlotYRatios[4]).toInt()
         }
 
+        val sideDesc = if (isAlly) "Inferior Izquierda (Aliado 5 - 10º Pick)" else "Inferior Derecha (Rival 5 - 10º Pick)"
+
         val standardCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotAvatarDiam)
         val innerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 0.88f).toInt())
         val outerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 1.08f).toInt())
 
-        val candidateMatches = mutableListOf<Pair<Champion, Float>>()
+        val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
         try {
             if (standardCrop != null) {
-                matchAvatar(standardCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false)?.let { candidateDecisions.add(it) }
             }
             if (innerCrop != null) {
-                matchAvatar(innerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                matchAvatarDetailed(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false)?.let { candidateDecisions.add(it) }
             }
             if (outerCrop != null) {
-                matchAvatar(outerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                matchAvatarDetailed(outerCrop, "$sideDesc [Exterior 108%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false)?.let { candidateDecisions.add(it) }
             }
         } finally {
             try { standardCrop?.recycle() } catch (_: Throwable) {}
@@ -364,22 +560,10 @@ object LocalVisionAnalyzer {
             try { outerCrop?.recycle() } catch (_: Throwable) {}
         }
 
-        val best = candidateMatches.maxByOrNull { it.second }
-        if (best != null) {
-            val sideDesc = if (isAlly) "inferior izquierda (Aliado 5)" else "inferior derecha (Rival 5)"
-            AppLogger.d(TAG, "10º Pick preseleccionado en parte $sideDesc: ${best.first.name} (${(best.second * 100).toInt()}%)")
-        }
-        return@withContext best
+        return@withContext candidateDecisions.maxByOrNull { it.confidence }
     }
 
-    /**
-     * Confirmación del 10º Pick en la PARTE SUPERIOR (100% Certera):
-     * Una vez que desaparecen los slots de avatares de selección, el campeón queda fijado.
-     * En la parte superior se visualiza 100% la selección definitiva:
-     * - Si fue Primera Selección: el 10º pick fue el 5º Rival -> confirma en la PARTE SUPERIOR DERECHA.
-     * - Si NO fue Primera Selección: el 10º pick fue el 5º Aliado -> confirma en la PARTE SUPERIOR IZQUIERDA.
-     */
-    suspend fun identify10thPickSuperior(
+    suspend fun identify10thPickInferior(
         bitmap: Bitmap,
         isFirstPick: Boolean,
         calib: VisionCalibrationConfig,
@@ -387,7 +571,26 @@ object LocalVisionAnalyzer {
         confirmedIds: Set<String>,
         expectedRole: LaneRole?,
         context: Context? = null
-    ): Pair<Champion, Float>? = withContext(Dispatchers.Default) {
+    ): Pair<Champion, Float>? {
+        val detailed = identify10thPickInferiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, context) ?: return null
+        return Pair(detailed.selectedChampion, detailed.confidence)
+    }
+
+    /**
+     * Confirmación del 10º Pick en la PARTE SUPERIOR (100% Certera) con registro detallado:
+     * Tras cerrarse la cuadrícula inferior, el campeón queda fijado en la barra superior:
+     * - Si fue Primera Selección: el 10º pick fue el 5º Rival -> confirma en la PARTE SUPERIOR DERECHA.
+     * - Si NO fue Primera Selección: el 10º pick fue el 5º Aliado -> confirma en la PARTE SUPERIOR IZQUIERDA.
+     */
+    suspend fun identify10thPickSuperiorDetailed(
+        bitmap: Bitmap,
+        isFirstPick: Boolean,
+        calib: VisionCalibrationConfig,
+        allChamps: List<Champion>,
+        confirmedIds: Set<String>,
+        expectedRole: LaneRole?,
+        context: Context? = null
+    ): TenthPickDecisionLog? = withContext(Dispatchers.Default) {
         if (bitmap.isRecycled) return@withContext null
 
         val width = bitmap.width
@@ -406,7 +609,8 @@ object LocalVisionAnalyzer {
             )
         }
 
-        val candidateMatches = mutableListOf<Pair<Champion, Float>>()
+        val sideDesc = if (isAlly) "Superior Izquierda (Aliado 5 - 10º Pick)" else "Superior Derecha (Rival 5 - 10º Pick)"
+        val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
 
         for (topCenterX in candidateXs) {
             val standardCrop = safeCrop(bitmap, topCenterX, topCenterY, topDiam)
@@ -415,13 +619,13 @@ object LocalVisionAnalyzer {
 
             try {
                 if (standardCrop != null) {
-                    matchAvatar(standardCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                    matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true)?.let { candidateDecisions.add(it) }
                 }
                 if (innerCrop != null) {
-                    matchAvatar(innerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                    matchAvatarDetailed(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true)?.let { candidateDecisions.add(it) }
                 }
                 if (outerCrop != null) {
-                    matchAvatar(outerCrop, allChamps, expectedRole, confirmedIds, context)?.let { candidateMatches.add(it) }
+                    matchAvatarDetailed(outerCrop, "$sideDesc [Exterior 108%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true)?.let { candidateDecisions.add(it) }
                 }
             } finally {
                 try { standardCrop?.recycle() } catch (_: Throwable) {}
@@ -430,14 +634,20 @@ object LocalVisionAnalyzer {
             }
         }
 
-        val best = candidateMatches.maxByOrNull { it.second }
-        if (best != null) {
-            val sideDesc = if (isAlly) "superior izquierda (Aliado 5)" else "superior derecha (Rival 5)"
-            AppLogger.d(TAG, "10º Pick confirmado al 100% en parte $sideDesc: ${best.first.name} (${(best.second * 100).toInt()}%)")
-            return@withContext Pair(best.first, 1.0f)
-        }
+        return@withContext candidateDecisions.maxByOrNull { it.confidence }
+    }
 
-        return@withContext null
+    suspend fun identify10thPickSuperior(
+        bitmap: Bitmap,
+        isFirstPick: Boolean,
+        calib: VisionCalibrationConfig,
+        allChamps: List<Champion>,
+        confirmedIds: Set<String>,
+        expectedRole: LaneRole?,
+        context: Context? = null
+    ): Pair<Champion, Float>? {
+        val detailed = identify10thPickSuperiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, context) ?: return null
+        return Pair(detailed.selectedChampion, 1.0f)
     }
 
     /**
@@ -481,7 +691,9 @@ object LocalVisionAnalyzer {
 
             // Con la cuadrícula de avatares activa, la desviación estándar es alta (> 38).
             // Al cerrarse la cuadrícula, la zona central queda plana/oscura (desviación baja).
-            stdDev < 28.0
+            val dismissed = stdDev < 28.0
+            AppLogger.d(TAG, "areAvatarSlotsDismissed: stdDev=${String.format(java.util.Locale.US, "%.1f", stdDev)} (umbral < 28.0) -> cuadrícula cerrada=$dismissed")
+            dismissed
         } catch (_: Throwable) {
             false
         }

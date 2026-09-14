@@ -1057,13 +1057,22 @@ private fun FloatingOverlayContent(
                                     val finalAlliesPicked = allies.filterNotNull().size
                                     val finalEnemiesPicked = enemies.filterNotNull().size
 
+                                    val isDraftFullyConfirmed = (finalAlliesPicked == 5 && finalEnemiesPicked == 5 && result.isLastPickConfirmed) || result.isPreparationPhase
+
                                     if (result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
                                         activeRole = result.userExplicitlyDetectedRole
                                         com.example.util.UserPreferences.setActiveDraftRole(context, result.userExplicitlyDetectedRole)
                                         scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.userExplicitlyDetectedRole.shortName})"
-                                    } else if (finalAlliesPicked == 5 && finalEnemiesPicked == 5) {
+                                    } else if (isDraftFullyConfirmed) {
                                         autoScanEnabled = false
                                         scanNoticeMessage = "🎯 10/10 Campeones confirmados (Fase de Preparación)"
+                                        AppLogger.i("FloatingService", "Auto-Scan desactivado: 10/10 campeones confirmados definitivamente con el 10º pick sellado.")
+                                    } else if (finalAlliesPicked == 5 && finalEnemiesPicked == 5 && !result.isLastPickConfirmed) {
+                                        val hoverName = result.lastPickChampion?.name ?: "10º Pick"
+                                        scanNoticeMessage = "⏳ 10º Pick en preselección: $hoverName (esperando bloqueo...)"
+                                        AppLogger.d("FloatingService", "Auto-Scan activo: 10º pick en preselección ($hoverName), esperando confirmación en barra superior.")
+                                    } else if (finalAlliesPicked + finalEnemiesPicked == 9) {
+                                        scanNoticeMessage = "⏳ 9/10 picks confirmados • Escaneando 10º pick en directo..."
                                     } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
                                         scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($finalAlliesPicked/5 vs $finalEnemiesPicked/5)"
                                     }

@@ -1,6 +1,7 @@
 package com.example
 
 import com.example.data.WildRiftRepository
+import com.example.model.Champion
 import com.example.model.LaneRole
 import com.example.service.screen.ChampionNameResolver
 import com.example.service.screen.DraftValidationLayer
@@ -28,10 +29,16 @@ class DraftDetectionAndValidationTest {
         }
     }
 
+    private fun getSafeChamps(): List<Champion> {
+        initChamps()
+        return synchronized(WildRiftRepository) {
+            WildRiftRepository.champions.toList()
+        }
+    }
+
     @Test
     fun testSummonerNameIsNotConfusedWithLucian() {
-        initChamps()
-        val champs = WildRiftRepository.champions
+        val champs = getSafeChamps()
         
         // "XCS Lucianito" debe ser identificado como invocador y no confundirse con Lucian
         assertTrue(DraftValidationLayer.isLikelySummonerName("XCS Lucianito"))
@@ -87,8 +94,7 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testExactMatchScreenshotTeamRoleResolution() {
-        initChamps()
-        val champs = WildRiftRepository.champions
+        val champs = getSafeChamps()
         val caitlyn = champs.first { it.id == "caitlyn" }
         val thresh = champs.first { it.id == "thresh" }
         val jarvan = champs.first { it.id == "jarvan_iv" }
@@ -162,8 +168,7 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testRealUserScreenshotsAccuracy() {
-        initChamps()
-        val champs = WildRiftRepository.champions
+        val champs = getSafeChamps()
 
         // Validación basada en las capturas reales del usuario:
         // Captura 1: Wukong (Barón), Galio (Apoyo), Veigar (Mid), Sivir (Dúo), Yone (Jungla con Smite)
@@ -232,8 +237,7 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testChampionNameWithSummonerNameExtraction() {
-        initChamps()
-        val champs = WildRiftRepository.champions
+        val champs = getSafeChamps()
 
         // Casos reales donde el OCR detecta el nombre del campeón junto al nombre de invocador
         val wukong = ChampionNameResolver.findChampionInText("WUKONG XCS Alee22", champs)
@@ -258,8 +262,7 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testRoleDiscrepanciesAndCorrectRoleAssignments() {
-        initChamps()
-        val champs = WildRiftRepository.champions
+        val champs = getSafeChamps()
 
         val wukong = champs.find { it.id == "wukong" }!!
         val yone = champs.find { it.id == "yone" }!!
@@ -297,8 +300,7 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testSummonerNamesAreNotHallucinatedAsChampions() {
-        initChamps()
-        val champs = WildRiftRepository.champions
+        val champs = getSafeChamps()
 
         // Nombres de invocador comunes que antes se confundían con campeones
         val falsePositives = listOf(
@@ -368,9 +370,8 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testLocalVisionVolibearMatching() {
-        initChamps()
+        val champs = getSafeChamps()
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val champs = WildRiftRepository.champions
 
         // Cargar imagen de Volibear desde assets
         val assetManager = context.assets
@@ -393,10 +394,8 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun testMultiScaleVolibearLocalMatching() = kotlinx.coroutines.test.runTest {
-        initChamps()
+        val champs = getSafeChamps()
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
-        val champs = WildRiftRepository.champions
 
         val assetManager = context.assets
         val stream = assetManager.open("champions/volibear.png")
@@ -429,10 +428,8 @@ class DraftDetectionAndValidationTest {
 
     @Test
     fun test10thPickInferiorAndSuperiorFlow() = kotlinx.coroutines.test.runTest {
-        initChamps()
+        val champs = getSafeChamps()
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
-        val champs = WildRiftRepository.champions
         val calib = com.example.service.screen.VisionCalibrationConfig()
 
         // Creamos un lienzo 1920x1080 simulando pantalla de Wild Rift
@@ -489,6 +486,38 @@ class DraftDetectionAndValidationTest {
         // 3. Comprobación de desaparición de slots de avatares en fase de preparación
         val dismissedInPrep = com.example.service.screen.LocalVisionAnalyzer.areAvatarSlotsDismissed(frame, isPrepPhaseDetected = true)
         assertTrue("En fase de preparación los slots de avatares deben considerarse desaparecidos", dismissedInPrep)
+
+        // 4. Comprobación de logs detallados del 10º pick (métricas escaneadas, comparadas y justificación)
+        val detailedInferior = com.example.service.screen.LocalVisionAnalyzer.identify10thPickInferiorDetailed(
+            bitmap = frame,
+            isFirstPick = true,
+            calib = calib,
+            allChamps = champs,
+            confirmedIds = emptySet(),
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+        assertNotNull("Debe generar log detallado para escaneo inferior", detailedInferior)
+        assertEquals("volibear", detailedInferior?.selectedChampion?.id)
+        assertFalse("En escaneo inferior el pick es hover y NO debe figurar como confirmado", detailedInferior?.isConfirmed ?: true)
+        assertTrue("Debe contener métricas de recorte poblado", detailedInferior?.scannedMetrics?.isPopulated ?: false)
+        assertTrue("Debe registrar candidatos comparados", (detailedInferior?.topCandidates?.size ?: 0) > 0)
+        assertTrue("Debe incluir justificación de decisión con porcentaje", detailedInferior?.decisionReason?.contains("Volibear") ?: false)
+        assertTrue("El resumen formateado debe contener secciones estructuradas", detailedInferior?.formattedSummary?.contains("CARACTERÍSTICAS ESCANEADAS") ?: false)
+
+        val detailedSuperior = com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
+            bitmap = frame,
+            isFirstPick = true,
+            calib = calib,
+            allChamps = champs,
+            confirmedIds = emptySet(),
+            expectedRole = LaneRole.JUNGLE,
+            context = context
+        )
+        assertNotNull("Debe generar log detallado para escaneo superior", detailedSuperior)
+        assertEquals("volibear", detailedSuperior?.selectedChampion?.id)
+        assertTrue("En escaneo superior el pick debe figurar como confirmado", detailedSuperior?.isConfirmed ?: false)
+        assertTrue("El resumen formateado superior debe indicar confirmación definitiva", detailedSuperior?.formattedSummary?.contains("CONFIRMACIÓN DEFINITIVA") ?: false)
     }
 }
 
