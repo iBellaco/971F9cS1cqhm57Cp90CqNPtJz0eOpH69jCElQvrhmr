@@ -975,13 +975,35 @@ object DraftVisionScanner {
             val confirmedIds = (allySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id } +
                                 enemySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id }).toSet()
 
-            val expectedRole = if (!tenthTargetIsAlly) {
-                val assignedEnemyRoles = enemySlots.filter { it.champion != null && it != targetSlot }.mapNotNull { it.champion?.primaryRole }.toSet()
-                defaultRolesList.firstOrNull { !assignedEnemyRoles.contains(it) } ?: defaultRolesList[4]
+            val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+            val (expectedRole, roleExplanation) = if (!tenthTargetIsAlly) {
+                // RIVAL: No hay etiquetas de rol en pantalla -> Se deduce por descarte de los picks rivales 1-4
+                val validEnemySlots = enemySlots.filter { it != targetSlot && it.champion != null }
+                val dummyAudit = mutableListOf<String>()
+                val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validEnemySlots, allChamps, dummyAudit, isAllyTeam = false)
+                val assignedRoles = enemyResolved.assignments.keys.toSet()
+                val remainingRoles = standardRoles.filter { !assignedRoles.contains(it) }
+                val deduced = remainingRoles.firstOrNull() ?: defaultRolesList[4]
+                val occupiedDesc = enemyResolved.assignments.entries.joinToString(", ") { "${it.key.displayName}: ${it.value.name}" }
+                val expl = if (enemyResolved.assignments.isNotEmpty()) {
+                    "Línea Rival Deducida por Descarte (Picks Rivales 1-4 ocupan: $occupiedDesc) -> Rol restante para 10º Pick: ${deduced.displayName}"
+                } else {
+                    "Línea Rival Deducida: ${deduced.displayName} (Aún sin suficientes picks rivales resueltos)"
+                }
+                Pair(deduced, expl)
             } else {
-                allySlotRolesCache[4] ?: run {
-                    val assignedAllyRoles = allySlots.filter { it.champion != null && it != targetSlot }.mapNotNull { it.explicitRole ?: it.assignedRole }.toSet()
-                    defaultRolesList.firstOrNull { !assignedAllyRoles.contains(it) } ?: defaultRolesList[4]
+                // ALIADO: Línea visible directamente en pantalla
+                val cachedRole = allySlotRolesCache[4] ?: targetSlot.explicitRole
+                if (cachedRole != null) {
+                    Pair(cachedRole, "Línea Aliada detectada en pantalla: ${cachedRole.displayName} (100% Certeza)")
+                } else {
+                    val validAllySlots = allySlots.filter { it != targetSlot && it.champion != null }
+                    val dummyAudit = mutableListOf<String>()
+                    val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validAllySlots, allChamps, dummyAudit, isAllyTeam = true)
+                    val assignedRoles = allyResolved.assignments.keys.toSet()
+                    val remainingRoles = standardRoles.filter { !assignedRoles.contains(it) }
+                    val deduced = remainingRoles.firstOrNull() ?: defaultRolesList[4]
+                    Pair(deduced, "Línea Aliada calculada: ${deduced.displayName}")
                 }
             }
 
@@ -997,6 +1019,7 @@ object DraftVisionScanner {
                     allChamps = allChamps,
                     confirmedIds = confirmedIds,
                     expectedRole = expectedRole,
+                    roleExplanation = roleExplanation,
                     context = context
                 )
 
@@ -1036,6 +1059,7 @@ object DraftVisionScanner {
                     allChamps = allChamps,
                     confirmedIds = confirmedIds,
                     expectedRole = expectedRole,
+                    roleExplanation = roleExplanation,
                     context = context
                 )
 
