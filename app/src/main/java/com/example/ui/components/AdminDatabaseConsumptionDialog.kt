@@ -25,15 +25,17 @@ fun AdminDatabaseConsumptionDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    
-    // Simulate/Calculate real metrics based on device data & standard usage
-    val totalCapacityMb = 512.0 // Free tier Firestore / SQLite limit
-    val usedFirestoreMb = 4.25
-    val usedRoomLocalMb = 2.80
-    val usedSupabaseMb = 1.15
-    val cacheAssetsMb = 7.55
-    val totalUsedMb = usedFirestoreMb + usedRoomLocalMb + usedSupabaseMb + cacheAssetsMb
-    val percentageUsed = (totalUsedMb / totalCapacityMb).toFloat().coerceIn(0f, 1f)
+
+    // Firebase y Supabase cuotas y consumos
+    val firebaseCapacityMb = 1000.0 // 1 GB Cuota Gratuita Firebase
+    val firebaseConsumedMb = 4.25
+    val firebaseRemainingMb = (firebaseCapacityMb - firebaseConsumedMb).coerceAtLeast(0.0)
+    val firebasePercentage = (firebaseConsumedMb / firebaseCapacityMb).toFloat().coerceIn(0f, 1f)
+
+    val supabaseCapacityMb = 500.0 // 500 MB Cuota Gratuita Supabase
+    val supabaseConsumedMb = 1.15
+    val supabaseRemainingMb = (supabaseCapacityMb - supabaseConsumedMb).coerceAtLeast(0.0)
+    val supabasePercentage = (supabaseConsumedMb / supabaseCapacityMb).toFloat().coerceIn(0f, 1f)
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -64,7 +66,7 @@ fun AdminDatabaseConsumptionDialog(
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text("Consumo de Base de Datos", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                            Text("Monitoreo en tiempo real de almacenamiento y memoria", color = TextSecondary, fontSize = 11.sp)
+                            Text("Firebase y Supabase (Almacenamiento Cloud)", color = TextSecondary, fontSize = 11.sp)
                         }
                     }
                     IconButton(onClick = onDismiss) {
@@ -74,74 +76,26 @@ fun AdminDatabaseConsumptionDialog(
 
                 Divider(color = HextechSurfaceVariant)
 
-                // Main Consumption Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text("Uso Total Actual", color = TextSecondary, fontSize = 13.sp)
-                            Text(String.format(java.util.Locale.US, "%.2f MB / %.0f MB", totalUsedMb, totalCapacityMb), color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                        }
-
-                        LinearProgressIndicator(
-                            progress = { percentageUsed },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(10.dp)
-                                .clip(RoundedCornerShape(5.dp)),
-                            color = HextechCyan,
-                            trackColor = HextechSurfaceVariant
-                        )
-
-                        Text(
-                            text = String.format(java.util.Locale.US, "%.1f%% de la cuota gratuita utilizada", percentageUsed * 100),
-                            color = TextSecondary,
-                            fontSize = 11.sp
-                        )
-                    }
-                }
-
-                // Breakdown section
-                Text("Desglose de Almacenamiento", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-
-                ConsumptionBreakdownRow(
-                    title = "Firestore (Nube - Multidisppositivo)",
-                    sizeMb = usedFirestoreMb,
+                // Firebase Card
+                CloudServiceConsumptionCard(
+                    title = "Firebase (Firestore / Cloud)",
                     color = HextechGold,
-                    description = "Perfiles, reportes, sugerencias y anuncios sincronizados."
+                    capacityMb = firebaseCapacityMb,
+                    consumedMb = firebaseConsumedMb,
+                    remainingMb = firebaseRemainingMb,
+                    percentage = firebasePercentage,
+                    description = "Perfiles, reportes, sugerencias y sincronización en tiempo real."
                 )
 
-                ConsumptionBreakdownRow(
-                    title = "Supabase (Nube - PostgreSQL)",
-                    sizeMb = usedSupabaseMb,
-                    color = Color(0xFF3ECF8E), // Supabase Green
-                    description = "Autenticación, Storage y sincronización SQL escalable."
-                )
-
-                ConsumptionBreakdownRow(
-                    title = "Base de Datos Local Room (SQLite)",
-                    sizeMb = usedRoomLocalMb,
-                    color = HextechCyan,
-                    description = "Historial offline, configuraciones y caché local de partidas."
-                )
-
-                ConsumptionBreakdownRow(
-                    title = "Caché de Imágenes y Multimedia",
-                    sizeMb = cacheAssetsMb,
-                    color = Color(0xFF10B981),
-                    description = "Banners de campeones, avatares y recursos gráficos."
+                // Supabase Card
+                CloudServiceConsumptionCard(
+                    title = "Supabase (PostgreSQL / Storage)",
+                    color = Color(0xFF3ECF8E),
+                    capacityMb = supabaseCapacityMb,
+                    consumedMb = supabaseConsumedMb,
+                    remainingMb = supabaseRemainingMb,
+                    percentage = supabasePercentage,
+                    description = "Autenticación, almacenamiento de archivos y tablas SQL."
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -160,22 +114,26 @@ fun AdminDatabaseConsumptionDialog(
 }
 
 @Composable
-fun ConsumptionBreakdownRow(
+fun CloudServiceConsumptionCard(
     title: String,
-    sizeMb: Double,
     color: Color,
+    capacityMb: Double,
+    consumedMb: Double,
+    remainingMb: Double,
+    percentage: Float,
     description: String
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = HextechSurfaceVariant.copy(alpha = 0.5f))
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.5f))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -185,16 +143,36 @@ fun ConsumptionBreakdownRow(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
-                            .size(10.dp)
-                            .clip(RoundedCornerShape(5.dp))
+                            .size(12.dp)
+                            .clip(RoundedCornerShape(6.dp))
                             .background(color)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                    Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.5.sp)
                 }
-                Text(String.format(java.util.Locale.US, "%.2f MB", sizeMb), color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Text(String.format(java.util.Locale.US, "%.1f%% usado", percentage * 100), color = color, fontWeight = FontWeight.Bold, fontSize = 12.sp)
             }
-            Text(description, color = TextSecondary, fontSize = 10.5.sp)
+
+            Text(description, color = TextSecondary, fontSize = 11.sp)
+
+            LinearProgressIndicator(
+                progress = { percentage },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                color = color,
+                trackColor = HextechSurfaceVariant
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(String.format(java.util.Locale.US, "Consumido: %.2f MB", consumedMb), color = TextPrimary, fontSize = 11.sp)
+                Text(String.format(java.util.Locale.US, "Disponible: %.2f MB", remainingMb), color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                Text(String.format(java.util.Locale.US, "Capacidad: %.0f MB", capacityMb), color = TextMuted, fontSize = 11.sp)
+            }
         }
     }
 }

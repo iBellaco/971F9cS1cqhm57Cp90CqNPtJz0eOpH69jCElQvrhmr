@@ -144,7 +144,7 @@ fun UserInboxDialog(
                                     "conversation" to conv,
                                     "adminReply" to admRep,
                                     "repliedBy" to repBy,
-                                    "isRead" to (status.equals("LEIDO", ignoreCase = true) || status.equals("SOLUCIONADO", ignoreCase = true) || status.equals("RESUELTO", ignoreCase = true)),
+                                    "isRead" to false,
                                     "sender" to (data["userName"] as? String ?: "Soporte Coach")
                                 )
                             }
@@ -180,7 +180,7 @@ fun UserInboxDialog(
                                     "conversation" to conv,
                                     "adminReply" to admRep,
                                     "repliedBy" to repBy,
-                                    "isRead" to (status.equals("LEIDO", ignoreCase = true) || status.equals("SOLUCIONADO", ignoreCase = true) || status.equals("RESUELTO", ignoreCase = true)),
+                                    "isRead" to false,
                                     "sender" to (data["userName"] as? String ?: "Soporte Coach")
                                 )
                             }

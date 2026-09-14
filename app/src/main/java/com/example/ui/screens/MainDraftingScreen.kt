@@ -822,49 +822,31 @@ fun NoticeCategoryCard(
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 // Encabezado del panel
+                val isPublicidadCategory = categoryTag.equals("Publicidad", true)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = if (isPublicidadCategory) Arrangement.End else Arrangement.SpaceBetween
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = tagIcon,
-                            contentDescription = null,
-                            tint = tagColor,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = displayTag,
-                            color = tagColor,
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                    if (!isPublicidadCategory) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = tagIcon,
+                                contentDescription = null,
+                                tint = tagColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = displayTag,
+                                color = tagColor,
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        // Contador de rotación visual cuando hay múltiples avisos
-                        if (noticeList.size > 1 && !isPinned) {
-                            Surface(
-                                color = HextechDarkBg.copy(alpha = 0.8f),
-                                shape = RoundedCornerShape(5.dp),
-                                border = BorderStroke(0.8.dp, tagColor.copy(alpha = 0.6f))
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "${remainingRotationSec}s",
-                                        color = tagColor,
-                                        fontSize = 9.5.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
-
                         // Etiqueta "Patrocinado" en la esquina derecha cuando el anuncio es de patrocinador
                         if (isSponsored) {
                             Surface(
@@ -882,15 +864,15 @@ fun NoticeCategoryCard(
                             }
                         }
 
-                        // Si hay varios avisos del mismo tipo, se muestran controles para alternar y fijar
+                        // Si hay varios avisos del mismo tipo, se muestra únicamente el icono de fijación
                         if (noticeList.size > 1) {
                             IconButton(
                                 onClick = {
                                     isPinned = !isPinned
                                     if (isPinned) {
-                                        Toast.makeText(context, "📌 Publicación fijada. No cambiará automáticamente.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "📌 Publicación fijada. No rotará automáticamente.", Toast.LENGTH_SHORT).show()
                                     } else {
-                                        Toast.makeText(context, "Fijación desactivada.", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Rotación automática activada.", Toast.LENGTH_SHORT).show()
                                     }
                                 },
                                 modifier = Modifier.size(28.dp)
@@ -901,77 +883,6 @@ fun NoticeCategoryCard(
                                     tint = if (isPinned) tagColor else tagColor.copy(alpha = 0.4f),
                                     modifier = Modifier.size(17.dp)
                                 )
-                            }
-
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                IconButton(
-                                    onClick = {
-                                        if (isPinned) {
-                                            Toast.makeText(
-                                                context,
-                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            slideDirection = -1
-                                            currentIndex = if (currentIndex > 0) currentIndex - 1 else noticeList.size - 1
-                                            autoTimerTrigger++
-                                        }
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Text(
-                                        text = "<",
-                                        color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Surface(
-                                    color = tagColor.copy(alpha = if (isPinned) 0.3f else 0.2f),
-                                    shape = RoundedCornerShape(4.dp),
-                                    border = BorderStroke(1.dp, tagColor.copy(alpha = if (isPinned) 0.8f else 0.4f)),
-                                    modifier = Modifier.clickable {
-                                        if (isPinned) {
-                                            Toast.makeText(
-                                                context,
-                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    }
-                                ) {
-                                    Text(
-                                        text = "${if (isPinned) "📌 " else "🔄 "}${safeIndex + 1}/${noticeList.size}",
-                                        color = tagColor,
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        if (isPinned) {
-                                            Toast.makeText(
-                                                context,
-                                                "La publicación está fijada. Desactiva la fijación para cambiar de anuncio.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            slideDirection = 1
-                                            currentIndex = (currentIndex + 1) % noticeList.size
-                                            autoTimerTrigger++
-                                        }
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Text(
-                                        text = ">",
-                                        color = if (isPinned) tagColor.copy(alpha = 0.35f) else tagColor,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
                             }
                         }
                     }

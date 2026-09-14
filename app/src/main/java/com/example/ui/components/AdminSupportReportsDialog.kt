@@ -8,6 +8,12 @@ import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -60,6 +66,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -77,6 +84,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -466,6 +474,18 @@ fun AdminSupportReportsDialog(
         reportsList.count { it.status == FeedbackRepository.STATUS_SOLVED || it.status.equals("SOLUCIONADO", ignoreCase = true) || it.status.equals("RESUELTO", ignoreCase = true) || it.status.equals("ACCEPTED", ignoreCase = true) }
     }
 
+    // Animación de pulso para nuevos mensajes de soporte
+    val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition(label = "support_pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.22f,
+        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+            animation = androidx.compose.animation.core.tween(700, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+        ),
+        label = "pulse_scale"
+    )
+
     fun updateReportStatus(report: UnifiedSupportReport, newStatus: String) {
         val idx = reportsList.indexOfFirst { it.id == report.id || (report.firestoreDocId != null && it.firestoreDocId == report.firestoreDocId) }
         if (idx != -1) {
@@ -554,9 +574,13 @@ fun AdminSupportReportsDialog(
                             Box(
                                 modifier = Modifier
                                     .size(36.dp)
+                                    .graphicsLayer(
+                                        scaleX = if (pendingCount > 0) pulseScale else 1f,
+                                        scaleY = if (pendingCount > 0) pulseScale else 1f
+                                    )
                                     .clip(CircleShape)
-                                    .background(HextechGold.copy(alpha = 0.15f))
-                                    .border(1.dp, HextechGold, CircleShape),
+                                    .background(HextechGold.copy(alpha = if (pendingCount > 0) 0.35f else 0.15f))
+                                    .border(1.2.dp, if (pendingCount > 0) DangerRed else HextechGold, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -834,7 +858,7 @@ fun AdminSupportReportsDialog(
                         }
                     } else {
                         LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxWidth().weight(1f),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(filteredReports, key = { it.id }) { item ->
@@ -853,6 +877,46 @@ fun AdminSupportReportsDialog(
                                     },
                                     onDelete = { reportToDelete = item }
                                 )
+                            }
+                        }
+                    }
+
+                    // Barra inferior de navegación y estado visible del panel de soporte
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        color = HextechSurfaceVariant.copy(alpha = 0.5f),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(if (pendingCount > 0) DangerRed else Color(0xFF10B981))
+                                )
+                                Text(
+                                    text = if (pendingCount > 0) "⚠️ $pendingCount ticket(s) pendientes" else "✅ Buzón al día",
+                                    color = if (pendingCount > 0) HextechGold else Color(0xFF10B981),
+                                    fontSize = 11.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Button(
+                                onClick = onDismiss,
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("Cerrar Panel", color = HextechDarkBg, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

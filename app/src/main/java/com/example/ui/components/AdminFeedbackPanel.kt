@@ -880,11 +880,10 @@ fun AdminFeedbackBottomSheet(
             confirmButton = {
                 Button(
                     onClick = {
-                        val id = rep.id
-                        if (id != null) {
+                        if (rep != null) {
                             isDeleting = true
                             scope.launch {
-                                val res = FeedbackRepository.deleteFeedback(id)
+                                val res = FeedbackRepository.deleteFeedback(rep)
                                 isDeleting = false
                                 if (res.isSuccess) {
                                     Toast.makeText(context, "️ Elemento eliminado", Toast.LENGTH_SHORT).show()

@@ -166,26 +166,31 @@ fun SponsorCpmPanelDialog(
         }
         var total = unitPrice * durationValueInt
         
-        // Premium for video content vs image content
+        // Add explicit monetary surcharge for media content
         if (isHorizontalVideo || isVerticalVideo) {
-            total *= 1.35 // 35% extra for video
+            total += 5.00 * durationValueInt // $5.00 extra per unit for video
         } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
-            total *= 1.15 // 15% extra for image
+            total += 2.50 * durationValueInt // $2.50 extra per unit for image
         }
         
-        // Premium for external link
+        // Add explicit monetary surcharge for external link
         if (externalUrlInput.isNotBlank()) {
-            total *= 1.15 // 15% extra for outbound links
+            total += 2.00 * durationValueInt // $2.00 extra per unit for outbound link
         }
         
-        // Dynamic demand factor (varies by minute, up to 50% more depending on simulated active users)
+        // Dynamic demand factor
         val demandMultiplier = 1.0 + (currentMinute % 50) / 100.0
         total *= demandMultiplier
 
         String.format(Locale.US, "%.2f", total)
     }
     var budgetInput by remember { mutableStateOf("10.00") }
-    LaunchedEffect(autoBudget) { budgetInput = autoBudget }
+    var isManualBudget by remember { mutableStateOf(false) }
+    LaunchedEffect(autoBudget) {
+        if (!isManualBudget) {
+            budgetInput = autoBudget
+        }
+    }
 
     // Launcher para seleccionar multimedia horizontal (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
     val horizontalPicker = rememberLauncherForActivityResult(
@@ -352,6 +357,7 @@ fun SponsorCpmPanelDialog(
                             verticalMediaInput = ""
                             externalUrlInput = ""
                             budgetInput = "10.00"
+                            isManualBudget = false
                             selectedDurationUnit = "day"
                             durationValueInput = "1"
                             showCreateDialog = true
@@ -511,29 +517,48 @@ fun SponsorCpmPanelDialog(
 
                     // Preview Horizontal
                     if (horizontalMediaInput.isNotBlank()) {
-                        Surface(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(120.dp)
-                                .clip(RoundedCornerShape(8.dp)),
-                            color = HextechDarkBg,
-                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.8f))
+                                .clip(RoundedCornerShape(8.dp))
                         ) {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                if (horizontalMediaInput.endsWith(".mp4", true) || horizontalMediaInput.contains("video", true)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Video Horizontal Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = HextechDarkBg,
+                                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.8f))
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    if (horizontalMediaInput.endsWith(".mp4", true) || horizontalMediaInput.contains("video", true)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Video Horizontal Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    } else {
+                                        AsyncImage(
+                                            model = horizontalMediaInput,
+                                            contentDescription = "Vista previa horizontal",
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
                                     }
-                                } else {
-                                    AsyncImage(
-                                        model = horizontalMediaInput,
-                                        contentDescription = "Vista previa horizontal",
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
                                 }
+                            }
+                            IconButton(
+                                onClick = {
+                                    horizontalMediaInput = ""
+                                    isHorizontalVideo = false
+                                    Toast.makeText(context, "Multimedia horizontal eliminada", Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(6.dp)
+                                    .size(32.dp)
+                                    .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(50))
+                                    .border(1.dp, DangerRed, RoundedCornerShape(50))
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Borrar multimedia", tint = DangerRed, modifier = Modifier.size(16.dp))
                             }
                         }
                     }
@@ -555,32 +580,50 @@ fun SponsorCpmPanelDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(if (verticalMediaInput.isBlank()) "Seleccionar desde Galería (Vertical)" else "Cambiar Multimedia Vertical", color = Color.White, fontSize = 12.sp)
                     }
-
                     // Preview Vertical
                     if (verticalMediaInput.isNotBlank()) {
-                        Surface(
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(160.dp)
-                                .clip(RoundedCornerShape(8.dp)),
-                            color = HextechDarkBg,
-                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
+                                .clip(RoundedCornerShape(8.dp))
                         ) {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                if (verticalMediaInput.endsWith(".mp4", true) || verticalMediaInput.contains("video", true)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechGold, modifier = Modifier.size(24.dp))
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("Video Vertical Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Surface(
+                                modifier = Modifier.fillMaxSize(),
+                                color = HextechDarkBg,
+                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    if (verticalMediaInput.endsWith(".mp4", true) || verticalMediaInput.contains("video", true)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechGold, modifier = Modifier.size(24.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("Video Vertical Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    } else {
+                                        AsyncImage(
+                                            model = verticalMediaInput,
+                                            contentDescription = "Vista previa vertical",
+                                            contentScale = ContentScale.Fit,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
                                     }
-                                } else {
-                                    AsyncImage(
-                                        model = verticalMediaInput,
-                                        contentDescription = "Vista previa vertical",
-                                        contentScale = ContentScale.Fit,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
                                 }
+                            }
+                            IconButton(
+                                onClick = {
+                                    verticalMediaInput = ""
+                                    isVerticalVideo = false
+                                    Toast.makeText(context, "Multimedia vertical eliminada", Toast.LENGTH_SHORT).show()
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(6.dp)
+                                    .size(32.dp)
+                                    .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(50))
+                                    .border(1.dp, DangerRed, RoundedCornerShape(50))
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Borrar multimedia", tint = DangerRed, modifier = Modifier.size(16.dp))
                             }
                         }
                     }
@@ -599,17 +642,53 @@ fun SponsorCpmPanelDialog(
                         )
                     )
 
-                    // Presupuesto Calculado
+                    // Recomendación Automática de la IA
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text("Recomendación Automática de la IA:", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                    Text("Tier 1 - Alto Rendimiento (Basado en multimedia y enlace)", color = TextSecondary, fontSize = 10.sp)
+                                }
+                            }
+                            TextButton(
+                                onClick = {
+                                    isManualBudget = false
+                                    budgetInput = autoBudget
+                                    Toast.makeText(context, "Presupuesto automático aplicado ($autoBudget USD)", Toast.LENGTH_SHORT).show()
+                                }
+                            ) {
+                                Text("Usar $$autoBudget ↗", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+                    }
+
+                    // Presupuesto Total (Automático o Manual)
                     OutlinedTextField(
-                        value = "$autoBudget USD",
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Presupuesto Total (USD)") },
+                        value = budgetInput,
+                        onValueChange = { 
+                            isManualBudget = true
+                            budgetInput = it
+                        },
+                        label = { Text("Presupuesto Total (USD) [Automático o Manual]") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = HextechGold, 
                             unfocusedBorderColor = HextechSurfaceVariant,
-                            disabledTextColor = HextechCyan,
                             focusedTextColor = HextechCyan,
                             unfocusedTextColor = HextechCyan
                         )
@@ -628,13 +707,13 @@ fun SponsorCpmPanelDialog(
                         Text("• Tarifa base por tiempo ($selectedDurationUnit): USD ${String.format(Locale.US, "%.2f", when (selectedDurationUnit) { "hour" -> 1.50; "day" -> 10.00; "week" -> 50.00; "month" -> 150.00; else -> 10.00 } * durationValueInt)}", color = TextSecondary, fontSize = 10.sp)
                         
                         if (isHorizontalVideo || isVerticalVideo) {
-                            Text("• Prima por contenido en Video: +35%", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Recargo por contenido en Video: +$${String.format(Locale.US, "%.2f", 5.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
-                            Text("• Prima por contenido en Imagen: +15%", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Recargo por contenido en Imagen: +$${String.format(Locale.US, "%.2f", 2.50 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         }
 
                         if (externalUrlInput.isNotBlank()) {
-                            Text("• Prima por redirección externa: +15%", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Recargo por redirección externa: +$${String.format(Locale.US, "%.2f", 2.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         }
                         
                         Text("• Multiplicador por tráfico actual (demanda): +${((currentMinute % 50)).toInt()}%", color = TextSecondary, fontSize = 10.sp)
@@ -725,7 +804,7 @@ fun SponsorCpmPanelDialog(
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    val parsedBudgetVal = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+                    val parsedBudgetVal = budgetInput.replace(',', '.').toDoubleOrNull() ?: autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
                     val requiredEssences = (parsedBudgetVal * 10).toLong()
                     val hasEnoughEssence = currentBlueEssence >= requiredEssences
 
@@ -766,7 +845,7 @@ fun SponsorCpmPanelDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        val parsedBudget = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+                        val parsedBudget = budgetInput.replace(',', '.').toDoubleOrNull() ?: autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
                         val requiredEssences = (parsedBudget * 10).toLong()
                         if (titleInput.trim().isBlank()) {
                             Toast.makeText(context, "El título del anuncio es obligatorio", Toast.LENGTH_SHORT).show()
@@ -798,7 +877,7 @@ fun SponsorCpmPanelDialog(
     }
 
     if (showConfirmReviewDialog) {
-        val parsedBudget = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+        val parsedBudget = budgetInput.replace(',', '.').toDoubleOrNull() ?: autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
         val requiredEssences = (parsedBudget * 10).toLong()
 
         AlertDialog(

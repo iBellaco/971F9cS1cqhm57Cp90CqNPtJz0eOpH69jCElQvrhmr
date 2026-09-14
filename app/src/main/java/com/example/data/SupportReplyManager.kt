@@ -245,17 +245,31 @@ object SupportReplyManager {
             var resolvedTitle = reportTitle ?: "Reporte de Soporte"
             var resolvedOriginalDesc = reportTitle ?: ""
             var resolvedSenderName = "Usuario"
+            var firestoreReportId = reportId
 
             try {
-                docSnap = db.collection("support_reports").document(reportId).get().await()
-                if (docSnap != null && docSnap.exists()) {
-                    val dbUid = docSnap.getString("userId")
+                var doc = db.collection("support_reports").document(reportId).get().await()
+                if (!doc.exists()) {
+                    // Fallback para reportes antiguos donde el ID de Supabase no coincide con Firestore
+                    val query = db.collection("support_reports")
+                        .whereEqualTo("title", reportTitle?.trim() ?: "")
+                        .limit(1).get().await()
+                    if (!query.isEmpty) {
+                        doc = query.documents[0]
+                        firestoreReportId = doc.id
+                        Log.d(TAG, "Reporte encontrado por título. Reemplazando ID: $reportId -> $firestoreReportId")
+                    }
+                }
+                
+                if (doc.exists()) {
+                    docSnap = doc
+                    val dbUid = doc.getString("userId")
                     if (!dbUid.isNullOrBlank() && dbUid != "anonimo" && resolvedUserId.isBlank()) {
                         resolvedUserId = dbUid
                     }
-                    resolvedTitle = docSnap.getString("title") ?: resolvedTitle
-                    resolvedOriginalDesc = docSnap.getString("description") ?: docSnap.getString("content") ?: resolvedOriginalDesc
-                    resolvedSenderName = docSnap.getString("userName") ?: "Usuario"
+                    resolvedTitle = doc.getString("title") ?: resolvedTitle
+                    resolvedOriginalDesc = doc.getString("description") ?: doc.getString("content") ?: resolvedOriginalDesc
+                    resolvedSenderName = doc.getString("userName") ?: "Usuario"
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "Error obteniendo documento de soporte previo: ${e.message}")
@@ -344,8 +358,8 @@ object SupportReplyManager {
                 if (markAsRead) {
                     updateData["status"] = "LEIDO"
                 }
-                db.collection("support_reports").document(reportId).set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
-                Log.d(TAG, "Respuesta e historial sincronizados en Firestore para $reportId")
+                db.collection("support_reports").document(firestoreReportId).set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+                Log.d(TAG, "Respuesta e historial sincronizados en Firestore para $firestoreReportId")
             } catch (e: Exception) {
                 Log.w(TAG, "No se pudo actualizar respuesta en Firestore: ${e.message}")
             }
@@ -377,13 +391,13 @@ object SupportReplyManager {
                         "isRead" to false,
                         "tag" to "SUPPORT",
                         "sender" to resolvedSenderName,
-                        "reportId" to reportId,
+                        "reportId" to firestoreReportId,
                         "conversation" to conversationListMap
                     )
                     if (markAsRead) {
                         messageMap["status"] = "LEIDO"
                     }
-                    db.collection("users").document(resolvedUserId).collection("messages").document(reportId)
+                    db.collection("users").document(resolvedUserId).collection("messages").document(firestoreReportId)
                         .set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
 
                     val userRef = db.collection("users").document(resolvedUserId)

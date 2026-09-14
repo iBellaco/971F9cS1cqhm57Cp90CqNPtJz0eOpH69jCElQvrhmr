@@ -12,6 +12,7 @@ import io.github.jan.supabase.postgrest.query.Order
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -309,15 +310,59 @@ object FeedbackRepository {
      * Elimina un reporte específico por su ID UUID.
      */
     suspend fun deleteFeedback(id: String): Result<Unit> = withContext(Dispatchers.IO) {
+        deleteFeedback(com.example.data.remote.model.FeedbackReport(id = id, title = ""))
+    }
+
+    /**
+     * Elimina un reporte específico con soporte para fallback por título.
+     */
+    suspend fun deleteFeedback(report: com.example.data.remote.model.FeedbackReport): Result<Unit> = withContext(Dispatchers.IO) {
+        val id = report.id ?: return@withContext Result.failure(Exception("ID nulo"))
         try {
             val client = SupabaseClientManager.client
             val postgrest = client.postgrest
 
+            // Eliminar de Supabase
             postgrest.from(TABLE_NAME).delete {
                 filter {
                     eq("id", id)
                 }
             }
+
+            // Eliminar de Firestore (Soporte multidispositivo)
+            try {
+                val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
+                var doc = db.collection("support_reports").document(id).get().await()
+                var firestoreId = id
+                
+                if (!doc.exists()) {
+                    val query = db.collection("support_reports")
+                        .whereEqualTo("title", report.title.trim())
+                        .limit(1).get().await()
+                    if (!query.isEmpty) {
+                        doc = query.documents[0]
+                        firestoreId = doc.id
+                    }
+                }
+                
+                if (doc.exists()) {
+                    val uid = doc.getString("userId")
+                    if (!uid.isNullOrBlank() && uid != "anonimo") {
+                        db.collection("users").document(uid).collection("messages").document(firestoreId).delete().await()
+                    }
+                    val email = doc.getString("userEmail")
+                    if (!email.isNullOrBlank() && uid.isNullOrBlank()) {
+                        val users = db.collection("users").whereEqualTo("email", email).get().await()
+                        if (!users.isEmpty) {
+                            db.collection("users").document(users.documents[0].id).collection("messages").document(firestoreId).delete().await()
+                        }
+                    }
+                }
+                db.collection("support_reports").document(firestoreId).delete().await()
+            } catch (e: Exception) {
+                Log.w(TAG, "Error eliminando reporte de Firestore (puede no existir ahí): ${e.message}")
+            }
+
             Log.d(TAG, "Reporte $id eliminado exitosamente")
             Result.success(Unit)
         } catch (e: Exception) {

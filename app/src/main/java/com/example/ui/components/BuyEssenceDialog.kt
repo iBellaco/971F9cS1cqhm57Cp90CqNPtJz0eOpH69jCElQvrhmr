@@ -49,10 +49,19 @@ fun BuyEssenceDialog(
     var isPurchasing by remember { mutableStateOf(false) }
 
     val packs = listOf(
-        Triple("1,000 EA", 1000L, "$0.99 USD"),
-        Triple("5,000 EA", 5000L, "$4.49 USD"),
-        Triple("10,000 EA", 10000L, "$7.99 USD"),
-        Triple("25,000 EA", 25000L, "$17.99 USD")
+        Triple("10 EA", 10L, "$1.00 USD"),
+        Triple("20 EA", 20L, "$2.00 USD"),
+        Triple("30 EA", 30L, "$3.00 USD"),
+        Triple("40 EA", 40L, "$4.00 USD"),
+        Triple("50 EA", 50L, "$5.00 USD"),
+        Triple("60 EA", 60L, "$6.00 USD"),
+        Triple("70 EA", 70L, "$7.00 USD"),
+        Triple("80 EA", 80L, "$8.00 USD"),
+        Triple("90 EA", 90L, "$9.00 USD"),
+        Triple("100 EA", 100L, "$10.00 USD"),
+        Triple("250 EA", 250L, "$25.00 USD"),
+        Triple("500 EA", 500L, "$50.00 USD"),
+        Triple("1,000 EA", 1000L, "$100.00 USD")
     )
 
     Dialog(
