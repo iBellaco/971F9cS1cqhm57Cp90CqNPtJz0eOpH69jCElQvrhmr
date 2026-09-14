@@ -53,6 +53,7 @@ import com.example.ui.components.AppUpdateDialog
 import com.example.ui.components.PrivacyPolicyDialog
 import com.example.ui.screens.InfoScreen
 import com.example.ui.screens.MainDraftingScreen
+import com.example.ui.screens.AnimatedSplashScreen
 import com.example.ui.screens.OnboardingScreen
 import com.example.ui.screens.LanguageSelectionScreen
 import com.example.ui.screens.MetaScreenMode
@@ -282,6 +283,7 @@ fun RunicNavBarParticleAnimation(
 }
 
 enum class AppScreen {
+    SPLASH,
     ONBOARDING,
     LOGIN,
     LANGUAGE_SELECTION,
@@ -688,16 +690,7 @@ fun DraftingApp() {
     var hasAcceptedLegal by remember { mutableStateOf(sharedPrefs.getBoolean("has_accepted_legal", false)) }
     var hasSeenOnboarding by remember { mutableStateOf(sharedPrefs.getBoolean("has_seen_onboarding", false)) }
     var showLegalDialog by remember { mutableStateOf(isLanguageSet && !hasAcceptedLegal) }
-    var currentScreen by remember { 
-        mutableStateOf(
-            when {
-                !isLanguageSet -> AppScreen.LANGUAGE_SELECTION
-                !hasAcceptedLegal -> AppScreen.LANGUAGE_SELECTION
-                !hasSeenOnboarding -> AppScreen.ONBOARDING
-                else -> AppScreen.MAIN
-            }
-        ) 
-    }
+    var currentScreen by remember { mutableStateOf(AppScreen.SPLASH) }
     
     val coroutineScope = rememberCoroutineScope()
     var mainRole by remember { mutableStateOf(com.example.util.UserPreferences.getMainRole(context)) }
@@ -761,7 +754,9 @@ fun DraftingApp() {
                     AnimatedContent(
         targetState = currentScreen,
         transitionSpec = {
-            if (targetState == AppScreen.MAIN && (initialState == AppScreen.LANGUAGE_SELECTION || initialState == AppScreen.LOGIN)) {
+            if (initialState == AppScreen.SPLASH) {
+                (fadeIn(animationSpec = androidx.compose.animation.core.tween(500))).togetherWith(fadeOut(animationSpec = androidx.compose.animation.core.tween(500)))
+            } else if (targetState == AppScreen.MAIN && (initialState == AppScreen.LANGUAGE_SELECTION || initialState == AppScreen.LOGIN)) {
                 (fadeIn()).togetherWith(fadeOut())
             } else if (targetState == AppScreen.LANGUAGE_SELECTION && initialState == AppScreen.LOGIN) {
                 (fadeIn()).togetherWith(fadeOut())
@@ -774,6 +769,18 @@ fun DraftingApp() {
         label = "screen_navigation"
     ) { screen ->
         when (screen) {
+            AppScreen.SPLASH -> {
+                AnimatedSplashScreen(
+                    onSplashFinished = {
+                        currentScreen = when {
+                            !isLanguageSet -> AppScreen.LANGUAGE_SELECTION
+                            !hasAcceptedLegal -> AppScreen.LANGUAGE_SELECTION
+                            !hasSeenOnboarding -> AppScreen.ONBOARDING
+                            else -> AppScreen.MAIN
+                        }
+                    }
+                )
+            }
             AppScreen.LOGIN -> {
             }
                         AppScreen.ONBOARDING -> {

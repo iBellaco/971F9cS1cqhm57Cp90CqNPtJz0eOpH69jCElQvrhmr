@@ -380,7 +380,6 @@ fun UserInboxDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
                         ) {
                             UserSupportThreadCard(
                                 reportId = reportId,
@@ -980,7 +979,7 @@ fun UserSupportThreadCard(
     val isClosed = liveStatus.uppercase() == "SOLUCIONADO" || liveStatus.uppercase() == "CERRADO" || liveStatus.uppercase() == "CLOSED" || liveStatus.uppercase() == "RESUELTO"
     val timeFormatter = remember { SimpleDateFormat("HH:mm - dd/MM", Locale.getDefault()) }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
         // Etiqueta de soporte y estado
         Row(
             modifier = Modifier.fillMaxWidth(),

@@ -183,7 +183,7 @@ fun SponsorCpmPanelDialog(
     var budgetInput by remember { mutableStateOf("10.00") }
     LaunchedEffect(autoBudget) { budgetInput = autoBudget }
 
-    // Launcher para seleccionar multimedia horizontal (imágenes solo PNG, videos solo MP4 máx 10s, máx 10MB)
+    // Launcher para seleccionar multimedia horizontal (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
     val horizontalPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -210,9 +210,9 @@ fun SponsorCpmPanelDialog(
                 }
             } catch (_: Exception) {}
         } else {
-            val isPng = mimeType.equals("image/png", true) || path.endsWith(".png")
-            if (!isPng) {
-                Toast.makeText(context, "Las imágenes de galería deben estar estrictamente en formato PNG", Toast.LENGTH_LONG).show()
+            val isPngOrJpg = mimeType.equals("image/png", true) || path.endsWith(".png") || mimeType.equals("image/jpeg", true) || mimeType.equals("image/jpg", true) || path.endsWith(".jpg") || path.endsWith(".jpeg")
+            if (!isPngOrJpg) {
+                Toast.makeText(context, "Las imágenes de galería deben ser en formato PNG o JPG", Toast.LENGTH_LONG).show()
                 return@rememberLauncherForActivityResult
             }
             try {
@@ -240,7 +240,7 @@ fun SponsorCpmPanelDialog(
         }
     }
 
-    // Launcher para seleccionar multimedia vertical (imágenes solo PNG, videos solo MP4 máx 10s, máx 10MB)
+    // Launcher para seleccionar multimedia vertical (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
     val verticalPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -267,9 +267,9 @@ fun SponsorCpmPanelDialog(
                 }
             } catch (_: Exception) {}
         } else {
-            val isPng = mimeType.equals("image/png", true) || path.endsWith(".png")
-            if (!isPng) {
-                Toast.makeText(context, "Las imágenes de galería deben estar estrictamente en formato PNG", Toast.LENGTH_LONG).show()
+            val isPngOrJpg = mimeType.equals("image/png", true) || path.endsWith(".png") || mimeType.equals("image/jpeg", true) || mimeType.equals("image/jpg", true) || path.endsWith(".jpg") || path.endsWith(".jpeg")
+            if (!isPngOrJpg) {
+                Toast.makeText(context, "Las imágenes de galería deben ser en formato PNG o JPG", Toast.LENGTH_LONG).show()
                 return@rememberLauncherForActivityResult
             }
             try {
@@ -611,6 +611,31 @@ fun SponsorCpmPanelDialog(
                         )
                     )
 
+                    // Desglose de presupuesto
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(HextechDarkBg)
+                            .padding(12.dp)
+                    ) {
+                        Text("Desglose del cálculo:", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("• Tarifa base por tiempo ($selectedDurationUnit): USD ${String.format(Locale.US, "%.2f", when (selectedDurationUnit) { "hour" -> 1.50; "day" -> 10.00; "week" -> 50.00; "month" -> 150.00; else -> 10.00 } * durationValueInt)}", color = TextSecondary, fontSize = 10.sp)
+                        
+                        if (isHorizontalVideo || isVerticalVideo) {
+                            Text("• Prima por contenido en Video: +35%", color = TextSecondary, fontSize = 10.sp)
+                        } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
+                            Text("• Prima por contenido en Imagen: +0%", color = TextSecondary, fontSize = 10.sp)
+                        }
+
+                        if (externalUrlInput.isNotBlank()) {
+                            Text("• Prima por redirección externa: +15%", color = TextSecondary, fontSize = 10.sp)
+                        }
+                        
+                        Text("• Multiplicador por tráfico actual (demanda): +${((currentMinute % 50)).toInt()}%", color = TextSecondary, fontSize = 10.sp)
+                    }
+
                     Text("Duración de la Publicación:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     
                     // Cantidad Dinámica según Unidad
@@ -621,7 +646,24 @@ fun SponsorCpmPanelDialog(
                     ) {
                         OutlinedTextField(
                             value = durationValueInput,
-                            onValueChange = { if (it.all { char -> char.isDigit() }) durationValueInput = it.take(3) },
+                            onValueChange = { newVal -> 
+                                if (newVal.all { char -> char.isDigit() }) {
+                                    val parsed = newVal.toIntOrNull() ?: 0
+                                    val maxVal = when (selectedDurationUnit) {
+                                        "hour" -> 12
+                                        "day" -> 3
+                                        "week" -> 2
+                                        "month" -> 6
+                                        else -> 1
+                                    }
+                                    if (parsed <= maxVal) {
+                                        durationValueInput = newVal
+                                    } else {
+                                        durationValueInput = maxVal.toString()
+                                        Toast.makeText(context, "Máximo permitido: $maxVal", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            },
                             label = { Text(quantityLabel) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth(),
@@ -648,7 +690,20 @@ fun SponsorCpmPanelDialog(
                             val isSelected = selectedDurationUnit == unitId
                             FilterChip(
                                 selected = isSelected,
-                                onClick = { selectedDurationUnit = unitId },
+                                onClick = { 
+                                    selectedDurationUnit = unitId 
+                                    val maxVal = when (unitId) {
+                                        "hour" -> 12
+                                        "day" -> 3
+                                        "week" -> 2
+                                        "month" -> 6
+                                        else -> 1
+                                    }
+                                    val current = durationValueInput.toIntOrNull() ?: 1
+                                    if (current > maxVal) {
+                                        durationValueInput = maxVal.toString()
+                                    }
+                                },
                                 label = { Text(unitLabel, fontSize = 10.sp) },
                                 colors = FilterChipDefaults.filterChipColors(selectedContainerColor = HextechGold, selectedLabelColor = HextechDarkBg)
                             )
