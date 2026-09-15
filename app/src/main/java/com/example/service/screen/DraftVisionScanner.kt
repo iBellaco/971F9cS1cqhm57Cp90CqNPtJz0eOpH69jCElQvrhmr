@@ -290,6 +290,13 @@ object DraftVisionScanner {
                 allySummonerNamesCache.clear()
             }
 
+            // Detección global de Fase de Preparación en todo el texto capturado
+            val globalOcrNorm = DraftValidationLayer.normalize(visionText.text)
+            if (globalOcrNorm.contains("fase de preparacion") || globalOcrNorm.contains("fase de preparacao") || globalOcrNorm.contains("preparation phase")) {
+                isPreparationPhase = true
+                AppLogger.d(TAG, "OCR global: Fase de Preparación detectada en pantalla.")
+            }
+
             for (block in visionText.textBlocks) {
                 for (line in block.lines) {
                     val text = line.text.trim()
@@ -1004,45 +1011,72 @@ object DraftVisionScanner {
 
             slotsDismissed = isPreparationPhase || LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
 
-            if (slotsDismissed) {
-                // FASE B: Desaparecieron los slots de avatar de selección -> CONFIRMACIÓN 100% EN PARTE SUPERIOR
-                AppLogger.d(TAG, "[10º PICK] Cuadrícula cerrada -> Buscando confirmación definitiva en barra superior...")
-                val superiorDecision = LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
-                    bitmap = bitmap,
-                    isFirstPick = effectiveFirstPick,
-                    calib = calib,
-                    allChamps = allChamps,
-                    confirmedIds = confirmedIds,
-                    expectedRole = expectedRole,
-                    roleExplanation = roleExplanation,
-                    context = context
-                )
+            // Memoria previa del 10º pick capturado en el slot inferior durante selección activa
+            val existingHover = if (tenthTargetIsAlly) allySlotConfirmedChampions[4] else enemySlotConfirmedChampions[4]
 
-                if (superiorDecision != null && superiorDecision.selectedChampion != null) {
-                    val topPickChamp = superiorDecision.selectedChampion
-                    lastPickVisualChampion = topPickChamp
+            if (slotsDismissed) {
+                // FASE B: Desaparecieron los slots de avatar de selección o estamos en Fase de Preparación
+                if (existingHover != null) {
+                    // Si el 10º pick ya tenía un campeón seleccionado en la cuadrícula (ej. Volibear),
+                    // al cerrarse la cuadrícula ese campeón QUEDA SELLADO DEFINITIVAMENTE al 100%.
+                    // NUNCA se sobreescribe con un escaneo especulativo de la barra superior.
+                    lastPickVisualChampion = existingHover
                     lastPickVisualConfidence = 1.0f
                     isLastPickVisualRecognized = true
                     isTenthConfirmed = true
 
-                    targetSlot.champion = topPickChamp
+                    targetSlot.champion = existingHover
                     targetSlot.confidencePercent = 100
                     targetSlot.isLikelyUnpicked = false
 
                     if (tenthTargetIsAlly) {
-                        allySlotConfirmedChampions[4] = topPickChamp
-                        allyOcrChampions[4] = topPickChamp
-                        AppLogger.i(TAG, "10º Pick Aliado CONFIRMADO 100% en barra superior: ${topPickChamp.name}")
+                        allySlotConfirmedChampions[4] = existingHover
+                        allyOcrChampions[4] = existingHover
+                        AppLogger.i(TAG, "10º Pick Aliado SELLADO 100% con campeón preseleccionado: ${existingHover.name}")
                     } else {
-                        enemySlotConfirmedChampions[4] = topPickChamp
-                        enemyOcrChampions[4] = topPickChamp
-                        AppLogger.i(TAG, "10º Pick Rival CONFIRMADO 100% en barra superior: ${topPickChamp.name}")
+                        enemySlotConfirmedChampions[4] = existingHover
+                        enemyOcrChampions[4] = existingHover
+                        AppLogger.i(TAG, "10º Pick Rival SELLADO 100% con campeón preseleccionado: ${existingHover.name}")
                     }
-                } else if (lastPickVisualChampion != null && isTenthConfirmed) {
-                    // Si ya se había ratificado previamente en barra superior, mantener con certeza 100%
-                    targetSlot.champion = lastPickVisualChampion
-                    targetSlot.confidencePercent = 100
-                    targetSlot.isLikelyUnpicked = false
+                } else {
+                    // Solo si NO existía ningún campeón previo en el slot, buscar en barra superior
+                    AppLogger.d(TAG, "[10º PICK] Cuadrícula cerrada sin preselección previa -> Buscando en barra superior...")
+                    val superiorDecision = LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
+                        bitmap = bitmap,
+                        isFirstPick = effectiveFirstPick,
+                        calib = calib,
+                        allChamps = allChamps,
+                        confirmedIds = confirmedIds,
+                        expectedRole = expectedRole,
+                        roleExplanation = roleExplanation,
+                        context = context
+                    )
+
+                    if (superiorDecision != null && superiorDecision.selectedChampion != null && superiorDecision.confidence >= 0.65f) {
+                        val topPickChamp = superiorDecision.selectedChampion
+                        lastPickVisualChampion = topPickChamp
+                        lastPickVisualConfidence = superiorDecision.confidence
+                        isLastPickVisualRecognized = true
+                        isTenthConfirmed = true
+
+                        targetSlot.champion = topPickChamp
+                        targetSlot.confidencePercent = 100
+                        targetSlot.isLikelyUnpicked = false
+
+                        if (tenthTargetIsAlly) {
+                            allySlotConfirmedChampions[4] = topPickChamp
+                            allyOcrChampions[4] = topPickChamp
+                            AppLogger.i(TAG, "10º Pick Aliado CONFIRMADO 100% en barra superior: ${topPickChamp.name}")
+                        } else {
+                            enemySlotConfirmedChampions[4] = topPickChamp
+                            enemyOcrChampions[4] = topPickChamp
+                            AppLogger.i(TAG, "10º Pick Rival CONFIRMADO 100% en barra superior: ${topPickChamp.name}")
+                        }
+                    } else if (lastPickVisualChampion != null && isTenthConfirmed) {
+                        targetSlot.champion = lastPickVisualChampion
+                        targetSlot.confidencePercent = 100
+                        targetSlot.isLikelyUnpicked = false
+                    }
                 }
             } else {
                 // FASE A: Mientras está en selección -> ESCANEO EN LA PARTE INFERIOR (Hover / Preselección)
@@ -1061,25 +1095,51 @@ object DraftVisionScanner {
                 if (inferiorDecision != null && inferiorDecision.selectedChampion != null) {
                     val hoverChamp = inferiorDecision.selectedChampion
                     val confidence = inferiorDecision.confidence
-                    lastPickVisualChampion = hoverChamp
-                    lastPickVisualConfidence = confidence
-                    isLastPickVisualRecognized = true
-                    isTenthConfirmed = false // PRESELECCIÓN: AÚN NO CONFIRMADO DEFINITIVAMENTE
 
-                    targetSlot.champion = hoverChamp
-                    targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(75, 95)
-                    targetSlot.isLikelyUnpicked = false
-
-                    // Se actualiza en el slot provisionalmente sin sellar definitivamente
-                    if (tenthTargetIsAlly) {
-                        allySlotConfirmedChampions[4] = hoverChamp
-                        allyOcrChampions[4] = hoverChamp
-                        AppLogger.i(TAG, "10º Pick Aliado preseleccionado en parte inferior izquierda: ${hoverChamp.name} (${(confidence * 100).toInt()}%) [Auto-Scan permanece activo]")
+                    // Estabilización anti-ruido: si ya había un campeón preseleccionado válido,
+                    // exigir alta confianza (>= 0.65f) para cambiarlo por uno diferente,
+                    // evitando que cuadros oscuros o de transición cambien falsamente el pick.
+                    val shouldUpdate = if (existingHover != null && existingHover.id != hoverChamp.id) {
+                        confidence >= 0.65f
                     } else {
-                        enemySlotConfirmedChampions[4] = hoverChamp
-                        enemyOcrChampions[4] = hoverChamp
-                        AppLogger.i(TAG, "10º Pick Rival preseleccionado en parte inferior derecha: ${hoverChamp.name} (${(confidence * 100).toInt()}%) [Auto-Scan permanece activo]")
+                        confidence >= 0.55f
                     }
+
+                    if (shouldUpdate) {
+                        lastPickVisualChampion = hoverChamp
+                        lastPickVisualConfidence = confidence
+                        isLastPickVisualRecognized = true
+                        isTenthConfirmed = false // PRESELECCIÓN: AÚN NO CONFIRMADO DEFINITIVAMENTE
+
+                        targetSlot.champion = hoverChamp
+                        targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(75, 95)
+                        targetSlot.isLikelyUnpicked = false
+
+                        // Se actualiza en el slot provisionalmente sin sellar definitivamente
+                        if (tenthTargetIsAlly) {
+                            allySlotConfirmedChampions[4] = hoverChamp
+                            allyOcrChampions[4] = hoverChamp
+                            AppLogger.i(TAG, "10º Pick Aliado preseleccionado en parte inferior izquierda: ${hoverChamp.name} (${(confidence * 100).toInt()}%) [Auto-Scan permanece activo]")
+                        } else {
+                            enemySlotConfirmedChampions[4] = hoverChamp
+                            enemyOcrChampions[4] = hoverChamp
+                            AppLogger.i(TAG, "10º Pick Rival preseleccionado en parte inferior derecha: ${hoverChamp.name} (${(confidence * 100).toInt()}%) [Auto-Scan permanece activo]")
+                        }
+                    } else if (existingHover != null) {
+                        // Preservar la preselección anterior estable
+                        lastPickVisualChampion = existingHover
+                        isLastPickVisualRecognized = true
+                        targetSlot.champion = existingHover
+                        targetSlot.confidencePercent = 85
+                        targetSlot.isLikelyUnpicked = false
+                    }
+                } else if (existingHover != null) {
+                    // Si este frame puntual no detectó nada (ej. slot parpadeando o en transición), mantener el anterior
+                    lastPickVisualChampion = existingHover
+                    isLastPickVisualRecognized = true
+                    targetSlot.champion = existingHover
+                    targetSlot.confidencePercent = 85
+                    targetSlot.isLikelyUnpicked = false
                 }
             }
         } else {

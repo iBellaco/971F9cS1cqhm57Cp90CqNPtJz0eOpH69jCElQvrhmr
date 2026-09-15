@@ -308,13 +308,15 @@ object FeedbackRepository {
     }
 
     /**
-     * Obtiene el conjunto de IDs y títulos de tickets de soporte actualmente activos en el sistema (Supabase + Firestore).
-     * Si no existe ningún ticket, retorna un conjunto vacío.
+     * Obtiene el conjunto de IDs y títulos de tickets de soporte actualmente activos en el sistema.
+     * La fuente canónica es el panel de soporte (Supabase). Si el panel no tiene reportes de soporte activos,
+     * retorna un conjunto vacío para que todas las bandejas se sincronicen y purguen de inmediato.
      */
     suspend fun getActiveSupportReportIds(): Set<String> = withContext(Dispatchers.IO) {
         val activeIds = mutableSetOf<String>()
+        var supabaseLoadedSuccessfully = false
         try {
-            // 1. Supabase
+            // 1. Supabase (Fuente canónica del panel de administración y soporte)
             try {
                 val client = SupabaseClientManager.client
                 val postgrest = client.postgrest
@@ -325,6 +327,7 @@ object FeedbackRepository {
                     .decodeList<FeedbackReport>()
                     .filter { !it.type.equals("SPONSOR_AD", ignoreCase = true) }
 
+                supabaseLoadedSuccessfully = true
                 for (fb in list) {
                     val rawType = fb.type.trim().uppercase(Locale.US)
                     val isSupport = rawType in listOf("SOPORTE", "SUPPORT", "TICKET", "AYUDA") ||
@@ -332,30 +335,43 @@ object FeedbackRepository {
                             fb.title.contains("Ticket", ignoreCase = true)
                     if (isSupport) {
                         fb.id?.let { activeIds.add(it) }
-                        if (fb.title.isNotBlank()) activeIds.add(fb.title.trim())
+                        if (fb.title.isNotBlank()) {
+                            val cleanT = fb.title.trim()
+                            activeIds.add(cleanT)
+                            activeIds.add("Soporte: $cleanT")
+                            activeIds.add("Reporte: $cleanT")
+                        }
                     }
                 }
+                Log.d(TAG, "getActiveSupportReportIds: Panel de soporte tiene ${activeIds.size} identificadores activos")
             } catch (e: Exception) {
                 Log.w(TAG, "Error consultando Supabase para activeIds: ${e.message}")
             }
 
-            // 2. Firestore support_reports
-            try {
-                val db = FirebaseFirestore.getInstance()
-                val fireSnap = db.collection("support_reports").get().await()
-                for (doc in fireSnap.documents) {
-                    val isDeleted = doc.getBoolean("isDeleted") == true ||
-                            doc.getBoolean("deleted") == true ||
-                            (doc.getString("status") ?: "").uppercase(Locale.US) in listOf("ELIMINADO", "DELETED", "CERRADO")
-                    if (!isDeleted) {
-                        activeIds.add(doc.id)
-                        doc.getString("id")?.let { if (it.isNotBlank()) activeIds.add(it) }
-                        doc.getString("reportId")?.let { if (it.isNotBlank()) activeIds.add(it) }
-                        doc.getString("title")?.let { if (it.isNotBlank()) activeIds.add(it.trim()) }
+            // 2. Solo si Supabase falló completamente por error de red/conexión, se usa Firestore como fallback
+            if (!supabaseLoadedSuccessfully) {
+                try {
+                    val db = FirebaseFirestore.getInstance()
+                    val fireSnap = db.collection("support_reports").get().await()
+                    for (doc in fireSnap.documents) {
+                        val isDeleted = doc.getBoolean("isDeleted") == true ||
+                                doc.getBoolean("deleted") == true ||
+                                (doc.getString("status") ?: "").uppercase(Locale.US) in listOf("ELIMINADO", "DELETED", "CERRADO")
+                        if (!isDeleted) {
+                            activeIds.add(doc.id)
+                            doc.getString("id")?.let { if (it.isNotBlank()) activeIds.add(it) }
+                            doc.getString("reportId")?.let { if (it.isNotBlank()) activeIds.add(it) }
+                            val t = (doc.getString("title") ?: "").trim()
+                            if (t.isNotBlank()) {
+                                activeIds.add(t)
+                                activeIds.add("Soporte: $t")
+                                activeIds.add("Reporte: $t")
+                            }
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error consultando Firestore para activeIds: ${e.message}")
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "Error consultando Firestore para activeIds: ${e.message}")
             }
         } catch (_: Exception) {}
         activeIds
@@ -387,7 +403,13 @@ object FeedbackRepository {
                         val mId = doc.id
                         val rId = doc.getString("reportId") ?: mId
                         val title = (doc.getString("title") ?: "").trim()
-                        val shouldKeep = activeIds.isNotEmpty() && (activeIds.contains(mId) || activeIds.contains(rId) || activeIds.contains(title))
+                        val cleanTitle = title.removePrefix("Soporte: ").removePrefix("Reporte: ").trim()
+                        val shouldKeep = activeIds.isNotEmpty() && (
+                            activeIds.contains(mId) || 
+                            activeIds.contains(rId) || 
+                            activeIds.contains(title) || 
+                            activeIds.contains(cleanTitle)
+                        )
                         if (!shouldKeep) {
                             try { doc.reference.delete().await() } catch (_: Exception) {}
                             deletedCount++
@@ -413,7 +435,13 @@ object FeedbackRepository {
                                 val mId = m["id"] as? String ?: ""
                                 val rId = m["reportId"] as? String ?: mId
                                 val title = (m["title"] as? String ?: "").trim()
-                                val shouldKeep = activeIds.isNotEmpty() && (activeIds.contains(mId) || activeIds.contains(rId) || activeIds.contains(title))
+                                val cleanTitle = title.removePrefix("Soporte: ").removePrefix("Reporte: ").trim()
+                                val shouldKeep = activeIds.isNotEmpty() && (
+                                    activeIds.contains(mId) || 
+                                    activeIds.contains(rId) || 
+                                    activeIds.contains(title) || 
+                                    activeIds.contains(cleanTitle)
+                                )
                                 !shouldKeep
                             } else {
                                 false
@@ -426,25 +454,49 @@ object FeedbackRepository {
                 Log.w(TAG, "Error purgando privateMessages: ${e.message}")
             }
 
-            // 3. Si activeIds está vacío, purgar también support_reports de este usuario
-            if (activeIds.isEmpty()) {
-                try {
-                    val myReports = db.collection("support_reports").whereEqualTo("userId", userUid).get().await()
-                    for (doc in myReports.documents) {
+            // 3. Purgar tickets huérfanos en support_reports de este usuario
+            try {
+                val myReports = db.collection("support_reports").whereEqualTo("userId", userUid).get().await()
+                for (doc in myReports.documents) {
+                    val mId = doc.id
+                    val rId = doc.getString("reportId") ?: mId
+                    val title = (doc.getString("title") ?: "").trim()
+                    val cleanTitle = title.removePrefix("Soporte: ").removePrefix("Reporte: ").trim()
+                    val shouldKeep = activeIds.isNotEmpty() && (
+                        activeIds.contains(mId) || 
+                        activeIds.contains(rId) || 
+                        activeIds.contains(title) || 
+                        activeIds.contains(cleanTitle)
+                    )
+                    if (!shouldKeep) {
                         try { doc.reference.delete().await() } catch (_: Exception) {}
                     }
-                } catch (_: Exception) {}
+                }
+            } catch (_: Exception) {}
 
-                if (userEmail.isNotBlank()) {
-                    try {
-                        val myEmailReports = db.collection("support_reports").whereEqualTo("userEmail", userEmail).get().await()
-                        for (doc in myEmailReports.documents) {
+            if (userEmail.isNotBlank()) {
+                try {
+                    val myEmailReports = db.collection("support_reports").whereEqualTo("userEmail", userEmail).get().await()
+                    for (doc in myEmailReports.documents) {
+                        val mId = doc.id
+                        val rId = doc.getString("reportId") ?: mId
+                        val title = (doc.getString("title") ?: "").trim()
+                        val cleanTitle = title.removePrefix("Soporte: ").removePrefix("Reporte: ").trim()
+                        val shouldKeep = activeIds.isNotEmpty() && (
+                            activeIds.contains(mId) || 
+                            activeIds.contains(rId) || 
+                            activeIds.contains(title) || 
+                            activeIds.contains(cleanTitle)
+                        )
+                        if (!shouldKeep) {
                             try { doc.reference.delete().await() } catch (_: Exception) {}
                         }
-                    } catch (_: Exception) {}
-                }
+                    }
+                } catch (_: Exception) {}
+            }
 
-                // Asegurar contadores limpios
+            // Asegurar contadores limpios si activeIds está vacío
+            if (activeIds.isEmpty()) {
                 try {
                     userRef.update(
                         mapOf(

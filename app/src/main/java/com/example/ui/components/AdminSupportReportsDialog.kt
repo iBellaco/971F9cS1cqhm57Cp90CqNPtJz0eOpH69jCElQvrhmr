@@ -1012,11 +1012,15 @@ fun AdminSupportReportsDialog(
                             try {
                                 val fbReport = target.rawSupabaseReport ?: com.example.data.remote.model.FeedbackReport(
                                     id = target.firestoreDocId ?: idToDelete,
-                                    title = target.title
+                                    title = target.title,
+                                    description = if (target.userEmail.isNotBlank()) "Correo de contacto: ${target.userEmail}\n\n" else ""
                                 )
                                 FeedbackRepository.deleteFeedback(fbReport)
                                 if (target.id.isNotBlank() && target.id != fbReport.id) {
                                     FeedbackRepository.deleteFeedback(target.id)
+                                }
+                                if (!target.firestoreDocId.isNullOrBlank() && target.firestoreDocId != target.id && target.firestoreDocId != fbReport.id) {
+                                    FeedbackRepository.deleteFeedback(target.firestoreDocId!!)
                                 }
                             } catch (e: Exception) {
                                 Log.w(TAG, "Error eliminando reporte: ${e.message}")

@@ -419,8 +419,8 @@ object LocalVisionAnalyzer {
 
         val avgLum = if (samples > 0) totalLum.toFloat() / samples else 0f
         val contrast = if (samples > 0) maxLum - minLum else 0
-        // El slot se considera poblado/con avatar si el brillo medio es al menos 12 o si hay suficiente contraste
-        val isPopulated = samples >= 10 && (avgLum >= 12f || (avgLum >= 6f && contrast >= 5))
+        // El slot se considera poblado/con avatar si tiene contraste y brillo suficientes (evita fondos oscuros o texturas vacías)
+        val isPopulated = samples >= 10 && ((avgLum in 18f..235f && contrast >= 14) || (avgLum >= 30f && contrast >= 10))
 
         if (validHueCount > 0) {
             for (i in 0 until 8) {
@@ -661,10 +661,11 @@ object LocalVisionAnalyzer {
         val runnerUp = candidateComparisons.getOrNull(1)
         val topCandidates = candidateComparisons.take(5)
 
-        // Si ningún candidato supera el umbral de 0.48f, documentar detalladamente el diagnóstico y registrar
-        if (best == null || best.compositeScore < 0.48f) {
+        // Umbral adaptativo: 0.65f para barra superior / confirmación definitiva, 0.55f para preselección en cuadrícula
+        val minThreshold = if (isConfirmedPhase) 0.65f else 0.55f
+        if (best == null || best.compositeScore < minThreshold) {
             val failReason = if (best != null) {
-                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (48%). Requiere mayor nitidez o confirmación definitiva."
+                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (${(minThreshold * 100).toInt()}%). Requiere mayor nitidez o confirmación definitiva."
             } else {
                 "Sin candidatos válidos disponibles para comparar (todos los campeones evaluados estaban excluidos por selecciones 1-9)."
             }
