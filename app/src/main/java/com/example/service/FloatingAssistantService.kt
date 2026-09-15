@@ -912,6 +912,23 @@ private fun FloatingOverlayContent(
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
     var activeRole by state::activeRole
+    
+    val sharedPrefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
+    
+    LaunchedEffect(Unit) {
+        val savedRoleStr = sharedPrefs.getString("saved_active_role", null)
+        if (savedRoleStr != null) {
+            try {
+                activeRole = LaneRole.valueOf(savedRoleStr)
+                state.isRoleManuallySelected = true
+            } catch (e: Exception) { }
+        }
+    }
+    
+    LaunchedEffect(activeRole) {
+        sharedPrefs.edit().putString("saved_active_role", activeRole.name).apply()
+    }
+
     var isFirstPick by state::isFirstPick
     var isLegendaryQueue by state::isLegendaryQueue
     var isCompactBubble by state::isCompactBubble
@@ -1824,6 +1841,8 @@ private fun FloatingOverlayContent(
                                                 if (isPremium) {
                                                     if (!state.isRoleManuallySelected) {
                                                         android.widget.Toast.makeText(context, "Selecciona tu línea primero", android.widget.Toast.LENGTH_SHORT).show()
+                                                    } else if (allies.count { it != null } < 5 || enemies.count { it != null } < 5) {
+                                                        android.widget.Toast.makeText(context, "Debes seleccionar los 10 campeones", android.widget.Toast.LENGTH_SHORT).show()
                                                     } else {
                                                         showSaveDraftDialog = true 
                                                     }
@@ -2291,6 +2310,7 @@ private fun FloatingSaveMatchDialog(
     var isLegendaryMatch by remember(isLegendary) { mutableStateOf(isLegendary) }
     var notesText by remember { mutableStateOf("") }
     var isSaving by remember { mutableStateOf(false) }
+    var showDuplicateConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         com.example.data.AccountProfileManager.init(context)
@@ -2421,55 +2441,6 @@ private fun FloatingSaveMatchDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Selector de Tipo de Cola (Clasificatoria vs Legendaria)
-                Text(
-                    text = "🏆 " + tr("Tipo de Cola:"),
-                    color = TextPrimary,
-                    fontSize = 10.5.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (!isLegendaryMatch) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
-                            .border(1.dp, if (!isLegendaryMatch) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { isLegendaryMatch = false }
-                            .padding(vertical = 5.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "⚔️ " + tr("Clasificatoria"),
-                            color = if (!isLegendaryMatch) HextechCyan else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isLegendaryMatch) Color(0xFF9333EA).copy(alpha = 0.35f) else HextechSurface)
-                            .border(1.dp, if (isLegendaryMatch) Color(0xFFC084FC) else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { isLegendaryMatch = true }
-                            .padding(vertical = 5.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "🏆 " + tr("Legendaria"),
-                            color = if (isLegendaryMatch) Color(0xFFE9D5FF) else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
-                        )
-                    }
-                }
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
@@ -2479,7 +2450,6 @@ private fun FloatingSaveMatchDialog(
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -2496,13 +2466,12 @@ private fun FloatingSaveMatchDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "⏳ " + tr("En espera"),
+                            text = tr("En espera"),
                             color = if (isPending) HextechGold else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.5.sp
                         )
                     }
-
                     val isVic = selectedResult == "VICTORY"
                     Box(
                         modifier = Modifier
@@ -2515,13 +2484,12 @@ private fun FloatingSaveMatchDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "👑 " + tr("Victoria"),
+                            text = tr("Victoria"),
                             color = if (isVic) Color(0xFF00FF7F) else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.5.sp
                         )
                     }
-
                     val isDef = selectedResult == "DEFEAT"
                     Box(
                         modifier = Modifier
@@ -2534,7 +2502,7 @@ private fun FloatingSaveMatchDialog(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "💔 " + tr("Derrota"),
+                            text = tr("Derrota"),
                             color = if (isDef) DangerRed else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 10.5.sp
@@ -2575,22 +2543,36 @@ private fun FloatingSaveMatchDialog(
                             coroutineScope.launch {
                                 val chosenProfile = profiles.find { it.id == selectedProfileId }
                                     ?: com.example.data.AccountProfileManager.getActiveProfile(context)
-                                DraftHistoryRepository.saveDraft(
+                                
+                                val exists = DraftHistoryRepository.checkDraftExists(
                                     context = context,
                                     myRole = activeRole,
-                                    isFirstPick = isFirstPick,
-                                    isLegendary = isLegendaryMatch,
                                     allies = allies,
                                     enemies = enemies,
-                                    analysis = analysis,
-                                    notes = notesText,
-                                    matchResult = selectedResult,
-                                    accountProfileId = chosenProfile.id,
-                                    accountProfileName = chosenProfile.name
+                                    accountProfileId = chosenProfile.id
                                 )
-                                android.widget.Toast.makeText(context, "¡Partida guardada en el historial!", android.widget.Toast.LENGTH_SHORT).show()
-                                isSaving = false
-                                onSaved()
+
+                                if (exists) {
+                                    showDuplicateConfirmation = true
+                                    isSaving = false
+                                } else {
+                                    DraftHistoryRepository.saveDraft(
+                                        context = context,
+                                        myRole = activeRole,
+                                        isFirstPick = isFirstPick,
+                                        isLegendary = isLegendaryMatch,
+                                        allies = allies,
+                                        enemies = enemies,
+                                        analysis = analysis,
+                                        notes = notesText,
+                                        matchResult = selectedResult,
+                                        accountProfileId = chosenProfile.id,
+                                        accountProfileName = chosenProfile.name
+                                    )
+                                    android.widget.Toast.makeText(context, "¡Partida guardada en el historial!", android.widget.Toast.LENGTH_SHORT).show()
+                                    isSaving = false
+                                    onSaved()
+                                }
                             }
                         }
                     },
@@ -2612,6 +2594,54 @@ private fun FloatingSaveMatchDialog(
                     }
                 }
             }
+        }
+        
+        if (showDuplicateConfirmation) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showDuplicateConfirmation = false },
+                title = { Text(tr("Draft Duplicado"), fontWeight = FontWeight.Bold, color = TextPrimary) },
+                text = { Text(tr("Es el mismo draft que el anterior, ¿deseas guardarlo de todas formas?"), color = TextSecondary) },
+                containerColor = HextechSurface,
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showDuplicateConfirmation = false
+                            isSaving = true
+                            coroutineScope.launch {
+                                val chosenProfile = profiles.find { it.id == selectedProfileId }
+                                    ?: com.example.data.AccountProfileManager.getActiveProfile(context)
+                                DraftHistoryRepository.saveDraft(
+                                    context = context,
+                                    myRole = activeRole,
+                                    isFirstPick = isFirstPick,
+                                    isLegendary = isLegendaryMatch,
+                                    allies = allies,
+                                    enemies = enemies,
+                                    analysis = analysis,
+                                    notes = notesText,
+                                    matchResult = selectedResult,
+                                    accountProfileId = chosenProfile.id,
+                                    accountProfileName = chosenProfile.name
+                                )
+                                android.widget.Toast.makeText(context, "¡Partida guardada en el historial!", android.widget.Toast.LENGTH_SHORT).show()
+                                isSaving = false
+                                onSaved()
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                    ) {
+                        Text(tr("Sí"), color = Color.Black)
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(
+                        onClick = { showDuplicateConfirmation = false },
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextMuted)
+                    ) {
+                        Text(tr("No"))
+                    }
+                }
+            )
         }
     }
 }
@@ -3289,9 +3319,8 @@ private fun CoachContent(
 
         // Sinergias (Wombos)
         val allyWombos = remember(allies.toList()) { WomboComboSynergyDetector.detectWombos(allies.filterNotNull()) }
-        val enemyWombos = remember(enemies.toList()) { WomboComboSynergyDetector.detectWombos(enemies.filterNotNull()) }
 
-        if (allyWombos.isNotEmpty() || enemyWombos.isNotEmpty()) {
+        if (allyWombos.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 allyWombos.forEach { wombo ->
@@ -3301,15 +3330,6 @@ private fun CoachContent(
                         border = BorderStroke(0.5.dp, AllyBlue)
                     ) {
                         Text(text = "🔵 ${wombo.title}: ${wombo.description}", color = AllyBlue, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
-                    }
-                }
-                enemyWombos.forEach { wombo ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.6f)),
-                        border = BorderStroke(0.5.dp, DangerRed)
-                    ) {
-                        Text(text = "🔴 ${wombo.title}: ${wombo.description}", color = DangerRed, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
                     }
                 }
             }

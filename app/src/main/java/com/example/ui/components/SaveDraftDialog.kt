@@ -335,92 +335,6 @@ fun SaveDraftDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Queue Type Selector
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (!isLegendaryMatch) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
-                            .border(1.dp, if (!isLegendaryMatch) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { isLegendaryMatch = false }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "⚔️ " + tr("Clasificatoria"),
-                            color = if (!isLegendaryMatch) HextechCyan else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isLegendaryMatch) Color(0xFF9333EA).copy(alpha = 0.35f) else HextechSurface)
-                            .border(1.dp, if (isLegendaryMatch) Color(0xFFC084FC) else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { isLegendaryMatch = true }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "🏆 " + tr("Legendaria"),
-                            color = if (isLegendaryMatch) Color(0xFFE9D5FF) else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Queue Type Selector
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (!isLegendaryMatch) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
-                            .border(1.dp, if (!isLegendaryMatch) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { isLegendaryMatch = false }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "⚔️ " + tr("Clasificatoria"),
-                            color = if (!isLegendaryMatch) HextechCyan else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isLegendaryMatch) Color(0xFF9333EA).copy(alpha = 0.35f) else HextechSurface)
-                            .border(1.dp, if (isLegendaryMatch) Color(0xFFC084FC) else HextechCardBorder, RoundedCornerShape(8.dp))
-                            .clickable { isLegendaryMatch = true }
-                            .padding(vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "🏆 " + tr("Legendaria"),
-                            color = if (isLegendaryMatch) Color(0xFFE9D5FF) else TextMuted,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 // Result selector title
                 Text(
                     text = tr("¿Cuál fue el resultado de la partida?"),
@@ -463,11 +377,9 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "⏳", fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("En espera"),
                                 color = if (isPendingSelected) HextechGold else TextSecondary,
@@ -505,11 +417,9 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "👑", fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Victoria"),
                                 color = if (isVictorySelected) Color(0xFF81C784) else TextSecondary,
@@ -547,11 +457,9 @@ fun SaveDraftDialog(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 4.dp),
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "💔", fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = tr("Derrota"),
                                 color = if (isDefeatSelected) DangerRed else TextSecondary,

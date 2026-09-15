@@ -38,6 +38,46 @@ object DraftHistoryRepository {
         return AppDatabase.getDatabase(context).draftDao().getDraftById(id)
     }
 
+    suspend fun checkDraftExists(
+        context: Context,
+        myRole: LaneRole,
+        allies: List<DraftSlot>,
+        enemies: List<DraftSlot>,
+        accountProfileId: String? = null
+    ): Boolean {
+        val activeProfile = AccountProfileManager.getActiveProfile(context)
+        val profileId = accountProfileId ?: activeProfile.id
+        
+        val allyDataList = allies.map {
+            SavedDraftSlotData(
+                championId = it.champion.id,
+                championName = it.champion.name,
+                role = it.assignedRole.name,
+                avatarUrl = it.champion.avatarUrl
+            )
+        }
+        val enemyDataList = enemies.map {
+            SavedDraftSlotData(
+                championId = it.champion.id,
+                championName = it.champion.name,
+                role = it.assignedRole.name,
+                avatarUrl = it.champion.avatarUrl
+            )
+        }
+        
+        val allyPicksJson = json.encodeToString(allyDataList)
+        val enemyPicksJson = json.encodeToString(enemyDataList)
+        
+        val draftDao = AppDatabase.getDatabase(context).draftDao()
+        val existingDraft = draftDao.findExistingDraft(
+            profileId = profileId,
+            userRole = myRole.name,
+            allyPicksJson = allyPicksJson,
+            enemyPicksJson = enemyPicksJson
+        )
+        return existingDraft != null
+    }
+
     suspend fun saveDraft(
         context: Context,
         myRole: LaneRole,

@@ -1008,44 +1008,19 @@ fun AdminSupportReportsDialog(
                         reportToDelete = null
                         reportsList.removeAll { it.id == idToDelete }
                         coroutineScope.launch {
-                            // 1. Eliminar de Supabase
+                            // Eliminar de Supabase y purgar completamente de Firestore
                             try {
-                                if (target.rawSupabaseReport?.id != null) {
-                                    FeedbackRepository.deleteFeedback(target.rawSupabaseReport.id)
-                                } else {
-                                    FeedbackRepository.deleteFeedback(idToDelete)
+                                val fbReport = target.rawSupabaseReport ?: com.example.data.remote.model.FeedbackReport(
+                                    id = target.firestoreDocId ?: idToDelete,
+                                    title = target.title
+                                )
+                                FeedbackRepository.deleteFeedback(fbReport)
+                                if (target.id.isNotBlank() && target.id != fbReport.id) {
+                                    FeedbackRepository.deleteFeedback(target.id)
                                 }
                             } catch (e: Exception) {
-                                Log.w(TAG, "Error eliminando en Supabase: ${e.message}")
+                                Log.w(TAG, "Error eliminando reporte: ${e.message}")
                             }
-
-                            // 2. Eliminar de Firestore
-                            try {
-                                val firestoreIdToDelete = target.firestoreDocId ?: idToDelete
-                                val db = FirebaseFirestore.getInstance()
-                                db.collection("support_reports")
-                                    .document(firestoreIdToDelete)
-                                    .delete()
-                                    
-                                // Eliminar de la subcolección de mensajes del usuario para que desaparezca de su bandeja
-                                val uid = target.userId
-                                if (uid.isNotBlank()) {
-                                    db.collection("users").document(uid).collection("messages").document(firestoreIdToDelete).delete()
-                                    db.collection("users").document(uid).collection("messages").document(idToDelete).delete()
-                                } else {
-                                    // Si no hay uid, pero hay email, buscar al usuario y borrar (fallback)
-                                    if (target.userEmail.isNotBlank()) {
-                                        db.collection("users").whereEqualTo("email", target.userEmail).limit(1).get()
-                                            .addOnSuccessListener { snap ->
-                                                if (!snap.isEmpty) {
-                                                    val foundUid = snap.documents[0].id
-                                                    db.collection("users").document(foundUid).collection("messages").document(firestoreIdToDelete).delete()
-                                                    db.collection("users").document(foundUid).collection("messages").document(idToDelete).delete()
-                                                }
-                                            }
-                                    }
-                                }
-                            } catch (_: Exception) {}
 
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(context, "Reporte eliminado permanentemente", Toast.LENGTH_SHORT).show()

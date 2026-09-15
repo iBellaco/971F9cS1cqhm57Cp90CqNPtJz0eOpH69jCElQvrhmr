@@ -60,6 +60,7 @@ fun UserInboxDialog(
     var arrayMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var supportReportMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var deletedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var deletedRefreshTrigger by remember { mutableStateOf(0) }
     var isLoading by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -126,6 +127,8 @@ fun UserInboxDialog(
                         if (err == null && snap != null) {
                             for (change in snap.documentChanges) {
                                 if (change.type == com.google.firebase.firestore.DocumentChange.Type.REMOVED) {
+                                    deletedIds = deletedIds + change.document.id
+                                    deletedRefreshTrigger++
                                     supportMap.remove(change.document.id)
                                 }
                             }
@@ -133,6 +136,8 @@ fun UserInboxDialog(
                                 val data = doc.data ?: continue
                                 val isDeleted = (data["isDeleted"] as? Boolean) == true || (data["deleted"] as? Boolean) == true || (data["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
                                 if (isDeleted) {
+                                    deletedIds = deletedIds + doc.id
+                                    deletedRefreshTrigger++
                                     supportMap.remove(doc.id)
                                     continue
                                 }
@@ -172,6 +177,8 @@ fun UserInboxDialog(
                         if (err == null && snap != null) {
                             for (change in snap.documentChanges) {
                                 if (change.type == com.google.firebase.firestore.DocumentChange.Type.REMOVED) {
+                                    deletedIds = deletedIds + change.document.id
+                                    deletedRefreshTrigger++
                                     supportMap.remove(change.document.id)
                                 }
                             }
@@ -179,6 +186,8 @@ fun UserInboxDialog(
                                 val data = doc.data ?: continue
                                 val isDeleted = (data["isDeleted"] as? Boolean) == true || (data["deleted"] as? Boolean) == true || (data["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
                                 if (isDeleted) {
+                                    deletedIds = deletedIds + doc.id
+                                    deletedRefreshTrigger++
                                     supportMap.remove(doc.id)
                                     continue
                                 }
@@ -214,7 +223,7 @@ fun UserInboxDialog(
     }
 
     // Unir mensajes de todas las fuentes eliminando duplicados por id y filtrando soporte eliminado/cerrado
-    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages, deletedIds) {
+    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages, deletedIds, deletedRefreshTrigger) {
         val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
         val validReportIds = supportReportMessages.mapNotNull { it["reportId"] as? String }.toSet()
         val all = mutableMapOf<String, Map<String, Any>>()
@@ -242,9 +251,15 @@ fun UserInboxDialog(
                             (m["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
             if (isDeleted) return
 
-            val isSupport = tag == "SUPPORT" || tag == "SOPORTE" || title.startsWith("Soporte:") || m.containsKey("reportId")
+            val sender = (m["sender"] as? String) ?: ""
+            val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") || 
+                            title.startsWith("Soporte:") || 
+                            title.startsWith("Reporte:") || 
+                            m.containsKey("reportId") ||
+                            sender.contains("Soporte", ignoreCase = true)
             if (isSupport) {
-                if (validSupportIds.contains(id) || validSupportIds.contains(reportId) || validSupportIds.contains(m["reportId"])) {
+                val rId = m["reportId"] as? String
+                if (validSupportIds.contains(id) || validSupportIds.contains(reportId) || (rId != null && validSupportIds.contains(rId))) {
                     all[id] = m
                 }
             } else {
@@ -265,15 +280,77 @@ fun UserInboxDialog(
         }.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
     }
 
-    // Si la bandeja está vacía y se terminó de cargar, limpiar automáticamente el badge pendiente en Firestore
-    LaunchedEffect(isLoading, messages.isEmpty()) {
-        if (!isLoading && messages.isEmpty()) {
+    // Si la bandeja está vacía o hay mensajes de soporte huérfanos, limpiar en Firestore
+    LaunchedEffect(isLoading, messages.isEmpty(), supportReportMessages, subcollectionMessages, arrayMessages) {
+        if (!isLoading && userUid.isNotBlank() && userUid != "anonimo") {
             val db = FirebaseFirestore.getInstance()
             val uRef = db.collection("users").document(userUid)
-            uRef.update(
-                "hasUnreadMessages", false,
-                "unreadMessagesCount", 0
-            )
+
+            if (messages.isEmpty()) {
+                uRef.update(
+                    "hasUnreadMessages", false,
+                    "unreadMessagesCount", 0
+                )
+            }
+
+            // Purgar mensajes huérfanos de soporte en subcolección messages
+            val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
+            for (m in subcollectionMessages) {
+                val id = m["id"] as? String ?: continue
+                val reportId = m["reportId"] as? String ?: id
+                val tag = (m["tag"] as? String)?.uppercase() ?: ""
+                val title = (m["title"] as? String) ?: ""
+                val sender = (m["sender"] as? String) ?: ""
+                val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") ||
+                                title.startsWith("Soporte:") ||
+                                title.startsWith("Reporte:") ||
+                                m.containsKey("reportId") ||
+                                sender.contains("Soporte", ignoreCase = true)
+
+                if (isSupport && !validSupportIds.contains(id) && !validSupportIds.contains(reportId)) {
+                    try { uRef.collection("messages").document(id).delete() } catch (_: Exception) {}
+                }
+            }
+
+            // Purgar mensajes huérfanos de soporte en array privateMessages
+            val orphanInArray = arrayMessages.any { m ->
+                val id = m["id"] as? String ?: ""
+                val reportId = m["reportId"] as? String ?: id
+                val tag = (m["tag"] as? String)?.uppercase() ?: ""
+                val title = (m["title"] as? String) ?: ""
+                val sender = (m["sender"] as? String) ?: ""
+                val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") ||
+                                title.startsWith("Soporte:") ||
+                                title.startsWith("Reporte:") ||
+                                m.containsKey("reportId") ||
+                                sender.contains("Soporte", ignoreCase = true)
+                isSupport && !validSupportIds.contains(id) && !validSupportIds.contains(reportId)
+            }
+
+            if (orphanInArray) {
+                uRef.get().addOnSuccessListener { snap ->
+                    if (snap.exists()) {
+                        @Suppress("UNCHECKED_CAST")
+                        val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
+                        if (pMsgs != null) {
+                            val cleaned = pMsgs.filterNot { m ->
+                                val id = m["id"] as? String ?: ""
+                                val reportId = m["reportId"] as? String ?: id
+                                val tag = (m["tag"] as? String)?.uppercase() ?: ""
+                                val title = (m["title"] as? String) ?: ""
+                                val sender = (m["sender"] as? String) ?: ""
+                                val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") ||
+                                                title.startsWith("Soporte:") ||
+                                                title.startsWith("Reporte:") ||
+                                                m.containsKey("reportId") ||
+                                                sender.contains("Soporte", ignoreCase = true)
+                                isSupport && !validSupportIds.contains(id) && !validSupportIds.contains(reportId)
+                            }
+                            uRef.update("privateMessages", cleaned)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -325,6 +402,8 @@ fun UserInboxDialog(
     }
 
     fun deleteMessage(id: String) {
+        deletedIds = deletedIds + id
+        deletedRefreshTrigger++
         val db = FirebaseFirestore.getInstance()
         val uRef = db.collection("users").document(userUid)
         
@@ -334,7 +413,13 @@ fun UserInboxDialog(
         supportReportMessages = supportReportMessages.filter { (it["id"] as? String) != id && (it["reportId"] as? String) != id }
 
         uRef.collection("messages").document(id).delete()
-        db.collection("support_reports").document(id).delete()
+        try { db.collection("support_reports").document(id).update(
+            "status", "ELIMINADO",
+            "isDeleted", true,
+            "deleted", true
+        ).continueWithTask {
+            db.collection("support_reports").document(id).delete()
+        } } catch (e: Exception) {}
 
         uRef.get().addOnSuccessListener { snap ->
             @Suppress("UNCHECKED_CAST")

@@ -199,7 +199,24 @@ fun MetaAndDraftScreen(
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var activeRole by remember { mutableStateOf<LaneRole?>(null) }
+    
+    val sharedPrefs = remember { screenContext.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
+    var activeRole by remember {
+        val savedRoleStr = sharedPrefs.getString("saved_active_role", null)
+        val initialRole = if (savedRoleStr != null) {
+            try { LaneRole.valueOf(savedRoleStr) } catch (e: Exception) { null }
+        } else null
+        mutableStateOf<LaneRole?>(initialRole)
+    }
+
+    LaunchedEffect(activeRole) {
+        if (activeRole != null) {
+            sharedPrefs.edit().putString("saved_active_role", activeRole!!.name).apply()
+        } else {
+            sharedPrefs.edit().remove("saved_active_role").apply()
+        }
+    }
+
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
     val defaultChamp = WildRiftRepository.champions.firstOrNull() ?: Champion(
@@ -3525,6 +3542,15 @@ private fun MapObjectivesTab() {
 // ====================================================================
 // TAB 0: ANÁLISIS DE DRAFTING & COUNTERS
 // ====================================================================
+
+data class PendingSaveData(
+    val result: String,
+    val notes: String,
+    val profileId: String,
+    val profileName: String,
+    val isLegendaryMatch: Boolean
+)
+
 @Composable
 fun DraftAnalysisTab(
     isOverlay: Boolean = false,
@@ -3551,6 +3577,7 @@ fun DraftAnalysisTab(
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
     var showSaveDraftDialog by remember { mutableStateOf(false) }
+    var pendingSaveData by remember { mutableStateOf<PendingSaveData?>(null) }
     var showMatchupDialog by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
     val victoryToastText = " " + tr("Draft registrado como Victoria")
@@ -3575,26 +3602,88 @@ fun DraftAnalysisTab(
             onDismiss = { showSaveDraftDialog = false },
             onSave = { result, notes, profileId, profileName, isLegendaryMatch ->
                 coroutineScope.launch {
-                    DraftHistoryRepository.saveDraft(
+                    val exists = DraftHistoryRepository.checkDraftExists(
                         context = tabContext,
                         myRole = activeRole ?: LaneRole.MID,
-                        isFirstPick = isFirstPick,
-                        isLegendary = isLegendaryMatch,
                         allies = allySlots,
                         enemies = enemySlots,
-                        analysis = analysis,
-                        notes = notes,
-                        matchResult = result,
-                        accountProfileId = profileId,
-                        accountProfileName = profileName
+                        accountProfileId = profileId
                     )
-                    showSaveDraftDialog = false
-                    val toastMsg = when (result) {
-                        "VICTORY" -> victoryToastText
-                        "DEFEAT" -> defeatToastText
-                        else -> " $savedDraftToastText"
+                    
+                    if (exists) {
+                        pendingSaveData = PendingSaveData(result, notes, profileId, profileName, isLegendaryMatch)
+                    } else {
+                        DraftHistoryRepository.saveDraft(
+                            context = tabContext,
+                            myRole = activeRole ?: LaneRole.MID,
+                            isFirstPick = isFirstPick,
+                            isLegendary = isLegendaryMatch,
+                            allies = allySlots,
+                            enemies = enemySlots,
+                            analysis = analysis,
+                            notes = notes,
+                            matchResult = result,
+                            accountProfileId = profileId,
+                            accountProfileName = profileName
+                        )
+                        showSaveDraftDialog = false
+                        val toastMsg = when (result) {
+                            "VICTORY" -> victoryToastText
+                            "DEFEAT" -> defeatToastText
+                            else -> " $savedDraftToastText"
+                        }
+                        android.widget.Toast.makeText(tabContext, toastMsg, android.widget.Toast.LENGTH_SHORT).show()
                     }
-                    Toast.makeText(tabContext, toastMsg, Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
+
+    if (pendingSaveData != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { pendingSaveData = null },
+            title = { androidx.compose.material3.Text(tr("Draft Duplicado"), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = com.example.ui.theme.TextPrimary) },
+            text = { androidx.compose.material3.Text(tr("Es el mismo draft que el anterior, ¿deseas guardarlo de todas formas?"), color = com.example.ui.theme.TextSecondary) },
+            containerColor = com.example.ui.theme.HextechSurface,
+            confirmButton = {
+                androidx.compose.material3.Button(
+                    onClick = {
+                        val data = pendingSaveData!!
+                        pendingSaveData = null
+                        showSaveDraftDialog = false
+                        coroutineScope.launch {
+                            DraftHistoryRepository.saveDraft(
+                                context = tabContext,
+                                myRole = activeRole ?: LaneRole.MID,
+                                isFirstPick = isFirstPick,
+                                isLegendary = data.isLegendaryMatch,
+                                allies = allySlots,
+                                enemies = enemySlots,
+                                analysis = analysis,
+                                notes = data.notes,
+                                matchResult = data.result,
+                                accountProfileId = data.profileId,
+                                accountProfileName = data.profileName
+                            )
+                            val toastMsg = when (data.result) {
+                                "VICTORY" -> victoryToastText
+                                "DEFEAT" -> defeatToastText
+                                else -> " $savedDraftToastText"
+                            }
+                            android.widget.Toast.makeText(tabContext, toastMsg, android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = com.example.ui.theme.HextechGold)
+                ) {
+                    androidx.compose.material3.Text(tr("Sí"), color = androidx.compose.ui.graphics.Color.Black)
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.OutlinedButton(
+                    onClick = { pendingSaveData = null },
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(contentColor = com.example.ui.theme.TextMuted)
+                ) {
+                    androidx.compose.material3.Text(tr("No"))
                 }
             }
         )
@@ -3777,6 +3866,8 @@ fun DraftAnalysisTab(
                     if (isPremium) {
                         if (activeRole == null) {
                             android.widget.Toast.makeText(tabContext, "Selecciona tu línea primero", android.widget.Toast.LENGTH_SHORT).show()
+                        } else if (allySlots.size < 5 || enemySlots.size < 5) {
+                            android.widget.Toast.makeText(tabContext, "Debes seleccionar los 10 campeones", android.widget.Toast.LENGTH_SHORT).show()
                         } else {
                             showSaveDraftDialog = true
                         }
