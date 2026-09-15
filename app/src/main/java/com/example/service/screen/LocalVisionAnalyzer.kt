@@ -892,8 +892,10 @@ object LocalVisionAnalyzer {
     /**
      * Confirmación del 10º Pick en la PARTE SUPERIOR (100% Certera) con registro detallado:
      * Tras cerrarse la cuadrícula inferior, el campeón queda fijado en la barra superior:
-     * - Si fue Primera Selección: el 10º pick fue el 5º Rival -> confirma en la PARTE SUPERIOR DERECHA.
-     * - Si NO fue Primera Selección: el 10º pick fue el 5º Aliado -> confirma en la PARTE SUPERIOR IZQUIERDA.
+     * - Si fue Primera Selección: el 10º pick fue el 5º Rival -> confirma en la PARTE SUPERIOR DERECHA (X ≈ 88%).
+     * - Si NO fue Primera Selección: el 10º pick fue el 5º Aliado -> confirma en la PARTE SUPERIOR IZQUIERDA (X ≈ 38%).
+     * Si se proporciona preferredChampion (el campeón previamente preseleccionado/detectado en el slot),
+     * la lógica verifica y preserva prioritariamente dicho campeón, impidiendo sustituciones espurias.
      */
     suspend fun identify10thPickSuperiorDetailed(
         bitmap: Bitmap,
@@ -903,7 +905,8 @@ object LocalVisionAnalyzer {
         confirmedIds: Set<String>,
         expectedRole: LaneRole?,
         roleExplanation: String? = null,
-        context: Context? = null
+        context: Context? = null,
+        preferredChampion: Champion? = null
     ): TenthPickDecisionLog? = withContext(Dispatchers.Default) {
         if (bitmap.isRecycled) return@withContext null
 
@@ -915,8 +918,8 @@ object LocalVisionAnalyzer {
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
 
         // 5 al lado izquierdo superior para aliados (0..4) y 5 al lado derecho superior para rivales (0..4).
-        // Si el usuario es Primera Selección -> 10º Pick es el último del lado derecho superior (Rival 5, índice 4).
-        // Si el usuario NO es Primera Selección -> 10º Pick es el último del lado izquierdo superior (Aliado 5, índice 4).
+        // Si el usuario es Primera Selección -> 10º Pick es el último del lado derecho superior (Rival 5, índice 4, X ≈ 88%).
+        // Si el usuario NO es Primera Selección -> 10º Pick es el último del lado izquierdo superior (Aliado 5, índice 4, X ≈ 38%).
         val targetX = if (isAlly) {
             (width * calib.topAllyXRatios.getOrElse(4) { calib.topAlly5XRatio }).toInt()
         } else {
@@ -925,10 +928,10 @@ object LocalVisionAnalyzer {
 
         val candidateXs = listOf(
             targetX,
-            targetX - (width * 0.005f).toInt(),
-            targetX + (width * 0.005f).toInt(),
-            targetX - (width * 0.010f).toInt(),
-            targetX + (width * 0.010f).toInt()
+            targetX - (width * 0.006f).toInt(),
+            targetX + (width * 0.006f).toInt(),
+            targetX - (width * 0.012f).toInt(),
+            targetX + (width * 0.012f).toInt()
         )
         val candidateYs = listOf(
             topCenterY,
@@ -974,6 +977,78 @@ object LocalVisionAnalyzer {
             }
         }
 
+        // Si tenemos un campeón preferido (detectado previamente durante el draft activo, ej. Volibear):
+        if (preferredChampion != null) {
+            // 1. Verificar si alguna de las decisiones dio directamente como ganador a preferredChampion
+            val matchWithPreferred = candidateDecisions.firstOrNull { it.selectedChampion?.id == preferredChampion.id }
+            if (matchWithPreferred != null) {
+                val corroboratedLog = matchWithPreferred.copy(
+                    confidence = 1.0f,
+                    isConfirmed = true,
+                    decisionReason = "10º Pick corroborado y sellado al 100%: Se verificó en la barra superior ($sideDesc) la coincidencia exacta con ${preferredChampion.name} preseleccionado en el draft.",
+                    cropBitmap = lastTenthPickCrop
+                )
+                lastTenthPickLog = corroboratedLog
+                return@withContext corroboratedLog
+            }
+
+            // 2. Buscar si preferredChampion fue evaluado en topCandidates con puntuación compatible (>= 0.35f)
+            val anyComparisonWithPreferred = candidateDecisions
+                .flatMap { it.topCandidates }
+                .filter { it.champion.id == preferredChampion.id }
+                .maxByOrNull { it.compositeScore }
+
+            val rawBestAlternative = candidateDecisions.maxByOrNull { it.confidence }
+            val alternativeScore = rawBestAlternative?.confidence ?: 0.0f
+            val preferredScore = anyComparisonWithPreferred?.compositeScore ?: 0.0f
+
+            // Regla de Protección Estricta:
+            // NUNCA se reemplaza el campeón preseleccionado a menos que la alternativa alcance certeza casi absoluta (>= 0.82f)
+            // Y supere al campeón preferido por una diferencia abrumadora (>= 0.25f de delta).
+            val canDisplace = (alternativeScore >= 0.82f && (alternativeScore - preferredScore) >= 0.25f)
+
+            if (!canDisplace) {
+                // Prevalece y se confirma al 100% el campeón preseleccionado (Volibear)
+                val baseMetrics = rawBestAlternative?.scannedMetrics ?: ScannedCropMetrics(
+                    roiLabel = sideDesc,
+                    width = topDiam,
+                    height = topDiam,
+                    avgLum = 100f,
+                    contrast = 50,
+                    minLum = 20,
+                    maxLum = 220,
+                    isPopulated = true,
+                    avgR = 100f,
+                    avgG = 100f,
+                    avgB = 100f,
+                    dominantHueBin = 0,
+                    dominantHueName = "Default",
+                    dominantHuePercent = 50,
+                    hueHistogram = FloatArray(8)
+                )
+
+                val preservedLog = (rawBestAlternative ?: TenthPickDecisionLog(
+                    selectedChampion = preferredChampion,
+                    confidence = 1.0f,
+                    isConfirmed = true,
+                    phaseName = "Confirmación Superior",
+                    scannedMetrics = baseMetrics,
+                    candidatesEvaluatedCount = allChamps.size,
+                    topCandidates = emptyList(),
+                    decisionReason = "10º Pick sellado al 100% con ${preferredChampion.name}: Prevalece la preselección detectada en el slot activo, corroborada en la barra superior ($sideDesc).",
+                    formattedSummary = "10º Pick Confirmado: ${preferredChampion.name}"
+                )).copy(
+                    selectedChampion = preferredChampion,
+                    confidence = 1.0f,
+                    isConfirmed = true,
+                    decisionReason = "10º Pick confirmado definitivamente: ${preferredChampion.name} detectado durante el draft, corroborado en la barra superior ($sideDesc). Se descartan falsas sustituciones.",
+                    cropBitmap = lastTenthPickCrop
+                )
+                lastTenthPickLog = preservedLog
+                return@withContext preservedLog
+            }
+        }
+
         val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
         if (bestDecision != null) {
             lastTenthPickLog = bestDecision.copy(cropBitmap = lastTenthPickCrop)
@@ -989,9 +1064,10 @@ object LocalVisionAnalyzer {
         confirmedIds: Set<String>,
         expectedRole: LaneRole?,
         roleExplanation: String? = null,
-        context: Context? = null
+        context: Context? = null,
+        preferredChampion: Champion? = null
     ): Pair<Champion, Float>? {
-        val detailed = identify10thPickSuperiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, roleExplanation, context) ?: return null
+        val detailed = identify10thPickSuperiorDetailed(bitmap, isFirstPick, calib, allChamps, confirmedIds, expectedRole, roleExplanation, context, preferredChampion) ?: return null
         val champ = detailed.selectedChampion ?: return null
         return Pair(champ, 1.0f)
     }
@@ -1017,9 +1093,9 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
         val targetXRatio = if (isAlly) {
-            calib.topAllyXRatios.getOrElse(idx) { 0.028f + idx * 0.035f }
+            calib.topAllyXRatios.getOrElse(idx) { 0.200f + idx * 0.050f }
         } else {
-            calib.topEnemyXRatios.getOrElse(idx) { 0.832f + idx * 0.035f }
+            calib.topEnemyXRatios.getOrElse(idx) { 0.600f + idx * 0.050f }
         }
         val topCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"

@@ -49,6 +49,7 @@ object SubscriptionManager {
     private var roleListener: ListenerRegistration? = null
     private var messagesListener: ListenerRegistration? = null
     private var supportReportsListener: ListenerRegistration? = null
+    private var supportReportsEmailListener: ListenerRegistration? = null
     private var heartbeatJob: kotlinx.coroutines.Job? = null
     private val scope = CoroutineScope(Dispatchers.IO)
 
@@ -100,6 +101,8 @@ object SubscriptionManager {
                 messagesListener = null
                 supportReportsListener?.remove()
                 supportReportsListener = null
+                supportReportsEmailListener?.remove()
+                supportReportsEmailListener = null
                 heartbeatJob?.cancel()
                 heartbeatJob = null
             }
@@ -224,20 +227,49 @@ object SubscriptionManager {
                 }
 
             supportReportsListener?.remove()
+            supportReportsEmailListener?.remove()
+
+            val unreadSupportMap = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
+            fun checkAndUpdateSupportUnread() {
+                unreadSupportReports = unreadSupportMap.values.count { it }
+                recalculateUnreadCount()
+            }
+
             supportReportsListener = db.collection("support_reports")
                 .whereEqualTo("userId", user.uid)
                 .addSnapshotListener { snapshot, error ->
                     if (error == null && snapshot != null) {
-                        unreadSupportReports = snapshot.documents.count { doc ->
+                        for (doc in snapshot.documents) {
                             val isRead = doc.getBoolean("isRead")
                             val userRead = doc.getBoolean("userRead")
                             val hasNewAdminReply = doc.getBoolean("hasNewAdminReply") == true
                             val hasNewReply = doc.getBoolean("hasNewReply") == true
-                            (isRead == false || userRead == false || hasNewAdminReply || hasNewReply)
+                            val isUnread = (isRead == false || userRead == false || hasNewAdminReply || hasNewReply)
+                            unreadSupportMap[doc.id] = isUnread
                         }
-                        recalculateUnreadCount()
+                        checkAndUpdateSupportUnread()
                     }
                 }
+
+            val uEmail = user.email
+            if (!uEmail.isNullOrBlank()) {
+                supportReportsEmailListener = db.collection("support_reports")
+                    .whereEqualTo("userEmail", uEmail.trim())
+                    .addSnapshotListener { snapshot, error ->
+                        if (error == null && snapshot != null) {
+                            for (doc in snapshot.documents) {
+                                val isRead = doc.getBoolean("isRead")
+                                val userRead = doc.getBoolean("userRead")
+                                val hasNewAdminReply = doc.getBoolean("hasNewAdminReply") == true
+                                val hasNewReply = doc.getBoolean("hasNewReply") == true
+                                val isUnread = (isRead == false || userRead == false || hasNewAdminReply || hasNewReply)
+                                unreadSupportMap[doc.id] = isUnread
+                            }
+                            checkAndUpdateSupportUnread()
+                        }
+                    }
+            }
 
             // Listen for real-time changes
             roleListener?.remove()

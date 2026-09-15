@@ -45,12 +45,17 @@ data class VisionCalibrationConfig(
     val enemyOcrMaxX: Float = 0.95f,
 
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
-    val topAvatarYRatio: Float = 0.048f,
-    val topAvatarDiameterRatio: Float = 0.054f,
-    val topAlly5XRatio: Float = 0.168f,
-    val topEnemy5XRatio: Float = 0.956f,
-    val topAllyXRatios: List<Float> = listOf(0.028f, 0.063f, 0.098f, 0.133f, 0.168f),
-    val topEnemyXRatios: List<Float> = listOf(0.816f, 0.851f, 0.886f, 0.921f, 0.956f)
+    // En la barra superior de Wild Rift durante selección final y fase de preparación:
+    // - A la izquierda del centro están los 5 avatares aliados (1..5: de 0.180f a 0.380f).
+    // - A la derecha del centro están los 5 avatares rivales (1..5: de 0.640f a 0.880f).
+    // - Si el usuario es Primera Selección: el 10º Pick es el último avatar del lado derecho superior (Rival 5: 0.880f).
+    // - Si el usuario NO es Primera Selección: el 10º Pick es el último avatar del lado izquierdo superior (Aliado 5: 0.380f).
+    val topAvatarYRatio: Float = 0.052f,
+    val topAvatarDiameterRatio: Float = 0.058f,
+    val topAlly5XRatio: Float = 0.380f,
+    val topEnemy5XRatio: Float = 0.880f,
+    val topAllyXRatios: List<Float> = listOf(0.180f, 0.230f, 0.280f, 0.330f, 0.380f),
+    val topEnemyXRatios: List<Float> = listOf(0.640f, 0.700f, 0.760f, 0.820f, 0.880f)
 ) {
     fun toFormattedCoordinatesString(): String {
         val sb = StringBuilder()
@@ -139,8 +144,16 @@ VisionCalibrationConfig(
             val default = VisionCalibrationConfig()
             val allyY = (0..4).map { idx -> prefs.getFloat("ally_slot_y_$idx", default.allySlotYRatios[idx]) }
             val enemyY = (0..4).map { idx -> prefs.getFloat("enemy_slot_y_$idx", default.enemySlotYRatios[idx]) }
-            val topAllyX = (0..4).map { idx -> prefs.getFloat("top_ally_x_$idx", default.topAllyXRatios[idx]) }
-            val topEnemyX = (0..4).map { idx -> prefs.getFloat("top_enemy_x_$idx", default.topEnemyXRatios[idx]) }
+
+            // Si las coordenadas guardadas pertenecen a la versión antigua (bans a extremos < 0.20 o > 0.90), migrar a la nueva calibración oficial
+            val savedTopAlly5X = prefs.getFloat("topAlly5XRatio", default.topAlly5XRatio)
+            val savedTopEnemy5X = prefs.getFloat("topEnemy5XRatio", default.topEnemy5XRatio)
+            val useNewDefaults = savedTopEnemy5X > 0.90f || savedTopAlly5X < 0.25f
+
+            val topAllyX = if (useNewDefaults) default.topAllyXRatios else (0..4).map { idx -> prefs.getFloat("top_ally_x_$idx", default.topAllyXRatios[idx]) }
+            val topEnemyX = if (useNewDefaults) default.topEnemyXRatios else (0..4).map { idx -> prefs.getFloat("top_enemy_x_$idx", default.topEnemyXRatios[idx]) }
+            val topAlly5 = if (useNewDefaults) default.topAlly5XRatio else savedTopAlly5X
+            val topEnemy5 = if (useNewDefaults) default.topEnemy5XRatio else savedTopEnemy5X
 
             return VisionCalibrationConfig(
                 allyAvatarCenterX = prefs.getFloat("allyAvatarCenterX", default.allyAvatarCenterX),
@@ -154,8 +167,8 @@ VisionCalibrationConfig(
                 enemyOcrMaxX = prefs.getFloat("enemyOcrMaxX", default.enemyOcrMaxX),
                 topAvatarYRatio = prefs.getFloat("topAvatarYRatio", default.topAvatarYRatio),
                 topAvatarDiameterRatio = prefs.getFloat("topAvatarDiameterRatio", default.topAvatarDiameterRatio),
-                topAlly5XRatio = prefs.getFloat("topAlly5XRatio", default.topAlly5XRatio),
-                topEnemy5XRatio = prefs.getFloat("topEnemy5XRatio", default.topEnemy5XRatio),
+                topAlly5XRatio = topAlly5,
+                topEnemy5XRatio = topEnemy5,
                 topAllyXRatios = topAllyX,
                 topEnemyXRatios = topEnemyX
             )

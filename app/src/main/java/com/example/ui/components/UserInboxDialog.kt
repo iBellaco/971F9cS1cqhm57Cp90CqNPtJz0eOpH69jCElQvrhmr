@@ -288,9 +288,12 @@ fun UserInboxDialog(
 
             val isSupport = (m["tag"] as? String)?.equals("SUPPORT", ignoreCase = true) == true ||
                 (m["reportId"] as? String)?.isNotBlank() == true ||
+                (m["ticketId"] as? String)?.isNotBlank() == true ||
                 m["conversation"] != null ||
                 (m["adminReply"] as? String)?.isNotBlank() == true ||
-                FeedbackRepository.isSupportMessage(m)
+                FeedbackRepository.isSupportMessage(m) ||
+                (m["title"] as? String)?.contains("Soporte", ignoreCase = true) == true ||
+                (m["title"] as? String)?.contains("Ticket", ignoreCase = true) == true
 
             val conv = (m["conversation"] as? List<*>)?.filterIsInstance<Map<String, Any>>() ?: emptyList()
             val lastEntry = conv.lastOrNull()
@@ -313,11 +316,19 @@ fun UserInboxDialog(
             val isLocallyMarkedRead = localReadIds.contains(id) || localReadIds.contains(reportId)
 
             // Si el equipo de soporte respondió y el usuario no lo ha leído después de esa respuesta:
-            if (isSupport && isLastReplyFromSupport && (replyTs > 0L || hasNewAdminReply)) {
+            if (isSupport && (hasNewAdminReply || isLastReplyFromSupport)) {
+                if (hasNewAdminReply) {
+                    return false // Incondicionalmente NUEVO
+                }
+                if (replyTs > lastReadTs && replyTs > 0L) {
+                    return false // ¡Nueva respuesta de soporte posterior a la lectura previa!
+                }
+                if (lastReadTs == 0L && ((m["isRead"] as? Boolean) == false || (m["userRead"] as? Boolean) == false)) {
+                    return false
+                }
                 if (lastReadTs >= replyTs && lastReadTs > 0L) {
                     return true
                 }
-                return false // ¡Mensaje NUEVO! Notificación activa y no leído
             }
 
             if (isLocallyMarkedRead) {
@@ -646,6 +657,22 @@ fun UserInboxDialog(
         val reportId = targetMsg?.get("reportId") as? String ?: ""
         val title = (targetMsg?.get("title") as? String ?: "").trim()
         val cleanTitle = title.removePrefix("Soporte: ").removePrefix("Reporte: ").trim()
+
+        // Protección estricta: Los mensajes/tickets de soporte únicamente pueden ser eliminados por el administrador
+        val isTargetSupport = targetMsg != null && (
+            (targetMsg["tag"] as? String)?.equals("SUPPORT", ignoreCase = true) == true ||
+            (targetMsg["reportId"] as? String)?.isNotBlank() == true ||
+            (targetMsg["ticketId"] as? String)?.isNotBlank() == true ||
+            FeedbackRepository.isSupportMessage(targetMsg) ||
+            title.contains("Soporte", ignoreCase = true) ||
+            title.contains("Ticket", ignoreCase = true) ||
+            title.contains("Reporte", ignoreCase = true) ||
+            (targetMsg["category"] as? String)?.isNotBlank() == true ||
+            (targetMsg["isSupport"] as? Boolean) == true
+        )
+        if (isTargetSupport) {
+            return
+        }
 
         val newDeleted = deletedIds + id +
             (if (reportId.isNotBlank()) listOf(reportId) else emptyList()) +
@@ -1007,10 +1034,17 @@ fun UserInboxDialog(
 
                                     val isSupportTicket = rawTag.equals("SUPPORT", ignoreCase = true) ||
                                         (msg["reportId"] as? String)?.isNotBlank() == true ||
+                                        (msg["ticketId"] as? String)?.isNotBlank() == true ||
                                         messageTag == MessageTag.SUPPORT ||
                                         FeedbackRepository.isSupportMessage(msg) ||
                                         conversationEntries.isNotEmpty() ||
-                                        adminReply.isNotBlank()
+                                        adminReply.isNotBlank() ||
+                                        title.contains("Soporte", ignoreCase = true) ||
+                                        title.contains("Ticket", ignoreCase = true) ||
+                                        title.contains("Reporte", ignoreCase = true) ||
+                                        sender.contains("Soporte", ignoreCase = true) ||
+                                        (msg["category"] as? String)?.isNotBlank() == true ||
+                                        (msg["isSupport"] as? Boolean) == true
 
                                     // Badge de Estado para reportes de soporte (sincronizado multidispositivo)
                                     val rawStatus = (msg["status"] as? String)?.uppercase() ?: "PENDIENTE"
