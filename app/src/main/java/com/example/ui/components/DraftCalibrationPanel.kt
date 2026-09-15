@@ -32,6 +32,9 @@ import com.example.service.screen.VisionCalibrationConfig
 import com.example.ui.theme.*
 import com.example.util.tr
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlin.math.roundToInt
 
 enum class CalibrationTarget(val title: String, val subtitle: String) {
     TOP_ENEMY_5("⭐ 10º Pick Rival Superior (Top 5)", "Calibrar círculo superior derecho del 10º pick rival"),
@@ -57,7 +60,8 @@ enum class CalibrationTarget(val title: String, val subtitle: String) {
 @Composable
 fun DraftCalibrationPanel(
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDragDelta: ((dx: Int, dy: Int, isDragging: Boolean, isEnded: Boolean) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val currentConfig by DraftVisionScanner.calibrationConfigFlow.collectAsStateWithLifecycle()
@@ -129,9 +133,46 @@ fun DraftCalibrationPanel(
                 .padding(8.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // CABECERA
+            // Barra de agarre (Drag Handle) superior para mover el panel
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        detectDragGestures(
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                onDragDelta?.invoke(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
+                            },
+                            onDragEnd = { onDragDelta?.invoke(0, 0, false, false) },
+                            onDragCancel = { onDragDelta?.invoke(0, 0, false, false) }
+                        )
+                    }
+                    .padding(top = 1.dp, bottom = 4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .width(42.dp)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(HextechCyan.copy(alpha = 0.65f))
+                )
+            }
+
+            // CABECERA con soporte de arrastre
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        detectDragGestures(
+                            onDrag = { change, dragAmount ->
+                                change.consume()
+                                onDragDelta?.invoke(dragAmount.x.roundToInt(), dragAmount.y.roundToInt(), true, false)
+                            },
+                            onDragEnd = { onDragDelta?.invoke(0, 0, false, false) },
+                            onDragCancel = { onDragDelta?.invoke(0, 0, false, false) }
+                        )
+                    },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
