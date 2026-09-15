@@ -892,9 +892,10 @@ fun DraftHistoryScreen(
                         isOverlay = effectiveOverlay
                     )
                 } else {
-                // Vista de Partidas Guardadas
-                // Stats Summary Card
-                if (draftsList.isNotEmpty()) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        // Vista de Partidas Guardadas
+                        // Stats Summary Card
+                        if (draftsList.isNotEmpty()) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
@@ -1023,12 +1024,36 @@ fun DraftHistoryScreen(
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
+                    
+                    if (pendingCount > 0) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = HextechGold.copy(alpha = 0.1f)),
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Warning, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = tr("Aún hay draft en espera por registrar resultado."),
+                                    color = HextechGold,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
                 }
 
                 if (filteredDrafts.isEmpty()) {
                     Box(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .weight(1f)
+                            .fillMaxWidth()
                             .padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -1074,7 +1099,7 @@ fun DraftHistoryScreen(
                     }
                 } else {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.weight(1f).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(filteredDrafts, key = { it.id }) { draft ->
@@ -1101,6 +1126,7 @@ fun DraftHistoryScreen(
                         }
                     }
                 }
+                    } // Cierra el Column
             }
         }
     }

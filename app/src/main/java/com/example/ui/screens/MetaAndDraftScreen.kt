@@ -198,7 +198,7 @@ fun MetaAndDraftScreen(
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    var activeRole by remember { mutableStateOf<LaneRole?>(com.example.util.UserPreferences.getActiveDraftRole(screenContext)) }
+    var activeRole by remember { mutableStateOf<LaneRole?>(null) }
     var showRoleChangeDialog by remember { mutableStateOf(false) }
 
     val defaultChamp = WildRiftRepository.champions.firstOrNull() ?: Champion(
@@ -3547,7 +3547,6 @@ fun DraftAnalysisTab(
     val coroutineScope = rememberCoroutineScope()
     val isPremium by com.example.util.SubscriptionManager.isPremium.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
-    var isSavedRecently by remember { mutableStateOf(false) }
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     var showMatchupDialog by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
@@ -3585,7 +3584,6 @@ fun DraftAnalysisTab(
                         accountProfileId = profileId,
                         accountProfileName = profileName
                     )
-                    isSavedRecently = true
                     showSaveDraftDialog = false
                     val toastMsg = when (result) {
                         "VICTORY" -> victoryToastText
@@ -3779,12 +3777,12 @@ fun DraftAnalysisTab(
                     .height(44.dp)
                     .testTag("save_draft_button"),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSavedRecently) Color(0xFF2E7D32).copy(alpha = 0.45f) else HextechGold.copy(alpha = 0.16f),
-                    contentColor = if (isSavedRecently) Color(0xFF81C784) else HextechGold
+                    containerColor = HextechGold.copy(alpha = 0.16f),
+                    contentColor = HextechGold
                 ),
                 border = BorderStroke(
                     1.2.dp,
-                    if (isSavedRecently) Color(0xFF81C784) else HextechGold.copy(alpha = 0.7f)
+                    HextechGold.copy(alpha = 0.7f)
                 ),
                 shape = RoundedCornerShape(12.dp),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 6.dp)
@@ -3794,13 +3792,13 @@ fun DraftAnalysisTab(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
-                        imageVector = if (isSavedRecently) Icons.Default.Check else Icons.Default.BookmarkAdd,
+                        imageVector = Icons.Default.BookmarkAdd,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = if (isSavedRecently) tr("¡Guardado!") else tr("Guardar"),
+                        text = tr("Guardar"),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp
                     )
