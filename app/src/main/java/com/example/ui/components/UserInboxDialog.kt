@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.animation.core.*
 
 import com.example.ui.theme.*
+import com.example.util.SubscriptionManager
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
@@ -160,11 +161,24 @@ fun UserInboxDialog(
                                 }
                                 val title = data["title"] as? String ?: "Reporte de Soporte"
                                 val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
-                                val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
-                                val status = data["status"] as? String ?: "PENDIENTE"
                                 val conv = data["conversation"] as? List<Map<String, Any>> ?: emptyList()
                                 val admRep = data["adminReply"] as? String ?: ""
                                 val repBy = data["repliedBy"] as? String ?: ""
+                                val lastEntry = conv.lastOrNull()
+                                val lastConvTs = (lastEntry?.get("timestampMillis") as? Number)?.toLong()
+                                val ts = (data["lastMessageAt"] as? Timestamp)?.toDate()?.time
+                                    ?: (data["repliedAt"] as? Timestamp)?.toDate()?.time
+                                    ?: lastConvTs
+                                    ?: (data["updatedAt"] as? Timestamp)?.toDate()?.time
+                                    ?: (data["createdAt"] as? Timestamp)?.toDate()?.time
+                                    ?: System.currentTimeMillis()
+                                val status = data["status"] as? String ?: "PENDIENTE"
+                                val lastRole = (lastEntry?.get("senderRole") as? String)?.uppercase()
+                                    ?: (data["lastReplyRole"] as? String)?.uppercase()
+                                    ?: (data["lastReplySenderRole"] as? String)?.uppercase()
+                                    ?: ""
+                                val isLastReplyFromSupport = lastRole == "SUPPORT" || lastRole == "ADMIN" || admRep.isNotBlank()
+                                val hasNewAdminReply = (data["hasNewAdminReply"] as? Boolean) == true || (data["hasNewReply"] as? Boolean) == true
 
                                 supportMap[doc.id] = mapOf(
                                     "id" to doc.id,
@@ -178,7 +192,11 @@ fun UserInboxDialog(
                                     "conversation" to conv,
                                     "adminReply" to admRep,
                                     "repliedBy" to repBy,
-                                    "isRead" to false,
+                                    "isRead" to ((data["isRead"] as? Boolean) == true),
+                                    "userRead" to ((data["userRead"] as? Boolean) == true),
+                                    "hasNewAdminReply" to hasNewAdminReply,
+                                    "isLastReplyFromSupport" to isLastReplyFromSupport,
+                                    "lastReplyTs" to (lastConvTs ?: ts),
                                     "sender" to (data["userName"] as? String ?: "Soporte Coach")
                                 )
                             }
@@ -210,11 +228,24 @@ fun UserInboxDialog(
                                 }
                                 val title = data["title"] as? String ?: "Reporte de Soporte"
                                 val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
-                                val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
-                                val status = data["status"] as? String ?: "PENDIENTE"
                                 val conv = data["conversation"] as? List<Map<String, Any>> ?: emptyList()
                                 val admRep = data["adminReply"] as? String ?: ""
                                 val repBy = data["repliedBy"] as? String ?: ""
+                                val lastEntry = conv.lastOrNull()
+                                val lastConvTs = (lastEntry?.get("timestampMillis") as? Number)?.toLong()
+                                val ts = (data["lastMessageAt"] as? Timestamp)?.toDate()?.time
+                                    ?: (data["repliedAt"] as? Timestamp)?.toDate()?.time
+                                    ?: lastConvTs
+                                    ?: (data["updatedAt"] as? Timestamp)?.toDate()?.time
+                                    ?: (data["createdAt"] as? Timestamp)?.toDate()?.time
+                                    ?: System.currentTimeMillis()
+                                val status = data["status"] as? String ?: "PENDIENTE"
+                                val lastRole = (lastEntry?.get("senderRole") as? String)?.uppercase()
+                                    ?: (data["lastReplyRole"] as? String)?.uppercase()
+                                    ?: (data["lastReplySenderRole"] as? String)?.uppercase()
+                                    ?: ""
+                                val isLastReplyFromSupport = lastRole == "SUPPORT" || lastRole == "ADMIN" || admRep.isNotBlank()
+                                val hasNewAdminReply = (data["hasNewAdminReply"] as? Boolean) == true || (data["hasNewReply"] as? Boolean) == true
 
                                 supportMap[doc.id] = mapOf(
                                     "id" to doc.id,
@@ -228,7 +259,11 @@ fun UserInboxDialog(
                                     "conversation" to conv,
                                     "adminReply" to admRep,
                                     "repliedBy" to repBy,
-                                    "isRead" to false,
+                                    "isRead" to ((data["isRead"] as? Boolean) == true),
+                                    "userRead" to ((data["userRead"] as? Boolean) == true),
+                                    "hasNewAdminReply" to hasNewAdminReply,
+                                    "isLastReplyFromSupport" to isLastReplyFromSupport,
+                                    "lastReplyTs" to (lastConvTs ?: ts),
                                     "sender" to (data["userName"] as? String ?: "Soporte Coach")
                                 )
                             }
@@ -244,6 +279,54 @@ fun UserInboxDialog(
         val currActive = activeSupportIds
         val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
         val all = mutableMapOf<String, Map<String, Any>>()
+
+        fun resolveIsRead(m: Map<String, Any>, id: String, reportId: String): Boolean {
+            val lastReadTs = maxOf(
+                inboxPrefs.getLong("last_read_ts_$reportId", 0L),
+                inboxPrefs.getLong("last_read_ts_$id", 0L)
+            )
+
+            val isSupport = (m["tag"] as? String)?.equals("SUPPORT", ignoreCase = true) == true ||
+                (m["reportId"] as? String)?.isNotBlank() == true ||
+                m["conversation"] != null ||
+                (m["adminReply"] as? String)?.isNotBlank() == true ||
+                FeedbackRepository.isSupportMessage(m)
+
+            val conv = (m["conversation"] as? List<*>)?.filterIsInstance<Map<String, Any>>() ?: emptyList()
+            val lastEntry = conv.lastOrNull()
+            val lastRole = (lastEntry?.get("senderRole") as? String)?.uppercase()
+                ?: (m["lastReplyRole"] as? String)?.uppercase()
+                ?: (m["lastReplySenderRole"] as? String)?.uppercase()
+                ?: ""
+            val hasSupportReply = (m["adminReply"] as? String)?.isNotBlank() == true
+            val isLastReplyFromSupport = (m["isLastReplyFromSupport"] as? Boolean) == true ||
+                lastRole == "SUPPORT" || lastRole == "ADMIN" || (conv.isEmpty() && hasSupportReply)
+            val hasNewAdminReply = (m["hasNewAdminReply"] as? Boolean) == true || (m["hasNewReply"] as? Boolean) == true
+
+            val replyTs = (lastEntry?.get("timestampMillis") as? Number)?.toLong()
+                ?: (m["lastReplyTs"] as? Long)
+                ?: (m["lastMessageAt"] as? Timestamp)?.toDate()?.time
+                ?: (m["repliedAt"] as? Timestamp)?.toDate()?.time
+                ?: (m["timestamp"] as? Long)
+                ?: 0L
+
+            val isLocallyMarkedRead = localReadIds.contains(id) || localReadIds.contains(reportId)
+
+            // Si el equipo de soporte respondió y el usuario no lo ha leído después de esa respuesta:
+            if (isSupport && isLastReplyFromSupport && (replyTs > 0L || hasNewAdminReply)) {
+                if (lastReadTs >= replyTs && lastReadTs > 0L) {
+                    return true
+                }
+                return false // ¡Mensaje NUEVO! Notificación activa y no leído
+            }
+
+            if (isLocallyMarkedRead) {
+                return true
+            }
+
+            val rawRead = (m["isRead"] as? Boolean) == true || (m["userRead"] as? Boolean) == true
+            return rawRead
+        }
 
         for (m in supportReportMessages) {
             val id = m["id"] as? String ?: continue
@@ -266,8 +349,7 @@ fun UserInboxDialog(
                 if (!matches) continue
             }
 
-            val rawRead = (m["isRead"] as? Boolean) == true || (m["userRead"] as? Boolean) == true
-            val isRead = rawRead || localReadIds.contains(id) || localReadIds.contains(reportId)
+            val isRead = resolveIsRead(m, id, reportId)
             all[id] = m.toMutableMap().apply { put("isRead", isRead) }
         }
 
@@ -300,8 +382,7 @@ fun UserInboxDialog(
                     if (!matchesValid) return
                 }
             }
-            val rawRead = (m["isRead"] as? Boolean) == true || (m["userRead"] as? Boolean) == true
-            val isRead = rawRead || localReadIds.contains(id) || localReadIds.contains(reportId)
+            val isRead = resolveIsRead(m, id, reportId)
             all[id] = m.toMutableMap().apply { put("isRead", isRead) }
         }
 
@@ -394,43 +475,77 @@ fun UserInboxDialog(
     fun markMessageAsRead(id: String) {
         val targetMsg = messages.find { (it["id"] as? String) == id }
         val reportId = (targetMsg?.get("reportId") as? String ?: "").takeIf { it.isNotBlank() } ?: id
+        val now = System.currentTimeMillis()
         val newRead = localReadIds + id + reportId
         localReadIds = newRead
-        inboxPrefs.edit().putStringSet("read_ids", newRead).apply()
+        inboxPrefs.edit()
+            .putStringSet("read_ids", newRead)
+            .putLong("last_read_ts_$id", now)
+            .putLong("last_read_ts_$reportId", now)
+            .apply()
 
         // Actualizar listas en memoria de forma inmediata
         subcollectionMessages = subcollectionMessages.map { m ->
             val mId = m["id"] as? String ?: ""
             val rId = m["reportId"] as? String ?: ""
             if (mId == id || mId == reportId || rId == id || (reportId.isNotBlank() && rId == reportId)) {
-                m.toMutableMap().apply { put("isRead", true) }
+                m.toMutableMap().apply { 
+                    put("isRead", true)
+                    put("userRead", true)
+                    put("hasNewAdminReply", false)
+                    put("hasNewReply", false)
+                }
             } else m
         }
         arrayMessages = arrayMessages.map { m ->
             val mId = m["id"] as? String ?: ""
             val rId = m["reportId"] as? String ?: ""
             if (mId == id || mId == reportId || rId == id || (reportId.isNotBlank() && rId == reportId)) {
-                m.toMutableMap().apply { put("isRead", true) }
+                m.toMutableMap().apply { 
+                    put("isRead", true)
+                    put("userRead", true)
+                    put("hasNewAdminReply", false)
+                    put("hasNewReply", false)
+                }
             } else m
         }
         supportReportMessages = supportReportMessages.map { m ->
             val mId = m["id"] as? String ?: ""
             val rId = m["reportId"] as? String ?: ""
             if (mId == id || mId == reportId || rId == id || (reportId.isNotBlank() && rId == reportId)) {
-                m.toMutableMap().apply { put("isRead", true) }
+                m.toMutableMap().apply { 
+                    put("isRead", true)
+                    put("userRead", true)
+                    put("hasNewAdminReply", false)
+                    put("hasNewReply", false)
+                }
             } else m
         }
 
-        // Persistir en Firestore
+        val remainingUnread = messages.count { m ->
+            val mId = m["id"] as? String ?: ""
+            val rId = m["reportId"] as? String ?: ""
+            val isThisOne = (mId == id || mId == reportId || rId == id || (reportId.isNotBlank() && rId == reportId))
+            if (isThisOne) false else ((m["isRead"] as? Boolean) == false)
+        }
+        SubscriptionManager.setUnreadMessagesCount(remainingUnread)
+
+        // Persistir en Firestore de forma segura con merge
         val db = FirebaseFirestore.getInstance()
         val uRef = db.collection("users").document(userUid)
-        uRef.collection("messages").document(id).update("isRead", true)
+        val readUpdate = mapOf(
+            "isRead" to true,
+            "userRead" to true,
+            "hasNewAdminReply" to false,
+            "hasNewReply" to false
+        )
+        uRef.collection("messages").document(id).set(readUpdate, com.google.firebase.firestore.SetOptions.merge())
         if (reportId.isNotBlank() && reportId != id) {
-            uRef.collection("messages").document(reportId).update("isRead", true)
+            uRef.collection("messages").document(reportId).set(readUpdate, com.google.firebase.firestore.SetOptions.merge())
         }
-        try { db.collection("support_reports").document(id).update("isRead", true, "userRead", true) } catch (_: Exception) {}
+        try { db.collection("support_reports").document(id).set(readUpdate, com.google.firebase.firestore.SetOptions.merge()) } catch (_: Exception) {}
         if (reportId.isNotBlank() && reportId != id) {
-            try { db.collection("support_reports").document(reportId).update("isRead", true, "userRead", true) } catch (_: Exception) {}
+            try { db.collection("support_reports").document(reportId).set(readUpdate, com.google.firebase.firestore.SetOptions.merge()) } catch (_: Exception) {}
         }
 
         uRef.get().addOnSuccessListener { snap ->
@@ -444,51 +559,69 @@ fun UserInboxDialog(
                         m.toMutableMap().apply { put("isRead", true) }
                     } else m
                 }
-                val remainingUnread = updated.count { 
+                val remaining = updated.count { 
                     val mId = it["id"] as? String ?: ""
                     val rId = it["reportId"] as? String ?: ""
                     (it["isRead"] as? Boolean) == false && !newRead.contains(mId) && !newRead.contains(rId)
                 }
-                uRef.update(
-                    "privateMessages", updated,
-                    "hasUnreadMessages", remainingUnread > 0,
-                    "unreadMessagesCount", remainingUnread
+                uRef.set(
+                    mapOf(
+                        "privateMessages" to updated,
+                        "hasUnreadMessages" to (remaining > 0),
+                        "unreadMessagesCount" to remaining
+                    ),
+                    com.google.firebase.firestore.SetOptions.merge()
                 )
             } else {
-                uRef.update(
-                    "hasUnreadMessages", false,
-                    "unreadMessagesCount", 0
+                uRef.set(
+                    mapOf(
+                        "hasUnreadMessages" to false,
+                        "unreadMessagesCount" to 0
+                    ),
+                    com.google.firebase.firestore.SetOptions.merge()
                 )
             }
         }
     }
 
     fun markAllAsRead() {
+        val now = System.currentTimeMillis()
+        val editor = inboxPrefs.edit()
         val allIds = messages.flatMap {
             val mId = it["id"] as? String ?: ""
             val rId = it["reportId"] as? String ?: ""
+            if (mId.isNotBlank()) editor.putLong("last_read_ts_$mId", now)
+            if (rId.isNotBlank()) editor.putLong("last_read_ts_$rId", now)
             listOfNotNull(mId.takeIf { it.isNotBlank() }, rId.takeIf { it.isNotBlank() })
         }.toSet()
         val newRead = localReadIds + allIds
         localReadIds = newRead
-        inboxPrefs.edit().putStringSet("read_ids", newRead).apply()
+        editor.putStringSet("read_ids", newRead).apply()
 
-        subcollectionMessages = subcollectionMessages.map { it.toMutableMap().apply { put("isRead", true) } }
-        arrayMessages = arrayMessages.map { it.toMutableMap().apply { put("isRead", true) } }
-        supportReportMessages = supportReportMessages.map { it.toMutableMap().apply { put("isRead", true) } }
+        subcollectionMessages = subcollectionMessages.map { it.toMutableMap().apply { put("isRead", true); put("userRead", true); put("hasNewAdminReply", false) } }
+        arrayMessages = arrayMessages.map { it.toMutableMap().apply { put("isRead", true); put("userRead", true); put("hasNewAdminReply", false) } }
+        supportReportMessages = supportReportMessages.map { it.toMutableMap().apply { put("isRead", true); put("userRead", true); put("hasNewAdminReply", false) } }
+
+        SubscriptionManager.setUnreadMessagesCount(0)
 
         val db = FirebaseFirestore.getInstance()
         val uRef = db.collection("users").document(userUid)
+        val readUpdate = mapOf(
+            "isRead" to true,
+            "userRead" to true,
+            "hasNewAdminReply" to false,
+            "hasNewReply" to false
+        )
         for (m in messages) {
             val mId = m["id"] as? String ?: continue
             val rId = m["reportId"] as? String ?: ""
-            uRef.collection("messages").document(mId).update("isRead", true)
+            uRef.collection("messages").document(mId).set(readUpdate, com.google.firebase.firestore.SetOptions.merge())
             if (rId.isNotBlank() && rId != mId) {
-                uRef.collection("messages").document(rId).update("isRead", true)
+                uRef.collection("messages").document(rId).set(readUpdate, com.google.firebase.firestore.SetOptions.merge())
             }
-            try { db.collection("support_reports").document(mId).update("isRead", true, "userRead", true) } catch (_: Exception) {}
+            try { db.collection("support_reports").document(mId).set(readUpdate, com.google.firebase.firestore.SetOptions.merge()) } catch (_: Exception) {}
             if (rId.isNotBlank() && rId != mId) {
-                try { db.collection("support_reports").document(rId).update("isRead", true, "userRead", true) } catch (_: Exception) {}
+                try { db.collection("support_reports").document(rId).set(readUpdate, com.google.firebase.firestore.SetOptions.merge()) } catch (_: Exception) {}
             }
         }
         uRef.get().addOnSuccessListener { snap ->
@@ -497,10 +630,13 @@ fun UserInboxDialog(
             val updated = pMsgs?.map { m ->
                 m.toMutableMap().apply { put("isRead", true) }
             } ?: emptyList()
-            uRef.update(
-                "privateMessages", updated,
-                "hasUnreadMessages", false,
-                "unreadMessagesCount", 0
+            uRef.set(
+                mapOf(
+                    "privateMessages" to updated,
+                    "hasUnreadMessages" to false,
+                    "unreadMessagesCount" to 0
+                ),
+                com.google.firebase.firestore.SetOptions.merge()
             )
         }
     }
@@ -836,6 +972,46 @@ fun UserInboxDialog(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
+                                    val sender = msg["sender"] as? String ?: ""
+                                    val repliedBy = msg["repliedBy"] as? String ?: ""
+                                    val adminReply = msg["adminReply"] as? String ?: ""
+                                    val reportId = (msg["reportId"] as? String)?.takeIf { it.isNotBlank() } ?: id
+
+                                    @Suppress("UNCHECKED_CAST")
+                                    val rawConversation = msg["conversation"] as? List<Map<String, Any>>
+                                    val conversationEntries = remember(rawConversation, adminReply) {
+                                        if (rawConversation != null && rawConversation.isNotEmpty()) {
+                                            rawConversation.mapNotNull { m ->
+                                                val text = m["text"] as? String ?: return@mapNotNull null
+                                                SupportMessageEntry(
+                                                    id = m["id"] as? String ?: UUID.randomUUID().toString(),
+                                                    senderName = m["senderName"] as? String ?: "Soporte",
+                                                    senderRole = m["senderRole"] as? String ?: "SUPPORT",
+                                                    text = text,
+                                                    timestampMillis = (m["timestampMillis"] as? Long) ?: (m["timestamp"] as? Long) ?: 0L,
+                                                    isGreeting = (m["isGreeting"] as? Boolean) ?: false
+                                                )
+                                            }
+                                        } else if (adminReply.isNotBlank()) {
+                                            listOf(
+                                                SupportMessageEntry(
+                                                    senderName = repliedBy.ifBlank { "Soporte Coach" },
+                                                    senderRole = "SUPPORT",
+                                                    text = adminReply,
+                                                    timestampMillis = timestamp,
+                                                    isGreeting = SupportReplyManager.isDefaultGreeting(adminReply)
+                                                )
+                                            )
+                                        } else emptyList()
+                                    }
+
+                                    val isSupportTicket = rawTag.equals("SUPPORT", ignoreCase = true) ||
+                                        (msg["reportId"] as? String)?.isNotBlank() == true ||
+                                        messageTag == MessageTag.SUPPORT ||
+                                        FeedbackRepository.isSupportMessage(msg) ||
+                                        conversationEntries.isNotEmpty() ||
+                                        adminReply.isNotBlank()
+
                                     // Badge de Estado para reportes de soporte (sincronizado multidispositivo)
                                     val rawStatus = (msg["status"] as? String)?.uppercase() ?: "PENDIENTE"
                                     val normalizedStatus = when (rawStatus) {
@@ -923,66 +1099,34 @@ fun UserInboxDialog(
                                                 }
                                                 Spacer(modifier = Modifier.width(4.dp))
                                             }
-                                            HextechAnimatedIconButton(
-                                                onClick = { deleteMessage(id) },
-                                                size = 30.dp,
-                                                backgroundColor = Color.Transparent,
-                                                borderColor = Color.Transparent,
-                                                glowColor = DangerRed
-                                            ) {
-                                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed.copy(alpha = 0.7f), modifier = Modifier.size(18.dp))
+                                            // Los reportes de soporte solo pueden ser eliminados por el administrador
+                                            if (!isSupportTicket) {
+                                                HextechAnimatedIconButton(
+                                                    onClick = { deleteMessage(id) },
+                                                    size = 30.dp,
+                                                    backgroundColor = Color.Transparent,
+                                                    borderColor = Color.Transparent,
+                                                    glowColor = DangerRed
+                                                ) {
+                                                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed.copy(alpha = 0.7f), modifier = Modifier.size(18.dp))
+                                                }
                                             }
                                         }
                                     }
                                     Text(dateStr, color = Color.Gray, fontSize = 11.sp)
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    val sender = msg["sender"] as? String ?: ""
-                                    val repliedBy = msg["repliedBy"] as? String ?: ""
-                                    val adminReply = msg["adminReply"] as? String ?: ""
-                                    val reportId = (msg["reportId"] as? String)?.takeIf { it.isNotBlank() } ?: id
+                                if (isSupportTicket) {
+                                    var showSupportPopup by remember(id) { mutableStateOf(false) }
 
-                                    @Suppress("UNCHECKED_CAST")
-                                    val rawConversation = msg["conversation"] as? List<Map<String, Any>>
-                                    val conversationEntries = remember(rawConversation, adminReply) {
-                                        if (rawConversation != null && rawConversation.isNotEmpty()) {
-                                            rawConversation.mapNotNull { m ->
-                                                val text = m["text"] as? String ?: return@mapNotNull null
-                                                SupportMessageEntry(
-                                                    id = m["id"] as? String ?: UUID.randomUUID().toString(),
-                                                    senderName = m["senderName"] as? String ?: "Soporte",
-                                                    senderRole = m["senderRole"] as? String ?: "SUPPORT",
-                                                    text = text,
-                                                    timestampMillis = (m["timestampMillis"] as? Long) ?: (m["timestamp"] as? Long) ?: 0L,
-                                                    isGreeting = (m["isGreeting"] as? Boolean) ?: false
-                                                )
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                markMessageAsRead(id)
+                                                showSupportPopup = true
                                             }
-                                        } else if (adminReply.isNotBlank()) {
-                                            listOf(
-                                                SupportMessageEntry(
-                                                    senderName = repliedBy.ifBlank { "Soporte Coach" },
-                                                    senderRole = "SUPPORT",
-                                                    text = adminReply,
-                                                    timestampMillis = timestamp,
-                                                    isGreeting = SupportReplyManager.isDefaultGreeting(adminReply)
-                                                )
-                                            )
-                                        } else emptyList()
-                                    }
-
-                                    val isSupportTicket = rawTag.equals("SUPPORT", ignoreCase = true) ||
-                                        (msg["reportId"] as? String)?.isNotBlank() == true ||
-                                        conversationEntries.isNotEmpty() ||
-                                        adminReply.isNotBlank()
-
-                                    if (isSupportTicket) {
-                                        var showSupportPopup by remember(id) { mutableStateOf(false) }
-
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable { showSupportPopup = true }
-                                        ) {
+                                    ) {
                                             if (sender.isNotBlank()) {
                                                 Text("Remitente: $sender", color = Color(0xFF94A3B8), fontSize = 11.sp, fontWeight = FontWeight.Medium)
                                                 Spacer(modifier = Modifier.height(2.dp))

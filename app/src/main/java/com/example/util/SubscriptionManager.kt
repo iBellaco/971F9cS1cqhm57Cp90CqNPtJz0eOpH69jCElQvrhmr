@@ -48,8 +48,34 @@ object SubscriptionManager {
 
     private var roleListener: ListenerRegistration? = null
     private var messagesListener: ListenerRegistration? = null
+    private var supportReportsListener: ListenerRegistration? = null
     private var heartbeatJob: kotlinx.coroutines.Job? = null
     private val scope = CoroutineScope(Dispatchers.IO)
+
+    private var unreadMessagesSubcollection = 0
+    private var unreadSupportReports = 0
+    private var unreadPrivateArray = 0
+    private var hasUnreadFromDoc = false
+    private var docUnreadCount = 0
+
+    private fun recalculateUnreadCount() {
+        val total = if (hasUnreadFromDoc && docUnreadCount > 0) {
+            maxOf(docUnreadCount, unreadMessagesSubcollection + unreadSupportReports + unreadPrivateArray)
+        } else {
+            maxOf(unreadMessagesSubcollection + unreadSupportReports, unreadPrivateArray)
+        }
+        _unreadMessagesCount.value = total.coerceAtLeast(0)
+    }
+
+    fun setUnreadMessagesCount(count: Int) {
+        val clean = count.coerceAtLeast(0)
+        unreadMessagesSubcollection = clean
+        unreadSupportReports = 0
+        unreadPrivateArray = clean
+        docUnreadCount = clean
+        hasUnreadFromDoc = (clean > 0)
+        _unreadMessagesCount.value = clean
+    }
 
     init {
         com.example.util.AuthManager.getAuth()?.addAuthStateListener {
@@ -63,10 +89,17 @@ object SubscriptionManager {
                 _unlockedAvatars.value = emptyList()
                 _blueEssence.value = 0L
                 _unreadMessagesCount.value = 0
+                unreadMessagesSubcollection = 0
+                unreadSupportReports = 0
+                unreadPrivateArray = 0
+                hasUnreadFromDoc = false
+                docUnreadCount = 0
                 roleListener?.remove()
                 roleListener = null
                 messagesListener?.remove()
                 messagesListener = null
+                supportReportsListener?.remove()
+                supportReportsListener = null
                 heartbeatJob?.cancel()
                 heartbeatJob = null
             }
@@ -183,9 +216,26 @@ object SubscriptionManager {
                 .collection("messages")
                 .addSnapshotListener { snapshot, error ->
                     if (error == null && snapshot != null) {
-                        _unreadMessagesCount.value = snapshot.documents.count { doc ->
+                        unreadMessagesSubcollection = snapshot.documents.count { doc ->
                             doc.getBoolean("isRead") == false
                         }
+                        recalculateUnreadCount()
+                    }
+                }
+
+            supportReportsListener?.remove()
+            supportReportsListener = db.collection("support_reports")
+                .whereEqualTo("userId", user.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error == null && snapshot != null) {
+                        unreadSupportReports = snapshot.documents.count { doc ->
+                            val isRead = doc.getBoolean("isRead")
+                            val userRead = doc.getBoolean("userRead")
+                            val hasNewAdminReply = doc.getBoolean("hasNewAdminReply") == true
+                            val hasNewReply = doc.getBoolean("hasNewReply") == true
+                            (isRead == false || userRead == false || hasNewAdminReply || hasNewReply)
+                        }
+                        recalculateUnreadCount()
                     }
                 }
 
@@ -238,15 +288,15 @@ object SubscriptionManager {
 
                     // Sincronizar conteo de mensajes no leídos desde el documento de usuario de forma limpia y exacta
                     val hasUnread = listenSnapshot.getBoolean("hasUnreadMessages") ?: false
+                    val remoteDocCount = listenSnapshot.getLong("unreadMessagesCount")?.toInt() ?: if (hasUnread) 1 else 0
                     @Suppress("UNCHECKED_CAST")
                     val privateMsgs = listenSnapshot.get("privateMessages") as? List<Map<String, Any>>
                     val unreadInArray = privateMsgs?.count { (it["isRead"] as? Boolean) == false } ?: 0
 
-                    if (privateMsgs != null) {
-                        _unreadMessagesCount.value = unreadInArray
-                    } else if (!hasUnread || (privateMsgs != null && privateMsgs.isEmpty())) {
-                        _unreadMessagesCount.value = 0
-                    }
+                    hasUnreadFromDoc = hasUnread
+                    docUnreadCount = remoteDocCount
+                    unreadPrivateArray = unreadInArray
+                    recalculateUnreadCount()
                 } else {
                     val isEmailAdmin = AuthManager.isCurrentUserAdmin()
                     _userName.value = user.displayName?.takeIf { it.isNotBlank() } ?: user.email?.substringBefore("@") ?: ""

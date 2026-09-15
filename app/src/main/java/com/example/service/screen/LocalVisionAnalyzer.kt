@@ -661,9 +661,21 @@ object LocalVisionAnalyzer {
         val runnerUp = candidateComparisons.getOrNull(1)
         val topCandidates = candidateComparisons.take(5)
 
-        // Umbral adaptativo: 0.65f para barra superior / confirmación definitiva, 0.55f para preselección en cuadrícula
-        val minThreshold = if (isConfirmedPhase) 0.65f else 0.55f
-        if (best == null || best.compositeScore < minThreshold) {
+        // Umbral adaptativo calibrado: 0.52f para barra superior / confirmación definitiva, 0.50f para preselección en cuadrícula
+        val minThreshold = if (isConfirmedPhase) 0.52f else 0.50f
+        val isConfidenceSufficient = if (best == null) false else {
+            if (best.compositeScore >= minThreshold) {
+                true
+            } else if (isConfirmedPhase && best.compositeScore >= 0.46f) {
+                // En barra superior, si hay clara ventaja sobre el segundo candidato
+                val diff = if (runnerUp != null) (best.compositeScore - runnerUp.compositeScore) else 0.1f
+                diff >= 0.035f
+            } else {
+                false
+            }
+        }
+
+        if (best == null || !isConfidenceSufficient) {
             val failReason = if (best != null) {
                 "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (${(minThreshold * 100).toInt()}%). Requiere mayor nitidez o confirmación definitiva."
             } else {
@@ -902,51 +914,63 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
 
+        // 5 al lado izquierdo superior para aliados (0..4) y 5 al lado derecho superior para rivales (0..4).
+        // Si el usuario es Primera Selección -> 10º Pick es el último del lado derecho superior (Rival 5, índice 4).
+        // Si el usuario NO es Primera Selección -> 10º Pick es el último del lado izquierdo superior (Aliado 5, índice 4).
         val targetX = if (isAlly) {
-            (width * calib.topAlly5XRatio).toInt()
+            (width * calib.topAllyXRatios.getOrElse(4) { calib.topAlly5XRatio }).toInt()
         } else {
-            (width * calib.topEnemy5XRatio).toInt()
+            (width * calib.topEnemyXRatios.getOrElse(4) { calib.topEnemy5XRatio }).toInt()
         }
 
         val candidateXs = listOf(
             targetX,
             targetX - (width * 0.005f).toInt(),
-            targetX + (width * 0.005f).toInt()
+            targetX + (width * 0.005f).toInt(),
+            targetX - (width * 0.010f).toInt(),
+            targetX + (width * 0.010f).toInt()
+        )
+        val candidateYs = listOf(
+            topCenterY,
+            topCenterY - (height * 0.004f).toInt(),
+            topCenterY + (height * 0.004f).toInt()
         )
 
         val sideDesc = if (isAlly) "Superior Izquierda (Aliado 5 - 10º Pick)" else "Superior Derecha (Rival 5 - 10º Pick)"
         val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
 
-        for (topCenterX in candidateXs) {
-            val standardCrop = safeCrop(bitmap, topCenterX, topCenterY, topDiam)
-            val innerCrop = safeCrop(bitmap, topCenterX, topCenterY, (topDiam * 0.88f).toInt())
-            val outerCrop = safeCrop(bitmap, topCenterX, topCenterY, (topDiam * 1.08f).toInt())
+        for (topY in candidateYs) {
+            for (topCenterX in candidateXs) {
+                val standardCrop = safeCrop(bitmap, topCenterX, topY, topDiam)
+                val innerCrop = safeCrop(bitmap, topCenterX, topY, (topDiam * 0.88f).toInt())
+                val outerCrop = safeCrop(bitmap, topCenterX, topY, (topDiam * 1.06f).toInt())
 
-            // Preservar copia del recorte para el Visor de Escaneo
-            if (topCenterX == targetX) {
+                // Preservar copia del recorte principal para el Visor de Escaneo
+                if (topCenterX == targetX && topY == topCenterY) {
+                    try {
+                        standardCrop?.let { crop ->
+                            lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
+                            lastTenthPickRoiLabel = sideDesc
+                            lastTenthPickCoordinates = "X: ${targetX}px (${(targetX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+                        }
+                    } catch (_: Throwable) {}
+                }
+
                 try {
-                    standardCrop?.let { crop ->
-                        lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
-                        lastTenthPickRoiLabel = sideDesc
-                        lastTenthPickCoordinates = "X: ${targetX}px (${(targetX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+                    if (standardCrop != null) {
+                        matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
                     }
-                } catch (_: Throwable) {}
-            }
-
-            try {
-                if (standardCrop != null) {
-                    matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    if (innerCrop != null) {
+                        matchAvatarDetailed(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    }
+                    if (outerCrop != null) {
+                        matchAvatarDetailed(outerCrop, "$sideDesc [Exterior 106%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    }
+                } finally {
+                    try { standardCrop?.recycle() } catch (_: Throwable) {}
+                    try { innerCrop?.recycle() } catch (_: Throwable) {}
+                    try { outerCrop?.recycle() } catch (_: Throwable) {}
                 }
-                if (innerCrop != null) {
-                    matchAvatarDetailed(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-                }
-                if (outerCrop != null) {
-                    matchAvatarDetailed(outerCrop, "$sideDesc [Exterior 108%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-                }
-            } finally {
-                try { standardCrop?.recycle() } catch (_: Throwable) {}
-                try { innerCrop?.recycle() } catch (_: Throwable) {}
-                try { outerCrop?.recycle() } catch (_: Throwable) {}
             }
         }
 

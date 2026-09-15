@@ -353,7 +353,14 @@ object SupportReplyManager {
                     "repliedAt" to Timestamp.now(),
                     "repliedBy" to author,
                     "conversation" to conversationListMap,
-                    "lastMessageAt" to Timestamp.now()
+                    "lastMessageAt" to Timestamp.now(),
+                    "isRead" to false,
+                    "userRead" to false,
+                    "hasNewAdminReply" to true,
+                    "hasNewReply" to true,
+                    "lastReplyRole" to "SUPPORT",
+                    "lastReplySenderRole" to "SUPPORT",
+                    "lastReplyAt" to Timestamp.now()
                 )
                 if (markAsRead) {
                     updateData["status"] = "LEIDO"
@@ -389,6 +396,9 @@ object SupportReplyManager {
                         "repliedBy" to author,
                         "timestamp" to System.currentTimeMillis(),
                         "isRead" to false,
+                        "userRead" to false,
+                        "hasNewAdminReply" to true,
+                        "lastReplyRole" to "SUPPORT",
                         "tag" to "SUPPORT",
                         "sender" to resolvedSenderName,
                         "reportId" to firestoreReportId,
@@ -401,11 +411,12 @@ object SupportReplyManager {
                         .set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
 
                     val userRef = db.collection("users").document(resolvedUserId)
-                    val userSnap = userRef.get().await()
-                    val unreadCount = userSnap.getLong("unreadMessagesCount") ?: 0L
-                    userRef.update(
-                        "hasUnreadMessages", true,
-                        "unreadMessagesCount", unreadCount + 1
+                    userRef.set(
+                        mapOf(
+                            "hasUnreadMessages" to true,
+                            "unreadMessagesCount" to com.google.firebase.firestore.FieldValue.increment(1)
+                        ),
+                        com.google.firebase.firestore.SetOptions.merge()
                     ).await()
                 }
             } catch (e: Exception) {
@@ -597,7 +608,6 @@ object SupportReplyManager {
                 try {
                     val userMsgUpdate = hashMapOf<String, Any>(
                         "status" to normalizedCloudStatus,
-                        "isRead" to (normalizedCloudStatus == "LEIDO" || normalizedCloudStatus == "SOLUCIONADO"),
                         "updatedAt" to Timestamp.now()
                     )
                     db.collection("users").document(targetUserId).collection("messages").document(resolvedDocId)
