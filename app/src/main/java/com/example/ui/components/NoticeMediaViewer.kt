@@ -184,9 +184,8 @@ object NoticeMediaUtils {
         if (url.isBlank()) return true
         val trimmed = url.trim()
         if (trimmed.startsWith("content://") || trimmed.startsWith("file://") || trimmed.startsWith("data:image/") || trimmed.startsWith("data:video/")) return true
-        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-            return true
-        }
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) return true
+        if (isYouTubeUrl(trimmed) || isWebVideoUrl(trimmed)) return true
         return false
     }
 

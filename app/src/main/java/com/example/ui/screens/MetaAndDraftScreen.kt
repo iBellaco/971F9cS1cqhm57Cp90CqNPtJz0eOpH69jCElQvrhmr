@@ -195,6 +195,7 @@ fun MetaAndDraftScreen(
     onNavigateBack: () -> Unit
 ) {
     val screenContext = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val isPremium by SubscriptionManager.isPremium.collectAsState()
     val lang = LocalLanguage.current
     var selectedTabIndex by remember { mutableIntStateOf(0) }
@@ -347,6 +348,7 @@ fun MetaAndDraftScreen(
                             if (idx >= 0) enemySlots.removeAt(idx)
                         },
                         onPickRecommendation = { champ ->
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             val targetRole = activeRole ?: champ.primaryRole
                             val existingIndex = allySlots.indexOfFirst { it.assignedRole == targetRole }
                             if (existingIndex >= 0) {
@@ -358,7 +360,7 @@ fun MetaAndDraftScreen(
                                 allySlots.add(0, DraftSlot(champ, targetRole))
                             }
                         },
-                        onSelectChampion = { selectedDetailChampion = it },
+                        onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it },
                         onOpenHistory = { showDraftHistoryScreen = true },
                         onClearAll = {
                             allySlots.clear()
@@ -441,13 +443,13 @@ fun MetaAndDraftScreen(
                         }
                     }
                     if (selectedTabIndex == 0) {
-                        TierListTab(onSelectChampion = { selectedDetailChampion = it }, isPremium = isPremium)
+                        TierListTab(onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it }, isPremium = isPremium)
                     } else {
-                        ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
+                        ChampionsCatalogTab(onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it })
                     }
                 }
                 MetaScreenMode.CATALOG -> {
-                    ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
+                    ChampionsCatalogTab(onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it })
                 }
             }
         }
@@ -538,6 +540,7 @@ fun MetaAndDraftScreen(
                             if (idx >= 0) enemySlots.removeAt(idx)
                         },
                         onPickRecommendation = { champ ->
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             val targetRole = activeRole ?: champ.primaryRole
                             val existingIndex = allySlots.indexOfFirst { it.assignedRole == targetRole }
                             if (existingIndex >= 0) {
@@ -549,7 +552,7 @@ fun MetaAndDraftScreen(
                                 allySlots.add(0, DraftSlot(champ, targetRole))
                             }
                         },
-                        onSelectChampion = { selectedDetailChampion = it },
+                        onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it },
                         onOpenHistory = { showDraftHistoryScreen = true },
                         onClearAll = {
                             allySlots.clear()
@@ -648,9 +651,9 @@ fun MetaAndDraftScreen(
                         label = "tier_tab_animation"
                     ) { targetIndex ->
                         when (targetIndex) {
-                            0 -> TierListTab(onSelectChampion = { selectedDetailChampion = it }, isPremium = isPremium)
-                            1 -> ChampionsCatalogTab(onSelectChampion = { selectedDetailChampion = it })
-                            else -> TierListTab(onSelectChampion = { selectedDetailChampion = it }, isPremium = isPremium)
+                            0 -> TierListTab(onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it }, isPremium = isPremium)
+                            1 -> ChampionsCatalogTab(onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it })
+                            else -> TierListTab(onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedDetailChampion = it }, isPremium = isPremium)
                         }
                     }
                 }
@@ -3570,12 +3573,13 @@ fun DraftAnalysisTab(
             userRole = activeRole ?: LaneRole.MID,
             estimatedWinrate = analysis.bestOverallPick?.estimatedWinrate ?: 50.0,
             onDismiss = { showSaveDraftDialog = false },
-            onSave = { result, notes, profileId, profileName ->
+            onSave = { result, notes, profileId, profileName, isLegendaryMatch ->
                 coroutineScope.launch {
                     DraftHistoryRepository.saveDraft(
                         context = tabContext,
                         myRole = activeRole ?: LaneRole.MID,
                         isFirstPick = isFirstPick,
+                        isLegendary = isLegendaryMatch,
                         allies = allySlots,
                         enemies = enemySlots,
                         analysis = analysis,
@@ -3771,7 +3775,11 @@ fun DraftAnalysisTab(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     if (isPremium) {
-                        showSaveDraftDialog = true
+                        if (activeRole == null) {
+                            android.widget.Toast.makeText(tabContext, "Selecciona tu línea primero", android.widget.Toast.LENGTH_SHORT).show()
+                        } else {
+                            showSaveDraftDialog = true
+                        }
                     } else {
                         android.widget.Toast.makeText(tabContext, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
                     }

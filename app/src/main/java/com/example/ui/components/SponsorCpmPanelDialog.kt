@@ -520,20 +520,10 @@ fun SponsorCpmPanelDialog(
                                 border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.8f))
                             ) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    if (isHorizontalVideo || horizontalMediaInput.endsWith(".mp4", true) || horizontalMediaInput.contains("video", true)) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Video Horizontal Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                    } else {
-                                        AsyncImage(
-                                            model = horizontalModel,
-                                            contentDescription = "Vista previa horizontal",
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
+                                    NoticeMediaViewer(
+                                        mediaUrl = horizontalMediaInput,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
                                 }
                             }
                             IconButton(
@@ -588,20 +578,10 @@ fun SponsorCpmPanelDialog(
                                 border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
                             ) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    if (isVerticalVideo || verticalMediaInput.endsWith(".mp4", true) || verticalMediaInput.contains("video", true)) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechGold, modifier = Modifier.size(24.dp))
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text("Video Vertical Seleccionado", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                    } else {
-                                        AsyncImage(
-                                            model = verticalModel,
-                                            contentDescription = "Vista previa vertical",
-                                            contentScale = ContentScale.Fit,
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
+                                    NoticeMediaViewer(
+                                        mediaUrl = verticalMediaInput,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
                                 }
                             }
                             IconButton(
@@ -1038,8 +1018,9 @@ fun SponsorNoticeCard(
             val totalHours = remainingDeletionMillis / (1000 * 60 * 60)
             val days = totalHours / 24
             val hours = totalHours % 24
+            val mins = (remainingDeletionMillis / (1000 * 60)) % 60
             if (days > 0) "Se eliminará del historial en ${days}d ${hours}h"
-            else "Se eliminará del historial en ${hours}h"
+            else "Se eliminará del historial en ${hours}h ${mins}m"
         } else {
             "Programado para eliminación"
         }

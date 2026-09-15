@@ -68,6 +68,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -908,6 +910,7 @@ private fun FloatingOverlayContent(
     val currentAuthEmail = remember { com.example.util.AuthManager.getAuth()?.currentUser?.email }
     val isAdmin = userRole == "admin" || userRole == "moderador" || (currentAuthEmail != null && currentAuthEmail.contains("barbadiego", ignoreCase = true)) || com.example.util.AuthManager.isCurrentUserAdmin()
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     var activeRole by state::activeRole
     var isFirstPick by state::isFirstPick
     var isLegendaryQueue by state::isLegendaryQueue
@@ -1812,14 +1815,18 @@ private fun FloatingOverlayContent(
                                             enemySpells = state.enemySpells,
                                             analysis = analysis,
                                             selectedChampionDetail = selectedChampionDetail,
-                                            onSelectChampion = { selectedChampionDetail = it },
+                                            onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedChampionDetail = it },
                                             onOpenChampionPicker = { isAlly, idx -> 
                                                 autoScanEnabled = false
                                                 showChampionPickerForSlot = Pair(isAlly, idx) 
                                             },
                                             onSaveDraftClick = { 
                                                 if (isPremium) {
-                                                    showSaveDraftDialog = true 
+                                                    if (!state.isRoleManuallySelected) {
+                                                        android.widget.Toast.makeText(context, "Selecciona tu línea primero", android.widget.Toast.LENGTH_SHORT).show()
+                                                    } else {
+                                                        showSaveDraftDialog = true 
+                                                    }
                                                 } else {
                                                     android.widget.Toast.makeText(context, "Requiere suscripción Premium", android.widget.Toast.LENGTH_SHORT).show()
                                                 }
@@ -1850,14 +1857,14 @@ private fun FloatingOverlayContent(
                                     OverlayHubTab.TIER_LIST -> {
                                         com.example.ui.screens.TierListTab(
                                             isOverlay = true,
-                                            onSelectChampion = { selectedChampionDetail = it },
+                                            onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedChampionDetail = it },
                                             isPremium = isPremium
                                         )
                                     }
                                     OverlayHubTab.CHAMPIONS -> {
                                         com.example.ui.screens.ChampionsCatalogTab(
                                             isOverlay = true,
-                                            onSelectChampion = { selectedChampionDetail = it }
+                                            onSelectChampion = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); selectedChampionDetail = it }
                                         )
                                     }
                                     OverlayHubTab.HISTORY -> {
@@ -2232,6 +2239,7 @@ private fun FloatingOverlayContent(
                                                 enemies[slotIndex] = champ
                                             }
                                         }
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         showChampionPickerForSlot = null
                                     }
                                     .padding(horizontal = 6.dp, vertical = 4.dp),

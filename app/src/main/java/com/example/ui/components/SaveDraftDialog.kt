@@ -50,6 +50,8 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -83,15 +85,17 @@ fun SaveDraftDialog(
     userRole: LaneRole,
     estimatedWinrate: Double,
     onDismiss: () -> Unit,
-    onSave: (result: String, notes: String, profileId: String, profileName: String) -> Unit
+    onSave: (result: String, notes: String, profileId: String, profileName: String, isLegendary: Boolean) -> Unit
 ) {
     val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
     val activeProfile = remember { AccountProfileManager.getActiveProfile(context) }
     val allProfiles = remember { AccountProfileManager.allProfiles.value }
     var selectedProfile by remember { mutableStateOf(activeProfile) }
     var profileDropdownExpanded by remember { mutableStateOf(false) }
 
     var selectedResult by remember { mutableStateOf("PENDING") } // "PENDING", "VICTORY", "DEFEAT"
+    var isLegendaryMatch by remember { mutableStateOf(false) }
     var notes by remember { mutableStateOf("") }
 
     val dialogContent = @Composable {
@@ -331,6 +335,92 @@ fun SaveDraftDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Queue Type Selector
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (!isLegendaryMatch) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.dp, if (!isLegendaryMatch) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { isLegendaryMatch = false }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⚔️ " + tr("Clasificatoria"),
+                            color = if (!isLegendaryMatch) HextechCyan else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isLegendaryMatch) Color(0xFF9333EA).copy(alpha = 0.35f) else HextechSurface)
+                            .border(1.dp, if (isLegendaryMatch) Color(0xFFC084FC) else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { isLegendaryMatch = true }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "🏆 " + tr("Legendaria"),
+                            color = if (isLegendaryMatch) Color(0xFFE9D5FF) else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Queue Type Selector
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (!isLegendaryMatch) HextechCyan.copy(alpha = 0.25f) else HextechSurface)
+                            .border(1.dp, if (!isLegendaryMatch) HextechCyan else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { isLegendaryMatch = false }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "⚔️ " + tr("Clasificatoria"),
+                            color = if (!isLegendaryMatch) HextechCyan else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (isLegendaryMatch) Color(0xFF9333EA).copy(alpha = 0.35f) else HextechSurface)
+                            .border(1.dp, if (isLegendaryMatch) Color(0xFFC084FC) else HextechCardBorder, RoundedCornerShape(8.dp))
+                            .clickable { isLegendaryMatch = true }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "🏆 " + tr("Legendaria"),
+                            color = if (isLegendaryMatch) Color(0xFFE9D5FF) else TextMuted,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Result selector title
                 Text(
                     text = tr("¿Cuál fue el resultado de la partida?"),
@@ -521,7 +611,8 @@ fun SaveDraftDialog(
 
                     Button(
                         onClick = {
-                            onSave(selectedResult, notes, selectedProfile.id, selectedProfile.name)
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onSave(selectedResult, notes, selectedProfile.id, selectedProfile.name, isLegendaryMatch)
                         },
                         modifier = Modifier
                             .weight(1.2f)

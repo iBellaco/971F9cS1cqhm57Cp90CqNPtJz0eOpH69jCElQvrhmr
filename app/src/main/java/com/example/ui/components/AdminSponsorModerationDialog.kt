@@ -271,14 +271,25 @@ fun AdminSponsorNoticeItem(
             }
 
             val expirationStr = if (notice.isApproved && notice.expiresAtMillis > 0L) {
-                val diff = notice.expiresAtMillis - System.currentTimeMillis()
+                val now = System.currentTimeMillis()
+                val diff = notice.expiresAtMillis - now
                 if (diff > 0) {
                     val hours = diff / (1000 * 60 * 60)
                     val days = hours / 24
                     if (days > 0) "Expira en: ${days}d ${hours % 24}h"
                     else "Expira en: ${hours}h ${(diff / (1000 * 60)) % 60}m"
                 } else {
-                    "Expirado"
+                    val remainingDeletionMillis = (notice.expiresAtMillis + 7 * 24 * 60 * 60 * 1000L) - now
+                    if (remainingDeletionMillis > 0) {
+                        val totalHours = remainingDeletionMillis / (1000 * 60 * 60)
+                        val days = totalHours / 24
+                        val hours = totalHours % 24
+                        val mins = (remainingDeletionMillis / (1000 * 60)) % 60
+                        if (days > 0) "Expirado (Se eliminará en ${days}d ${hours}h)"
+                        else "Expirado (Se eliminará en ${hours}h ${mins}m)"
+                    } else {
+                        "Expirado (Programado para eliminación)"
+                    }
                 }
             } else null
 
@@ -292,7 +303,7 @@ fun AdminSponsorNoticeItem(
                     Text("Presupuesto: $${String.format(Locale.US, "%.2f", notice.budget)} USD", color = TextSecondary, fontSize = 11.sp)
                     Text("Duración: ${notice.durationValue} $unitLabel", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                     if (expirationStr != null) {
-                        Text(expirationStr, color = if (expirationStr == "Expirado") DangerRed else Color(0xFF10B981), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                        Text(expirationStr, color = if (expirationStr.startsWith("Expirado")) DangerRed else Color(0xFF10B981), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 

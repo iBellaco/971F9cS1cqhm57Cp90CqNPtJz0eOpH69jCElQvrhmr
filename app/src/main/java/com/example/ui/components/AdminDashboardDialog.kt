@@ -1650,21 +1650,14 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         }
                         if (expandedImageUrl.isNotBlank()) {
                             Spacer(modifier = Modifier.height(6.dp))
-                            Surface(
-                                color = HextechSurface,
-                                shape = RoundedCornerShape(6.dp),
-                                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(6.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = HextechGold, modifier = Modifier.size(14.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("📱 Imagen Vertical Ampliada configurada", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
+                            Text("📱 Vista previa (Media Ampliada):", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            NoticeMediaViewer(
+                                mediaUrl = expandedImageUrl,
+                                modifier = Modifier
+                                    .width(90.dp)
+                                    .height(160.dp)
+                            )
                         }
                     }
                 }
