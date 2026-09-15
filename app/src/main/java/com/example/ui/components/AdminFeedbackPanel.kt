@@ -886,7 +886,7 @@ fun AdminFeedbackBottomSheet(
                                 val res = FeedbackRepository.deleteFeedback(rep)
                                 isDeleting = false
                                 if (res.isSuccess) {
-                                    Toast.makeText(context, "️ Elemento eliminado", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Elemento eliminado", Toast.LENGTH_SHORT).show()
                                     reportToDelete = null
                                     loadReports()
                                 } else {
@@ -945,7 +945,7 @@ fun AdminFeedbackBottomSheet(
                             isDeleting = false
                             showClearAllConfirm = false
                             if (res.isSuccess) {
-                                Toast.makeText(context, "️ Todos los reportes fueron eliminados", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Todos los reportes fueron eliminados", Toast.LENGTH_SHORT).show()
                                 loadReports()
                             } else {
                                 Toast.makeText(context, "Error: ${res.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()

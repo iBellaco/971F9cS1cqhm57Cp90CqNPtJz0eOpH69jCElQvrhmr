@@ -1009,7 +1009,7 @@ private fun FloatingOverlayContent(
             try {
                 if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
                     withContext(Dispatchers.Main) {
-                        scanNoticeMessage = "⚠️ Permiso de captura inactivo. Toca aquí para activarlo."
+                        scanNoticeMessage = "Permiso de captura inactivo. Toca aquí para activarlo."
                     }
                 } else if (!isScanning) {
                     val bitmap = withContext(Dispatchers.IO) {
@@ -1038,8 +1038,6 @@ private fun FloatingOverlayContent(
                                                     newAlliesAdded++
                                                 }
                                             }
-                                            // En Wild Rift los picks confirmados son inmutables.
-                                            // No se deseleccionan si un frame transitorio o la fase de preparación no contiene texto OCR.
                                         }
                                         if (manualLockedEnemySlots[idx] != true) {
                                             val scannedEnemy = result.enemiesByRole[role]
@@ -1049,7 +1047,6 @@ private fun FloatingOverlayContent(
                                                     if (enemies[idx] == null) newEnemiesAdded++
                                                 }
                                             }
-                                            // Los picks rivales confirmados tampoco se deseleccionan arbitrariamente.
                                         }
                                     }
 
@@ -1062,8 +1059,12 @@ private fun FloatingOverlayContent(
                                     }
 
                                     if (result.isLegendaryRanked) {
-                                        isLegendaryQueue = true
-                                        state.allySummonerNames.clear()
+                                        if (!isLegendaryQueue) {
+                                            isLegendaryQueue = true
+                                        }
+                                        if (state.allySummonerNames.isNotEmpty()) {
+                                            state.allySummonerNames.clear()
+                                        }
                                     } else {
                                         defaultRoles.forEachIndexed { idx, role ->
                                             val sName = result.allySummonerNamesByRole[role] ?: result.allySummonerNamesBySlot[idx]
@@ -1079,10 +1080,9 @@ private fun FloatingOverlayContent(
                                             }
                                         }
                                     }
-                                    state.enemySpells.clear()
-
-                                    val totalAlliesPicked = allies.filterNotNull().size
-                                    val totalEnemiesPicked = enemies.filterNotNull().size
+                                    if (state.enemySpells.isNotEmpty()) {
+                                        state.enemySpells.clear()
+                                    }
 
                                     val finalAlliesPicked = allies.filterNotNull().size
                                     val finalEnemiesPicked = enemies.filterNotNull().size
@@ -1092,19 +1092,19 @@ private fun FloatingOverlayContent(
                                     if (result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
                                         activeRole = result.userExplicitlyDetectedRole
                                         com.example.util.UserPreferences.setActiveDraftRole(context, result.userExplicitlyDetectedRole)
-                                        scanNoticeMessage = "⚡ Auto-Scan: Tu rol detectado (${result.userExplicitlyDetectedRole.shortName})"
+                                        scanNoticeMessage = "Auto-Scan: Tu rol detectado (${result.userExplicitlyDetectedRole.shortName})"
                                     } else if (isDraftFullyConfirmed) {
                                         autoScanEnabled = false
-                                        scanNoticeMessage = "🎯 10/10 Campeones confirmados (Fase de Preparación)"
+                                        scanNoticeMessage = "10/10 Campeones confirmados (Fase de Preparación)"
                                         AppLogger.i("FloatingService", "Auto-Scan desactivado: 10/10 campeones confirmados definitivamente con el 10º pick sellado.")
                                     } else if (finalAlliesPicked == 5 && finalEnemiesPicked == 5 && !result.isLastPickConfirmed) {
                                         val hoverName = result.lastPickChampion?.name ?: "10º Pick"
-                                        scanNoticeMessage = "⏳ 10º Pick en preselección: $hoverName (esperando bloqueo...)"
+                                        scanNoticeMessage = "10º Pick en preselección: $hoverName (esperando bloqueo...)"
                                         AppLogger.d("FloatingService", "Auto-Scan activo: 10º pick en preselección ($hoverName), esperando confirmación en barra superior.")
                                     } else if (finalAlliesPicked + finalEnemiesPicked == 9) {
-                                        scanNoticeMessage = "⏳ 9/10 picks confirmados • Escaneando 10º pick en directo..."
+                                        scanNoticeMessage = "9/10 picks confirmados • Escaneando 10º pick en directo..."
                                     } else if (newAlliesAdded > 0 || newEnemiesAdded > 0) {
-                                        scanNoticeMessage = "⚡ Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($finalAlliesPicked/5 vs $finalEnemiesPicked/5)"
+                                        scanNoticeMessage = "Auto-Scan: +${newAlliesAdded + newEnemiesAdded} picks detectados ($finalAlliesPicked/5 vs $finalEnemiesPicked/5)"
                                     }
 
                                     if (scanNoticeMessage != null) {
@@ -1131,7 +1131,7 @@ private fun FloatingOverlayContent(
 
     fun triggerManualScan() {
         if (screenCaptureManager?.isReady() != true) {
-            scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Abriendo solicitud..."
+            scanNoticeMessage = "Requiere permiso de pantalla. Abriendo solicitud..."
             try {
                 val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -1213,21 +1213,21 @@ private fun FloatingOverlayContent(
                         }
                         val totalDetected = allies.filterNotNull().size + enemies.filterNotNull().size
                         scanNoticeMessage = if (result.isLastPickImageRecognized && result.lastPickChampion != null) {
-                            "🎯 10/10 Detectado por Imagen: ${result.lastPickChampion.name}"
+                            "10/10 Detectado por Imagen: ${result.lastPickChampion.name}"
                         } else if (allies.filterNotNull().size == 5 && enemies.filterNotNull().size == 5) {
-                            "🎯 10/10 Campeones confirmados (Fase de Preparación)"
+                            "10/10 Campeones confirmados (Fase de Preparación)"
                         } else {
-                            "✅ Escaneo exitoso ($totalDetected picks" +
+                            "Escaneo exitoso ($totalDetected picks" +
                                 (if (result.detectedRole != null) ", tu rol: ${result.detectedRole.shortName})" else ")")
                         }
                     } else {
-                        scanNoticeMessage = "ℹ️ ${result.statusMessage}"
+                        scanNoticeMessage = result.statusMessage
                     }
                     isScanning = false
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    scanNoticeMessage = "⚠️ No hay frame de captura disponible"
+                    scanNoticeMessage = "No hay frame de captura disponible"
                     isScanning = false
                 }
             }
@@ -1457,7 +1457,7 @@ private fun FloatingOverlayContent(
                                         horizontalArrangement = Arrangement.Center
                                     ) {
                                         Text(
-                                            text = if (isLegendaryQueue) "🏆 " + tr("Legendaria") else "⚔️ " + tr("Clasificatoria"),
+                                            text = if (isLegendaryQueue) tr("Legendaria") else tr("Clasificatoria"),
                                             color = if (isLegendaryQueue) Color(0xFFE9D5FF) else HextechGold,
                                             fontSize = 8.5.sp,
                                             fontWeight = FontWeight.Bold
@@ -1730,7 +1730,7 @@ private fun FloatingOverlayContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "⚡ Pestaña: ${when (overlayHubTab) {
+                                    text = "Pestaña: ${when (overlayHubTab) {
                                         OverlayHubTab.DRAFT -> "Draft Coach"
                                         OverlayHubTab.TIER_LIST -> "Tiers & Builds"
                                         OverlayHubTab.CHAMPIONS -> "Campeones"
@@ -1941,7 +1941,7 @@ private fun FloatingOverlayContent(
                                             autoScanEnabled = true
                                             DraftVisionScanner.resetSlotMemory()
                                             if (screenCaptureManager?.isReady() != true) {
-                                                scanNoticeMessage = "⚠️ Requiere permiso de pantalla. Toca aquí para activarlo."
+                                                scanNoticeMessage = "Requiere permiso de pantalla. Toca aquí para activarlo."
                                                 try {
                                                     val reqIntent = Intent(context, com.example.MainActivity::class.java).apply {
                                                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
@@ -2128,7 +2128,7 @@ private fun FloatingOverlayContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = (if (isAllySlot) "🔵 " + tr("Elegir Aliado") else "🔴 " + tr("Elegir Rival")) + (if (targetRole != null) " - ${com.example.util.tr(targetRole.displayName)}" else ""),
+                            text = (if (isAllySlot) tr("Elegir Aliado") else tr("Elegir Rival")) + (if (targetRole != null) " - ${com.example.util.tr(targetRole.displayName)}" else ""),
                             color = if (isAllySlot) AllyBlue else DangerRed,
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.5.sp
@@ -2351,7 +2351,7 @@ private fun FloatingSaveMatchDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "💾 " + tr("Guardar en Historial"),
+                        text = tr("Guardar en Historial"),
                         color = HextechGold,
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
@@ -2404,7 +2404,7 @@ private fun FloatingSaveMatchDialog(
                 if (profiles.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "👤 " + tr("Perfil / Cuenta:"),
+                        text = tr("Perfil / Cuenta:"),
                         color = TextPrimary,
                         fontSize = 10.5.sp,
                         fontWeight = FontWeight.Bold
@@ -2819,7 +2819,7 @@ private fun OverlayVersusDraftBoard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "⚡ " + tr("Primera Selección"),
+                                text = tr("Primera Selección"),
                                 color = AllyBlue,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.5.sp
@@ -2843,7 +2843,7 @@ private fun OverlayVersusDraftBoard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (isLegendary) "🏆 " + tr("Legendaria") else "⚔️ " + tr("Clasificatoria"),
+                            text = if (isLegendary) tr("Legendaria") else tr("Clasificatoria"),
                             color = if (isLegendary) Color(0xFFFFB74D) else TextSecondary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.5.sp
@@ -2864,7 +2864,7 @@ private fun OverlayVersusDraftBoard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "👁️ " + tr("Visor Escáner 10"),
+                                text = tr("Visor Escáner 10"),
                                 color = HextechGold,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.5.sp
@@ -2986,7 +2986,7 @@ private fun OverlayVersusDraftBoard(
                                     ) {
                                         Text(
                                             text = "W:${allyChamp.winrate.toInt()}%",
-                                            color = if (allyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            color = Color(0xFF00FF7F),
                                             fontSize = 7.sp,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 1
@@ -2994,15 +2994,15 @@ private fun OverlayVersusDraftBoard(
                                         Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = "B:${allyChamp.banRate.toInt()}%",
-                                            color = Color(0xFFFFB86C),
+                                            color = DangerRed,
                                             fontSize = 7.sp,
-                                            fontWeight = FontWeight.Medium,
+                                            fontWeight = FontWeight.Bold,
                                             maxLines = 1
                                         )
                                         Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = "P:${allyChamp.pickRate.toInt()}%",
-                                            color = HextechCyan,
+                                            color = Color(0xFFFF9800),
                                             fontSize = 7.sp,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 1
@@ -3088,7 +3088,7 @@ private fun OverlayVersusDraftBoard(
                                     ) {
                                         Text(
                                             text = "W:${enemyChamp.winrate.toInt()}%",
-                                            color = if (enemyChamp.winrate >= 50.0) Color(0xFF00FF7F) else DangerRed,
+                                            color = Color(0xFF00FF7F),
                                             fontSize = 7.sp,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 1
@@ -3096,15 +3096,15 @@ private fun OverlayVersusDraftBoard(
                                         Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = "B:${enemyChamp.banRate.toInt()}%",
-                                            color = Color(0xFFFFB86C),
+                                            color = DangerRed,
                                             fontSize = 7.sp,
-                                            fontWeight = FontWeight.Medium,
+                                            fontWeight = FontWeight.Bold,
                                             maxLines = 1
                                         )
                                         Spacer(modifier = Modifier.width(3.dp))
                                         Text(
                                             text = "P:${enemyChamp.pickRate.toInt()}%",
-                                            color = HextechCyan,
+                                            color = Color(0xFFFF9800),
                                             fontSize = 7.sp,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 1
@@ -3297,7 +3297,7 @@ private fun CoachContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "⚔️ " + tr("RECOMENDACIÓN:") + " ${tr(activeRole.displayName)}",
+                text = tr("RECOMENDACIÓN:") + " ${tr(activeRole.displayName)}",
                 color = HextechGold,
                 fontSize = 10.5.sp,
                 fontWeight = FontWeight.Bold
@@ -3329,7 +3329,7 @@ private fun CoachContent(
                         colors = CardDefaults.cardColors(containerColor = HextechDarkBg.copy(alpha = 0.6f)),
                         border = BorderStroke(0.5.dp, AllyBlue)
                     ) {
-                        Text(text = "🔵 ${wombo.title}: ${wombo.description}", color = AllyBlue, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
+                        Text(text = "${wombo.title}: ${wombo.description}", color = AllyBlue, fontSize = 8.5.sp, modifier = Modifier.padding(3.dp))
                     }
                 }
             }
@@ -3350,13 +3350,13 @@ private fun CoachContent(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "🔵 Daño Aliado: AD ${analysis.allyPhysicalDamagePercent}% | AP ${analysis.allyMagicDamagePercent}%",
+                        text = "Daño Aliado: AD ${analysis.allyPhysicalDamagePercent}% | AP ${analysis.allyMagicDamagePercent}%",
                         color = AllyBlue,
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
-                        text = "🔴 Daño Enemigo: AD ${analysis.physicalDamagePercent}% | AP ${analysis.magicDamagePercent}%",
+                        text = "Daño Enemigo: AD ${analysis.physicalDamagePercent}% | AP ${analysis.magicDamagePercent}%",
                         color = DangerRed,
                         fontSize = 8.sp,
                         fontWeight = FontWeight.SemiBold
@@ -3386,8 +3386,6 @@ private fun CoachContent(
                     modifier = Modifier.padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("⚠️", fontSize = 10.sp)
-                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = warningText,
                         color = HextechGold,
@@ -3413,7 +3411,7 @@ private fun CoachContent(
                         ChampionAvatar(champion = explicitEnemyOpponent, size = 22.dp)
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "⚔️ " + tr("Matchup 1v1 vs") + " ${explicitEnemyOpponent.name}",
+                            text = tr("Matchup 1v1 vs") + " ${explicitEnemyOpponent.name}",
                             color = DangerRed,
                             fontSize = 9.5.sp,
                             fontWeight = FontWeight.Bold
@@ -3450,7 +3448,7 @@ private fun CoachContent(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = if (isSavedRecently) "✓ " + tr("Guardado") else "💾 " + tr("Guardar"),
+                        text = if (isSavedRecently) tr("Guardado") else tr("Guardar"),
                         color = if (isSavedRecently) Color(0xFF00FF7F) else HextechGold,
                         fontSize = 9.sp,
                         fontWeight = FontWeight.Bold
@@ -3477,7 +3475,7 @@ private fun CoachContent(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
             ) {
                 Text(
-                    text = "🧹 " + tr("Vaciar"),
+                    text = tr("Vaciar"),
                     color = DangerRed,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold
@@ -3491,7 +3489,7 @@ private fun CoachContent(
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
             ) {
                 Text(
-                    text = "🏆 " + tr("Tier List"),
+                    text = tr("Tier List"),
                     color = HextechDarkBg,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.Bold
@@ -3775,7 +3773,7 @@ private fun TenthPickScannerViewerDialog(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "🔵 Lado Izquierdo (Aliados)",
+                            text = "Lado Izquierdo (Aliados)",
                             color = if (selectedSide == 0) AllyBlue else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.sp
@@ -3798,7 +3796,7 @@ private fun TenthPickScannerViewerDialog(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "🔴 Lado Derecho (Rivales)",
+                            text = "Lado Derecho (Rivales)",
                             color = if (selectedSide == 1) DangerRed else TextMuted,
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.sp
@@ -3832,7 +3830,7 @@ private fun TenthPickScannerViewerDialog(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "$sidePrefix${idx + 1}" + (if (isTenth) " 👑" else ""),
+                                text = "$sidePrefix${idx + 1}" + (if (isTenth) " [10]" else ""),
                                 color = if (isSel) (if (isTenth) HextechGold else activeColor) else TextPrimary,
                                 fontWeight = if (isSel) FontWeight.Black else FontWeight.Normal,
                                 fontSize = 9.sp
@@ -3887,10 +3885,13 @@ private fun TenthPickScannerViewerDialog(
 
                 // DIBUJO DE RETÍCULAS DE TODOS LOS SLOTS SOBRE LA FRANJA
                 Canvas(modifier = Modifier.fillMaxSize()) {
+                    if (size.width < 10f || size.height < 10f) return@Canvas
                     val stripRatio = 0.16f
                     val yNorm = (calib.topAvatarYRatio / stripRatio).coerceIn(0.05f, 0.95f)
                     val centerY = size.height * yNorm
-                    val radius = (size.height * (calib.topAvatarDiameterRatio / stripRatio) * 0.5f).coerceIn(6f, size.height * 0.45f)
+                    val maxRadius = (size.height * 0.45f).coerceAtLeast(1f)
+                    val calcRadius = size.height * (calib.topAvatarDiameterRatio / stripRatio) * 0.5f
+                    val radius = calcRadius.coerceIn(1f, maxRadius)
 
                     // 1. Slots Aliados (Azul)
                     calib.topAllyXRatios.forEachIndexed { idx, xRatio ->
@@ -4007,7 +4008,7 @@ private fun TenthPickScannerViewerDialog(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "🎮 CONTROLES DE MIRA (D-PAD EN VIVO)",
+                                text = "CONTROLES DE MIRA (D-PAD EN VIVO)",
                                 color = HextechGold,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 9.sp
@@ -4248,7 +4249,8 @@ private fun TenthPickScannerViewerDialog(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // TOP CANDIDATOS EVALUADOS
-                if (currentLog != null && currentLog!!.topCandidates.isNotEmpty()) {
+                val safeLog = currentLog
+                if (safeLog != null && safeLog.topCandidates.isNotEmpty()) {
                     Text(
                         text = "TOP CANDIDATOS EVALUADOS",
                         color = HextechCyan,
@@ -4256,8 +4258,8 @@ private fun TenthPickScannerViewerDialog(
                         fontSize = 9.sp
                     )
                     Spacer(modifier = Modifier.height(3.dp))
-                    currentLog!!.topCandidates.take(3).forEachIndexed { idx, c ->
-                        val isChosen = idx == 0 && currentLog!!.selectedChampion != null
+                    safeLog.topCandidates.take(3).forEachIndexed { idx, c ->
+                        val isChosen = idx == 0 && safeLog.selectedChampion != null
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()

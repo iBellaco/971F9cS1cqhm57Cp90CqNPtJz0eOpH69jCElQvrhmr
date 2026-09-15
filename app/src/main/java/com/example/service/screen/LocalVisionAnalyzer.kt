@@ -1091,7 +1091,11 @@ object LocalVisionAnalyzer {
         val stripHeight = (bitmap.height * heightRatio).toInt().coerceIn(24, bitmap.height)
         return try {
             val sub = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, stripHeight)
-            sub.copy(Bitmap.Config.ARGB_8888, false)
+            val copy = sub.copy(Bitmap.Config.ARGB_8888, false)
+            if (sub != bitmap && sub != copy) {
+                try { sub.recycle() } catch (_: Throwable) {}
+            }
+            copy
         } catch (_: Throwable) {
             null
         }
@@ -1226,12 +1230,21 @@ object LocalVisionAnalyzer {
     private fun safeCrop(src: Bitmap, cx: Int, cy: Int, diameter: Int): Bitmap? {
         if (src.isRecycled || diameter <= 10) return null
         val radius = diameter / 2
-        val left = (cx - radius).coerceIn(0, src.width - diameter)
-        val top = (cy - radius).coerceIn(0, src.height - diameter)
-        if (left + diameter > src.width || top + diameter > src.height) return null
+        val maxLeft = (src.width - diameter).coerceAtLeast(0)
+        val maxTop = (src.height - diameter).coerceAtLeast(0)
+        val left = (cx - radius).coerceIn(0, maxLeft)
+        val top = (cy - radius).coerceIn(0, maxTop)
+        val safeWidth = diameter.coerceAtMost(src.width - left)
+        val safeHeight = diameter.coerceAtMost(src.height - top)
+        if (safeWidth <= 0 || safeHeight <= 0) return null
 
         return try {
-            Bitmap.createBitmap(src, left, top, diameter, diameter)
+            val crop = Bitmap.createBitmap(src, left, top, safeWidth, safeHeight)
+            val copy = crop.copy(Bitmap.Config.ARGB_8888, false)
+            if (crop != src && crop != copy) {
+                try { crop.recycle() } catch (_: Throwable) {}
+            }
+            copy
         } catch (_: Throwable) {
             null
         }

@@ -156,7 +156,7 @@ class ScreenCaptureManager(private val context: Context) {
                     captureWidth,
                     captureHeight,
                     PixelFormat.RGBA_8888,
-                    2
+                    4
                 )
 
                 virtualDisplay = mediaProjection?.createVirtualDisplay(

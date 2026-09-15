@@ -219,6 +219,18 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
         }
     }
 
+    LaunchedEffect(user.uid) {
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            try {
+                com.example.data.supabase.FeedbackRepository.syncAndPurgeOrphansForUser(
+                    context,
+                    user.uid,
+                    user.email ?: ""
+                )
+            } catch (_: Exception) {}
+        }
+    }
+
     if (showAvatarDialog) {
         com.example.ui.components.AvatarSelectionBottomSheet(
             onDismiss = { showAvatarDialog = false },

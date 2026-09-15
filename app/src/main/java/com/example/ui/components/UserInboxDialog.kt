@@ -45,6 +45,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.example.data.SupportMessageEntry
 import com.example.data.SupportReplyManager
+import com.example.data.supabase.FeedbackRepository
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -61,6 +62,7 @@ fun UserInboxDialog(
     var supportReportMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var deletedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var deletedRefreshTrigger by remember { mutableStateOf(0) }
+    var activeSupportIds by remember { mutableStateOf<Set<String>?>(null) }
     var isLoading by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -86,6 +88,13 @@ fun UserInboxDialog(
     }
 
     LaunchedEffect(userUid, userEmail) {
+        if (userUid.isNotBlank() && userUid != "anonimo") {
+            try {
+                val act = FeedbackRepository.syncAndPurgeOrphansForUser(context, userUid, userEmail)
+                activeSupportIds = act
+            } catch (_: Exception) {}
+        }
+
         val db = FirebaseFirestore.getInstance()
         val userDoc = db.collection("users").document(userUid)
         
@@ -223,44 +232,57 @@ fun UserInboxDialog(
     }
 
     // Unir mensajes de todas las fuentes eliminando duplicados por id y filtrando soporte eliminado/cerrado
-    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages, deletedIds, deletedRefreshTrigger) {
+    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages, deletedIds, deletedRefreshTrigger, activeSupportIds) {
+        val currActive = activeSupportIds
         val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
-        val validReportIds = supportReportMessages.mapNotNull { it["reportId"] as? String }.toSet()
         val all = mutableMapOf<String, Map<String, Any>>()
 
         for (m in supportReportMessages) {
             val id = m["id"] as? String ?: continue
             val reportId = m["reportId"] as? String ?: id
+            val title = (m["title"] as? String ?: "").trim()
             if (deletedIds.contains(id) || deletedIds.contains(reportId)) continue
             val isDeleted = (m["isDeleted"] as? Boolean) == true || 
                             (m["deleted"] as? Boolean) == true || 
-                            (m["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
+                            (m["status"] as? String)?.uppercase(Locale.US) in listOf("ELIMINADO", "DELETED", "CERRADO")
             if (isDeleted) continue
+
+            if (currActive != null) {
+                if (currActive.isEmpty()) continue
+                if (!currActive.contains(id) && !currActive.contains(reportId) && !currActive.contains(title)) continue
+            }
             all[id] = m
         }
 
         fun processMessage(m: Map<String, Any>) {
             val id = m["id"] as? String ?: return
             val reportId = m["reportId"] as? String ?: id
+            val title = (m["title"] as? String ?: "").trim()
             if (deletedIds.contains(id) || deletedIds.contains(reportId)) return
 
-            val tag = (m["tag"] as? String)?.uppercase() ?: ""
-            val title = (m["title"] as? String) ?: ""
             val isDeleted = (m["isDeleted"] as? Boolean) == true || 
                             (m["deleted"] as? Boolean) == true || 
-                            (m["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
+                            (m["status"] as? String)?.uppercase(Locale.US) in listOf("ELIMINADO", "DELETED", "CERRADO")
             if (isDeleted) return
 
-            val sender = (m["sender"] as? String) ?: ""
-            val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") || 
-                            title.startsWith("Soporte:") || 
-                            title.startsWith("Reporte:") || 
-                            m.containsKey("reportId") ||
-                            sender.contains("Soporte", ignoreCase = true)
+            val isSupport = FeedbackRepository.isSupportMessage(m)
             if (isSupport) {
                 val rId = m["reportId"] as? String
-                if (validSupportIds.contains(id) || validSupportIds.contains(reportId) || (rId != null && validSupportIds.contains(rId))) {
-                    all[id] = m
+                if (currActive != null) {
+                    if (currActive.isNotEmpty()) {
+                        val matchesActive = currActive.contains(id) || 
+                                           currActive.contains(reportId) || 
+                                           (rId != null && currActive.contains(rId)) ||
+                                           (title.isNotBlank() && currActive.contains(title))
+                        if (matchesActive) {
+                            all[id] = m
+                        }
+                    }
+                    // Si currActive está vacío, se descarta absolutamente todo mensaje de soporte
+                } else {
+                    if (validSupportIds.contains(id) || validSupportIds.contains(reportId) || (rId != null && validSupportIds.contains(rId))) {
+                        all[id] = m
+                    }
                 }
             } else {
                 all[id] = m
@@ -281,7 +303,7 @@ fun UserInboxDialog(
     }
 
     // Si la bandeja está vacía o hay mensajes de soporte huérfanos, limpiar en Firestore
-    LaunchedEffect(isLoading, messages.isEmpty(), supportReportMessages, subcollectionMessages, arrayMessages) {
+    LaunchedEffect(isLoading, messages.isEmpty(), supportReportMessages, subcollectionMessages, arrayMessages, activeSupportIds) {
         if (!isLoading && userUid.isNotBlank() && userUid != "anonimo") {
             val db = FirebaseFirestore.getInstance()
             val uRef = db.collection("users").document(userUid)
@@ -293,21 +315,24 @@ fun UserInboxDialog(
                 )
             }
 
+            val currActive = activeSupportIds
+            val validSupportIds = if (currActive != null) {
+                currActive
+            } else {
+                supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
+            }
+
             // Purgar mensajes huérfanos de soporte en subcolección messages
-            val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
             for (m in subcollectionMessages) {
                 val id = m["id"] as? String ?: continue
                 val reportId = m["reportId"] as? String ?: id
-                val tag = (m["tag"] as? String)?.uppercase() ?: ""
-                val title = (m["title"] as? String) ?: ""
-                val sender = (m["sender"] as? String) ?: ""
-                val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") ||
-                                title.startsWith("Soporte:") ||
-                                title.startsWith("Reporte:") ||
-                                m.containsKey("reportId") ||
-                                sender.contains("Soporte", ignoreCase = true)
+                val title = (m["title"] as? String ?: "").trim()
+                val isSupport = FeedbackRepository.isSupportMessage(m)
 
-                if (isSupport && !validSupportIds.contains(id) && !validSupportIds.contains(reportId)) {
+                val shouldKeep = isSupport && validSupportIds.isNotEmpty() &&
+                        (validSupportIds.contains(id) || validSupportIds.contains(reportId) || validSupportIds.contains(title))
+
+                if (isSupport && !shouldKeep) {
                     try { uRef.collection("messages").document(id).delete() } catch (_: Exception) {}
                 }
             }
@@ -316,15 +341,11 @@ fun UserInboxDialog(
             val orphanInArray = arrayMessages.any { m ->
                 val id = m["id"] as? String ?: ""
                 val reportId = m["reportId"] as? String ?: id
-                val tag = (m["tag"] as? String)?.uppercase() ?: ""
-                val title = (m["title"] as? String) ?: ""
-                val sender = (m["sender"] as? String) ?: ""
-                val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") ||
-                                title.startsWith("Soporte:") ||
-                                title.startsWith("Reporte:") ||
-                                m.containsKey("reportId") ||
-                                sender.contains("Soporte", ignoreCase = true)
-                isSupport && !validSupportIds.contains(id) && !validSupportIds.contains(reportId)
+                val title = (m["title"] as? String ?: "").trim()
+                val isSupport = FeedbackRepository.isSupportMessage(m)
+                val shouldKeep = isSupport && validSupportIds.isNotEmpty() &&
+                        (validSupportIds.contains(id) || validSupportIds.contains(reportId) || validSupportIds.contains(title))
+                isSupport && !shouldKeep
             }
 
             if (orphanInArray) {
@@ -336,15 +357,11 @@ fun UserInboxDialog(
                             val cleaned = pMsgs.filterNot { m ->
                                 val id = m["id"] as? String ?: ""
                                 val reportId = m["reportId"] as? String ?: id
-                                val tag = (m["tag"] as? String)?.uppercase() ?: ""
-                                val title = (m["title"] as? String) ?: ""
-                                val sender = (m["sender"] as? String) ?: ""
-                                val isSupport = tag in listOf("SUPPORT", "SOPORTE", "REPORTE") ||
-                                                title.startsWith("Soporte:") ||
-                                                title.startsWith("Reporte:") ||
-                                                m.containsKey("reportId") ||
-                                                sender.contains("Soporte", ignoreCase = true)
-                                isSupport && !validSupportIds.contains(id) && !validSupportIds.contains(reportId)
+                                val title = (m["title"] as? String ?: "").trim()
+                                val isSupport = FeedbackRepository.isSupportMessage(m)
+                                val shouldKeep = isSupport && validSupportIds.isNotEmpty() &&
+                                        (validSupportIds.contains(id) || validSupportIds.contains(reportId) || validSupportIds.contains(title))
+                                isSupport && !shouldKeep
                             }
                             uRef.update("privateMessages", cleaned)
                         }
