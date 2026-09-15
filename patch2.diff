@@ -1,0 +1,7 @@
+--- app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt
++++ app/src/main/java/com/example/ui/screens/MetaAndDraftScreen.kt
+@@ -3578,3 +3578,3 @@
+                         allies = allySlots,
+-                        enemies = enemySlots.map { it.champion },
++                        enemies = enemySlots,
+                         analysis = analysis,

@@ -43,7 +43,7 @@ object DraftHistoryRepository {
         myRole: LaneRole,
         isFirstPick: Boolean,
         allies: List<DraftSlot>,
-        enemies: List<Champion>,
+        enemies: List<DraftSlot>,
         analysis: DraftAnalysisResult,
         title: String? = null,
         notes: String = "",
@@ -67,23 +67,23 @@ object DraftHistoryRepository {
 
         val enemyDataList = enemies.map {
             SavedDraftSlotData(
-                championId = it.id,
-                championName = it.name,
-                role = it.primaryRole.name,
-                avatarUrl = it.avatarUrl
+                championId = it.champion.id,
+                championName = it.champion.name,
+                role = it.assignedRole.name,
+                avatarUrl = it.champion.avatarUrl
             )
         }
 
         val myChampion = allies.find { it.assignedRole == myRole }?.champion
-        val enemyLaneOpponent = enemies.find { it.primaryRole == myRole } ?: enemies.find { it.secondaryRoles.contains(myRole) }
-
+        val enemyLaneOpponent = enemies.find { it.assignedRole == myRole }?.champion
+        
         val bestPick = analysis.bestOverallPick ?: analysis.recommendations.firstOrNull()
         val estimatedWr = if (myChampion != null) {
             val eval = WildRiftRepository.evaluateChampion(
                 champ = myChampion,
                 myRole = myRole,
                 allies = allies.map { it.champion },
-                enemies = enemies,
+                enemies = enemies.map { it.champion },
                 enemyLaneOpponent = enemyLaneOpponent
             )
             eval.estimatedWinrate

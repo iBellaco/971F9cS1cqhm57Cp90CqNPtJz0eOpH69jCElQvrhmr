@@ -3577,7 +3577,7 @@ fun DraftAnalysisTab(
                         myRole = activeRole ?: LaneRole.MID,
                         isFirstPick = isFirstPick,
                         allies = allySlots,
-                        enemies = enemySlots.map { it.champion },
+                        enemies = enemySlots,
                         analysis = analysis,
                         notes = notes,
                         matchResult = result,
@@ -3720,7 +3720,11 @@ fun DraftAnalysisTab(
                         checked = isFirstPick,
                         onCheckedChange = { 
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onToggleFirstPick() 
+                            if (activeRole == null) {
+                                android.widget.Toast.makeText(tabContext, "Selecciona tu línea primero", android.widget.Toast.LENGTH_SHORT).show()
+                            } else {
+                                onToggleFirstPick()
+                            }
                         },
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = HextechGold,

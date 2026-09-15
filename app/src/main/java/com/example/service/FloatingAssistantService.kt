@@ -1792,7 +1792,13 @@ private fun FloatingOverlayContent(
                                                 com.example.util.UserPreferences.setActiveDraftRole(context, it)
                                             },
                                             isFirstPick = isFirstPick,
-                                            onFirstPickToggle = { isFirstPick = !isFirstPick },
+                                            onFirstPickToggle = { 
+                                                if (!state.isRoleManuallySelected) {
+                                                    android.widget.Toast.makeText(context, "Selecciona tu línea primero", android.widget.Toast.LENGTH_SHORT).show()
+                                                } else {
+                                                    isFirstPick = !isFirstPick 
+                                                }
+                                            },
                                             isLegendaryQueue = isLegendaryQueue,
                                             onToggleLegendaryQueue = { isLegendaryQueue = !isLegendaryQueue },
                                             isLoadingScreenMode = isLoadingScreenMode,
@@ -2009,8 +2015,30 @@ private fun FloatingOverlayContent(
             activeRole = activeRole,
             isFirstPick = isFirstPick,
             isLegendary = isLegendaryQueue,
-            allies = allies.filterNotNull(),
-            enemies = enemies.filterNotNull(),
+            allies = allies.mapIndexedNotNull { index, champ -> 
+                champ?.let { 
+                    val role = when (index) { 
+                        0 -> LaneRole.TOP 
+                        1 -> LaneRole.JUNGLE 
+                        2 -> LaneRole.MID 
+                        3 -> LaneRole.ADC 
+                        else -> LaneRole.SUPPORT 
+                    } 
+                    DraftSlot(it, role) 
+                } 
+            },
+            enemies = enemies.mapIndexedNotNull { index, champ -> 
+                champ?.let { 
+                    val role = when (index) { 
+                        0 -> LaneRole.TOP 
+                        1 -> LaneRole.JUNGLE 
+                        2 -> LaneRole.MID 
+                        3 -> LaneRole.ADC 
+                        else -> LaneRole.SUPPORT 
+                    } 
+                    DraftSlot(it, role) 
+                } 
+            },
             analysis = analysis,
             onDismiss = { showSaveDraftDialog = false },
             onSaved = {
@@ -2243,8 +2271,8 @@ private fun FloatingSaveMatchDialog(
     activeRole: LaneRole,
     isFirstPick: Boolean,
     isLegendary: Boolean = false,
-    allies: List<Champion>,
-    enemies: List<Champion>,
+    allies: List<DraftSlot>,
+    enemies: List<DraftSlot>,
     analysis: com.example.model.DraftAnalysisResult,
     onDismiss: () -> Unit,
     onSaved: () -> Unit
@@ -2264,8 +2292,8 @@ private fun FloatingSaveMatchDialog(
     val activeProfileId by com.example.data.AccountProfileManager.activeProfileId.collectAsState()
     var selectedProfileId by remember(activeProfileId) { mutableStateOf(activeProfileId) }
 
-    val myChampion = allies.getOrNull(activeRole.ordinal) ?: allies.firstOrNull()
-    val enemyOpponent = enemies.getOrNull(activeRole.ordinal) ?: enemies.firstOrNull()
+    val myChampion = allies.find { it.assignedRole == activeRole }?.champion ?: allies.firstOrNull()?.champion
+    val enemyOpponent = enemies.find { it.assignedRole == activeRole }?.champion ?: enemies.firstOrNull()?.champion
     val winrateDisplay = (analysis.bestOverallPick?.estimatedWinrate ?: analysis.recommendations.firstOrNull()?.estimatedWinrate ?: 50.0).toInt()
 
     Box(
@@ -2537,16 +2565,6 @@ private fun FloatingSaveMatchDialog(
                         if (!isSaving) {
                             isSaving = true
                             coroutineScope.launch {
-                                val allySlots = allies.mapIndexed { index, champ ->
-                                    val role = when (index) {
-                                        0 -> LaneRole.TOP
-                                        1 -> LaneRole.JUNGLE
-                                        2 -> LaneRole.MID
-                                        3 -> LaneRole.ADC
-                                        else -> LaneRole.SUPPORT
-                                    }
-                                    DraftSlot(champ, role)
-                                }
                                 val chosenProfile = profiles.find { it.id == selectedProfileId }
                                     ?: com.example.data.AccountProfileManager.getActiveProfile(context)
                                 DraftHistoryRepository.saveDraft(
@@ -2554,7 +2572,7 @@ private fun FloatingSaveMatchDialog(
                                     myRole = activeRole,
                                     isFirstPick = isFirstPick,
                                     isLegendary = isLegendaryMatch,
-                                    allies = allySlots,
+                                    allies = allies,
                                     enemies = enemies,
                                     analysis = analysis,
                                     notes = notesText,

@@ -7,8 +7,11 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -251,6 +254,7 @@ fun DraftHistoryScreen(
     var currentHistoryTab by remember { mutableStateOf("DRAFTS") } // "DRAFTS" or "TIER_LIST"
     var searchQuery by remember { mutableStateOf("") }
     var selectedResultFilter by remember { mutableStateOf<String?>(null) } // null = ALL, "VICTORY", "DEFEAT"
+    var selectedQueueFilter by remember { mutableStateOf<String?>(null) } // null = ALL, "NORMAL", "LEGENDARY"
     var selectedRoleFilter by remember { mutableStateOf<LaneRole?>(null) }
     var selectedDraftForDetail by remember { mutableStateOf<SavedDraftEntity?>(null) }
     var draftToDelete by remember { mutableStateOf<SavedDraftEntity?>(null) }
@@ -343,9 +347,16 @@ fun DraftHistoryScreen(
                 else -> draft.matchResult.equals(selectedResultFilter, ignoreCase = true)
             }
 
+            val matchesQueue = when (selectedQueueFilter) {
+                null -> true
+                "LEGENDARY" -> draft.isLegendary
+                "NORMAL" -> !draft.isLegendary
+                else -> true
+            }
+
             val matchesRole = selectedRoleFilter == null || draft.userRole.equals(selectedRoleFilter?.name, ignoreCase = true)
 
-            matchesQuery && matchesResult && matchesRole
+            matchesQuery && matchesResult && matchesQueue && matchesRole
         }
     }
 
@@ -980,6 +991,42 @@ fun DraftHistoryScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    // Queue Filters
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FilterChip(
+                            selected = selectedQueueFilter == null,
+                            onClick = { selectedQueueFilter = null },
+                            label = { Text(tr("Todas las Colas"), fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechCyan,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                        FilterChip(
+                            selected = selectedQueueFilter == "NORMAL",
+                            onClick = { selectedQueueFilter = if (selectedQueueFilter == "NORMAL") null else "NORMAL" },
+                            label = { Text("⚔️ " + tr("Partidas Normales"), fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = HextechGold,
+                                selectedLabelColor = HextechDarkBg
+                            )
+                        )
+                        FilterChip(
+                            selected = selectedQueueFilter == "LEGENDARY",
+                            onClick = { selectedQueueFilter = if (selectedQueueFilter == "LEGENDARY") null else "LEGENDARY" },
+                            label = { Text("🏆 " + tr("Legendarias"), fontSize = 11.sp) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color(0xFFE040FB),
+                                selectedLabelColor = Color.White
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     // Result Filters
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -1026,10 +1073,20 @@ fun DraftHistoryScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     
                     if (pendingCount > 0) {
+                        val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition(label = "pulse")
+                        val alpha by infiniteTransition.animateFloat(
+                            initialValue = 0.4f,
+                            targetValue = 1f,
+                            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                                animation = androidx.compose.animation.core.tween(1000),
+                                repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                            ),
+                            label = "pulse_alpha"
+                        )
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = HextechGold.copy(alpha = 0.1f)),
-                            border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
+                            border = BorderStroke(1.dp, HextechGold.copy(alpha = alpha))
                         ) {
                             Row(
                                 modifier = Modifier.padding(12.dp),
@@ -1859,13 +1916,6 @@ private fun SavedDraftCard(
                         onDismissRequest = { resultMenuExpanded = false },
                         modifier = Modifier.background(HextechSurface)
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("⏳ " + tr("En espera"), color = HextechGold, fontWeight = FontWeight.Bold) },
-                            onClick = {
-                                onUpdateResult("PENDING")
-                                resultMenuExpanded = false
-                            }
-                        )
                         DropdownMenuItem(
                             text = { Text("👑 " + tr("Victoria"), color = Color(0xFF81C784), fontWeight = FontWeight.Bold) },
                             onClick = {

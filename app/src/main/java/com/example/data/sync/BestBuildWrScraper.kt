@@ -166,11 +166,7 @@ object BestBuildWrScraper {
             _isSyncing.value = true
             val sources = listOf(
                 Triple("WildRiftFire", "https://www.wildriftfire.com/", "Global"),
-                Triple("WildRiftCore", "https://wildriftcore.com/", "Global"),
-                Triple("WildRiftGuides", "https://www.wildriftguides.com/", "Global"),
                 Triple("BestBuildWR", "https://bestbuildwr.com/", "Global"),
-                Triple("WR-Meta", "https://wr-meta.com/", "Global"),
-                Triple("RiotCloudNA", "https://wildrift.leagueoflegends.com/en-us/", "NA"),
                 Triple("TencentSuperServer", "https://lolm.qq.com/", "CN")
             )
             
