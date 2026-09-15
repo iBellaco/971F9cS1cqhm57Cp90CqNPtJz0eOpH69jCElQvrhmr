@@ -59,6 +59,7 @@ fun UserInboxDialog(
     var subcollectionMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var arrayMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var supportReportMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
+    var deletedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isLoading by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -203,17 +204,27 @@ fun UserInboxDialog(
     }
 
     // Unir mensajes de todas las fuentes eliminando duplicados por id y filtrando soporte eliminado/cerrado
-    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages) {
+    val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages, deletedIds) {
         val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
+        val validReportIds = supportReportMessages.mapNotNull { it["reportId"] as? String }.toSet()
         val all = mutableMapOf<String, Map<String, Any>>()
 
         for (m in supportReportMessages) {
             val id = m["id"] as? String ?: continue
+            val reportId = m["reportId"] as? String ?: id
+            if (deletedIds.contains(id) || deletedIds.contains(reportId)) continue
+            val isDeleted = (m["isDeleted"] as? Boolean) == true || 
+                            (m["deleted"] as? Boolean) == true || 
+                            (m["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
+            if (isDeleted) continue
             all[id] = m
         }
 
         fun processMessage(m: Map<String, Any>) {
             val id = m["id"] as? String ?: return
+            val reportId = m["reportId"] as? String ?: id
+            if (deletedIds.contains(id) || deletedIds.contains(reportId)) return
+
             val tag = (m["tag"] as? String)?.uppercase() ?: ""
             val title = (m["title"] as? String) ?: ""
             val isDeleted = (m["isDeleted"] as? Boolean) == true || 
@@ -223,7 +234,7 @@ fun UserInboxDialog(
 
             val isSupport = tag == "SUPPORT" || tag == "SOPORTE" || title.startsWith("Soporte:") || m.containsKey("reportId")
             if (isSupport) {
-                if (validSupportIds.contains(id)) {
+                if (validSupportIds.contains(id) || validSupportIds.contains(reportId) || validSupportIds.contains(m["reportId"])) {
                     all[id] = m
                 }
             } else {
@@ -237,7 +248,11 @@ fun UserInboxDialog(
         for (m in subcollectionMessages) {
             processMessage(m)
         }
-        all.values.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
+        all.values.filter { m ->
+            val id = m["id"] as? String ?: ""
+            val reportId = m["reportId"] as? String ?: ""
+            !deletedIds.contains(id) && !deletedIds.contains(reportId)
+        }.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
     }
 
     // Si la bandeja está vacía y se terminó de cargar, limpiar automáticamente el badge pendiente en Firestore
@@ -305,15 +320,17 @@ fun UserInboxDialog(
         
         // Actualizar el estado localmente de inmediato para que desaparezca al instante
         subcollectionMessages = subcollectionMessages.filter { (it["id"] as? String) != id }
-        arrayMessages = arrayMessages.filter { (it["id"] as? String) != id }
-        supportReportMessages = supportReportMessages.filter { (it["id"] as? String) != id }
+        arrayMessages = arrayMessages.filter { (it["id"] as? String) != id && (it["reportId"] as? String) != id }
+        supportReportMessages = supportReportMessages.filter { (it["id"] as? String) != id && (it["reportId"] as? String) != id }
 
         uRef.collection("messages").document(id).delete()
+        db.collection("support_reports").document(id).delete()
+
         uRef.get().addOnSuccessListener { snap ->
             @Suppress("UNCHECKED_CAST")
             val pMsgs = snap.get("privateMessages") as? List<Map<String, Any>>
             if (pMsgs != null) {
-                val updated = pMsgs.filter { it["id"] != id }
+                val updated = pMsgs.filter { (it["id"] as? String) != id && (it["reportId"] as? String) != id }
                 val remainingUnread = updated.count { (it["isRead"] as? Boolean) == false }
                 uRef.update(
                     "privateMessages", updated,

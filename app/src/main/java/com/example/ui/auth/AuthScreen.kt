@@ -204,7 +204,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showSupportPanel by remember { mutableStateOf(false) }
     var showSponsorPanel by remember { mutableStateOf(false) }
     var showSponsorModerationDialog by remember { mutableStateOf(false) }
-    var showBlueEssenceStoreDialog by remember { mutableStateOf(false) }
+    var showBuyEssenceDialog by remember { mutableStateOf(false) }
     val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
     val isExpiringSoon = remember(premiumUntil, isPremium, userRole) {
@@ -270,10 +270,10 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
         )
     }
 
-    if (showBlueEssenceStoreDialog) {
+    if (showBuyEssenceDialog) {
         com.example.ui.components.BlueEssenceStoreDialog(
             profileId = activeProfile.id,
-            onDismiss = { showBlueEssenceStoreDialog = false }
+            onDismiss = { showBuyEssenceDialog = false }
         )
     }
 
@@ -292,7 +292,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Row with Inbox (top-left) and History (top-right)
+            // Top Row with Inbox (top-left), Blue Essence (top-center), and History (top-right)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -314,7 +314,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 )
                 com.example.ui.components.HextechAnimatedIconButton(
                     onClick = { showInboxDialog = true },
-                    size = 46.dp,
+                    size = 40.dp,
                     backgroundColor = activeTheme.surfaceVariant,
                     borderColor = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.cardBorder,
                     glowColor = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.primary,
@@ -329,18 +329,63 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                             imageVector = if (unreadCount > 0) Icons.Default.MarkEmailUnread else Icons.Default.Message,
                             contentDescription = "Bandeja de Entrada",
                             tint = if (unreadCount > 0) com.example.ui.theme.HextechGold else activeTheme.secondary,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                         if (unreadCount > 0) {
                             Box(
                                 modifier = Modifier
-                                    .size(9.dp)
+                                    .size(8.dp)
                                     .align(Alignment.TopEnd)
                                     .clip(CircleShape)
                                     .background(DangerRed)
                                     .border(1.dp, activeTheme.surfaceVariant, CircleShape)
                             )
                         }
+                    }
+                }
+
+                // Top-Center: Blue Essence compact badge
+                val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
+                var essenceBounce by remember { mutableStateOf(false) }
+                val essenceScale by animateFloatAsState(
+                    targetValue = if (essenceBounce) 1.08f else 1f,
+                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                    label = "essenceScale",
+                    finishedListener = { essenceBounce = false }
+                )
+
+                Surface(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .graphicsLayer {
+                            scaleX = essenceScale
+                            scaleY = essenceScale
+                        }
+                        .tactileClickable {
+                            essenceBounce = true
+                            showBuyEssenceDialog = true
+                        },
+                    shape = RoundedCornerShape(20.dp),
+                    color = activeTheme.surfaceVariant.copy(alpha = 0.9f),
+                    border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                            contentDescription = "Esencia Azul",
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "$currentBlueEssence EA",
+                            color = HextechCyan,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
 
@@ -361,7 +406,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             var showBuyEssenceDialog by remember { mutableStateOf(false) }
 
@@ -370,57 +415,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 subtitle = "Sesión iniciada correctamente"
             )
 
-            val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-            var essenceBounce by remember { mutableStateOf(false) }
-            val essenceScale by animateFloatAsState(
-                targetValue = if (essenceBounce) 1.05f else 1f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                label = "essenceScale",
-                finishedListener = { essenceBounce = false }
-            )
-
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
-                    .graphicsLayer {
-                        scaleX = essenceScale
-                        scaleY = essenceScale
-                    }
-                    .tactileClickable {
-                        essenceBounce = true
-                        showBuyEssenceDialog = true
-                    },
-                shape = RoundedCornerShape(12.dp),
-                color = activeTheme.surfaceVariant.copy(alpha = 0.8f),
-                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                        contentDescription = "Esencia Azul",
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Esencias Azules:",
-                        color = activeTheme.textSecondary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "$currentBlueEssence EA",
-                        color = HextechCyan,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
             Spacer(modifier = Modifier.height(12.dp))
 
             if (showInboxDialog) {

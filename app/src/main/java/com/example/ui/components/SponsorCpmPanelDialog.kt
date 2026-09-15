@@ -41,6 +41,7 @@ import com.example.data.AppNoticeManager
 import com.example.ui.theme.*
 import com.example.util.NoticeMediaStorageManager
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Locale
 import java.util.UUID
 
@@ -127,7 +128,7 @@ fun SponsorCpmPanelDialog(
     var verticalMediaInput by remember { mutableStateOf("") } // Media vertical para pantalla completa
     var externalUrlInput by remember { mutableStateOf("") }
     var titleColor by remember { mutableStateOf("#FFD700") }
-    var durationValueInput by remember { mutableStateOf("1") }
+    var durationValueInput by remember { mutableStateOf("") }
     var selectedDurationUnit by remember { mutableStateOf("day") } // "hour", "day", "week", "month" (sin opción de 1 año)
     var isUploadingMedia by remember { mutableStateOf(false) }
 
@@ -147,6 +148,16 @@ fun SponsorCpmPanelDialog(
         durationValueInput.toIntOrNull()?.coerceAtLeast(1) ?: 1
     }
 
+    val activeAdsCount = (myNotices.size + 1).coerceAtLeast(1)
+    val publicationsMultiplier = remember(activeAdsCount) {
+        when (activeAdsCount) {
+            1 -> 1.0
+            2 -> 1.7
+            3 -> 2.3
+            else -> 2.8 + 0.5 * (activeAdsCount - 3)
+        }
+    }
+
     // El presupuesto se calcula automáticamente de forma dinámica
     val autoBudget = remember(
         selectedDurationUnit, 
@@ -156,7 +167,8 @@ fun SponsorCpmPanelDialog(
         horizontalMediaInput,
         verticalMediaInput,
         externalUrlInput,
-        currentMinute
+        currentMinute,
+        publicationsMultiplier
     ) {
         val unitPrice = when (selectedDurationUnit) {
             "hour" -> 1.50
@@ -179,6 +191,9 @@ fun SponsorCpmPanelDialog(
             total += 2.00 * durationValueInt // $2.00 extra per unit for outbound link
         }
         
+        // Publications count factor
+        total *= publicationsMultiplier
+
         // Dynamic demand factor
         val demandMultiplier = 1.0 + (currentMinute % 50) / 100.0
         total *= demandMultiplier
@@ -490,6 +505,9 @@ fun SponsorCpmPanelDialog(
 
                     // Preview Horizontal
                     if (horizontalMediaInput.isNotBlank()) {
+                        val horizontalModel = remember(horizontalMediaInput) {
+                            if (horizontalMediaInput.startsWith("/")) File(horizontalMediaInput) else horizontalMediaInput
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -502,7 +520,7 @@ fun SponsorCpmPanelDialog(
                                 border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.8f))
                             ) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    if (horizontalMediaInput.endsWith(".mp4", true) || horizontalMediaInput.contains("video", true)) {
+                                    if (isHorizontalVideo || horizontalMediaInput.endsWith(".mp4", true) || horizontalMediaInput.contains("video", true)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(24.dp))
                                             Spacer(modifier = Modifier.width(8.dp))
@@ -510,7 +528,7 @@ fun SponsorCpmPanelDialog(
                                         }
                                     } else {
                                         AsyncImage(
-                                            model = horizontalMediaInput,
+                                            model = horizontalModel,
                                             contentDescription = "Vista previa horizontal",
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.fillMaxSize()
@@ -555,6 +573,9 @@ fun SponsorCpmPanelDialog(
                     }
                     // Preview Vertical
                     if (verticalMediaInput.isNotBlank()) {
+                        val verticalModel = remember(verticalMediaInput) {
+                            if (verticalMediaInput.startsWith("/")) File(verticalMediaInput) else verticalMediaInput
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -567,7 +588,7 @@ fun SponsorCpmPanelDialog(
                                 border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
                             ) {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    if (verticalMediaInput.endsWith(".mp4", true) || verticalMediaInput.contains("video", true)) {
+                                    if (isVerticalVideo || verticalMediaInput.endsWith(".mp4", true) || verticalMediaInput.contains("video", true)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(Icons.Default.Videocam, contentDescription = null, tint = HextechGold, modifier = Modifier.size(24.dp))
                                             Spacer(modifier = Modifier.width(8.dp))
@@ -575,7 +596,7 @@ fun SponsorCpmPanelDialog(
                                         }
                                     } else {
                                         AsyncImage(
-                                            model = verticalMediaInput,
+                                            model = verticalModel,
                                             contentDescription = "Vista previa vertical",
                                             contentScale = ContentScale.Fit,
                                             modifier = Modifier.fillMaxSize()
@@ -614,40 +635,6 @@ fun SponsorCpmPanelDialog(
                             unfocusedTextColor = Color.White
                         )
                     )
-
-                    // Recomendación Automática de la IA
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text("Recomendación Automática de la IA:", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
-                                    Text("Tier 1 - Alto Rendimiento (Basado en multimedia y enlace)", color = TextSecondary, fontSize = 10.sp)
-                                }
-                            }
-                            TextButton(
-                                onClick = {
-                                    isManualBudget = false
-                                    budgetInput = autoBudget
-                                    Toast.makeText(context, "Presupuesto automático aplicado ($autoBudget USD)", Toast.LENGTH_SHORT).show()
-                                }
-                            ) {
-                                Text("Usar $$autoBudget ↗", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                            }
-                        }
-                    }
 
                     // Presupuesto Total (Automático o Manual)
                     OutlinedTextField(
@@ -688,7 +675,8 @@ fun SponsorCpmPanelDialog(
                         if (externalUrlInput.isNotBlank()) {
                             Text("• Recargo por redirección externa: +$${String.format(Locale.US, "%.2f", 2.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         }
-                        
+
+                        Text("• Factor por número de publicaciones activas (${activeAdsCount}): x${String.format(Locale.US, "%.1f", publicationsMultiplier)}", color = TextSecondary, fontSize = 10.sp)
                         Text("• Multiplicador por tráfico actual (demanda): +${((currentMinute % 50)).toInt()}%", color = TextSecondary, fontSize = 10.sp)
 
                         val estimatedBudgetFloat = autoBudget.toFloatOrNull() ?: 0f

@@ -55,24 +55,24 @@ fun LoginScreen(
         AuthTextField(
             value = email,
             onValueChange = viewModel::updateEmail,
-            label = "Correo electrónico (ej: usuario)"
+            label = "Correo electrónico"
         )
         Spacer(modifier = Modifier.height(6.dp))
         
-        // Selector rápido de dominios en forma de lista vertical limpia
-        Column(
+        // Acceso rápido horizontal para dominios de correo
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val domains = listOf("@gmail.com", "@outlook.com", "@hotmail.com")
             domains.forEach { domain ->
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    border = BorderStroke(0.8.dp, HextechCyan.copy(alpha = 0.3f)),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f)),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(32.dp)
+                        .weight(1f)
+                        .height(34.dp)
                         .clickable {
                             val base = if (email.contains("@")) email.substringBefore("@") else email
                             val cleanBase = if (base.isBlank()) "usuario" else base
@@ -80,26 +80,15 @@ fun LoginScreen(
                         }
                 ) {
                     Box(
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
-                        contentAlignment = Alignment.CenterStart
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Completar con:",
-                                color = TextSecondary,
-                                fontSize = 11.sp
-                            )
-                            Text(
-                                text = domain,
-                                color = HextechCyan,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                        Text(
+                            text = domain,
+                            color = HextechCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }

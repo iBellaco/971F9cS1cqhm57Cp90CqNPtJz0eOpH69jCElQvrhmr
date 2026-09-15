@@ -2,7 +2,11 @@ package com.example.ui.auth
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
@@ -88,6 +93,32 @@ fun RegisterScreen(
             Text("- Mínimo 8 caracteres", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
             Text("- Una letra mayúscula y minúscula", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
             Text("- Un número y carácter especial", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp),
+            color = HextechCyan.copy(alpha = 0.1f),
+            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    tint = HextechCyan,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Para poder iniciar sesión, deberás verificar tu correo electrónico con el enlace de confirmación que te enviaremos.",
+                    color = TextPrimary,
+                    fontSize = 11.sp
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
