@@ -271,6 +271,12 @@ fun UserInboxDialog(
     fun deleteMessage(id: String) {
         val db = FirebaseFirestore.getInstance()
         val uRef = db.collection("users").document(userUid)
+        
+        // Actualizar el estado localmente de inmediato para que desaparezca al instante
+        subcollectionMessages = subcollectionMessages.filter { (it["id"] as? String) != id }
+        arrayMessages = arrayMessages.filter { (it["id"] as? String) != id }
+        supportReportMessages = supportReportMessages.filter { (it["id"] as? String) != id }
+
         uRef.collection("messages").document(id).delete()
         uRef.get().addOnSuccessListener { snap ->
             @Suppress("UNCHECKED_CAST")
@@ -422,34 +428,45 @@ fun UserInboxDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Message, contentDescription = null, tint = Color(0xFF0EA5E9))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Bandeja de Entrada", fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 18.sp)
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .background(HextechCyan.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                                .border(1.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(10.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Default.Message, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text("Bandeja de Entrada", fontWeight = FontWeight.Black, color = TextPrimary, fontSize = 16.sp)
+                            Text("Notificaciones y anuncios oficiales", color = TextSecondary, fontSize = 11.sp)
+                        }
                     }
                     HextechAnimatedIconButton(
                         onClick = onDismiss,
                         size = 36.dp,
                         backgroundColor = Color.Transparent,
                         borderColor = Color.Transparent,
-                        glowColor = Color(0xFF0EA5E9)
+                        glowColor = HextechCyan
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextSecondary, modifier = Modifier.size(20.dp))
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 HextechAnimatedOutlinedButton(
                     onClick = { showSupportDialog = true },
-                    modifier = Modifier.fillMaxWidth().height(42.dp),
-                    borderColor = Color(0xFF0EA5E9),
-                    glowColor = Color(0xFF0EA5E9),
-                    shape = RoundedCornerShape(10.dp)
+                    modifier = Modifier.fillMaxWidth().height(44.dp),
+                    borderColor = HextechCyan,
+                    glowColor = HextechCyan,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = Color(0xFF0EA5E9), modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("Enviar Reporte o Mensaje de Soporte", color = Color(0xFF0EA5E9), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Centro de Soporte y Ayuda", color = HextechCyan, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 val unreadCount = messages.count { (it["isRead"] as? Boolean) == false }
                 if (messages.isNotEmpty()) {
