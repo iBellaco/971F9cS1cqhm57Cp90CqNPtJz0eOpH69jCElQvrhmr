@@ -117,12 +117,6 @@ object AppUpdateManager {
             } else if (forceManualCheck) {
                 if (result.isUpdateAvailable) {
                     _updateInfo.value = result
-                } else {
-                    val lang = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-                        .getString("selected_language", "es") ?: "es"
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "v${BuildConfig.VERSION_NAME} - " + trStr(lang, "Estás utilizando la versión más reciente"), Toast.LENGTH_SHORT).show()
-                    }
                 }
             } else if (result.isUpdateAvailable) {
                 _updateInfo.value = result

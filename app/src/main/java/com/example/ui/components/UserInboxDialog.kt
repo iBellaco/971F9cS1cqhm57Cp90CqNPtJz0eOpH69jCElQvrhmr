@@ -202,20 +202,40 @@ fun UserInboxDialog(
         } catch (_: Exception) {}
     }
 
-    // Unir mensajes de todas las fuentes eliminando duplicados por id
+    // Unir mensajes de todas las fuentes eliminando duplicados por id y filtrando soporte eliminado/cerrado
     val messages = remember(subcollectionMessages, arrayMessages, supportReportMessages) {
+        val validSupportIds = supportReportMessages.mapNotNull { it["id"] as? String }.toSet()
         val all = mutableMapOf<String, Map<String, Any>>()
+
         for (m in supportReportMessages) {
             val id = m["id"] as? String ?: continue
             all[id] = m
         }
+
+        fun processMessage(m: Map<String, Any>) {
+            val id = m["id"] as? String ?: return
+            val tag = (m["tag"] as? String)?.uppercase() ?: ""
+            val title = (m["title"] as? String) ?: ""
+            val isDeleted = (m["isDeleted"] as? Boolean) == true || 
+                            (m["deleted"] as? Boolean) == true || 
+                            (m["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
+            if (isDeleted) return
+
+            val isSupport = tag == "SUPPORT" || tag == "SOPORTE" || title.startsWith("Soporte:") || m.containsKey("reportId")
+            if (isSupport) {
+                if (validSupportIds.contains(id)) {
+                    all[id] = m
+                }
+            } else {
+                all[id] = m
+            }
+        }
+
         for (m in arrayMessages) {
-            val id = m["id"] as? String ?: continue
-            all[id] = m
+            processMessage(m)
         }
         for (m in subcollectionMessages) {
-            val id = m["id"] as? String ?: continue
-            all[id] = m
+            processMessage(m)
         }
         all.values.sortedByDescending { (it["timestamp"] as? Long) ?: 0L }
     }

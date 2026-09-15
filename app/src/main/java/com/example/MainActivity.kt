@@ -709,9 +709,7 @@ fun DraftingApp() {
         com.example.data.sync.MetaCrawlerSyncService.syncPatchData(context)
         com.example.data.GlobalAnnouncementManager.init(context)
         com.example.data.GlobalAnnouncementManager.refreshFromCloud(context)
-        if (isLanguageSet) {
-            AppUpdateManager.checkForUpdates(context)
-        }
+        // AppUpdateManager.checkForUpdates disabled
     }
 
     var selectedLanguage by remember { mutableStateOf(sharedPrefs.getString("selected_language", "es") ?: "es") }
@@ -806,10 +804,7 @@ fun DraftingApp() {
                         } else {
                             currentScreen = if (!hasSeenOnboarding) AppScreen.ONBOARDING else AppScreen.MAIN
                         }
-                        // Iniciar comprobación de actualización tras seleccionar el idioma (aparecerá como pop-up)
-                        coroutineScope.launch {
-                            AppUpdateManager.checkForUpdates(context, true)
-                        }
+                        // AppUpdateManager.checkForUpdates disabled
                     }
                 )
             }
