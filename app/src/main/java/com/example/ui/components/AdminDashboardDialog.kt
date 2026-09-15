@@ -455,7 +455,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
         }
     }
 
-    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Publicidad")
+    val tagsList = listOf("Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Ads")
     val isUrlValid = remember(videoUrl) { NoticeMediaUtils.isValidNoticeMedia(videoUrl) }
     val isExpandedUrlValid = remember(expandedImageUrl) { NoticeMediaUtils.isValidNoticeMedia(expandedImageUrl) }
     val coroutineScope = rememberCoroutineScope()
@@ -721,9 +721,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("⏱️ Intervalo de Rotación (Streamer y Publicidad > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Text("⏱️ Intervalo de Rotación (Streamer y Ads > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Si hay más de 1 anuncio con etiqueta 'Streamer' o 'Publicidad', rotarán automáticamente con este intervalo (si solo hay 1, se queda fijo):", color = TextSecondary, fontSize = 10.sp)
+                        Text("Si hay más de 1 anuncio con etiqueta 'Streamer' o 'Ads', rotarán automáticamente con este intervalo (si solo hay 1, se queda fijo):", color = TextSecondary, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),

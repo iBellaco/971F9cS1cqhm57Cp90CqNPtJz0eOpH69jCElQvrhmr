@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.example.ui.theme.HextechCyan
 import com.example.ui.theme.TextPrimary
+import com.example.ui.theme.TextSecondary
 
 @Composable
 fun LoginScreen(
@@ -54,51 +55,51 @@ fun LoginScreen(
         AuthTextField(
             value = email,
             onValueChange = viewModel::updateEmail,
-            label = "Correo electrónico"
+            label = "Correo electrónico (ej: usuario)"
         )
         Spacer(modifier = Modifier.height(6.dp))
-        Row(
+        
+        // Selector rápido de dominios en forma de lista vertical limpia
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            val options = listOf(
-                Pair("@", "@"),
-                Pair("Gmail", "@gmail.com"),
-                Pair("Outlook", "@outlook.com"),
-                Pair("Hotmail", "@hotmail.com")
-            )
-            options.forEach { (label, domain) ->
+            val domains = listOf("@gmail.com", "@outlook.com", "@hotmail.com")
+            domains.forEach { domain ->
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                    border = BorderStroke(0.8.dp, HextechCyan.copy(alpha = 0.4f)),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    border = BorderStroke(0.8.dp, HextechCyan.copy(alpha = 0.3f)),
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
+                        .height(32.dp)
                         .clickable {
-                            if (domain == "@") {
-                                if (!email.contains("@")) {
-                                    viewModel.updateEmail(email + "@")
-                                }
-                            } else {
-                                val base = if (email.contains("@")) email.substringBefore("@") else email
-                                if (base.isNotBlank()) {
-                                    viewModel.updateEmail(base + domain)
-                                } else {
-                                    viewModel.updateEmail(domain)
-                                }
-                            }
+                            val base = if (email.contains("@")) email.substringBefore("@") else email
+                            val cleanBase = if (base.isBlank()) "usuario" else base
+                            viewModel.updateEmail(cleanBase + domain)
                         }
                 ) {
                     Box(
-                        modifier = Modifier.padding(vertical = 6.dp),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
+                        contentAlignment = Alignment.CenterStart
                     ) {
-                        Text(
-                            text = label,
-                            color = HextechCyan,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Completar con:",
+                                color = TextSecondary,
+                                fontSize = 11.sp
+                            )
+                            Text(
+                                text = domain,
+                                color = HextechCyan,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }

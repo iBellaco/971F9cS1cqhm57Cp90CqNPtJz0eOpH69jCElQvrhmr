@@ -55,6 +55,7 @@ fun UserInboxDialog(
     userUid: String,
     onDismiss: () -> Unit
 ) {
+    val activeTheme = AppThemeManager.currentTheme
     var subcollectionMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var arrayMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
     var supportReportMessages by remember { mutableStateOf<List<Map<String, Any>>>(emptyList()) }
@@ -124,6 +125,11 @@ fun UserInboxDialog(
                         if (err == null && snap != null) {
                             for (doc in snap.documents) {
                                 val data = doc.data ?: continue
+                                val isDeleted = (data["isDeleted"] as? Boolean) == true || (data["deleted"] as? Boolean) == true || (data["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
+                                if (isDeleted) {
+                                    supportMap.remove(doc.id)
+                                    continue
+                                }
                                 val title = data["title"] as? String ?: "Reporte de Soporte"
                                 val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
                                 val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
@@ -160,6 +166,11 @@ fun UserInboxDialog(
                         if (err == null && snap != null) {
                             for (doc in snap.documents) {
                                 val data = doc.data ?: continue
+                                val isDeleted = (data["isDeleted"] as? Boolean) == true || (data["deleted"] as? Boolean) == true || (data["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
+                                if (isDeleted) {
+                                    supportMap.remove(doc.id)
+                                    continue
+                                }
                                 val title = data["title"] as? String ?: "Reporte de Soporte"
                                 val desc = data["description"] as? String ?: (data["content"] as? String ?: "")
                                 val ts = (data["createdAt"] as? Timestamp)?.toDate()?.time ?: System.currentTimeMillis()
@@ -357,8 +368,8 @@ fun UserInboxDialog(
                     .fillMaxWidth(0.96f)
                     .fillMaxHeight(0.9f),
                 shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF0F172A),
-                border = BorderStroke(1.5.dp, Color(0xFF0EA5E9))
+                color = activeTheme.surface,
+                border = BorderStroke(1.5.dp, activeTheme.primary)
             ) {
                 Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                     Row(
@@ -367,22 +378,22 @@ fun UserInboxDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                            Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = Color(0xFF0EA5E9))
+                            Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = activeTheme.primary)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(title, fontWeight = FontWeight.Bold, color = Color(0xFF0EA5E9), fontSize = 16.sp, maxLines = 1)
+                            Text(title, fontWeight = FontWeight.Bold, color = activeTheme.primary, fontSize = 16.sp, maxLines = 1)
                         }
                         HextechAnimatedIconButton(
                             onClick = { selectedSupportMessage = null },
                             size = 36.dp,
                             backgroundColor = Color.Transparent,
                             borderColor = Color.Transparent,
-                            glowColor = Color(0xFF0EA5E9)
+                            glowColor = activeTheme.primary
                         ) {
-                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.Gray, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = activeTheme.textSecondary, modifier = Modifier.size(20.dp))
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    Divider(color = Color(0xFF1E293B))
+                    Divider(color = activeTheme.cardBorder)
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Box(modifier = Modifier.fillMaxSize()) {
@@ -418,8 +429,8 @@ fun UserInboxDialog(
                 .fillMaxWidth(0.95f)
                 .fillMaxHeight(0.85f),
             shape = RoundedCornerShape(16.dp),
-            color = HextechDarkBg,
-            border = BorderStroke(1.5.dp, HextechCyan)
+            color = activeTheme.surface,
+            border = BorderStroke(1.5.dp, activeTheme.primary)
         ) {
             Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 Row(
@@ -431,16 +442,16 @@ fun UserInboxDialog(
                         Box(
                             modifier = Modifier
                                 .size(36.dp)
-                                .background(HextechCyan.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                                .border(1.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(10.dp)),
+                                .background(activeTheme.primary.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                                .border(1.dp, activeTheme.primary.copy(alpha = 0.4f), RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Message, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Message, contentDescription = null, tint = activeTheme.primary, modifier = Modifier.size(20.dp))
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text("Bandeja de Entrada", fontWeight = FontWeight.Black, color = TextPrimary, fontSize = 16.sp)
-                            Text("Notificaciones y anuncios oficiales", color = TextSecondary, fontSize = 11.sp)
+                            Text("Bandeja de Entrada", fontWeight = FontWeight.Black, color = activeTheme.textPrimary, fontSize = 16.sp)
+                            Text("Notificaciones y anuncios oficiales", color = activeTheme.textSecondary, fontSize = 11.sp)
                         }
                     }
                     HextechAnimatedIconButton(
@@ -448,9 +459,9 @@ fun UserInboxDialog(
                         size = 36.dp,
                         backgroundColor = Color.Transparent,
                         borderColor = Color.Transparent,
-                        glowColor = HextechCyan
+                        glowColor = activeTheme.primary
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = activeTheme.textSecondary, modifier = Modifier.size(20.dp))
                     }
                 }
 
@@ -458,13 +469,13 @@ fun UserInboxDialog(
                 HextechAnimatedOutlinedButton(
                     onClick = { showSupportDialog = true },
                     modifier = Modifier.fillMaxWidth().height(44.dp),
-                    borderColor = HextechCyan,
-                    glowColor = HextechCyan,
+                    borderColor = activeTheme.primary,
+                    glowColor = activeTheme.primary,
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Default.HeadsetMic, contentDescription = null, tint = activeTheme.primary, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Centro de Soporte y Ayuda", color = HextechCyan, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text("Centro de Soporte y Ayuda", color = activeTheme.primary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(10.dp))
 
@@ -477,33 +488,33 @@ fun UserInboxDialog(
                     ) {
                         Text(
                             if (unreadCount > 0) "$unreadCount no leído(s)" else "Todos leídos",
-                            color = if (unreadCount > 0) Color(0xFF38BDF8) else Color.Gray,
+                            color = if (unreadCount > 0) activeTheme.primaryLight else activeTheme.textSecondary,
                             fontSize = 12.sp
                         )
                         if (unreadCount > 0) {
                             HextechAnimatedTextLink(
                                 text = "Marcar todos leídos",
                                 onClick = { markAllAsRead() },
-                                color = Color(0xFF38BDF8),
+                                color = activeTheme.primaryLight,
                                 fontSize = 12.sp
                             )
                         }
                     }
                 }
                 
-                Divider(color = Color(0xFF1E293B))
+                Divider(color = activeTheme.cardBorder)
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 if (isLoading) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color(0xFF0EA5E9))
+                        CircularProgressIndicator(color = activeTheme.primary)
                     }
                 } else if (messages.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.Message, contentDescription = null, tint = Color.DarkGray, modifier = Modifier.size(48.dp))
+                            Icon(Icons.Default.Message, contentDescription = null, tint = activeTheme.textMuted, modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("No tienes mensajes en tu bandeja.", color = Color.Gray, fontSize = 14.sp)
+                            Text("No tienes mensajes en tu bandeja.", color = activeTheme.textSecondary, fontSize = 14.sp)
                         }
                     }
                 } else {

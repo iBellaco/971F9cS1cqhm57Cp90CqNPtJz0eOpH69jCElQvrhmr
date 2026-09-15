@@ -725,7 +725,7 @@ fun normalizeNoticeTag(tag: String): String {
     return when {
         lower.contains("importante") || lower.contains("aviso") -> "Anuncios importantes"
         lower.contains("oferta") || lower.contains("descuento") -> "Ofertas"
-        lower.contains("publicidad") || lower.contains("promo") -> "Publicidad"
+        lower.contains("publicidad") || lower.contains("ads") || lower.contains("promo") -> "Ads"
         lower.contains("mantenimiento") -> "Mantenimiento"
         lower.contains("noticia") -> "Noticias"
         lower.contains("streamer") -> "Streamers"
@@ -738,7 +738,7 @@ fun getNoticeTagColor(tag: String): Color {
     val l = tag.lowercase(Locale.ROOT)
     return when {
         l.contains("importante") || l.contains("aviso") -> HextechGold
-        l.contains("publicidad") || l.contains("promo") -> Color(0xFF00FF66)
+        l.contains("publicidad") || l.contains("ads") || l.contains("promo") -> Color(0xFF00FF66)
         l.contains("oferta") || l.contains("descuento") -> HextechCyan
         l.contains("mantenimiento") -> Color(0xFFFF3333)
         l.contains("noticia") -> Color(0xFFCC66FF)
@@ -752,7 +752,7 @@ fun getNoticeTagIcon(tag: String): androidx.compose.ui.graphics.vector.ImageVect
     return when {
         l.contains("importante") || l.contains("aviso") -> Icons.Default.Campaign
         l.contains("oferta") || l.contains("descuento") -> Icons.Default.LocalOffer
-        l.contains("publicidad") || l.contains("promo") -> Icons.Default.Storefront
+        l.contains("publicidad") || l.contains("ads") || l.contains("promo") -> Icons.Default.Storefront
         l.contains("mantenimiento") -> Icons.Default.Build
         l.contains("noticia") -> Icons.Default.Article
         l.contains("streamer") -> Icons.Default.LiveTv

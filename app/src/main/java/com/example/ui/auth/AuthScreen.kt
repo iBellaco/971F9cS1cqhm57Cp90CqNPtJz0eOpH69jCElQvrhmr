@@ -371,33 +371,54 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             )
 
             val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            var essenceBounce by remember { mutableStateOf(false) }
+            val essenceScale by animateFloatAsState(
+                targetValue = if (essenceBounce) 1.05f else 1f,
+                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+                label = "essenceScale",
+                finishedListener = { essenceBounce = false }
+            )
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .graphicsLayer {
+                        scaleX = essenceScale
+                        scaleY = essenceScale
+                    }
+                    .tactileClickable {
+                        essenceBounce = true
+                        showBuyEssenceDialog = true
+                    },
+                shape = RoundedCornerShape(12.dp),
+                color = activeTheme.surfaceVariant.copy(alpha = 0.8f),
+                border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
             ) {
-                Text(
-                    text = "Esencias Azules",
-                    color = activeTheme.textSecondary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "$currentBlueEssence EA",
-                    color = HextechCyan,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                com.example.ui.components.HextechAnimatedButton(
-                    onClick = { showBuyEssenceDialog = true },
-                    modifier = Modifier.height(36.dp),
-                    backgroundColor = HextechCyan,
-                    glowColor = HextechCyan
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(16.dp), tint = HextechDarkBg)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Comprar", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = HextechDarkBg)
+                    Image(
+                        painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
+                        contentDescription = "Esencia Azul",
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Esencias Azules:",
+                        color = activeTheme.textSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "$currentBlueEssence EA",
+                        color = HextechCyan,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -834,90 +855,6 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
-            // Compact Blue Essence panel right below themes / coach tip (Only for Admins)
-            if (isAdminUser) {
-                val currentBlueEssence by SubscriptionManager.blueEssence.collectAsState()
-                var essenceBounce by remember { mutableStateOf(false) }
-                val essenceScale by animateFloatAsState(
-                    targetValue = if (essenceBounce) 1.05f else 1f,
-                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-                    label = "essenceScale",
-                    finishedListener = { essenceBounce = false }
-                )
-
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer {
-                            scaleX = essenceScale
-                            scaleY = essenceScale
-                        }
-                        .tactileClickable {
-                            essenceBounce = true
-                            showBuyEssenceDialog = true
-                        },
-                    shape = RoundedCornerShape(12.dp),
-                    color = activeTheme.surfaceVariant.copy(alpha = 0.8f),
-                    border = BorderStroke(1.2.dp, activeTheme.primary.copy(alpha = 0.6f))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(2.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(6.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = com.example.R.drawable.ic_blue_essence),
-                                    contentDescription = "Esencia Azul",
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Text(
-                                    text = "Esencia Azul",
-                                    color = activeTheme.textSecondary,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                            Text(
-                                text = "$currentBlueEssence EA",
-                                color = activeTheme.primary,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                        com.example.ui.components.HextechAnimatedButton(
-                            onClick = {
-                                essenceBounce = true
-                                showBuyEssenceDialog = true
-                            },
-                            backgroundColor = activeTheme.secondary,
-                            borderColor = activeTheme.primary,
-                            glowColor = activeTheme.secondary,
-                            modifier = Modifier.height(36.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                            enableShimmer = true,
-                            scaleDown = 0.90f
-                        ) {
-                            Text(
-                                text = "Comprar",
-                                color = activeTheme.background,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.ExtraBold
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-
             // Alerta de suscripción por vencer (si aplica)
             if (isExpiringSoon) {
                 Spacer(modifier = Modifier.height(10.dp))
@@ -1189,7 +1126,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 ) {
                     Icon(Icons.Default.Campaign, contentDescription = null, tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Panel de Anuncios CPM (Patrocinador)", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Ads", color = Color.White, fontWeight = FontWeight.Bold)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }

@@ -102,7 +102,7 @@ fun SponsorCpmPanelDialog(
     val sevenDaysMillis = 7 * 24 * 60 * 60 * 1000L
 
     val myNotices = remember(allNotices, userEmail, localPendingAds, now) {
-        val remoteAds = allNotices.filter { it.sponsorEmail.equals(userEmail, true) || (it.sponsorEmail.isBlank() && it.tag.equals("Publicidad", true)) }
+        val remoteAds = allNotices.filter { it.sponsorEmail.equals(userEmail, true) || (it.sponsorEmail.isBlank() && (it.tag.equals("Publicidad", true) || it.tag.equals("Ads", true))) }
         val localFiltered = localPendingAds.filter { it.sponsorEmail.equals(userEmail, true) || it.sponsorEmail.isBlank() }
         val remoteAdIds = remoteAds.map { it.id }.toSet()
         val combined = remoteAds + localFiltered.filter { it.id !in remoteAdIds }
@@ -884,7 +884,7 @@ fun SponsorCpmPanelDialog(
                             videoUrl = horizontalMediaInput.trim(),
                             expandedImageUrl = verticalMediaInput.trim().ifBlank { horizontalMediaInput.trim() },
                             externalUrl = externalUrlInput.trim(),
-                            tag = "Publicidad",
+                            tag = "Ads",
                             titleColor = titleColor,
                             budget = parsedBudget,
                             budgetUnit = selectedDurationUnit,
