@@ -1021,9 +1021,10 @@ fun AdminSupportReportsDialog(
 
                             // 2. Eliminar de Firestore
                             try {
+                                val firestoreIdToDelete = target.firestoreDocId ?: idToDelete
                                 FirebaseFirestore.getInstance()
                                     .collection("support_reports")
-                                    .document(idToDelete)
+                                    .document(firestoreIdToDelete)
                                     .delete()
                             } catch (_: Exception) {}
 

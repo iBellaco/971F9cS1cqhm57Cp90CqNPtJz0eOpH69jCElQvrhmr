@@ -693,17 +693,14 @@ fun UserInboxDialog(
                                                 }
                                                 Spacer(modifier = Modifier.width(4.dp))
                                             }
-                                            val isSupportMsg = rawTag.equals("SUPPORT", ignoreCase = true) || (msg["reportId"] as? String)?.isNotBlank() == true || messageTag == MessageTag.SUPPORT
-                                            if (!isSupportMsg) {
-                                                HextechAnimatedIconButton(
-                                                    onClick = { deleteMessage(id) },
-                                                    size = 30.dp,
-                                                    backgroundColor = Color.Transparent,
-                                                    borderColor = Color.Transparent,
-                                                    glowColor = DangerRed
-                                                ) {
-                                                    Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed.copy(alpha = 0.7f), modifier = Modifier.size(18.dp))
-                                                }
+                                            HextechAnimatedIconButton(
+                                                onClick = { deleteMessage(id) },
+                                                size = 30.dp,
+                                                backgroundColor = Color.Transparent,
+                                                borderColor = Color.Transparent,
+                                                glowColor = DangerRed
+                                            ) {
+                                                Icon(Icons.Default.Delete, contentDescription = "Borrar", tint = DangerRed.copy(alpha = 0.7f), modifier = Modifier.size(18.dp))
                                             }
                                         }
                                     }
