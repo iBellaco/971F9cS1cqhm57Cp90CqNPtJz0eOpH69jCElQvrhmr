@@ -124,6 +124,11 @@ fun UserInboxDialog(
                     .whereEqualTo("userId", userUid)
                     .addSnapshotListener { snap, err ->
                         if (err == null && snap != null) {
+                            for (change in snap.documentChanges) {
+                                if (change.type == com.google.firebase.firestore.DocumentChange.Type.REMOVED) {
+                                    supportMap.remove(change.document.id)
+                                }
+                            }
                             for (doc in snap.documents) {
                                 val data = doc.data ?: continue
                                 val isDeleted = (data["isDeleted"] as? Boolean) == true || (data["deleted"] as? Boolean) == true || (data["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")
@@ -165,6 +170,11 @@ fun UserInboxDialog(
                     .whereEqualTo("userEmail", userEmail)
                     .addSnapshotListener { snap, err ->
                         if (err == null && snap != null) {
+                            for (change in snap.documentChanges) {
+                                if (change.type == com.google.firebase.firestore.DocumentChange.Type.REMOVED) {
+                                    supportMap.remove(change.document.id)
+                                }
+                            }
                             for (doc in snap.documents) {
                                 val data = doc.data ?: continue
                                 val isDeleted = (data["isDeleted"] as? Boolean) == true || (data["deleted"] as? Boolean) == true || (data["status"] as? String)?.uppercase() in listOf("ELIMINADO", "DELETED", "CERRADO")

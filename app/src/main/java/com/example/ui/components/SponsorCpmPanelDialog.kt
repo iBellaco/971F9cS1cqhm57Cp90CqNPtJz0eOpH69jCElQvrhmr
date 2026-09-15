@@ -210,7 +210,7 @@ fun SponsorCpmPanelDialog(
 
     // Launcher para seleccionar multimedia horizontal (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
     val horizontalPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
         val mimeType = context.contentResolver.getType(uri) ?: ""
@@ -267,7 +267,7 @@ fun SponsorCpmPanelDialog(
 
     // Launcher para seleccionar multimedia vertical (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
     val verticalPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
         val mimeType = context.contentResolver.getType(uri) ?: ""
@@ -492,7 +492,7 @@ fun SponsorCpmPanelDialog(
                     Text("• Medidas recomendadas: 1920 x 1080 px (Relación 16:9)\n• Límite: Máximo 10 MB (Imagen o Video máx 10s)", color = TextSecondary, fontSize = 10.sp)
                     
                     Button(
-                        onClick = { horizontalPicker.launch("*/*") },
+                        onClick = { horizontalPicker.launch(arrayOf("image/jpeg", "image/png", "video/mp4")) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
                         shape = RoundedCornerShape(8.dp),
@@ -561,7 +561,7 @@ fun SponsorCpmPanelDialog(
                     Text("• Medidas recomendadas: 1080 x 1920 px (Relación 9:16)\n• Límite: Máximo 10 MB (Imagen o Video máx 10s)", color = TextSecondary, fontSize = 10.sp)
 
                     Button(
-                        onClick = { verticalPicker.launch("*/*") },
+                        onClick = { verticalPicker.launch(arrayOf("image/jpeg", "image/png", "video/mp4")) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
                         shape = RoundedCornerShape(8.dp),
