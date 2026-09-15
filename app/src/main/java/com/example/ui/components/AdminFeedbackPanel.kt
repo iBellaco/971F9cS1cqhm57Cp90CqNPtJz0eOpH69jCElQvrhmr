@@ -71,6 +71,7 @@ import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Reply
@@ -182,7 +183,8 @@ enum class FeedbackCategoryTab(val titleKey: String, val icon: ImageVector) {
     BUGS("Bugs", Icons.Default.BugReport),
     SUGGESTIONS("Sugerencias", Icons.Default.Lightbulb),
     BUILDS("Builds", Icons.Default.SportsEsports),
-    SUPPORT("Soporte", Icons.Default.SupportAgent)
+    SUPPORT("Soporte", Icons.Default.SupportAgent),
+    SPONSOR("Patrocinador", Icons.Default.Star)
 }
 
 /**
@@ -194,6 +196,7 @@ fun getFeedbackCategory(report: FeedbackReport): String {
     val title = report.title
 
     return when {
+        rawType in listOf("PATROCINADOR", "PATROCINIO", "SPONSOR") -> "PATROCINADOR"
         rawType in listOf("BUG", "ERROR", "BUG_REPORT", "BUG / ERROR") -> "BUG"
         rawType in listOf("BUILD_SUGGESTION", "BUILD", "SUGERIR BUILD", "SUGERENCIA DE BUILD") || parseBuildSuggestionFromText(desc, title) != null -> "BUILD"
         rawType in listOf("SOPORTE", "SUPPORT", "TICKET", "AYUDA") -> "SUPPORT"
@@ -271,20 +274,33 @@ fun AdminFeedbackBottomSheet(
         loadReports()
     }
 
-    // Contadores y listas clasificadas
-    val totalCount = reports.size
-    val bugList = remember(reports) { reports.filter { getFeedbackCategory(it) == "BUG" } }
-    val suggestionList = remember(reports) { reports.filter { getFeedbackCategory(it) == "SUGGESTION" } }
-    val buildList = remember(reports) { reports.filter { getFeedbackCategory(it) == "BUILD" } }
-    val supportList = remember(reports) { reports.filter { getFeedbackCategory(it) == "SUPPORT" } }
+    val isAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
 
-    val currentCategoryItems = remember(reports, currentCategoryTab, bugList, suggestionList, buildList, supportList) {
+    // Reportes visibles según el rol del usuario (Los reportes de Patrocinador son exclusivos del Administrador)
+    val visibleReports = remember(reports, isAdmin) {
+        if (isAdmin) reports else reports.filter { getFeedbackCategory(it) != "PATROCINADOR" }
+    }
+
+    val availableTabs = remember(isAdmin) {
+        if (isAdmin) FeedbackCategoryTab.entries else FeedbackCategoryTab.entries.filter { it != FeedbackCategoryTab.SPONSOR }
+    }
+
+    // Contadores y listas clasificadas
+    val totalCount = visibleReports.size
+    val bugList = remember(visibleReports) { visibleReports.filter { getFeedbackCategory(it) == "BUG" } }
+    val suggestionList = remember(visibleReports) { visibleReports.filter { getFeedbackCategory(it) == "SUGGESTION" } }
+    val buildList = remember(visibleReports) { visibleReports.filter { getFeedbackCategory(it) == "BUILD" } }
+    val supportList = remember(visibleReports) { visibleReports.filter { getFeedbackCategory(it) == "SUPPORT" } }
+    val sponsorList = remember(visibleReports) { visibleReports.filter { getFeedbackCategory(it) == "PATROCINADOR" } }
+
+    val currentCategoryItems = remember(visibleReports, currentCategoryTab, bugList, suggestionList, buildList, supportList, sponsorList) {
         when (currentCategoryTab) {
-            FeedbackCategoryTab.ALL -> reports
+            FeedbackCategoryTab.ALL -> visibleReports
             FeedbackCategoryTab.BUGS -> bugList
             FeedbackCategoryTab.SUGGESTIONS -> suggestionList
             FeedbackCategoryTab.BUILDS -> buildList
             FeedbackCategoryTab.SUPPORT -> supportList
+            FeedbackCategoryTab.SPONSOR -> sponsorList
         }
     }
 
@@ -325,8 +341,8 @@ fun AdminFeedbackBottomSheet(
     }
 
     // Filtrado de reportes
-    val filteredReports = remember(reports, currentCategoryTab, selectedSubFilter, searchQuery, statusMap.toMap()) {
-        reports.filter { item ->
+    val filteredReports = remember(visibleReports, currentCategoryTab, selectedSubFilter, searchQuery, statusMap.toMap()) {
+        visibleReports.filter { item ->
             val key = item.id ?: "${item.title}_${item.createdAt}"
             val currentStatus = statusMap[key] ?: FeedbackRepository.STATUS_PENDING
             val cat = getFeedbackCategory(item)
@@ -338,6 +354,7 @@ fun AdminFeedbackBottomSheet(
                 FeedbackCategoryTab.SUGGESTIONS -> cat == "SUGGESTION"
                 FeedbackCategoryTab.BUILDS -> cat == "BUILD"
                 FeedbackCategoryTab.SUPPORT -> cat == "SUPPORT"
+                FeedbackCategoryTab.SPONSOR -> cat == "PATROCINADOR"
             }
 
             // Filtro por subestado
@@ -477,23 +494,24 @@ fun AdminFeedbackBottomSheet(
                 }
             }
 
-            // Pestañas Principales con Scroll Horizontal para 5 categorías bien diferenciadas
+            // Pestañas Principales con Scroll Horizontal para categorías bien diferenciadas
+            val activeTabIndex = availableTabs.indexOf(currentCategoryTab).coerceAtLeast(0)
             ScrollableTabRow(
-                selectedTabIndex = currentCategoryTab.ordinal,
+                selectedTabIndex = activeTabIndex,
                 containerColor = HextechSurface,
                 contentColor = HextechGold,
                 edgePadding = 8.dp,
                 indicator = { tabPositions ->
-                    if (currentCategoryTab.ordinal in tabPositions.indices) {
+                    if (activeTabIndex in tabPositions.indices) {
                         TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[currentCategoryTab.ordinal]),
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[activeTabIndex]),
                             color = HextechGold
                         )
                     }
                 },
                 divider = {}
             ) {
-                FeedbackCategoryTab.entries.forEach { tab ->
+                availableTabs.forEach { tab ->
                     val isSelected = currentCategoryTab == tab
                     val count = when (tab) {
                         FeedbackCategoryTab.ALL -> totalCount
@@ -501,6 +519,7 @@ fun AdminFeedbackBottomSheet(
                         FeedbackCategoryTab.SUGGESTIONS -> suggestionList.size
                         FeedbackCategoryTab.BUILDS -> buildList.size
                         FeedbackCategoryTab.SUPPORT -> supportList.size
+                        FeedbackCategoryTab.SPONSOR -> sponsorList.size
                     }
                     Tab(
                         selected = isSelected,
@@ -549,6 +568,7 @@ fun AdminFeedbackBottomSheet(
                             FeedbackCategoryTab.SUGGESTIONS -> suggestionList.size
                             FeedbackCategoryTab.BUILDS -> buildList.size
                             FeedbackCategoryTab.SUPPORT -> supportList.size
+                            FeedbackCategoryTab.SPONSOR -> sponsorList.size
                         },
                         isSelected = selectedSubFilter == "ALL",
                         color = HextechGold,
@@ -1251,6 +1271,7 @@ private fun ComprehensiveFeedbackCard(
 
     // Información del tipo
     val (typeColor, typeIcon, typeLabel) = when (itemCategory) {
+        "PATROCINADOR" -> Triple(HextechGold, Icons.Default.Star, "PATROCINADOR")
         "BUG" -> Triple(DangerRed, Icons.Default.BugReport, "BUG / ERROR")
         "SUPPORT" -> Triple(HextechCyan, Icons.Default.SupportAgent, "SOPORTE")
         "BUILD" -> Triple(HextechGold, Icons.Default.SportsEsports, "BUILD SUGERIDA")
@@ -1663,6 +1684,31 @@ private fun ComprehensiveFeedbackCard(
                             fontSize = 11.sp,
                             lineHeight = 15.sp
                         )
+
+                        // Información del moderador que respondió
+                        val authorName = report.repliedBy?.takeIf { it.isNotBlank() } ?: localReply?.author
+                        val authorMail = report.repliedEmail?.takeIf { it.isNotBlank() } ?: localReply?.authorEmail
+                        if (!authorName.isNullOrBlank() || !authorMail.isNullOrBlank()) {
+                            val displayName = authorName ?: "Equipo Coach"
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(HextechSurfaceVariant.copy(alpha = 0.6f))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Icon(Icons.Default.Person, contentDescription = null, tint = HextechGold, modifier = Modifier.size(10.dp))
+                                Text(
+                                    text = "${tr("Respondido por:")} $displayName${if (authorMail != null) " • $authorMail" else ""}",
+                                    color = HextechGold,
+                                    fontSize = 9.5.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
                     }
                 }
             } else if (onReply != null && itemCategory == "SUPPORT") {

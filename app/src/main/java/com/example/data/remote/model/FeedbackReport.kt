@@ -15,8 +15,12 @@ data class FeedbackReport(
     val status: String? = null,
     @SerialName("is_completed") val isCompleted: Boolean? = null,
     @SerialName("admin_reply") val adminReply: String? = null,
-    @SerialName("replied_at") val repliedAt: String? = null
+    @SerialName("replied_at") val repliedAt: String? = null,
+    @SerialName("replied_by") val repliedBy: String? = null,
+    @SerialName("replied_email") val repliedEmail: String? = null
 ) {
+    val hasAdminReply: Boolean
+        get() = !adminReply.isNullOrBlank()
     val parsedUserName: String?
         get() {
             val match = Regex("Usuario: (.*?)\n").find(description)

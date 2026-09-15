@@ -103,7 +103,10 @@ fun SponsorCpmPanelDialog(
     val sevenDaysMillis = 7 * 24 * 60 * 60 * 1000L
 
     val myNotices = remember(allNotices, userEmail, localPendingAds, now) {
-        val remoteAds = allNotices.filter { it.sponsorEmail.equals(userEmail, true) || (it.sponsorEmail.isBlank() && (it.tag.equals("Publicidad", true) || it.tag.equals("Ads", true))) }
+        val remoteAds = allNotices.filter { notice ->
+            val isPubTag = notice.tag.equals("Publicidad", ignoreCase = true) || notice.tag.equals("Ads", ignoreCase = true)
+            (notice.sponsorEmail.equals(userEmail, true) || (notice.sponsorEmail.isBlank() && isPubTag))
+        }
         val localFiltered = localPendingAds.filter { it.sponsorEmail.equals(userEmail, true) || it.sponsorEmail.isBlank() }
         val remoteAdIds = remoteAds.map { it.id }.toSet()
         val combined = remoteAds + localFiltered.filter { it.id !in remoteAdIds }
@@ -148,7 +151,15 @@ fun SponsorCpmPanelDialog(
         durationValueInput.toIntOrNull()?.coerceAtLeast(1) ?: 1
     }
 
-    val activeAdsCount = (myNotices.size + 1).coerceAtLeast(1)
+    // El cálculo del multiplicador toma en cuenta ÚNICAMENTE los anuncios de publicidad activos
+    val activeAdsCount = remember(allNotices, now) {
+        val activePublicidadAds = allNotices.filter { notice ->
+            val isPubTag = notice.tag.equals("Publicidad", ignoreCase = true) || notice.tag.equals("Ads", ignoreCase = true)
+            val isLive = notice.isApproved && notice.isEnabled && (notice.expiresAtMillis == 0L || notice.expiresAtMillis > now)
+            isPubTag && isLive
+        }
+        (activePublicidadAds.size + 1).coerceAtLeast(1)
+    }
     val publicationsMultiplier = remember(activeAdsCount) {
         when (activeAdsCount) {
             1 -> 1.0
@@ -489,10 +500,10 @@ fun SponsorCpmPanelDialog(
 
                     // Multimedia Horizontal (Banner/Video horizontal para inicio)
                     Text("1. Multimedia Horizontal (Banner de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    Text("• Medidas recomendadas: 1920 x 1080 px (Relación 16:9)\n• Límite: Máximo 10 MB (Imagen o Video máx 10s)", color = TextSecondary, fontSize = 10.sp)
+                    Text("• Medidas recomendadas: 1920 x 1080 px (Relación 16:9)\n• Formatos: PNG, JPG/JPEG o Video MP4 (máx 10s y 10 MB)", color = TextSecondary, fontSize = 10.sp)
                     
                     Button(
-                        onClick = { horizontalPicker.launch(arrayOf("image/jpeg", "image/png", "video/mp4")) },
+                        onClick = { horizontalPicker.launch(arrayOf("image/jpeg", "image/jpg", "image/png", "video/mp4")) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
                         shape = RoundedCornerShape(8.dp),
@@ -548,10 +559,10 @@ fun SponsorCpmPanelDialog(
 
                     // Multimedia Vertical (Imagen/Video vertical para modal pantalla completa)
                     Text("2. Multimedia Vertical (Vista Ampliada):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    Text("• Medidas recomendadas: 1080 x 1920 px (Relación 9:16)\n• Límite: Máximo 10 MB (Imagen o Video máx 10s)", color = TextSecondary, fontSize = 10.sp)
+                    Text("• Medidas recomendadas: 1080 x 1920 px (Relación 9:16)\n• Formatos: PNG, JPG/JPEG o Video MP4 (máx 10s y 10 MB)", color = TextSecondary, fontSize = 10.sp)
 
                     Button(
-                        onClick = { verticalPicker.launch(arrayOf("image/jpeg", "image/png", "video/mp4")) },
+                        onClick = { verticalPicker.launch(arrayOf("image/jpeg", "image/jpg", "image/png", "video/mp4")) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
                         shape = RoundedCornerShape(8.dp),
@@ -656,7 +667,7 @@ fun SponsorCpmPanelDialog(
                             Text("• Recargo por redirección externa: +$${String.format(Locale.US, "%.2f", 2.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         }
 
-                        Text("• Factor por número de publicaciones activas (${activeAdsCount}): x${String.format(Locale.US, "%.1f", publicationsMultiplier)}", color = TextSecondary, fontSize = 10.sp)
+                        Text("• Factor por número de anuncios de publicidad activos (${activeAdsCount}): x${String.format(Locale.US, "%.1f", publicationsMultiplier)}", color = TextSecondary, fontSize = 10.sp)
                         Text("• Multiplicador por tráfico actual (demanda): +${((currentMinute % 50)).toInt()}%", color = TextSecondary, fontSize = 10.sp)
 
                         val estimatedBudgetFloat = autoBudget.toFloatOrNull() ?: 0f
@@ -780,7 +791,7 @@ fun SponsorCpmPanelDialog(
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Nota: El anuncio requiere la aprobación de un administrador para ser visible en la plataforma. Al vencer permanecerá 7 días en tu historial con contador antes de su eliminación.", color = TextSecondary, fontSize = 10.sp)
+                    Text("Nota: El anuncio requiere la aprobación de un administrador para ser visible en la plataforma. Si el anuncio publicado no es aceptado en 7 días, se hace la devolución de las esencias azules. Al vencer permanecerá 7 días en tu historial con contador antes de su eliminación.", color = TextSecondary, fontSize = 10.sp)
                 }
             },
             confirmButton = {
@@ -829,10 +840,10 @@ fun SponsorCpmPanelDialog(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         "• Una vez enviado el anuncio a revisión, NO SE PUEDE MODIFICAR.\n" +
-                        "• NO EXISTEN DEVOLUCIONES de esencias azules bajo ninguna circunstancia.\n" +
-                        "• Formatos estrictos: Imágenes en formato PNG y Videos en formato MP4 (máximo 10 segundos).\n" +
-                        "• Regla de Seguridad y Enlaces: Está estrictamente prohibido agregar enlaces maliciosos, contenido inapropiado o incumplir cualquiera de las normas.\n" +
-                        "• Penalización: Si se infringe cualquier regla, el anuncio será rechazado permanentemente y se perderán todas las esencias azules invertidas sin derecho a reclamo ni apelación.",
+                        "• Si el anuncio no es aceptado en 7 días, se hace la devolución de las esencias azules.\n" +
+                        "• Formatos admitidos: Imágenes en formato PNG o JPG/JPEG y Videos en formato MP4 (máximo 10 segundos).\n" +
+                        "• Regla de Seguridad y Enlaces: Está estrictamente prohibido agregar enlaces maliciosos, contenido inapropiado o incumplir las normas comunitarias.\n" +
+                        "• Penalización: Si se infringe cualquier regla, el anuncio será rechazado permanentemente y no será publicado.",
                         color = Color.White,
                         fontSize = 12.sp
                     )

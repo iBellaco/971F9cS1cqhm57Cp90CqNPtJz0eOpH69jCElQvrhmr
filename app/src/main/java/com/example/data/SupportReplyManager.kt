@@ -20,6 +20,7 @@ data class SupportReply(
     val reportId: String,
     val text: String,
     val author: String = "Equipo Coach",
+    val authorEmail: String? = null,
     val timestampMillis: Long = System.currentTimeMillis()
 )
 
@@ -27,6 +28,7 @@ data class SupportMessageEntry(
     val id: String = java.util.UUID.randomUUID().toString(),
     val senderName: String = "",
     val senderRole: String = "SUPPORT", // "SUPPORT" o "USER"
+    val senderEmail: String? = null,
     val text: String = "",
     val timestampMillis: Long = System.currentTimeMillis(),
     val isGreeting: Boolean = false
@@ -47,6 +49,7 @@ object SupportReplyManager {
     private const val KEY_REPLY_PREFIX = "reply_text_"
     private const val KEY_DATE_PREFIX = "reply_date_"
     private const val KEY_AUTHOR_PREFIX = "reply_author_"
+    private const val KEY_AUTHOR_EMAIL_PREFIX = "reply_author_email_"
     private const val KEY_CONVERSATION_PREFIX = "conversation_history_"
 
     const val DAYS_RETENTION_READ = 30
@@ -109,6 +112,7 @@ object SupportReplyManager {
                             id = obj.optString("id", java.util.UUID.randomUUID().toString()),
                             senderName = obj.optString("senderName", "Soporte"),
                             senderRole = obj.optString("senderRole", "SUPPORT"),
+                            senderEmail = obj.optString("senderEmail", "").takeIf { it.isNotBlank() },
                             text = obj.optString("text", ""),
                             timestampMillis = obj.optLong("timestampMillis", System.currentTimeMillis()),
                             isGreeting = obj.optBoolean("isGreeting", false)
@@ -126,6 +130,7 @@ object SupportReplyManager {
             val entry = SupportMessageEntry(
                 senderName = legacyReply.author,
                 senderRole = "SUPPORT",
+                senderEmail = legacyReply.authorEmail,
                 text = legacyReply.text,
                 timestampMillis = legacyReply.timestampMillis,
                 isGreeting = isDefaultGreeting(legacyReply.text)
@@ -143,6 +148,9 @@ object SupportReplyManager {
             obj.put("id", m.id)
             obj.put("senderName", m.senderName)
             obj.put("senderRole", m.senderRole)
+            if (!m.senderEmail.isNullOrBlank()) {
+                obj.put("senderEmail", m.senderEmail)
+            }
             obj.put("text", m.text)
             obj.put("timestampMillis", m.timestampMillis)
             obj.put("isGreeting", m.isGreeting || isDefaultGreeting(m.text))
@@ -213,18 +221,22 @@ object SupportReplyManager {
         val text = prefs.getString(KEY_REPLY_PREFIX + reportId, null) ?: return null
         val date = prefs.getLong(KEY_DATE_PREFIX + reportId, System.currentTimeMillis())
         val author = prefs.getString(KEY_AUTHOR_PREFIX + reportId, "Equipo Coach") ?: "Equipo Coach"
-        return SupportReply(reportId, text, author, date)
+        val authorEmail = prefs.getString(KEY_AUTHOR_EMAIL_PREFIX + reportId, null)
+        return SupportReply(reportId, text, author, authorEmail, date)
     }
 
-    fun saveLocalReply(context: Context, reportId: String, text: String, author: String = "Equipo Coach"): SupportReply {
+    fun saveLocalReply(context: Context, reportId: String, text: String, author: String = "Equipo Coach", authorEmail: String? = null): SupportReply {
         val now = System.currentTimeMillis()
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit()
+        val editor = prefs.edit()
             .putString(KEY_REPLY_PREFIX + reportId, text)
             .putLong(KEY_DATE_PREFIX + reportId, now)
             .putString(KEY_AUTHOR_PREFIX + reportId, author)
-            .apply()
-        return SupportReply(reportId, text, author, now)
+        if (!authorEmail.isNullOrBlank()) {
+            editor.putString(KEY_AUTHOR_EMAIL_PREFIX + reportId, authorEmail)
+        }
+        editor.apply()
+        return SupportReply(reportId, text, author, authorEmail, now)
     }
 
     suspend fun sendSupportReply(
@@ -232,6 +244,7 @@ object SupportReplyManager {
         reportId: String,
         replyText: String,
         author: String = "Equipo Coach",
+        authorEmail: String? = null,
         userEmail: String? = null,
         userId: String? = null,
         reportTitle: String? = null,
@@ -279,6 +292,7 @@ object SupportReplyManager {
             val newEntry = SupportMessageEntry(
                 senderName = author,
                 senderRole = "SUPPORT",
+                senderEmail = authorEmail,
                 text = replyText,
                 timestampMillis = System.currentTimeMillis(),
                 isGreeting = isGreeting
@@ -296,6 +310,7 @@ object SupportReplyManager {
                                 id = item["id"] as? String ?: java.util.UUID.randomUUID().toString(),
                                 senderName = item["senderName"] as? String ?: "Soporte",
                                 senderRole = item["senderRole"] as? String ?: "SUPPORT",
+                                senderEmail = item["senderEmail"] as? String ?: (item["repliedEmail"] as? String),
                                 text = text,
                                 timestampMillis = (item["timestampMillis"] as? Number)?.toLong() ?: System.currentTimeMillis(),
                                 isGreeting = (item["isGreeting"] as? Boolean) ?: false
@@ -325,10 +340,10 @@ object SupportReplyManager {
             baseConversation.add(newEntry)
             val currentConversation = baseConversation.toList()
             saveConversation(context, reportId, currentConversation)
-            saveLocalReply(context, reportId, replyText, author)
+            saveLocalReply(context, reportId, replyText, author, authorEmail)
 
             val conversationListMap = currentConversation.map { m ->
-                mapOf(
+                val map = mutableMapOf<String, Any>(
                     "id" to m.id,
                     "senderName" to m.senderName,
                     "senderRole" to m.senderRole,
@@ -336,6 +351,10 @@ object SupportReplyManager {
                     "timestampMillis" to m.timestampMillis,
                     "isGreeting" to m.isGreeting
                 )
+                if (!m.senderEmail.isNullOrBlank()) {
+                    map["senderEmail"] = m.senderEmail
+                }
+                map
             }
 
             val prevAdminReply = docSnap?.getString("adminReply") ?: ""
@@ -352,6 +371,7 @@ object SupportReplyManager {
                     "lastAdminReply" to replyText,
                     "repliedAt" to Timestamp.now(),
                     "repliedBy" to author,
+                    "repliedEmail" to (authorEmail ?: ""),
                     "conversation" to conversationListMap,
                     "lastMessageAt" to Timestamp.now(),
                     "isRead" to false,
@@ -364,6 +384,7 @@ object SupportReplyManager {
                 )
                 if (markAsRead) {
                     updateData["status"] = "LEIDO"
+                    updateData["isCompleted"] = false
                 }
                 db.collection("support_reports").document(firestoreReportId).set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
                 Log.d(TAG, "Respuesta e historial sincronizados en Firestore para $firestoreReportId")
@@ -371,12 +392,20 @@ object SupportReplyManager {
                 Log.w(TAG, "No se pudo actualizar respuesta en Firestore: ${e.message}")
             }
 
-            // Sincronizar estado local
+            // Sincronizar en la nube en Supabase
             try {
-                if (markAsRead) {
-                    FeedbackRepository.updateFeedbackStatusInCloud(reportId, FeedbackRepository.STATUS_READ)
-                }
+                val effectiveStatus = if (markAsRead) FeedbackRepository.STATUS_READ else FeedbackRepository.STATUS_PENDING
+                FeedbackRepository.updateFeedbackStatusInCloud(reportId, effectiveStatus)
             } catch (_: Exception) {}
+
+            // Actualizar estado en almacenamiento local
+            if (markAsRead) {
+                FeedbackRepository.setFeedbackStatus(
+                    context,
+                    FeedbackReport(id = reportId, title = reportTitle ?: ""),
+                    FeedbackRepository.STATUS_READ
+                )
+            }
 
             // Notificar a la bandeja de entrada del usuario en Firestore (multidispositivo)
             try {
@@ -394,6 +423,7 @@ object SupportReplyManager {
                         "description" to resolvedOriginalDesc,
                         "adminReply" to accumulatedReply,
                         "repliedBy" to author,
+                        "repliedEmail" to (authorEmail ?: ""),
                         "timestamp" to System.currentTimeMillis(),
                         "isRead" to false,
                         "userRead" to false,
@@ -406,6 +436,7 @@ object SupportReplyManager {
                     )
                     if (markAsRead) {
                         messageMap["status"] = "LEIDO"
+                        messageMap["isCompleted"] = false
                     }
                     db.collection("users").document(resolvedUserId).collection("messages").document(firestoreReportId)
                         .set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
@@ -571,19 +602,36 @@ object SupportReplyManager {
             val normalizedCloudStatus = when (newStatus.uppercase()) {
                 "SOLVED", "SOLUCIONADO", "RESUELTO" -> "SOLUCIONADO"
                 "READ", "LEIDO", "LEÍDO" -> "LEIDO"
+                "ACCEPTED", "ACEPTADA", "ACEPTADO" -> "ACEPTADO"
+                "REJECTED", "RECHAZADA", "RECHAZADO" -> "RECHAZADO"
                 else -> "PENDIENTE"
             }
+            val isCompleted = (normalizedCloudStatus == "SOLUCIONADO" || normalizedCloudStatus == "ACEPTADO")
             val db = FirebaseFirestore.getInstance()
             val updateData = hashMapOf<String, Any>(
                 "status" to normalizedCloudStatus,
+                "isCompleted" to isCompleted,
                 "updatedAt" to Timestamp.now()
             )
 
-            // 1. Actualizar ticket principal en Firestore por ID directo de forma única
-            val resolvedDocId = reportId
+            // 1. Actualizar ticket principal en Firestore por ID directo
+            var matchedDocId = reportId
             try {
-                db.collection("support_reports").document(reportId)
-                    .set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+                val docRef = db.collection("support_reports").document(reportId)
+                val check = docRef.get().await()
+                if (check.exists()) {
+                    docRef.set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+                } else if (!reportTitle.isNullOrBlank()) {
+                    val query = db.collection("support_reports")
+                        .whereEqualTo("title", reportTitle.trim())
+                        .limit(5).get().await()
+                    for (d in query.documents) {
+                        matchedDocId = d.id
+                        d.reference.set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+                    }
+                } else {
+                    docRef.set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
+                }
             } catch (e: Exception) {
                 Log.w(TAG, "Error al actualizar support_reports por document($reportId): ${e.message}")
             }
@@ -592,7 +640,7 @@ object SupportReplyManager {
             var targetUserId = userId?.takeIf { it.isNotBlank() && it != "anonimo" }
             if (targetUserId.isNullOrBlank()) {
                 try {
-                    val snap = db.collection("support_reports").document(resolvedDocId).get().await()
+                    val snap = db.collection("support_reports").document(matchedDocId).get().await()
                     targetUserId = snap.getString("userId")?.takeIf { it.isNotBlank() && it != "anonimo" }
                     if (targetUserId.isNullOrBlank() && !userEmail.isNullOrBlank()) {
                         val uSnap = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
@@ -608,11 +656,12 @@ object SupportReplyManager {
                 try {
                     val userMsgUpdate = hashMapOf<String, Any>(
                         "status" to normalizedCloudStatus,
+                        "isCompleted" to isCompleted,
                         "updatedAt" to Timestamp.now()
                     )
-                    db.collection("users").document(targetUserId).collection("messages").document(resolvedDocId)
+                    db.collection("users").document(targetUserId).collection("messages").document(matchedDocId)
                         .set(userMsgUpdate, com.google.firebase.firestore.SetOptions.merge()).await()
-                    if (resolvedDocId != reportId) {
+                    if (matchedDocId != reportId) {
                         db.collection("users").document(targetUserId).collection("messages").document(reportId)
                             .set(userMsgUpdate, com.google.firebase.firestore.SetOptions.merge()).await()
                     }
@@ -623,6 +672,8 @@ object SupportReplyManager {
             val localStatus = when (normalizedCloudStatus) {
                 "SOLUCIONADO" -> FeedbackRepository.STATUS_SOLVED
                 "LEIDO" -> FeedbackRepository.STATUS_READ
+                "ACEPTADO" -> FeedbackRepository.STATUS_ACCEPTED
+                "RECHAZADO" -> FeedbackRepository.STATUS_REJECTED
                 else -> FeedbackRepository.STATUS_PENDING
             }
             val supaTargetId = supabaseId?.takeIf { it.isNotBlank() } ?: reportId

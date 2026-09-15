@@ -9,6 +9,7 @@ import com.example.data.remote.model.FeedbackReport
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order
+import com.example.data.SupportReplyManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -155,6 +156,17 @@ object FeedbackRepository {
         val completedIds = getCompletedFeedbackIds(context)
         if (isReportCompleted(report, completedIds)) {
             return if (report.type.equals("SUGGESTION", ignoreCase = true)) STATUS_ACCEPTED else STATUS_SOLVED
+        }
+
+        // 4. Si el mensaje ya ha sido respondido por un moderador/soporte, no debe salir en espera/pendiente
+        if (!report.adminReply.isNullOrBlank()) {
+            return STATUS_READ
+        }
+        if (!id.isNullOrBlank()) {
+            val localReply = SupportReplyManager.getLocalReply(context, id)
+            if (localReply != null && localReply.text.isNotBlank()) {
+                return STATUS_READ
+            }
         }
 
         return STATUS_PENDING
@@ -571,6 +583,8 @@ object FeedbackRepository {
                     val dev = doc.getString("device") ?: ""
                     val status = doc.getString("status") ?: "PENDIENTE"
                     val adminReply = doc.getString("adminReply")
+                    val repliedBy = doc.getString("repliedBy")
+                    val repliedEmail = doc.getString("repliedEmail")
                     val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
                     val isoDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
                         timeZone = TimeZone.getTimeZone("UTC")
@@ -585,7 +599,9 @@ object FeedbackRepository {
                         deviceInfo = dev,
                         createdAt = isoDate,
                         status = status,
-                        adminReply = adminReply
+                        adminReply = adminReply,
+                        repliedBy = repliedBy,
+                        repliedEmail = repliedEmail
                     )
                     seenIds.add(docId)
                     if (title.isNotBlank()) seenTitles.add(title.trim())

@@ -41,17 +41,21 @@ import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -103,6 +107,10 @@ fun SupportReportDialog(
     val auth = AuthManager.getAuth()
     val currentUser = auth?.currentUser
 
+    val userRole by com.example.util.SubscriptionManager.userRole.collectAsState()
+    val isSponsorUser = userRole.equals("patrocinador", ignoreCase = true) || userRole.equals("admin", ignoreCase = true) || AuthManager.isCurrentUserAdmin()
+
+    var selectedTag by remember(isSponsorUser) { mutableStateOf(if (isSponsorUser) "PATROCINADOR" else "SOPORTE") }
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var titleError by remember { mutableStateOf(false) }
@@ -247,6 +255,59 @@ fun SupportReportDialog(
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
+
+                    // Selector de Etiqueta (Visible exclusivamente para rol Patrocinador / Admin)
+                    if (isSponsorUser) {
+                        Text(
+                            text = "Etiqueta del reporte",
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            FilterChip(
+                                selected = selectedTag == "PATROCINADOR",
+                                onClick = { selectedTag = "PATROCINADOR" },
+                                label = {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            contentDescription = null,
+                                            tint = if (selectedTag == "PATROCINADOR") HextechDarkBg else HextechGold,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Text("Patrocinador", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = HextechGold,
+                                    selectedLabelColor = HextechDarkBg,
+                                    containerColor = HextechSurface,
+                                    labelColor = HextechGold
+                                ),
+                                border = BorderStroke(1.dp, if (selectedTag == "PATROCINADOR") HextechGold else HextechCardBorder)
+                            )
+                            FilterChip(
+                                selected = selectedTag == "SOPORTE",
+                                onClick = { selectedTag = "SOPORTE" },
+                                label = {
+                                    Text("Soporte General", fontSize = 11.sp, fontWeight = if (selectedTag == "SOPORTE") FontWeight.Bold else FontWeight.Normal)
+                                },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = HextechCyan,
+                                    selectedLabelColor = HextechDarkBg,
+                                    containerColor = HextechSurface,
+                                    labelColor = HextechCyan
+                                ),
+                                border = BorderStroke(1.dp, if (selectedTag == "SOPORTE") HextechCyan else HextechCardBorder)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                    }
 
                     // Campo: Título (Obligatorio)
                     Text(
@@ -507,10 +568,13 @@ fun SupportReportDialog(
                                     val initialConversation = listOf(initialMessageMap)
 
                                     val reportId = java.util.UUID.randomUUID().toString()
+                                    val finalTag = if (selectedTag == "PATROCINADOR") "PATROCINADOR" else "SOPORTE"
                                     val reportMap = hashMapOf<String, Any>(
                                         "id" to reportId,
                                         "title" to cleanTitle,
                                         "description" to cleanDesc,
+                                        "tag" to finalTag,
+                                        "type" to finalTag,
                                         "userId" to userId,
                                         "userEmail" to userEmail,
                                         "userName" to userName,
@@ -552,7 +616,7 @@ fun SupportReportDialog(
                                             "timestamp" to System.currentTimeMillis(),
                                             "createdAt" to Timestamp.now(),
                                             "isRead" to true,
-                                            "tag" to "SUPPORT",
+                                            "tag" to finalTag,
                                             "sender" to userName,
                                             "reportId" to reportId,
                                             "status" to "PENDIENTE",
@@ -566,7 +630,7 @@ fun SupportReportDialog(
                                     // 2. Respaldo adicional en FeedbackRepository si está configurado
                                     try {
                                         FeedbackRepository.submitFeedback(
-                                            type = "SOPORTE",
+                                            type = finalTag,
                                             title = cleanTitle,
                                             description = cleanDesc,
                                             email = userEmail,

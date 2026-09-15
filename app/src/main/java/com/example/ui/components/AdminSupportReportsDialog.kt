@@ -137,7 +137,8 @@ data class UnifiedSupportReport(
     val supabaseId: String? = null,
     val adminReply: String = "",
     val repliedAtMillis: Long = 0L,
-    val repliedBy: String = ""
+    val repliedBy: String = "",
+    val repliedEmail: String = ""
 )
 
 @Composable
@@ -208,12 +209,15 @@ fun AdminSupportReportsDialog(
                         val localReply = SupportReplyManager.getLocalReply(context, id)
                         val finalReply = if (!fb.adminReply.isNullOrBlank()) fb.adminReply else (localReply?.text ?: "")
                         val repliedAt = if (!fb.repliedAt.isNullOrBlank()) parseIsoDateToMillis(fb.repliedAt) else (localReply?.timestampMillis ?: 0L)
-                        val repliedBy = localReply?.author ?: "Equipo Coach"
+                        val repliedBy = if (!fb.repliedBy.isNullOrBlank()) fb.repliedBy else (localReply?.author ?: "Equipo Coach")
+                        val repliedEmail = if (!fb.repliedEmail.isNullOrBlank()) fb.repliedEmail else (localReply?.authorEmail ?: "")
 
+                        val rawFbTag = fb.type.trim().uppercase(Locale.US)
+                        val fbType = if (rawFbTag in listOf("PATROCINADOR", "PATROCINIO", "SPONSOR")) "PATROCINADOR" else fb.type
                         combined.add(
                             UnifiedSupportReport(
                                 id = id,
-                                type = fb.type,
+                                type = fbType,
                                 title = fb.title.ifBlank { "Reporte sin título" },
                                 description = cleanDesc,
                                 userId = "",
@@ -230,7 +234,8 @@ fun AdminSupportReportsDialog(
                                 supabaseId = fb.id,
                                 adminReply = finalReply,
                                 repliedAtMillis = repliedAt,
-                                repliedBy = repliedBy
+                                repliedBy = repliedBy,
+                                repliedEmail = repliedEmail
                             )
                         )
                     }
@@ -255,10 +260,12 @@ fun AdminSupportReportsDialog(
                                 val docReply = doc.getString("adminReply") ?: ""
                                 val docRepliedAt = doc.getTimestamp("repliedAt")?.toDate()?.time ?: 0L
                                 val docRepliedBy = doc.getString("repliedBy") ?: ""
+                                val docRepliedEmail = doc.getString("repliedEmail") ?: ""
                                 val localReply = SupportReplyManager.getLocalReply(context, docId)
                                 val finalReply = if (docReply.isNotBlank()) docReply else (localReply?.text ?: "")
                                 val finalRepliedAt = if (docRepliedAt > 0L) docRepliedAt else (localReply?.timestampMillis ?: 0L)
                                 val finalRepliedBy = if (docRepliedBy.isNotBlank()) docRepliedBy else (localReply?.author ?: "Equipo Coach")
+                                val finalRepliedEmail = if (docRepliedEmail.isNotBlank()) docRepliedEmail else (localReply?.authorEmail ?: "")
 
                                 val rawStatus = doc.getString("status") ?: "PENDIENTE"
                                 val normalizedStatus = when (rawStatus.uppercase()) {
@@ -275,7 +282,8 @@ fun AdminSupportReportsDialog(
                                         status = if (normalizedStatus != FeedbackRepository.STATUS_PENDING) normalizedStatus else existing.status,
                                         adminReply = if (finalReply.isNotBlank()) finalReply else existing.adminReply,
                                         repliedAtMillis = if (finalRepliedAt > 0L) finalRepliedAt else existing.repliedAtMillis,
-                                        repliedBy = if (finalRepliedBy.isNotBlank()) finalRepliedBy else existing.repliedBy
+                                        repliedBy = if (finalRepliedBy.isNotBlank()) finalRepliedBy else existing.repliedBy,
+                                        repliedEmail = if (finalRepliedEmail.isNotBlank()) finalRepliedEmail else existing.repliedEmail
                                     )
                                 } else {
                                     val desc = doc.getString("description") ?: ""
@@ -288,11 +296,13 @@ fun AdminSupportReportsDialog(
                                     val dev = doc.getString("device") ?: ""
                                     val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
 
+                                    val docTag = doc.getString("tag") ?: doc.getString("type") ?: "SOPORTE"
+                                    val finalDocType = if (docTag.equals("PATROCINADOR", ignoreCase = true)) "PATROCINADOR" else "SOPORTE"
                                     combined.add(
                                         UnifiedSupportReport(
                                             id = docId,
                                             firestoreDocId = docId,
-                                            type = "SOPORTE",
+                                            type = finalDocType,
                                             title = docTitle.ifBlank { "Ticket de soporte" },
                                             description = desc,
                                             userId = userId,
@@ -308,7 +318,8 @@ fun AdminSupportReportsDialog(
                                             supabaseId = null,
                                             adminReply = finalReply,
                                             repliedAtMillis = finalRepliedAt,
-                                            repliedBy = finalRepliedBy
+                                            repliedBy = finalRepliedBy,
+                                            repliedEmail = finalRepliedEmail
                                         )
                                     )
                                 }
@@ -383,6 +394,7 @@ fun AdminSupportReportsDialog(
                         val docReply = doc.getString("adminReply") ?: ""
                         val docRepliedAt = doc.getTimestamp("repliedAt")?.toDate()?.time ?: 0L
                         val docRepliedBy = doc.getString("repliedBy") ?: ""
+                        val docRepliedEmail = doc.getString("repliedEmail") ?: ""
 
                         val existingIdx = reportsList.indexOfFirst { it.id == docId || it.firestoreDocId == docId || (docTitle.isNotBlank() && it.title == docTitle) }
                         if (existingIdx != -1) {
@@ -390,13 +402,15 @@ fun AdminSupportReportsDialog(
                             val finalReply = if (docReply.isNotBlank()) docReply else cur.adminReply
                             val finalRepliedAt = if (docRepliedAt > 0L) docRepliedAt else cur.repliedAtMillis
                             val finalRepliedBy = if (docRepliedBy.isNotBlank()) docRepliedBy else cur.repliedBy
+                            val finalRepliedEmail = if (docRepliedEmail.isNotBlank()) docRepliedEmail else cur.repliedEmail
 
-                            if (cur.status != normalizedStatus || cur.adminReply != finalReply || cur.firestoreDocId == null) {
+                            if (cur.status != normalizedStatus || cur.adminReply != finalReply || cur.firestoreDocId == null || cur.repliedBy != finalRepliedBy || cur.repliedEmail != finalRepliedEmail) {
                                 reportsList[existingIdx] = cur.copy(
                                     status = normalizedStatus,
                                     adminReply = finalReply,
                                     repliedAtMillis = finalRepliedAt,
                                     repliedBy = finalRepliedBy,
+                                    repliedEmail = finalRepliedEmail,
                                     firestoreDocId = docId
                                 )
                             }
@@ -411,12 +425,14 @@ fun AdminSupportReportsDialog(
                             val appVer = doc.getString("appVersion") ?: ""
                             val dev = doc.getString("device") ?: ""
                             val ts = doc.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis()
+                            val docTag = doc.getString("tag") ?: doc.getString("type") ?: "SOPORTE"
+                            val finalDocType = if (docTag.equals("PATROCINADOR", ignoreCase = true)) "PATROCINADOR" else "SOPORTE"
                             reportsList.add(
                                 0,
                                 UnifiedSupportReport(
                                     id = docId,
                                     firestoreDocId = docId,
-                                    type = "SOPORTE",
+                                    type = finalDocType,
                                     title = docTitle.ifBlank { "Ticket de soporte" },
                                     description = desc,
                                     userId = userId,
@@ -432,7 +448,8 @@ fun AdminSupportReportsDialog(
                                     supabaseId = null,
                                     adminReply = docReply,
                                     repliedAtMillis = docRepliedAt,
-                                    repliedBy = docRepliedBy
+                                    repliedBy = docRepliedBy,
+                                    repliedEmail = docRepliedEmail
                                 )
                             )
                         }
@@ -444,9 +461,15 @@ fun AdminSupportReportsDialog(
         }
     }
 
+    // Reportes visibles según rol de administrador
+    val visibleReports = remember(reportsList.toList(), isAdmin) {
+        if (isAdmin) reportsList.toList()
+        else reportsList.filter { !it.type.equals("PATROCINADOR", ignoreCase = true) }
+    }
+
     // Filtrar reportes
-    val filteredReports = remember(reportsList.toList(), searchQuery, selectedFilter) {
-        reportsList.filter { item ->
+    val filteredReports = remember(visibleReports, searchQuery, selectedFilter) {
+        visibleReports.filter { item ->
             val matchesFilter = when (selectedFilter) {
                 "PENDING" -> item.status == FeedbackRepository.STATUS_PENDING || item.status.equals("PENDIENTE", ignoreCase = true)
                 "READ" -> item.status == FeedbackRepository.STATUS_READ || item.status.equals("LEIDO", ignoreCase = true) || item.status.equals("LEÍDO", ignoreCase = true)
@@ -464,14 +487,14 @@ fun AdminSupportReportsDialog(
         }
     }
 
-    val pendingCount = remember(reportsList.toList()) {
-        reportsList.count { it.status == FeedbackRepository.STATUS_PENDING || it.status.equals("PENDIENTE", ignoreCase = true) }
+    val pendingCount = remember(visibleReports) {
+        visibleReports.count { it.status == FeedbackRepository.STATUS_PENDING || it.status.equals("PENDIENTE", ignoreCase = true) }
     }
-    val readCount = remember(reportsList.toList()) {
-        reportsList.count { it.status == FeedbackRepository.STATUS_READ || it.status.equals("LEIDO", ignoreCase = true) || it.status.equals("LEÍDO", ignoreCase = true) }
+    val readCount = remember(visibleReports) {
+        visibleReports.count { it.status == FeedbackRepository.STATUS_READ || it.status.equals("LEIDO", ignoreCase = true) || it.status.equals("LEÍDO", ignoreCase = true) }
     }
-    val solvedCount = remember(reportsList.toList()) {
-        reportsList.count { it.status == FeedbackRepository.STATUS_SOLVED || it.status.equals("SOLUCIONADO", ignoreCase = true) || it.status.equals("RESUELTO", ignoreCase = true) || it.status.equals("ACCEPTED", ignoreCase = true) }
+    val solvedCount = remember(visibleReports) {
+        visibleReports.count { it.status == FeedbackRepository.STATUS_SOLVED || it.status.equals("SOLUCIONADO", ignoreCase = true) || it.status.equals("RESUELTO", ignoreCase = true) || it.status.equals("ACCEPTED", ignoreCase = true) }
     }
 
     // Animación de pulso para nuevos mensajes de soporte
@@ -1130,22 +1153,28 @@ private fun UnifiedReportAdminCard(
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     // Badge de Tipo
-                    val typeLabel = when (report.type.uppercase()) {
-                        "SOPORTE" -> "🎧 SOPORTE"
-                        "BUG" -> "🐛 BUG"
-                        "SUGGESTION" -> "💡 SUGERENCIA"
+                    val isSponsor = report.type.equals("PATROCINADOR", ignoreCase = true)
+                    val typeLabel = when {
+                        isSponsor -> "⭐ PATROCINADOR"
+                        report.type.equals("SOPORTE", ignoreCase = true) -> "🎧 SOPORTE"
+                        report.type.equals("BUG", ignoreCase = true) -> "🐛 BUG"
+                        report.type.equals("SUGGESTION", ignoreCase = true) -> "💡 SUGERENCIA"
                         else -> "📝 ${report.type}"
                     }
+                    val typeBadgeColor = if (isSponsor) HextechGold else HextechCyan
+                    val typeBadgeBorder = if (isSponsor) HextechGold.copy(alpha = 0.8f) else HextechCyan.copy(alpha = 0.4f)
+                    val typeBadgeBg = if (isSponsor) HextechGold.copy(alpha = 0.15f) else HextechDarkBg
+
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(HextechDarkBg)
-                            .border(0.5.dp, HextechCyan.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                            .background(typeBadgeBg)
+                            .border(0.8.dp, typeBadgeBorder, RoundedCornerShape(6.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = typeLabel,
-                            color = HextechCyan,
+                            color = typeBadgeColor,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -1520,6 +1549,34 @@ private fun UnifiedReportAdminCard(
                             fontSize = 11.5.sp,
                             lineHeight = 15.5.sp
                         )
+
+                        // Información del moderador que respondió
+                        val authorName = report.repliedBy.takeIf { it.isNotBlank() } ?: "Equipo Coach"
+                        val authorMail = report.repliedEmail.takeIf { it.isNotBlank() }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(HextechSurfaceVariant.copy(alpha = 0.6f))
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Text(
+                                text = "Respondido por: $authorName${if (authorMail != null) " • $authorMail" else ""}",
+                                color = HextechGold,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(6.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),

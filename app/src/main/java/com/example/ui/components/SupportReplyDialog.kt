@@ -112,7 +112,8 @@ fun SupportReplyDialog(
                                 senderRole = item["senderRole"] as? String ?: "SUPPORT",
                                 text = text,
                                 timestampMillis = (item["timestampMillis"] as? Number)?.toLong() ?: System.currentTimeMillis(),
-                                isGreeting = (item["isGreeting"] as? Boolean) ?: false
+                                isGreeting = (item["isGreeting"] as? Boolean) ?: false,
+                                senderEmail = (item["senderEmail"] as? String) ?: (item["authorEmail"] as? String)
                             )
                         }
                     } else emptyList()
@@ -378,7 +379,10 @@ fun SupportReplyDialog(
                                 val isFromSupport = msg.senderRole == "SUPPORT"
                                 val bubbleBorderColor = if (isFromSupport) HextechCyan.copy(alpha = 0.6f) else HextechGold.copy(alpha = 0.6f)
                                 val bubbleBg = if (isFromSupport) HextechDarkBg else HextechSurface
-                                val roleLabel = if (isFromSupport) "🛡️ Soporte Coach (${msg.senderName})" else "👤 $displayUserName"
+                                val roleLabel = if (isFromSupport) {
+                                    val emailPart = if (!msg.senderEmail.isNullOrBlank()) " • ${msg.senderEmail}" else ""
+                                    "🛡️ Soporte Coach (${msg.senderName}$emailPart)"
+                                } else "👤 $displayUserName"
                                 val roleColor = if (isFromSupport) HextechCyan else HextechGold
 
                                 Surface(
@@ -631,6 +635,7 @@ fun SupportReplyDialog(
                                         reportId = reportId,
                                         replyText = cleanText,
                                         author = responderName,
+                                        authorEmail = authUser?.email ?: "",
                                         userEmail = userEmail,
                                         userId = userId,
                                         reportTitle = reportTitle,

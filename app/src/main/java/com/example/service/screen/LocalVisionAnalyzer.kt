@@ -1093,9 +1093,9 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
         val targetXRatio = if (isAlly) {
-            calib.topAllyXRatios.getOrElse(idx) { 0.200f + idx * 0.050f }
+            if (idx == 4) calib.topAlly5XRatio else calib.topAllyXRatios.getOrElse(idx) { 0.180f + idx * 0.050f }
         } else {
-            calib.topEnemyXRatios.getOrElse(idx) { 0.600f + idx * 0.050f }
+            if (idx == 4) calib.topEnemy5XRatio else calib.topEnemyXRatios.getOrElse(idx) { 0.640f + idx * 0.060f }
         }
         val topCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"
@@ -1151,9 +1151,9 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
         val targetXRatio = if (isAlly) {
-            calib.topAllyXRatios.getOrElse(idx) { 0.028f + idx * 0.035f }
+            if (idx == 4) calib.topAlly5XRatio else calib.topAllyXRatios.getOrElse(idx) { 0.180f + idx * 0.050f }
         } else {
-            calib.topEnemyXRatios.getOrElse(idx) { 0.816f + idx * 0.035f }
+            if (idx == 4) calib.topEnemy5XRatio else calib.topEnemyXRatios.getOrElse(idx) { 0.640f + idx * 0.060f }
         }
         val topCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"

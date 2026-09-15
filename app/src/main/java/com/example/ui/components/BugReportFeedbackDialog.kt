@@ -102,7 +102,8 @@ enum class FeedbackType(
 ) {
     BUG("Reportar Bug", Icons.Default.BugReport, "Bug / Error"),
     SUGGESTION("Sugerencia", Icons.Default.Lightbulb, "Idea / Sugerencia"),
-    BUILD_SUGGESTION("Sugerir Build", Icons.Default.SportsEsports, "Sugerir Build")
+    BUILD_SUGGESTION("Sugerir Build", Icons.Default.SportsEsports, "Sugerir Build"),
+    PATROCINADOR("Patrocinador", Icons.Default.Star, "Patrocinador")
 }
 
 @Composable
@@ -376,6 +377,12 @@ fun BugReportFeedbackDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                val availableFeedbackTypes = remember(userRole, isAdmin) {
+                    val isSponsor = userRole.equals("patrocinador", ignoreCase = true) || isAdmin
+                    if (isSponsor) FeedbackType.entries
+                    else FeedbackType.entries.filter { it != FeedbackType.PATROCINADOR }
+                }
+
                 // Selector de Tipo de Reporte
                 Row(
                     modifier = Modifier
@@ -385,7 +392,7 @@ fun BugReportFeedbackDialog(
                         .padding(4.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    FeedbackType.entries.forEach { type ->
+                    availableFeedbackTypes.forEach { type ->
                         val isSelected = selectedType == type
                         Box(
                             modifier = Modifier
@@ -1492,6 +1499,7 @@ fun BugReportFeedbackDialog(
                                 FeedbackType.BUG -> tr("Ej: El overlay no detecta la pantalla de selección")
                                 FeedbackType.SUGGESTION -> tr("Ej: Agregar temporizador de dragones con audio")
                                 FeedbackType.BUILD_SUGGESTION -> tr("Ej: Build de Burst Letal para Midlane")
+                                FeedbackType.PATROCINADOR -> tr("Ej: Consulta sobre campañas publicitarias / Patrocinio")
                             },
                             fontSize = 11.5.sp,
                             color = TextMuted
@@ -1522,6 +1530,7 @@ fun BugReportFeedbackDialog(
                                 FeedbackType.BUG -> tr("Describe qué sucedió o cómo reproducir el error...")
                                 FeedbackType.SUGGESTION -> tr("Describe tu idea o mejora para la aplicación...")
                                 FeedbackType.BUILD_SUGGESTION -> tr("Explica contra qué composición usar esta build, power spikes y matchups clave (* Requerido)...")
+                                FeedbackType.PATROCINADOR -> tr("Describe los detalles de tu consulta o propuesta de patrocinador (* Requerido)...")
                             },
                             fontSize = 11.5.sp,
                             color = TextMuted
@@ -1686,6 +1695,7 @@ fun BugReportFeedbackDialog(
                 FeedbackType.BUG -> tr("Enviar reporte")
                 FeedbackType.SUGGESTION -> tr("Enviar sugerencia")
                 FeedbackType.BUILD_SUGGESTION -> tr("Enviar sugerencia de build")
+                FeedbackType.PATROCINADOR -> tr("Enviar mensaje de patrocinador")
             }
 
             Button(
