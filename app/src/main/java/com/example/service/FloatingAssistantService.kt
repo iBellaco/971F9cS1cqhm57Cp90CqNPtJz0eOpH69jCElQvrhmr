@@ -4282,38 +4282,55 @@ private fun TenthPickScannerViewerDialog(
                         }
 
                         // Similitud / Coincidencia Central
+                        val topCand = currentLog?.topCandidates?.firstOrNull()
+                        val isConfirmed = currentLog?.selectedChampion != null
+                        val rawScore = if (isConfirmed) {
+                            (currentLog?.confidence ?: 0f)
+                        } else {
+                            (topCand?.compositeScore ?: (currentLog?.confidence ?: 0f))
+                        }
+                        val score = (rawScore * 100).toInt()
+
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            val score = ((currentLog?.confidence ?: 0f) * 100).toInt()
                             Text(
                                 text = "$score%",
-                                color = if (score >= 48) HextechGold else TextMuted,
+                                color = if (isConfirmed || score >= 48) HextechGold else TextMuted,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 16.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = if (score >= 70) "CONFIRMADO" else if (score >= 48) "COINCIDENCIA" else "BUSCANDO",
-                                color = if (score >= 70) Color(0xFF00FF7F) else if (score >= 48) HextechCyan else TextMuted,
+                                text = if (isConfirmed || score >= 70) "CONFIRMADO" else if (score >= 42) "COINCIDENCIA" else "BUSCANDO",
+                                color = if (isConfirmed || score >= 70) Color(0xFF00FF7F) else if (score >= 42) HextechCyan else TextMuted,
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Black
                             )
                         }
 
                         // Avatar Campeón Referencia (84.dp)
-                        val matchedChamp = currentLog?.selectedChampion
+                        val matchedChamp = currentLog?.selectedChampion ?: topCand?.champion
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = matchedChamp?.name ?: "Sin asignar",
-                                color = if (matchedChamp != null) HextechGold else TextMuted,
+                                text = if (matchedChamp != null) {
+                                    "${matchedChamp.name} ${if (isConfirmed) "(100%)" else "(Candidato)"}"
+                                } else "Sin asignar",
+                                color = if (isConfirmed) HextechGold else if (matchedChamp != null) HextechCyan else TextMuted,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 8.5.sp
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             if (matchedChamp != null) {
-                                ChampionAvatar(
-                                    champion = matchedChamp,
-                                    size = 84.dp
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(84.dp)
+                                        .clip(CircleShape)
+                                        .border(2.dp, if (isConfirmed) HextechGold else HextechCyan, CircleShape)
+                                ) {
+                                    ChampionAvatar(
+                                        champion = matchedChamp,
+                                        size = 84.dp
+                                    )
+                                }
                             } else {
                                 Box(
                                     modifier = Modifier
@@ -4342,8 +4359,8 @@ private fun TenthPickScannerViewerDialog(
                         fontSize = 9.sp
                     )
                     Spacer(modifier = Modifier.height(3.dp))
-                    safeLog.topCandidates.take(3).forEachIndexed { idx, c ->
-                        val isChosen = idx == 0 && safeLog.selectedChampion != null
+                    safeLog.topCandidates.take(5).forEachIndexed { idx, c ->
+                        val isChosen = (idx == 0 && safeLog.selectedChampion != null) || (safeLog.selectedChampion?.id == c.champion.id)
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()

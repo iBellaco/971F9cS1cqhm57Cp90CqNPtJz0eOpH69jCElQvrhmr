@@ -664,15 +664,15 @@ object LocalVisionAnalyzer {
         val runnerUp = candidateComparisons.getOrNull(1)
         val topCandidates = candidateComparisons.take(5)
 
-        // Umbral adaptativo calibrado: 0.52f para barra superior / confirmación definitiva, 0.50f para preselección en cuadrícula
-        val minThreshold = if (isConfirmedPhase) 0.52f else 0.50f
+        // Umbral adaptativo calibrado: 0.50f para barra superior / confirmación definitiva, 0.46f para preselección en cuadrícula
+        val minThreshold = if (isConfirmedPhase) 0.50f else 0.46f
         val isConfidenceSufficient = if (best == null) false else {
             if (best.compositeScore >= minThreshold) {
                 true
-            } else if (isConfirmedPhase && best.compositeScore >= 0.46f) {
-                // En barra superior, si hay clara ventaja sobre el segundo candidato
+            } else if (best.compositeScore >= 0.42f) {
+                // Si hay clara ventaja sobre el segundo candidato (>= 0.03f)
                 val diff = if (runnerUp != null) (best.compositeScore - runnerUp.compositeScore) else 0.1f
-                diff >= 0.035f
+                diff >= 0.030f
             } else {
                 false
             }
