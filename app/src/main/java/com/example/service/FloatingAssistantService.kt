@@ -3558,12 +3558,19 @@ private fun TenthPickScannerViewerDialog(
     var selectedVision by remember { mutableStateOf(1) }
     var isLiveStreaming by remember { mutableStateOf(true) }
     var isFastStep by remember { mutableStateOf(false) }
-    var topStripBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var currentCrop by remember { mutableStateOf<Bitmap?>(null) }
     var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(null) }
     var isEvaluating by remember { mutableStateOf(false) }
 
     val step = if (isFastStep) 0.010f else 0.002f
+
+    // Proyectar círculos de calibración directamente sobre la pantalla mientras el visor está abierto
+    DisposableEffect(Unit) {
+        com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = true
+        onDispose {
+            com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = false
+        }
+    }
 
     val performSingleEvaluation: suspend () -> Unit = {
         withContext(Dispatchers.Default) {
@@ -3573,8 +3580,6 @@ private fun TenthPickScannerViewerDialog(
                     if (bmp != null && !bmp.isRecycled) {
                         try {
                             val allChamps = com.example.data.WildRiftRepository.champions
-                            // Franja superior con buena altura para inspección detallada (18% del alto)
-                            val strip = com.example.service.screen.LocalVisionAnalyzer.extractTopBarStrip(bmp, heightRatio = 0.18f)
                             val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
                                 bitmap = bmp,
                                 isAlly = (selectedVision == 0),
@@ -3589,9 +3594,6 @@ private fun TenthPickScannerViewerDialog(
                                 } else null
                             }
                             withContext(Dispatchers.Main) {
-                                if (strip != null && !strip.isRecycled) {
-                                    topStripBitmap = strip
-                                }
                                 if (crop != null && !crop.isRecycled) {
                                     currentCrop = crop
                                 }
@@ -3627,7 +3629,7 @@ private fun TenthPickScannerViewerDialog(
         val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
         val updated = if (selectedVision == 0) {
             val currentX = calib.topAlly5XRatio
-            val newX = (currentX + dx).coerceIn(0.05f, 0.49f)
+            val newX = (currentX + dx).coerceIn(0.01f, 0.40f)
             val updatedAllies = calib.topAllyXRatios.toMutableList()
             if (4 in updatedAllies.indices) updatedAllies[4] = newX
             calib.copy(
@@ -3638,7 +3640,7 @@ private fun TenthPickScannerViewerDialog(
             )
         } else {
             val currentX = calib.topEnemy5XRatio
-            val newX = (currentX + dx).coerceIn(0.51f, 0.98f)
+            val newX = (currentX + dx).coerceIn(0.60f, 0.99f)
             val updatedEnemies = calib.topEnemyXRatios.toMutableList()
             if (4 in updatedEnemies.indices) updatedEnemies[4] = newX
             calib.copy(
@@ -3650,7 +3652,7 @@ private fun TenthPickScannerViewerDialog(
         }
         calib = updated
         updated.saveToPrefs(context)
-        com.example.service.screen.DraftVisionScanner.calibrationConfig = updated
+        com.example.service.screen.DraftVisionScanner.updateCalibration(context, updated)
         coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
     }
 
@@ -3674,7 +3676,7 @@ private fun TenthPickScannerViewerDialog(
     // Función para guardar coordenadas
     val saveCoordinates = {
         calib.saveToPrefs(context)
-        com.example.service.screen.DraftVisionScanner.calibrationConfig = calib
+        com.example.service.screen.DraftVisionScanner.updateCalibration(context, calib)
         android.widget.Toast.makeText(context, "Coordenadas guardadas correctamente", android.widget.Toast.LENGTH_SHORT).show()
     }
 
@@ -3743,7 +3745,7 @@ private fun TenthPickScannerViewerDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "VISOR 10º PICK & COMPROBACIÓN",
+                        text = "VISOR 10º PICK (EN PANTALLA)",
                         color = HextechGold,
                         fontWeight = FontWeight.Black,
                         fontSize = 11.sp
@@ -3787,7 +3789,6 @@ private fun TenthPickScannerViewerDialog(
                             com.example.service.screen.LocalVisionAnalyzer.resetTenthPickData()
                             currentCrop = null
                             currentLog = null
-                            topStripBitmap = null
                             coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
                             android.widget.Toast.makeText(context, "Capturas anteriores limpiadas", android.widget.Toast.LENGTH_SHORT).show()
                         },
@@ -3843,7 +3844,7 @@ private fun TenthPickScannerViewerDialog(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Comprobación Superior: Se calcula en la parte superior únicamente cuando desaparecen los slots laterales.",
+                            text = "Los círculos de escaneo se proyectan directamente sobre los 10 campeones de tu pantalla.",
                             color = HextechCyan,
                             fontSize = 8.5.sp,
                             fontWeight = FontWeight.Medium
@@ -3921,113 +3922,48 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // FRANJA SUPERIOR EN VIVO DE GRAN TAMAÑO (110.dp)
-                Row(
+                // BANNER DE COORDENADAS ACTIVAS DIRECTAS EN PANTALLA
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    shape = RoundedCornerShape(8.dp),
+                    color = HextechSurface,
+                    border = BorderStroke(1.2.dp, if (selectedVision == 0) AllyBlue else DangerRed)
                 ) {
-                    Text(
-                        text = "FRANJA SUPERIOR EN VIVO (RETÍCULA):",
-                        color = HextechGold,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 9.sp
-                    )
-                    val currentXRatio = if (selectedVision == 0) calib.topAlly5XRatio else calib.topEnemy5XRatio
-                    Text(
-                        text = "X: ${"%.1f".format(java.util.Locale.US, currentXRatio * 100)}% | Y: ${"%.1f".format(java.util.Locale.US, calib.topAvatarYRatio * 100)}% | ⌀: ${"%.1f".format(java.util.Locale.US, calib.topAvatarDiameterRatio * 100)}%",
-                        color = HextechCyan,
-                        fontSize = 8.5.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.height(3.dp))
-
-                val currentStrip = topStripBitmap
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(110.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Black)
-                        .border(1.5.dp, HextechGold.copy(alpha = 0.8f), RoundedCornerShape(8.dp))
-                ) {
-                    if (currentStrip != null && !currentStrip.isRecycled) {
-                        Image(
-                            bitmap = currentStrip.asImageBitmap(),
-                            contentDescription = "Franja Superior en Vivo",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillBounds
-                        )
-                    } else {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(10.dp)
+                                        .clip(CircleShape)
+                                        .background(if (selectedVision == 0) Color(0xFF00E5FF) else Color(0xFFFF5252))
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (selectedVision == 0) "MIRA 10º ALIADO (PANTALLA)" else "MIRA 10º RIVAL (PANTALLA)",
+                                    color = if (selectedVision == 0) Color(0xFF00E5FF) else Color(0xFFFF5252),
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 9.5.sp
+                                )
+                            }
+                            val curX = if (selectedVision == 0) calib.topAlly5XRatio else calib.topEnemy5XRatio
                             Text(
-                                text = if (screenCaptureManager?.isReady() == true) "Cargando franja en directo..." else "Sin captura de pantalla disponible",
-                                color = TextMuted,
-                                fontSize = 9.5.sp
+                                text = "X: ${"%.1f".format(java.util.Locale.US, curX * 100)}% | Y: ${"%.1f".format(java.util.Locale.US, calib.topAvatarYRatio * 100)}% | ⌀: ${"%.1f".format(java.util.Locale.US, calib.topAvatarDiameterRatio * 100)}%",
+                                color = HextechGold,
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
-                    }
-
-                    // DIBUJO DE RETÍCULAS DE LAS 2 VISIONES (IZQUIERDA Y DERECHA)
-                    Canvas(modifier = Modifier.fillMaxSize()) {
-                        if (size.width < 10f || size.height < 10f) return@Canvas
-                        val stripRatio = 0.18f
-                        val yNorm = (calib.topAvatarYRatio / stripRatio).coerceIn(0.05f, 0.95f)
-                        val centerY = size.height * yNorm
-                        val maxRadius = (size.height * 0.45f).coerceAtLeast(1f)
-                        val calcRadius = size.height * (calib.topAvatarDiameterRatio / stripRatio) * 0.5f
-                        val radius = calcRadius.coerceIn(1f, maxRadius)
-
-                        // 1. Visión Izquierda (Aliado 5)
-                        val leftX = size.width * calib.topAlly5XRatio
-                        val isLeftActive = (selectedVision == 0)
-                        drawCircle(
-                            color = if (isLeftActive) Color(0xFF00E5FF) else AllyBlue.copy(alpha = 0.5f),
-                            radius = if (isLeftActive) radius + 3f else radius,
-                            center = androidx.compose.ui.geometry.Offset(leftX, centerY),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = if (isLeftActive) 3.5f else 1.8f)
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = "Los 10 círculos están visibles en la barra superior en tiempo real.",
+                            color = TextMuted,
+                            fontSize = 8.sp
                         )
-                        if (isLeftActive) {
-                            // Cruz de objetivo
-                            drawLine(
-                                color = Color(0xFF00E5FF),
-                                start = androidx.compose.ui.geometry.Offset(leftX - radius - 5f, centerY),
-                                end = androidx.compose.ui.geometry.Offset(leftX + radius + 5f, centerY),
-                                strokeWidth = 2f
-                            )
-                            drawLine(
-                                color = Color(0xFF00E5FF),
-                                start = androidx.compose.ui.geometry.Offset(leftX, centerY - radius - 5f),
-                                end = androidx.compose.ui.geometry.Offset(leftX, centerY + radius + 5f),
-                                strokeWidth = 2f
-                            )
-                        }
-
-                        // 2. Visión Derecha (Rival 5)
-                        val rightX = size.width * calib.topEnemy5XRatio
-                        val isRightActive = (selectedVision == 1)
-                        drawCircle(
-                            color = if (isRightActive) Color(0xFFFF3366) else DangerRed.copy(alpha = 0.5f),
-                            radius = if (isRightActive) radius + 3f else radius,
-                            center = androidx.compose.ui.geometry.Offset(rightX, centerY),
-                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = if (isRightActive) 3.5f else 1.8f)
-                        )
-                        if (isRightActive) {
-                            // Cruz de objetivo
-                            drawLine(
-                                color = Color(0xFFFF3366),
-                                start = androidx.compose.ui.geometry.Offset(rightX - radius - 5f, centerY),
-                                end = androidx.compose.ui.geometry.Offset(rightX + radius + 5f, centerY),
-                                strokeWidth = 2f
-                            )
-                            drawLine(
-                                color = Color(0xFFFF3366),
-                                start = androidx.compose.ui.geometry.Offset(rightX, centerY - radius - 5f),
-                                end = androidx.compose.ui.geometry.Offset(rightX, centerY + radius + 5f),
-                                strokeWidth = 2f
-                            )
-                        }
                     }
                 }
 
