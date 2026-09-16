@@ -50,7 +50,7 @@ object WildRiftChampionScraper {
     private val _scraperState = MutableStateFlow(
         ScraperResultSummary(
             isRunning = false,
-            progressText = "Listo para iniciar scraping (141 campeones hacia Descargas)...",
+            progressText = "Listo para iniciar scraping de los 141 campeones...",
             totalFound = 0,
             processedCount = 0,
             errorCount = 0,
@@ -62,7 +62,6 @@ object WildRiftChampionScraper {
     val scraperState: StateFlow<ScraperResultSummary> = _scraperState.asStateFlow()
 
     private fun cleanFolderName(name: String): String {
-        // Permitir letras, números, espacios y guiones, removiendo caracteres inválidos para sistemas de archivos
         val cleaned = name.replace(Regex("[\\\\/:*?\"<>|]"), "").trim()
         return cleaned.ifBlank { "unknown" }
     }
@@ -77,8 +76,7 @@ object WildRiftChampionScraper {
         } else if (!trimmed.startsWith("http")) {
             trimmed = "https://wiki.leagueoflegends.com/en-us/$trimmed"
         }
-
-        // Reemplazar cualquier tamaño de miniatura (ej: /40px-, /64px-, etc.) por /120px-
+        // Cambiar tamaño de miniatura a 120px
         return trimmed.replace(Regex("/\\d+px-"), "/120px-")
     }
 
@@ -114,67 +112,70 @@ object WildRiftChampionScraper {
         return null
     }
 
-    private fun cleanChampionName(name: String): String {
-        return name
-            .replace(Regex("\\s+"), " ")
-            .replace(" (Wild Rift)", "")
-            .replace(" OriginalSquare WR", "")
-            .trim()
-    }
-
     private fun parseChampionsFromWiki(html: String): List<ChampionScraperItem> {
         val doc = Jsoup.parse(html)
         val champions = mutableListOf<ChampionScraperItem>()
         val seen = mutableSetOf<String>()
 
-        // Buscar todas las imágenes de avatares que contengan OriginalSquare_WR o Square
+        // Buscar todas las imágenes de avatares que contengan _OriginalSquare o Square en su URL o src
         val imgs = doc.select("img")
         for (img in imgs) {
-            val srcAttr = img.attr("src") + " " + img.attr("data-src") + " " + img.attr("srcset")
-            if (!srcAttr.contains("Square", ignoreCase = true)) continue
-
             val imageUrl = extractImageUrl(img) ?: continue
+            if (!imageUrl.contains("Square", ignoreCase = true)) continue
 
-            var name = img.attr("alt").trim()
-            if (name.isBlank() || name.contains("File:") || name.contains("Special:")) {
-                val parentLink = img.parent()?.selectFirst("a[title]") ?: img.selectFirst("a[title]")
-                name = parentLink?.attr("title") ?: ""
+            // Extraer nombre limpio directamente del nombre de archivo en la URL (ej: Aatrox_OriginalSquare_WR.png -> Aatrox)
+            var championName = ""
+            val match = Regex("([^/]+)_(?:Original)?Square").find(imageUrl)
+            if (match != null) {
+                championName = match.groups[1]?.value?.replace("_", " ")?.trim() ?: ""
             }
 
-            if (name.isBlank()) {
-                val match = Regex("([^/]+)_OriginalSquare").find(imageUrl)
-                if (match != null) {
-                    name = match.groups[1]?.value?.replace("_", " ") ?: ""
+            // Fallback si la URL no tiene el patrón
+            if (championName.isBlank()) {
+                val alt = img.attr("alt")
+                if (alt.isNotBlank() && !alt.contains("icon", ignoreCase = true) && !alt.contains("representing", ignoreCase = true)) {
+                    championName = alt.replace(" (Wild Rift)", "").trim()
                 }
             }
 
-            name = cleanChampionName(name)
-            if (name.isBlank() || name.lowercase(Locale.ROOT) in setOf("champion", "name", "icon", "role")) continue
+            val cleanedName = cleanFolderName(championName)
+            if (cleanedName.isBlank() || cleanedName.length < 2 || cleanedName.length > 40) continue
+            val lowerKey = cleanedName.lowercase(Locale.ROOT)
 
-            val folderKey = cleanFolderName(name).lowercase(Locale.ROOT)
-            if (!seen.contains(folderKey) && name.length in 2..40) {
-                seen.add(folderKey)
-                champions.add(ChampionScraperItem(name = cleanFolderName(name), imageUrl = imageUrl))
+            if (!seen.contains(lowerKey)) {
+                seen.add(lowerKey)
+                champions.add(ChampionScraperItem(name = cleanedName, imageUrl = imageUrl))
             }
         }
 
-        // Si faltan, buscar en filas de tablas de campeones
+        // Si faltan por alguna razón, buscar en celdas o filas de tablas
         if (champions.size < EXPECTED_CHAMPIONS) {
-            val rows = doc.select("table tr")
+            val rows = doc.select("table tr, div.champion-card, li")
             for (row in rows) {
                 val imgTag = row.selectFirst("img") ?: continue
                 val imageUrl = extractImageUrl(imgTag) ?: continue
                 if (!imageUrl.contains("Square", ignoreCase = true)) continue
 
-                val link = row.selectFirst("a[title]") ?: row.selectFirst("a")
-                var name = link?.attr("title") ?: imgTag.attr("alt")
-                name = cleanChampionName(name)
+                var championName = ""
+                val match = Regex("([^/]+)_(?:Original)?Square").find(imageUrl)
+                if (match != null) {
+                    championName = match.groups[1]?.value?.replace("_", " ")?.trim() ?: ""
+                }
 
-                if (name.isNotBlank() && !name.contains("File:") && name.lowercase(Locale.ROOT) !in setOf("champion", "name")) {
-                    val folderKey = cleanFolderName(name).lowercase(Locale.ROOT)
-                    if (!seen.contains(folderKey)) {
-                        seen.add(folderKey)
-                        champions.add(ChampionScraperItem(name = cleanFolderName(name), imageUrl = imageUrl))
+                if (championName.isBlank()) {
+                    val link = row.selectFirst("a[title]") ?: row.selectFirst("a")
+                    val title = link?.attr("title") ?: ""
+                    if (title.isNotBlank() && !title.contains("File:")) {
+                        championName = title.replace(" (Wild Rift)", "").trim()
+                    }
+                }
+
+                val cleanedName = cleanFolderName(championName)
+                if (cleanedName.isNotBlank() && cleanedName.length in 2..40) {
+                    val lowerKey = cleanedName.lowercase(Locale.ROOT)
+                    if (!seen.contains(lowerKey)) {
+                        seen.add(lowerKey)
+                        champions.add(ChampionScraperItem(name = cleanedName, imageUrl = imageUrl))
                     }
                 }
             }
@@ -244,7 +245,7 @@ object WildRiftChampionScraper {
                             throw IOException("Bytes de imagen vacíos")
                         }
 
-                        // Carpeta en Descargas con el nombre exacto del campeón (ej: Downloads/WildRiftChampions/Aatrox/avatar.png)
+                        // Carpeta en Descargas con el nombre exacto y limpio del campeón (ej: Downloads/WildRiftChampions/Aatrox/avatar.png)
                         val champFolder = File(datasetDir, champ.name)
                         if (!champFolder.exists()) {
                             champFolder.mkdirs()
@@ -260,7 +261,7 @@ object WildRiftChampionScraper {
                             processedCount = processed,
                             progressText = "Guardado: ${champ.name} (${index + 1}/${championsList.size})"
                         )
-                        delay(30)
+                        delay(25)
                     } catch (e: Exception) {
                         errors++
                         addLog("[ERROR] ${champ.name}: ${e.message}")
