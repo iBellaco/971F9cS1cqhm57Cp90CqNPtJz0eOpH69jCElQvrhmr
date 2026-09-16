@@ -1,6 +1,7 @@
 package com.example.data.sync
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -48,7 +49,7 @@ object WildRiftChampionScraper {
     private val _scraperState = MutableStateFlow(
         ScraperResultSummary(
             isRunning = false,
-            progressText = "Listo para iniciar scraping de avatares (141 campeones)...",
+            progressText = "Listo para iniciar scraping (141 campeones hacia Descargas)...",
             totalFound = 0,
             processedCount = 0,
             errorCount = 0,
@@ -76,7 +77,7 @@ object WildRiftChampionScraper {
             trimmed = "https://wiki.leagueoflegends.com/en-us/$trimmed"
         }
 
-        // Cambiar tamaño de miniatura a 120px (ej: /40px-Aatrox... -> /120px-Aatrox...)
+        // Cambiar tamaño de miniatura a 120px
         return trimmed.replace(Regex("/\\d+px-"), "/120px-")
     }
 
@@ -133,7 +134,6 @@ object WildRiftChampionScraper {
 
             val imageUrl = extractImageUrl(img) ?: continue
 
-            // Obtener nombre desde alt o desde el enlace/fila circundante
             var name = img.attr("alt").trim()
             if (name.isBlank() || name.contains("File:") || name.contains("Special:")) {
                 val parentLink = img.parent()?.selectFirst("a[title]") ?: img.selectFirst("a[title]")
@@ -141,7 +141,6 @@ object WildRiftChampionScraper {
             }
 
             if (name.isBlank()) {
-                // Intentar extraer del nombre de archivo en la URL (ej: Aatrox_OriginalSquare_WR.png)
                 val match = Regex("([^/]+)_OriginalSquare").find(imageUrl)
                 if (match != null) {
                     name = match.groups[1]?.value?.replace("_", " ") ?: ""
@@ -158,7 +157,7 @@ object WildRiftChampionScraper {
             }
         }
 
-        // Fallback: si faltan campeones, buscar por filas de tablas
+        // Si faltan, buscar en filas de tablas de campeones
         if (champions.size < EXPECTED_CHAMPIONS) {
             val rows = doc.select("table tr")
             for (row in rows) {
@@ -185,7 +184,9 @@ object WildRiftChampionScraper {
 
     suspend fun runScraper(context: Context) {
         withContext(Dispatchers.IO) {
-            val datasetDir = File(context.filesDir, "dataset")
+            // Carpeta Descargas del dispositivo (Public Downloads / WildRiftChampions)
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val datasetDir = File(downloadsDir, "WildRiftChampions")
             if (!datasetDir.exists()) datasetDir.mkdirs()
 
             val logs = mutableListOf<String>()
@@ -218,7 +219,7 @@ object WildRiftChampionScraper {
                 addLog("Analizando HTML de la Wiki oficial...")
                 val championsList = parseChampionsFromWiki(html)
 
-                addLog("Roster detectado: ${championsList.size} campeones (Esperados: $EXPECTED_CHAMPIONS).")
+                addLog("Roster detectado: ${championsList.size} campeones (Esperados: $EXPECTED_CHAMPIONS sí o sí).")
                 _scraperState.value = _scraperState.value.copy(totalFound = championsList.size)
 
                 var processed = 0
@@ -234,7 +235,7 @@ object WildRiftChampionScraper {
                         val imgResp = client.newCall(imgReq).execute()
                         val imgBytes = imgResp.body?.bytes() ?: throw IOException("Imagen vacía")
 
-                        // Carpeta exacta con el nombre del campeón en archivos internos
+                        // Carpeta en Descargas (Downloads/WildRiftChampions/<Campeon>/avatar.png)
                         val champFolder = File(datasetDir, champ.name)
                         if (!champFolder.exists()) champFolder.mkdirs()
 
@@ -246,7 +247,7 @@ object WildRiftChampionScraper {
                         processed++
                         _scraperState.value = _scraperState.value.copy(
                             processedCount = processed,
-                            progressText = "Guardado: ${champ.name} (${index + 1}/${championsList.size})"
+                            progressText = "Guardado en Descargas: ${champ.name} (${index + 1}/${championsList.size})"
                         )
                         delay(40)
                     } catch (e: Exception) {
@@ -257,14 +258,14 @@ object WildRiftChampionScraper {
                 }
 
                 if (championsList.size != EXPECTED_CHAMPIONS) {
-                    addLog("[AVISO] Se detectaron ${championsList.size} campeones (se esperaban $EXPECTED_CHAMPIONS).")
+                    addLog("[AVISO] Se detectaron ${championsList.size} campeones (se esperaban $EXPECTED_CHAMPIONS sí o sí).")
                 }
 
-                addLog("Scraping completado. Archivos guardados en: ${datasetDir.absolutePath}")
+                addLog("Scraping completado. Guardado en Descargas: ${datasetDir.absolutePath}")
                 _scraperState.value = _scraperState.value.copy(
                     isRunning = false,
                     isFinished = true,
-                    progressText = "Scraping finalizado. $processed campeones descargados (120px) en archivos.",
+                    progressText = "Scraping finalizado. $processed campeones guardados en Descargas (120px).",
                     datasetPath = datasetDir.absolutePath
                 )
 
