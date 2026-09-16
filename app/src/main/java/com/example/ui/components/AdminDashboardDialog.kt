@@ -174,6 +174,7 @@ fun AdminDashboardDialog(
     var showDatabaseConsumptionDialog by remember { mutableStateOf(false) }
     var showSponsorModerationDialog by remember { mutableStateOf(false) }
     var showSponsorPanelDialog by remember { mutableStateOf(false) }
+    var showScraperDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
@@ -209,6 +210,10 @@ fun AdminDashboardDialog(
         SponsorCpmPanelDialog(onDismiss = { showSponsorPanelDialog = false })
     }
 
+    if (showScraperDialog) {
+        AdminChampionScraperDialog(onDismiss = { showScraperDialog = false })
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -231,6 +236,7 @@ fun AdminDashboardDialog(
                     onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
                     onOpenDatabaseConsumption = { showDatabaseConsumptionDialog = true },
                     onOpenSponsorPanel = { showSponsorPanelDialog = true },
+                    onOpenScraper = { showScraperDialog = true },
                     isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
 
@@ -274,6 +280,7 @@ private fun AdminDashboardHeader(
     onOpenCpmAnalytics: () -> Unit = {},
     onOpenDatabaseConsumption: () -> Unit = {},
     onOpenSponsorPanel: () -> Unit = {},
+    onOpenScraper: () -> Unit = {},
     isFullAdmin: Boolean = true
 ) {
     Surface(
@@ -407,6 +414,19 @@ private fun AdminDashboardHeader(
                     Icon(Icons.Default.Storage, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(2.dp))
                     Text("Base Datos", fontSize = 9.sp, color = HextechGold, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                }
+
+                // Botón Scraper Dataset
+                AnimatedAdminActionButton(
+                    onClick = onOpenScraper,
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6).copy(alpha = 0.2f)),
+                    shape = RoundedCornerShape(8.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.CloudDownload, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(12.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text("Scraper", fontSize = 9.sp, color = Color(0xFF60A5FA), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
 
