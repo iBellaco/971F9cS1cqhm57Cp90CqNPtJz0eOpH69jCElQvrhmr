@@ -239,11 +239,11 @@ object ChampionNameResolver {
         // 1. Coincidencia directa por mapa de nombres canónicos
         KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
             val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed)) return found
+            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
         }
         KNOWN_CHAMPIONS_MAP[compact]?.let { id ->
             val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed)) return found
+            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
         }
 
         // 2. Coincidencia exacta por lista de campeones en memoria
@@ -253,8 +253,37 @@ object ChampionNameResolver {
             val champIdCompact = normalizeCompact(champ.id)
 
             if (clean == champNorm || compact == champCompact || compact == champIdCompact) {
-                if (!DraftValidationLayer.isLikelySummonerName(trimmed)) {
+                if (!DraftValidationLayer.isLikelySummonerName(trimmed, championName = champ.name)) {
                     return champ
+                }
+            }
+        }
+
+        // 3. Manejo de iconos de maestría / insignias / prefijos a la izquierda del nombre
+        // En Wild Rift, al lado del nombre del campeón en la línea 1 puede haber un icono dorado de maestría.
+        // ML Kit a veces detecta un carácter espurio inicial (ej: "* JARVAN IV", "⭐ JINX", "> SHYVANA", "I JARVAN IV").
+        val rawTokens = clean.split(" ").filter { it.isNotBlank() }
+        if (rawTokens.size >= 2) {
+            for (dropCount in 1 until rawTokens.size) {
+                val candidateSuffix = rawTokens.drop(dropCount).joinToString(" ")
+                val candidateCompact = rawTokens.drop(dropCount).joinToString("")
+                
+                KNOWN_CHAMPIONS_MAP[candidateSuffix]?.let { id ->
+                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                    if (found != null && !DraftValidationLayer.isLikelySummonerName(candidateSuffix, championName = found.name)) return found
+                }
+                KNOWN_CHAMPIONS_MAP[candidateCompact]?.let { id ->
+                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                    if (found != null && !DraftValidationLayer.isLikelySummonerName(candidateCompact, championName = found.name)) return found
+                }
+                for (champ in safeChamps) {
+                    val champNorm = normalize(champ.name)
+                    val champCompact = normalizeCompact(champ.name)
+                    if (candidateSuffix == champNorm || candidateCompact == champCompact) {
+                        if (!DraftValidationLayer.isLikelySummonerName(candidateSuffix, championName = champ.name)) {
+                            return champ
+                        }
+                    }
                 }
             }
         }

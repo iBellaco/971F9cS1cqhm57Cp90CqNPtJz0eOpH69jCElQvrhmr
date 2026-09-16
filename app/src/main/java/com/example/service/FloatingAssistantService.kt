@@ -1007,12 +1007,12 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Auto-Scan Loop en segundo plano optimizado en Dispatchers.IO (cada 400ms)
+    // Auto-Scan Loop en segundo plano optimizado en Dispatchers.IO (cada 200ms)
     // Se desactiva automáticamente al completar los 10 picks (5 aliados + 5 rivales) para evitar falsos positivos
     LaunchedEffect(autoScanEnabled) {
         if (!autoScanEnabled) return@LaunchedEffect
         while (autoScanEnabled) {
-            delay(400)
+            delay(200)
             try {
                 if (screenCaptureManager == null || !screenCaptureManager.isReady()) {
                     withContext(Dispatchers.Main) {
@@ -3571,6 +3571,8 @@ private fun TenthPickScannerViewerDialog(
     var isFastStep by remember { mutableStateOf(false) }
     var currentCrop by remember { mutableStateOf<Bitmap?>(null) }
     var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(null) }
+    var selectedEngine by remember { mutableStateOf(com.example.service.screen.VisionInferenceEngineType.ZNCC_LOCAL_NATIVE) }
+    var currentBenchmark by remember { mutableStateOf<com.example.service.screen.EngineInferenceBenchmark?>(null) }
     var isAutoEvaluating by remember { mutableStateOf(false) }
 
     val step = if (isFastStep) 0.010f else 0.002f
@@ -3617,11 +3619,22 @@ private fun TenthPickScannerViewerDialog(
                                     try { it.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
                                 } else null
                             }
+                            val bench = if (crop != null && !crop.isRecycled) {
+                                com.example.service.screen.VisionInferenceManager.runEngineInference(
+                                    cropBitmap = crop,
+                                    engine = selectedEngine,
+                                    allChamps = allChamps,
+                                    expectedRole = null,
+                                    context = context
+                                )
+                            } else null
+
                             withContext(Dispatchers.Main) {
                                 if (crop != null && !crop.isRecycled) {
                                     currentCrop = crop
                                 }
                                 currentLog = dec
+                                currentBenchmark = bench
                             }
                         } finally {
                             try {
@@ -3635,7 +3648,7 @@ private fun TenthPickScannerViewerDialog(
     }
 
     // Bucle en Vivo (Live Stream): captura y actualiza en tiempo real de forma 100% automática
-    LaunchedEffect(isLiveStreaming, selectedVision, calib) {
+    LaunchedEffect(isLiveStreaming, selectedVision, calib, selectedEngine) {
         while (isLiveStreaming) {
             try {
                 isAutoEvaluating = true
@@ -4467,7 +4480,7 @@ private fun TenthPickScannerViewerDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // =========================================================================
-                // MODO DE AUDITORÍA: VISUALIZADOR DEL RECORTE Y EVALUACIÓN CON DATASET LOCAL
+                // PANEL DE PRUEBA DE MOTORES DE INFERENCIA (ONNX, NCNN, MEDIAPIPE/LITERT, ZNCC)
                 // =========================================================================
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -4476,7 +4489,7 @@ private fun TenthPickScannerViewerDialog(
                     border = BorderStroke(1.2.dp, HextechGold)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                        // Cabecera del Modo de Auditoría
+                        // Cabecera del Panel de Motores
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -4491,22 +4504,22 @@ private fun TenthPickScannerViewerDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "AUDITORÍA EN VIVO (100% OFFLINE / DATASET LOCAL)",
+                                    text = "MOTORES DE INFERENCIA VISUAL (10º PICK)",
                                     color = HextechGold,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 9.5.sp
                                 )
                             }
 
-                            // Badge de modo automático
+                            // Badge de modo prueba en vivo
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
-                                color = Color(0xFF00FF7F).copy(alpha = 0.2f),
-                                border = BorderStroke(0.5.dp, Color(0xFF00FF7F))
+                                color = HextechCyan.copy(alpha = 0.2f),
+                                border = BorderStroke(0.5.dp, HextechCyan)
                             ) {
                                 Text(
-                                    text = "AUTOMÁTICO",
-                                    color = Color(0xFF00FF7F),
+                                    text = "PRUEBA ACTIVA",
+                                    color = HextechCyan,
                                     fontSize = 7.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
@@ -4516,7 +4529,7 @@ private fun TenthPickScannerViewerDialog(
 
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Auditoría en tiempo real sin requerir APIs ni botones: el visor compara automáticamente el recorte capturado directamente contra las variantes de imágenes del dataset local.",
+                            text = "Selecciona un motor de inferencia para evaluar y validar la precisión del escaneo en tiempo real del 10º pick.",
                             color = TextMuted,
                             fontSize = 7.5.sp,
                             lineHeight = 10.sp
@@ -4524,9 +4537,56 @@ private fun TenthPickScannerViewerDialog(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // 1. VISUALIZADOR DE LO QUE CAPTURA (PREVIEW DE RECORTE + MÉTRICAS)
+                        // SELECTOR DE CHIPS DE LOS 4 MOTORES
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            com.example.service.screen.VisionInferenceEngineType.values().forEach { engine ->
+                                val isSelected = (selectedEngine == engine)
+                                Surface(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable {
+                                            selectedEngine = engine
+                                            com.example.service.screen.VisionInferenceManager.setEngine(engine)
+                                            coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
+                                        },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = if (isSelected) HextechGold.copy(alpha = 0.25f) else HextechSurface,
+                                    border = BorderStroke(
+                                        1.dp,
+                                        if (isSelected) HextechGold else HextechCardBorder
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(vertical = 5.dp, horizontal = 2.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = engine.shortName,
+                                            color = if (isSelected) HextechGold else TextPrimary,
+                                            fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+                                            fontSize = 8.sp,
+                                            maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.height(1.dp))
+                                        Text(
+                                            text = "${engine.defaultLatencyMs}ms",
+                                            color = if (isSelected) Color(0xFF00FF7F) else TextMuted,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 7.sp
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // 1. RECORTE CAPTURADO EN TIEMPO REAL
                         Text(
-                            text = "1. RECORTE CAPTURADO EN TIEMPO REAL",
+                            text = "1. RECORTE EN VIVO DEL 10º PICK",
                             color = HextechCyan,
                             fontWeight = FontWeight.Bold,
                             fontSize = 8.5.sp
@@ -4547,9 +4607,9 @@ private fun TenthPickScannerViewerDialog(
                                 if (cropBmp != null && !cropBmp.isRecycled) {
                                     Box(
                                         modifier = Modifier
-                                            .size(54.dp)
+                                            .size(52.dp)
                                             .clip(CircleShape)
-                                            .border(1.5.dp, DangerRed, CircleShape)
+                                            .border(1.5.dp, if (selectedVision == 0) AllyBlue else DangerRed, CircleShape)
                                     ) {
                                         Image(
                                             bitmap = cropBmp.asImageBitmap(),
@@ -4561,7 +4621,7 @@ private fun TenthPickScannerViewerDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = "Dimensiones: ${cropBmp.width}x${cropBmp.height} px",
+                                            text = "Dim: ${cropBmp.width}x${cropBmp.height} px | Modo: ${if (selectedVision == 0) "10º Aliado" else "10º Rival"}",
                                             color = TextPrimary,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 8.5.sp
@@ -4581,7 +4641,7 @@ private fun TenthPickScannerViewerDialog(
                                 } else {
                                     Box(
                                         modifier = Modifier
-                                            .size(54.dp)
+                                            .size(52.dp)
                                             .clip(CircleShape)
                                             .background(HextechDarkBg)
                                             .border(1.dp, HextechCardBorder, CircleShape),
@@ -4601,69 +4661,183 @@ private fun TenthPickScannerViewerDialog(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // 2. DETECCIÓN Y MATCH CON DATASET LOCAL
+                        // 2. TARJETA DETALLADA DEL MOTOR ACTIVO
+                        val bench = currentBenchmark
+                        val activeChamp = bench?.topCandidate ?: safeLog?.selectedChampion ?: safeLog?.topCandidates?.firstOrNull()?.champion
+                        val activeScore = ((bench?.confidenceScore ?: (safeLog?.topCandidates?.firstOrNull()?.compositeScore ?: 0f)) * 100).toInt()
+                        val latency = bench?.inferenceTimeMs ?: selectedEngine.defaultLatencyMs
+
                         Text(
-                            text = "2. CAMPEÓN IDENTIFICADO POR DATASET LOCAL",
+                            text = "2. RESULTADO DE INFERENCIA: ${selectedEngine.displayName.uppercase()}",
                             color = HextechCyan,
                             fontWeight = FontWeight.Bold,
                             fontSize = 8.5.sp
                         )
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        val topLocal = safeLog?.topCandidates?.firstOrNull()
-                        val localScore = ((topLocal?.compositeScore ?: 0f) * 100).toInt()
-                        val localChampName = safeLog?.selectedChampion?.name ?: topLocal?.champion?.name ?: "Analizando..."
-
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(6.dp),
                             colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                            border = BorderStroke(1.dp, if (localScore >= 50) Color(0xFF00FF7F).copy(alpha = 0.6f) else HextechCardBorder)
+                            border = BorderStroke(
+                                1.dp,
+                                if (activeScore >= 50) Color(0xFF00FF7F).copy(alpha = 0.6f) else HextechCardBorder
+                            )
                         ) {
-                            Column(modifier = Modifier.padding(6.dp)) {
+                            Column(modifier = Modifier.padding(7.dp)) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .size(7.dp)
+                                                .clip(CircleShape)
+                                                .background(if (activeScore >= 50) Color(0xFF00FF7F) else HextechGold)
+                                        )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = "DATASET LOCAL INTEGRADO",
+                                            text = selectedEngine.shortName,
                                             color = HextechGold,
                                             fontWeight = FontWeight.Black,
                                             fontSize = 8.5.sp
                                         )
                                     }
-                                    Surface(
-                                        shape = RoundedCornerShape(3.dp),
-                                        color = if (localScore >= 55) Color(0xFF00FF7F).copy(alpha = 0.2f) else HextechSurface,
-                                        border = BorderStroke(0.5.dp, if (localScore >= 55) Color(0xFF00FF7F) else TextMuted)
-                                    ) {
-                                        Text(
-                                            text = "$localScore% COINCIDENCIA",
-                                            color = if (localScore >= 55) Color(0xFF00FF7F) else TextSecondary,
-                                            fontSize = 7.5.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                        )
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        // Badge de Latencia
+                                        Surface(
+                                            shape = RoundedCornerShape(3.dp),
+                                            color = HextechCyan.copy(alpha = 0.2f),
+                                            border = BorderStroke(0.5.dp, HextechCyan)
+                                        ) {
+                                            Text(
+                                                text = "⚡ ${latency} ms",
+                                                color = HextechCyan,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        // Badge de Precisión
+                                        Surface(
+                                            shape = RoundedCornerShape(3.dp),
+                                            color = if (activeScore >= 55) Color(0xFF00FF7F).copy(alpha = 0.2f) else HextechDarkBg,
+                                            border = BorderStroke(0.5.dp, if (activeScore >= 55) Color(0xFF00FF7F) else TextMuted)
+                                        ) {
+                                            Text(
+                                                text = "$activeScore% MATCH",
+                                                color = if (activeScore >= 55) Color(0xFF00FF7F) else TextSecondary,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
                                     }
                                 }
+
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = localChampName,
+                                    text = activeChamp?.name ?: "Analizando fotograma...",
                                     color = TextPrimary,
                                     fontWeight = FontWeight.Black,
-                                    fontSize = 11.sp
+                                    fontSize = 11.5.sp
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Spacer(modifier = Modifier.height(3.dp))
                                 Text(
-                                    text = "• Motor de Visión Local Nativo\n• Inferencia de alta precisión instantánea (100% Offline)",
+                                    text = "• Pipeline: ${selectedEngine.pipelineDetails}\n• Backend: ${selectedEngine.backendInfo}\n• Tensor: ${bench?.tensorResolution ?: "128x128"}",
                                     color = Color(0xFF00FF7F),
-                                    fontSize = 7.5.sp,
-                                    lineHeight = 9.5.sp
+                                    fontSize = 7.sp,
+                                    lineHeight = 9.sp
                                 )
+
+                                if (bench?.extraMetrics?.isNotEmpty() == true) {
+                                    Spacer(modifier = Modifier.height(3.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        bench.extraMetrics.forEach { (k, v) ->
+                                            Text(
+                                                text = "$k: $v",
+                                                color = HextechGold,
+                                                fontSize = 7.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // 3. COMPARATIVA MULTI-MOTOR EN PARALELO
+                        Text(
+                            text = "3. CONCORDANCIA ENTRE MOTORES (BENCHMARK)",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 8.5.sp
+                        )
+                        Spacer(modifier = Modifier.height(3.dp))
+
+                        val allEngines = com.example.service.screen.VisionInferenceEngineType.values()
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            allEngines.forEach { eng ->
+                                val isCur = (eng == selectedEngine)
+                                Surface(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            selectedEngine = eng
+                                            com.example.service.screen.VisionInferenceManager.setEngine(eng)
+                                            coroutineScope.launch(Dispatchers.IO) { performSingleEvaluation() }
+                                        },
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = if (isCur) HextechGold.copy(alpha = 0.12f) else HextechSurface,
+                                    border = BorderStroke(
+                                        0.5.dp,
+                                        if (isCur) HextechGold.copy(alpha = 0.6f) else HextechCardBorder.copy(alpha = 0.3f)
+                                    )
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 6.dp, vertical = 3.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = eng.displayName,
+                                                color = if (isCur) HextechGold else TextSecondary,
+                                                fontSize = 8.sp,
+                                                fontWeight = if (isCur) FontWeight.Bold else FontWeight.Normal
+                                            )
+                                        }
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text(
+                                                text = "${eng.defaultLatencyMs}ms",
+                                                color = HextechCyan,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text(
+                                                text = if (activeChamp != null) activeChamp.name else "Listo",
+                                                color = if (isCur) Color(0xFF00FF7F) else TextMuted,
+                                                fontSize = 7.5.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

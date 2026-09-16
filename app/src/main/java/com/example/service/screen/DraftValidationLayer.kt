@@ -102,13 +102,25 @@ object DraftValidationLayer {
     /**
      * Determina si un texto corresponde a un nombre de invocador y NO a un campeón.
      * Ejemplo: "XCS Lucianito", "Gaby11anos", "martincho137", "CacauVegannah" -> true (Invocador)
-     * Ejemplo: "LUCIAN", "URGOT", "CAITLYN", "THRESH" -> false (Campeón real)
+     * Ejemplo: "LUCIAN", "URGOT", "CAITLYN", "JARVAN IV", "DR. MUNDO" -> false (Campeón real)
      */
-    fun isLikelySummonerName(rawText: String): Boolean {
+    fun isLikelySummonerName(rawText: String, championName: String? = null): Boolean {
         val trimmed = rawText.trim()
         if (trimmed.isBlank() || trimmed.length < 2) return false
         if (isNoiseText(trimmed)) return false
         if (parseRoleFromText(trimmed) != null) return false
+
+        // Si coincide con el nombre o ID de un campeón explícito, nunca es invocador
+        if (championName != null) {
+            val normTrimmed = normalize(trimmed)
+            val normChamp = normalize(championName)
+            if (normTrimmed == normChamp || normTrimmed == normChamp.replace(" ", "") || normTrimmed.replace(" ", "") == normChamp.replace(" ", "")) {
+                return false
+            }
+            if (normChamp == "jarvan iv" && (normTrimmed == "jarvan 4" || normTrimmed == "jarvan iv" || normTrimmed == "jarvan")) {
+                return false
+            }
+        }
 
         // Si contiene prefijo de clan conocido (ej: "XCS Faker", "T1 Gumayusi")
         if (SUMMONER_PREFIX_REGEX.containsMatchIn(trimmed)) {
@@ -116,7 +128,8 @@ object DraftValidationLayer {
         }
 
         // Si contiene números mezclados con letras (típico de invocadores como Gaby11anos, martincho137)
-        if (Regex("[a-zA-Z]{2,}[0-9]+").containsMatchIn(trimmed)) {
+        // Excepto si es "Jarvan 4"
+        if (Regex("[a-zA-Z]{2,}[0-9]+").containsMatchIn(trimmed) && !trimmed.lowercase(Locale.ROOT).contains("jarvan")) {
             return true
         }
 

@@ -39,10 +39,10 @@ data class VisionCalibrationConfig(
     val spellYOffsetRatio: Float = 0.0f,
 
     // Rango horizontal OCR para columnas de draft (restringido estrictamente a las columnas de slots)
-    val allyOcrMinX: Float = 0.05f,
-    val allyOcrMaxX: Float = 0.23f,
-    val enemyOcrMinX: Float = 0.77f,
-    val enemyOcrMaxX: Float = 0.95f,
+    val allyOcrMinX: Float = 0.04f,
+    val allyOcrMaxX: Float = 0.32f,
+    val enemyOcrMinX: Float = 0.68f,
+    val enemyOcrMaxX: Float = 0.96f,
 
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
     // En la barra superior de Wild Rift durante selección final y fase de preparación:
@@ -130,7 +130,7 @@ VisionCalibrationConfig(
     }
 
     companion object {
-        private const val CURRENT_CALIBRATION_VERSION = 5
+        private const val CURRENT_CALIBRATION_VERSION = 6
 
         fun resetToDefaults(context: Context): VisionCalibrationConfig {
             val prefs = context.getSharedPreferences("vision_calibration_prefs", Context.MODE_PRIVATE)
