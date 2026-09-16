@@ -4238,122 +4238,6 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Banner del Dataset ZIP (141 campeones con variantes)
-                val isZipActive = LocalVisionAnalyzer.isDatasetZipLoaded
-                val variantCount = LocalVisionAnalyzer.datasetZipVariantCount
-                val coroutineScope = rememberCoroutineScope()
-                val context = LocalContext.current
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = if (isZipActive) HextechDarkBg else HextechSurface),
-                    border = BorderStroke(1.2.dp, if (isZipActive) Color(0xFF00FF7F) else HextechGold)
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                Icon(
-                                    imageVector = if (isZipActive) Icons.Default.Folder else Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = if (isZipActive) Color(0xFF00FF7F) else HextechGold,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Column {
-                                    Text(
-                                        text = if (isZipActive) "✓ DATASET LOCAL: ARCHIVO ZIP ACTIVO ($variantCount VARIANTES)" else "⚡ VINCULAR DATASET LOCAL (ARCHIVO ZIP)",
-                                        color = if (isZipActive) Color(0xFF00FF7F) else HextechGold,
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 9.sp
-                                    )
-                                    Text(
-                                        text = if (isZipActive) "El asistente descomprimió tu ZIP y compara el 10º pick contra tus $variantCount variantes de archivos." else "Selecciona tu archivo .zip: la app lo descomprime automáticamente y lo establece como tu nuevo dataset local.",
-                                        color = TextSecondary,
-                                        fontSize = 7.5.sp
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            // Botón 1: Cargar ZIP directamente (la app lo descomprime)
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable {
-                                        val intent = Intent(context, ZipPickerActivity::class.java).apply {
-                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                        }
-                                        context.startActivity(intent)
-                                    },
-                                shape = RoundedCornerShape(5.dp),
-                                color = HextechGold.copy(alpha = 0.2f),
-                                border = BorderStroke(1.dp, HextechGold)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "Seleccionar Archivo ZIP",
-                                        color = HextechGold,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 8.sp
-                                    )
-                                }
-                            }
-
-                            // Botón 2: Auto-detectar y descomprimir en descargas
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            val found = com.example.data.sync.ZipDatasetManager.autoDetectAndImportFromDownloads(context)
-                                            if (found) {
-                                                LocalVisionAnalyzer.reloadFromExtractedDataset(context)
-                                                android.widget.Toast.makeText(context, "¡Dataset ZIP descomprimido y activado!", android.widget.Toast.LENGTH_SHORT).show()
-                                            } else {
-                                                LocalVisionAnalyzer.ensureInitialized(context, forceReload = true)
-                                                android.widget.Toast.makeText(context, "Búsqueda automática completada. Usa 'Seleccionar Archivo ZIP' para elegirlo directamente.", android.widget.Toast.LENGTH_LONG).show()
-                                            }
-                                        }
-                                    },
-                                shape = RoundedCornerShape(5.dp),
-                                color = HextechCyan.copy(alpha = 0.2f),
-                                border = BorderStroke(1.dp, HextechCyan)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.Refresh, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "Auto-Detectar y Extraer",
-                                        color = HextechCyan,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 8.sp
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
                 // Banner informativo sobre dinámica de Draft vs Fase de Preparación
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
@@ -4763,7 +4647,7 @@ private fun TenthPickScannerViewerDialog(
                                         Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = if (isZipActive) "DATASET ZIP (LOCAL)" else "DATASET LOCAL BASE",
+                                            text = "DATASET LOCAL INTEGRADO",
                                             color = HextechGold,
                                             fontWeight = FontWeight.Black,
                                             fontSize = 8.5.sp
