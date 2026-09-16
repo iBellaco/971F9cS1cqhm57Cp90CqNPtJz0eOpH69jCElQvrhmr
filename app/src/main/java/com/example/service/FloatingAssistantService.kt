@@ -15,9 +15,6 @@ import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.FileUpload
-import com.example.service.gemini.GeminiCloudVisionTester
-import com.example.service.gemini.CloudVisionTestResult
-import com.example.ui.ZipPickerActivity
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -3575,10 +3572,6 @@ private fun TenthPickScannerViewerDialog(
     var currentCrop by remember { mutableStateOf<Bitmap?>(null) }
     var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(null) }
     var isAutoEvaluating by remember { mutableStateOf(false) }
-    var isCloudTesting by remember { mutableStateOf(false) }
-    var cloudTestResult by remember { mutableStateOf<com.example.service.gemini.CloudVisionTestResult?>(null) }
-    var showApiKeyDialog by remember { mutableStateOf(false) }
-    var inputApiKey by remember { mutableStateOf(com.example.service.gemini.GeminiCloudVisionTester.getSavedCustomApiKey(context)) }
 
     val step = if (isFastStep) 0.010f else 0.002f
 
@@ -4353,12 +4346,10 @@ private fun TenthPickScannerViewerDialog(
 
                         // Avatar Campeón Referencia (84.dp)
                         val matchedChamp = log?.selectedChampion ?: topCand?.champion
-                        val matchedVar = topCand?.matchedVariant ?: "avatar"
-                        val varLabel = LocalVisionAnalyzer.getVariantLabel(matchedVar)
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = if (matchedChamp != null) {
-                                    if (isConfirmed) "${matchedChamp.name} • $varLabel (Confirmado)" else "${matchedChamp.name} • $varLabel ($score%)"
+                                    if (isConfirmed) "${matchedChamp.name} (Confirmado)" else "${matchedChamp.name} ($score%)"
                                 } else "Sin asignar",
                                 color = if (isConfirmed) HextechGold else if (matchedChamp != null) HextechCyan else TextMuted,
                                 fontWeight = FontWeight.Bold,
@@ -4437,18 +4428,12 @@ private fun TenthPickScannerViewerDialog(
                                         showTierBadge = false
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    val varLabel = LocalVisionAnalyzer.getVariantLabel(c.matchedVariant)
                                     Column {
                                         Text(
                                             text = c.champion.name,
                                             color = if (isChosen) HextechGold else TextPrimary,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 9.5.sp
-                                        )
-                                        Text(
-                                            text = varLabel,
-                                            color = if (isChosen) HextechGold.copy(alpha = 0.8f) else TextMuted,
-                                            fontSize = 7.5.sp
                                         )
                                     }
                                 }
@@ -4628,8 +4613,6 @@ private fun TenthPickScannerViewerDialog(
                         val topLocal = safeLog?.topCandidates?.firstOrNull()
                         val localScore = ((topLocal?.compositeScore ?: 0f) * 100).toInt()
                         val localChampName = safeLog?.selectedChampion?.name ?: topLocal?.champion?.name ?: "Analizando..."
-                        val localVar = topLocal?.matchedVariant ?: "avatar"
-                        val localVarLabel = LocalVisionAnalyzer.getVariantLabel(localVar)
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -4674,303 +4657,19 @@ private fun TenthPickScannerViewerDialog(
                                     fontWeight = FontWeight.Black,
                                     fontSize = 11.sp
                                 )
-                                Text(
-                                    text = "Carpeta / Variante más parecida: $localVarLabel",
-                                    color = HextechCyan,
-                                    fontSize = 8.sp
-                                )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "• Tiempo de inferencia: ~5-15 ms\n• Funcionamiento autónomo: 100% Offline (Sin dependencias externas ni consumo de red)",
+                                    text = "• Motor de Visión Local Nativo\n• Inferencia de alta precisión instantánea (100% Offline)",
                                     color = Color(0xFF00FF7F),
                                     fontSize = 7.5.sp,
                                     lineHeight = 9.5.sp
                                 )
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // 3. VISOR DE PRUEBA: EVALUACIÓN EN LA NUBE (AUDITORÍA EXTERNA)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "3. VISOR DE PRUEBA (AUDITORÍA CON IA)",
-                                color = HextechGold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 8.5.sp
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Surface(
-                                    modifier = Modifier
-                                        .height(24.dp)
-                                        .clickable {
-                                            inputApiKey = com.example.service.gemini.GeminiCloudVisionTester.getSavedCustomApiKey(context)
-                                            showApiKeyDialog = true
-                                        },
-                                    shape = RoundedCornerShape(4.dp),
-                                    color = HextechSurface,
-                                    border = BorderStroke(1.dp, HextechCardBorder)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Key,
-                                            contentDescription = "Configurar Clave",
-                                            tint = if (com.example.service.gemini.GeminiCloudVisionTester.getEffectiveApiKey(context).isNotBlank()) HextechCyan else TextMuted,
-                                            modifier = Modifier.size(11.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        Text(
-                                            text = if (com.example.service.gemini.GeminiCloudVisionTester.getEffectiveApiKey(context).isNotBlank()) "CLAVE LISTA" else "INGRESAR API",
-                                            color = if (com.example.service.gemini.GeminiCloudVisionTester.getEffectiveApiKey(context).isNotBlank()) HextechCyan else TextMuted,
-                                            fontSize = 7.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Button(
-                                    onClick = {
-                                        val effectiveKey = com.example.service.gemini.GeminiCloudVisionTester.getEffectiveApiKey(context)
-                                        if (effectiveKey.isBlank()) {
-                                            inputApiKey = ""
-                                            showApiKeyDialog = true
-                                            return@Button
-                                        }
-                                        val cropToTest = currentCrop
-                                        if (cropToTest != null && !cropToTest.isRecycled) {
-                                            isCloudTesting = true
-                                            cloudTestResult = null
-                                            coroutineScope.launch(Dispatchers.IO) {
-                                                try {
-                                                    val res = com.example.service.gemini.GeminiCloudVisionTester.testVisionWithInternet(context, cropToTest)
-                                                    withContext(Dispatchers.Main) {
-                                                        cloudTestResult = res
-                                                    }
-                                                } catch (e: Throwable) {
-                                                    withContext(Dispatchers.Main) {
-                                                        cloudTestResult = com.example.service.gemini.CloudVisionTestResult(
-                                                            isSuccess = false,
-                                                            errorMessage = "Error en visor de prueba: ${e.message ?: "desconocido"}"
-                                                        )
-                                                    }
-                                                } finally {
-                                                    withContext(Dispatchers.Main) {
-                                                        isCloudTesting = false
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    },
-                                    enabled = !isCloudTesting && currentCrop != null && !currentCrop!!.isRecycled,
-                                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                                    shape = RoundedCornerShape(4.dp),
-                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
-                                    modifier = Modifier.height(24.dp)
-                                ) {
-                                    if (isCloudTesting) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(12.dp),
-                                            color = HextechDarkBg,
-                                            strokeWidth = 1.5.dp
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Evaluando...", color = HextechDarkBg, fontSize = 7.5.sp, fontWeight = FontWeight.Bold)
-                                    } else {
-                                        Icon(Icons.Default.Science, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(11.dp))
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        Text("PROBAR RECORTE", color = HextechDarkBg, fontSize = 7.5.sp, fontWeight = FontWeight.Black)
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(6.dp),
-                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                            border = BorderStroke(1.dp, HextechCardBorder)
-                        ) {
-                            Column(modifier = Modifier.padding(6.dp)) {
-                                val testRes = cloudTestResult
-                                if (testRes != null) {
-                                    if (testRes.isSuccess) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = testRes.championName ?: "Desconocido",
-                                                color = Color(0xFF00FF7F),
-                                                fontWeight = FontWeight.Black,
-                                                fontSize = 11.sp
-                                            )
-                                            Surface(
-                                                shape = RoundedCornerShape(3.dp),
-                                                color = Color(0xFF00FF7F).copy(alpha = 0.2f),
-                                                border = BorderStroke(0.5.dp, Color(0xFF00FF7F))
-                                            ) {
-                                                Text(
-                                                    text = "${testRes.confidence}% CERTEZA • ${testRes.latencyMs}ms",
-                                                    color = Color(0xFF00FF7F),
-                                                    fontSize = 7.5.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
-                                                )
-                                            }
-                                        }
-                                        if (testRes.details.isNotBlank()) {
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Text(
-                                                text = testRes.details,
-                                                color = TextSecondary,
-                                                fontSize = 7.5.sp,
-                                                lineHeight = 9.5.sp
-                                            )
-                                        }
-                                    } else {
-                                        Text(
-                                            text = testRes.errorMessage ?: "Fallo al evaluar con IA",
-                                            color = DangerRed,
-                                            fontSize = 7.5.sp,
-                                            lineHeight = 9.5.sp
-                                        )
-                                    }
-                                } else {
-                                    Text(
-                                        text = "Pulsa 'PROBAR RECORTE' para auditar con la IA el marco capturado y comparar la lectura en la nube contra el dataset local.",
-                                        color = TextMuted,
-                                        fontSize = 7.5.sp,
-                                        lineHeight = 9.5.sp
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            if (showApiKeyDialog) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.75f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = HextechDarkBg,
-                        border = BorderStroke(1.5.dp, HextechGold),
-                        modifier = Modifier
-                            .fillMaxWidth(0.92f)
-                            .padding(12.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(14.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Key, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = "Configurar API Key",
-                                        color = HextechGold,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 13.sp
-                                    )
-                                }
-                                IconButton(
-                                    onClick = { showApiKeyDialog = false },
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = TextMuted, modifier = Modifier.size(16.dp))
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Introduce manualmente tu clave de Google AI Studio para realizar pruebas de auditoría de visión.",
-                                color = TextSecondary,
-                                fontSize = 9.5.sp,
-                                lineHeight = 13.sp
-                            )
-
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            OutlinedTextField(
-                                value = inputApiKey,
-                                onValueChange = { inputApiKey = it },
-                                placeholder = { Text("Pega tu API Key aquí...", color = TextMuted, fontSize = 10.sp) },
-                                modifier = Modifier.fillMaxWidth(),
-                                singleLine = true,
-                                shape = RoundedCornerShape(6.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = TextPrimary,
-                                    unfocusedTextColor = TextPrimary,
-                                    focusedBorderColor = HextechGold,
-                                    unfocusedBorderColor = HextechCardBorder,
-                                    focusedContainerColor = HextechSurface,
-                                    unfocusedContainerColor = HextechSurface
-                                )
-                            )
-
-                            Spacer(modifier = Modifier.height(14.dp))
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                if (com.example.service.gemini.GeminiCloudVisionTester.getSavedCustomApiKey(context).isNotBlank()) {
-                                    Button(
-                                        onClick = {
-                                            com.example.service.gemini.GeminiCloudVisionTester.setCustomApiKey(context, "")
-                                            inputApiKey = ""
-                                            showApiKeyDialog = false
-                                        },
-                                        colors = ButtonDefaults.buttonColors(containerColor = DangerRed.copy(alpha = 0.2f)),
-                                        border = BorderStroke(1.dp, DangerRed),
-                                        shape = RoundedCornerShape(6.dp),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-                                        modifier = Modifier.height(30.dp)
-                                    ) {
-                                        Text("Borrar", color = DangerRed, fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
-                                    }
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                }
-                                Button(
-                                    onClick = {
-                                        com.example.service.gemini.GeminiCloudVisionTester.setCustomApiKey(context, inputApiKey)
-                                        showApiKeyDialog = false
-                                    },
-                                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                                    shape = RoundedCornerShape(6.dp),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
-                                    modifier = Modifier.height(30.dp)
-                                ) {
-                                    Text("Guardar", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 10.sp)
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }
