@@ -50,8 +50,9 @@ object LocalVisionAnalyzer {
         val rValues: FloatArray,
         val gValues: FloatArray,
         val bValues: FloatArray,
-        val colorHistogram: FloatArray, // 24 Hue + 8 Acromáticos = 32 bins
-        val spatialBlockRgb: FloatArray // 16 bloques espaciales (4x4) * 3 canales = 48 valores
+        val colorHistogram: FloatArray, // 36 Hue + 8 Acromáticos = 44 bins
+        val spatialBlockRgb: FloatArray, // 16 bloques espaciales (4x4) * 3 canales = 48 valores
+        val circularMask: BooleanArray
     )
 
     data class ScannedCropMetrics(
@@ -242,11 +243,14 @@ object LocalVisionAnalyzer {
         var sumB = 0f
         var count = 0
 
-        val colorBins = FloatArray(32) // 0..23: 24 Hue bins, 24..31: 8 Niveles de Brillo Acromático
+        // 44 bins: 0..35 (36 Hue bins ponderados por Sat*Val) + 36..43 (8 Niveles Acromáticos)
+        val colorBins = FloatArray(44)
+        var totalHistWeight = 0f
         var validHueCount = 0
 
         val center = (FINGERPRINT_SIZE - 1) / 2.0f
-        val maxRadius = FINGERPRINT_SIZE * 0.43f // Máscara circular para omitir bordes externos de la UI
+        val maxRadius = FINGERPRINT_SIZE * 0.44f // Máscara circular para omitir bordes externos de la UI
+        val circularMask = BooleanArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
 
         val lumValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
         val rValues = FloatArray(FINGERPRINT_SIZE * FINGERPRINT_SIZE)
@@ -261,6 +265,7 @@ object LocalVisionAnalyzer {
                 if (dist > maxRadius) continue
 
                 val idx = y * FINGERPRINT_SIZE + x
+                circularMask[idx] = true
                 val color = pixels[idx]
                 val r = Color.red(color)
                 val g = Color.green(color)
@@ -284,13 +289,18 @@ object LocalVisionAnalyzer {
                 val sat = hsv[1]
                 val value = hsv[2]
 
-                if (sat > 0.12f && value > 0.10f) {
-                    val bin = ((hue / 360f) * 24f).toInt().coerceIn(0, 23)
-                    colorBins[bin] += 1f
+                // Ponderación de Hue por Saturación * Valor para destacar tonos característicos
+                val weight = sat * value
+                if (sat > 0.10f && value > 0.10f) {
+                    val bin = ((hue / 360f) * 36f).toInt().coerceIn(0, 35)
+                    colorBins[bin] += weight
+                    totalHistWeight += weight
                     validHueCount++
                 } else {
-                    val achroBin = (24 + (value * 7.99f).toInt()).coerceIn(24, 31)
-                    colorBins[achroBin] += 1f
+                    val achroBin = (36 + (value * 7.99f).toInt()).coerceIn(36, 43)
+                    val achroWeight = (1.0f - sat) * value
+                    colorBins[achroBin] += achroWeight
+                    totalHistWeight += achroWeight
                 }
             }
         }
@@ -313,10 +323,8 @@ object LocalVisionAnalyzer {
         var sumBChan = 0f
         for (y in 0 until FINGERPRINT_SIZE) {
             for (x in 0 until FINGERPRINT_SIZE) {
-                val dx = x - center
-                val dy = y - center
-                if (sqrt(dx * dx + dy * dy) <= maxRadius) {
-                    val idx = y * FINGERPRINT_SIZE + x
+                val idx = y * FINGERPRINT_SIZE + x
+                if (circularMask[idx]) {
                     sumLum += lumValues[idx]
                     sumRChan += rValues[idx]
                     sumGChan += gValues[idx]
@@ -335,10 +343,8 @@ object LocalVisionAnalyzer {
         var varB = 0f
         for (y in 0 until FINGERPRINT_SIZE) {
             for (x in 0 until FINGERPRINT_SIZE) {
-                val dx = x - center
-                val dy = y - center
-                if (sqrt(dx * dx + dy * dy) <= maxRadius) {
-                    val idx = y * FINGERPRINT_SIZE + x
+                val idx = y * FINGERPRINT_SIZE + x
+                if (circularMask[idx]) {
                     val dLum = lumValues[idx] - lumMean
                     varLum += dLum * dLum
                     val dR = rValues[idx] - rMean
@@ -355,9 +361,10 @@ object LocalVisionAnalyzer {
         val gStdDev = sqrt(varG / count).coerceAtLeast(1.0f)
         val bStdDev = sqrt(varB / count).coerceAtLeast(1.0f)
 
-        // Normalizar histograma
-        for (i in 0 until 32) {
-            colorBins[i] /= count.toFloat()
+        // Normalizar histograma de 44 bins
+        val normWeight = max(0.0001f, totalHistWeight)
+        for (i in 0 until 44) {
+            colorBins[i] /= normWeight
         }
 
         // Bloques espaciales 4x4
@@ -371,10 +378,8 @@ object LocalVisionAnalyzer {
                 var blockCount = 0
                 for (py in (by * blockSize) until ((by + 1) * blockSize)) {
                     for (px in (bx * blockSize) until ((bx + 1) * blockSize)) {
-                        val dx = px - center
-                        val dy = py - center
-                        if (sqrt(dx * dx + dy * dy) <= maxRadius) {
-                            val pIdx = py * FINGERPRINT_SIZE + px
+                        val pIdx = py * FINGERPRINT_SIZE + px
+                        if (circularMask[pIdx]) {
                             val c = pixels[pIdx]
                             blockR += Color.red(c)
                             blockG += Color.green(c)
@@ -413,7 +418,8 @@ object LocalVisionAnalyzer {
             gValues = gValues,
             bValues = bValues,
             colorHistogram = colorBins,
-            spatialBlockRgb = spatialBlockRgb
+            spatialBlockRgb = spatialBlockRgb,
+            circularMask = circularMask
         )
     }
 
@@ -580,60 +586,81 @@ object LocalVisionAnalyzer {
             if (excludedChampionIds.contains(champ.id)) continue
             val sig = cachedSignatures[champ.id] ?: continue
 
-            // 1. ZNCC multicanal (Luminancia + R, G, B) y distancia píxel a píxel
-            var znccSumLum = 0f
-            var znccSumR = 0f
-            var znccSumG = 0f
-            var znccSumB = 0f
-            var pixelColorDistSum = 0f
-            var pixelCount = 0
+            // 1. ZNCC Multi-Offset (Offsets espaciales dx, dy en -2..2 para máxima tolerancia a traslación)
+            var bestLumZNCC = -1.0f
+            var bestR_ZNCC = -1.0f
+            var bestG_ZNCC = -1.0f
+            var bestB_ZNCC = -1.0f
+            var bestPixelDist = 1.0f
 
-            for (y in 0 until FINGERPRINT_SIZE) {
-                for (x in 0 until FINGERPRINT_SIZE) {
-                    val dx = x - center
-                    val dy = y - center
-                    if (sqrt(dx * dx + dy * dy) > maxRadius) continue
+            for (dy in -2..2) {
+                for (dx in -2..2) {
+                    var znccSumLum = 0f
+                    var znccSumR = 0f
+                    var znccSumG = 0f
+                    var znccSumB = 0f
+                    var pixelColorDistSum = 0f
+                    var pixelCount = 0
 
-                    val idx = y * FINGERPRINT_SIZE + x
-                    val p1 = targetFp.rgbPixels[idx]
-                    val p2 = sig.rgbPixels[idx]
+                    for (y in 0 until FINGERPRINT_SIZE) {
+                        val ty = y + dy
+                        if (ty !in 0 until FINGERPRINT_SIZE) continue
+                        for (x in 0 until FINGERPRINT_SIZE) {
+                            val tx = x + dx
+                            if (tx !in 0 until FINGERPRINT_SIZE) continue
 
-                    val r1 = Color.red(p1).toFloat()
-                    val g1 = Color.green(p1).toFloat()
-                    val b1 = Color.blue(p1).toFloat()
-                    val lum1 = (r1 * 299f + g1 * 587f + b1 * 114f) / 1000f
+                            val tIdx = ty * FINGERPRINT_SIZE + tx
+                            val rIdx = y * FINGERPRINT_SIZE + x
+                            if (!targetFp.circularMask[tIdx] || !sig.circularMask[rIdx]) continue
 
-                    val r2 = Color.red(p2).toFloat()
-                    val g2 = Color.green(p2).toFloat()
-                    val b2 = Color.blue(p2).toFloat()
-                    val lum2 = (r2 * 299f + g2 * 587f + b2 * 114f) / 1000f
+                            val p1 = targetFp.rgbPixels[tIdx]
+                            val p2 = sig.rgbPixels[rIdx]
 
-                    znccSumLum += ((lum1 - targetFp.lumMean) / targetFp.lumStdDev) * ((lum2 - sig.lumMean) / sig.lumStdDev)
-                    znccSumR += ((r1 - targetFp.rMean) / targetFp.rStdDev) * ((r2 - sig.rMean) / sig.rStdDev)
-                    znccSumG += ((g1 - targetFp.gMean) / targetFp.gStdDev) * ((g2 - sig.gMean) / sig.gStdDev)
-                    znccSumB += ((b1 - targetFp.bMean) / targetFp.bStdDev) * ((b2 - sig.bMean) / sig.bStdDev)
+                            val r1 = Color.red(p1).toFloat()
+                            val g1 = Color.green(p1).toFloat()
+                            val b1 = Color.blue(p1).toFloat()
+                            val lum1 = targetFp.lumValues[tIdx]
 
-                    val dr = abs(r1 - r2) / 255f
-                    val dg = abs(g1 - g2) / 255f
-                    val db = abs(b1 - b2) / 255f
-                    pixelColorDistSum += (dr + dg + db) / 3f
+                            val r2 = Color.red(p2).toFloat()
+                            val g2 = Color.green(p2).toFloat()
+                            val b2 = Color.blue(p2).toFloat()
+                            val lum2 = sig.lumValues[rIdx]
 
-                    pixelCount++
+                            znccSumLum += ((lum1 - targetFp.lumMean) / targetFp.lumStdDev) * ((lum2 - sig.lumMean) / sig.lumStdDev)
+                            znccSumR += ((r1 - targetFp.rMean) / targetFp.rStdDev) * ((r2 - sig.rMean) / sig.rStdDev)
+                            znccSumG += ((g1 - targetFp.gMean) / targetFp.gStdDev) * ((g2 - sig.gMean) / sig.gStdDev)
+                            znccSumB += ((b1 - targetFp.bMean) / targetFp.bStdDev) * ((b2 - sig.bMean) / sig.bStdDev)
+
+                            val dr = abs(r1 - r2) / 255f
+                            val dg = abs(g1 - g2) / 255f
+                            val db = abs(b1 - b2) / 255f
+                            pixelColorDistSum += (dr + dg + db) / 3f
+
+                            pixelCount++
+                        }
+                    }
+
+                    if (pixelCount > (FINGERPRINT_SIZE * FINGERPRINT_SIZE * 0.35f)) {
+                        val lumC = (znccSumLum / pixelCount.toFloat()).coerceIn(-1f, 1f)
+                        val rC = (znccSumR / pixelCount.toFloat()).coerceIn(-1f, 1f)
+                        val gC = (znccSumG / pixelCount.toFloat()).coerceIn(-1f, 1f)
+                        val bC = (znccSumB / pixelCount.toFloat()).coerceIn(-1f, 1f)
+                        val avgDist = pixelColorDistSum / pixelCount.toFloat()
+
+                        if (lumC > bestLumZNCC) {
+                            bestLumZNCC = lumC
+                            bestR_ZNCC = rC
+                            bestG_ZNCC = gC
+                            bestB_ZNCC = bC
+                            bestPixelDist = avgDist
+                        }
+                    }
                 }
             }
 
-            if (pixelCount == 0) continue
-
-            val lumCorr = if (targetFp.lumStdDev > 1f && sig.lumStdDev > 1f) (znccSumLum / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            val rCorr = if (targetFp.rStdDev > 1f && sig.rStdDev > 1f) (znccSumR / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            val gCorr = if (targetFp.gStdDev > 1f && sig.gStdDev > 1f) (znccSumG / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            val bCorr = if (targetFp.bStdDev > 1f && sig.bStdDev > 1f) (znccSumB / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            
-            val avgCorr = ((lumCorr * 0.40f) + (rCorr * 0.20f) + (gCorr * 0.20f) + (bCorr * 0.20f)).coerceIn(-1f, 1f)
+            val avgCorr = ((bestLumZNCC * 0.40f) + (bestR_ZNCC * 0.20f) + (bestG_ZNCC * 0.20f) + (bestB_ZNCC * 0.20f)).coerceIn(-1f, 1f)
             val pixelSimilarity = if (avgCorr > 0f) avgCorr else 0f
-
-            val avgPixelDist = pixelColorDistSum / pixelCount.toFloat()
-            val pixelColorSim = (1.0f - avgPixelDist).coerceIn(0f, 1f)
+            val pixelColorSim = (1.0f - bestPixelDist).coerceIn(0f, 1f)
 
             // 2. Similitud de Bloques Espaciales 4x4 (Grid de 16 bloques)
             var blockDiffSum = 0f
@@ -659,27 +686,25 @@ object LocalVisionAnalyzer {
                               abs(targetFp.chromaB - sig.chromaB)) / 2.0f
             val avgColorSim = (1.0f - chromaDiff).coerceIn(0f, 1f)
 
-            // 4. Similitud de Histograma de 32 Bins (HSV + Acromático)
+            // 4. Similitud de Histograma de 44 Bins (36 Hue ponderados por Sat*Val + 8 Acromáticos)
             var histIntersection = 0f
-            for (i in 0 until 32) {
+            for (i in 0 until 44) {
                 histIntersection += min(targetFp.colorHistogram[i], sig.colorHistogram[i])
             }
             val histSimilarity = histIntersection.coerceIn(0f, 1f)
 
-            // 5. Puntuación compuesta
-            val baseVisualScore = (pixelSimilarity * 0.35f) +
-                                   (pixelColorSim * 0.30f) +
-                                   (blockSim * 0.22f) +
-                                   (histSimilarity * 0.08f) +
-                                   (avgColorSim * 0.05f)
+            // 5. Puntuación compuesta con balance de alta fidelidad cromática y espacial
+            val baseVisualScore = (pixelSimilarity * 0.45f) +
+                                   (histSimilarity * 0.40f) +
+                                   (avgColorSim * 0.15f)
 
             // Calibración de confianza para campeones con alta coincidencia estructural y cromática
-            val calibratedScore = if (pixelSimilarity >= 0.65f && pixelColorSim >= 0.70f && blockSim >= 0.75f) {
-                val boostFactor = ((pixelSimilarity - 0.65f) / 0.35f).coerceIn(0f, 1f)
-                baseVisualScore + (1.0f - baseVisualScore) * 0.65f * boostFactor
-            } else if (pixelSimilarity >= 0.50f && pixelColorSim >= 0.65f) {
-                val boostFactor = ((pixelSimilarity - 0.50f) / 0.50f).coerceIn(0f, 1f)
-                baseVisualScore + (1.0f - baseVisualScore) * 0.40f * boostFactor
+            val calibratedScore = if (pixelSimilarity >= 0.60f && histSimilarity >= 0.65f) {
+                val boostFactor = (((pixelSimilarity - 0.60f) / 0.40f) * 0.5f + ((histSimilarity - 0.65f) / 0.35f) * 0.5f).coerceIn(0f, 1f)
+                baseVisualScore + (1.0f - baseVisualScore) * 0.60f * boostFactor
+            } else if (pixelSimilarity >= 0.45f && histSimilarity >= 0.55f) {
+                val boostFactor = ((pixelSimilarity - 0.45f) / 0.55f).coerceIn(0f, 1f)
+                baseVisualScore + (1.0f - baseVisualScore) * 0.35f * boostFactor
             } else {
                 baseVisualScore
             }
