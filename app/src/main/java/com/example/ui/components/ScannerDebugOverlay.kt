@@ -23,6 +23,8 @@ fun ScannerDebugOverlay(
 ) {
     val currentConfig by DraftVisionScanner.calibrationConfigFlow.collectAsStateWithLifecycle()
     val debugMatches by DraftVisionScanner.debugVisualMatches.collectAsStateWithLifecycle()
+    val tenthPickOnly by DraftVisionScanner.showTenthPickOnly.collectAsStateWithLifecycle()
+    val activeSide by DraftVisionScanner.activeTenthPickSide.collectAsStateWithLifecycle()
     val density = LocalDensity.current
     
     Canvas(modifier = Modifier.fillMaxSize()) {
@@ -56,6 +58,77 @@ fun ScannerDebugOverlay(
             isAntiAlias = true
             textAlign = android.graphics.Paint.Align.CENTER
             setShadowLayer(4f, 0f, 0f, android.graphics.Color.BLACK)
+        }
+
+        if (tenthPickOnly) {
+            // MODO EXCLUSIVO 10º PICK: Dibujar ÚNICAMENTE las miras del 10º pick sobre la pantalla
+            val drawAlly10 = (activeSide == null || activeSide == 0)
+            val drawEnemy10 = (activeSide == null || activeSide == 1)
+
+            if (drawAlly10) {
+                val ally5X = w * currentConfig.topAlly5XRatio
+                val isSelected = (activeSide == 0)
+
+                drawCircle(
+                    color = if (isSelected) Color(0xFF00E5FF) else Color(0x8800E5FF),
+                    center = Offset(ally5X, topY),
+                    radius = topRadius,
+                    style = Stroke(width = if (isSelected) 3.5f else 2.0f)
+                )
+                // Cruz de mira
+                val crossArm = topRadius + 6f
+                drawLine(
+                    color = Color(0xFF00E5FF),
+                    start = Offset(ally5X - crossArm, topY),
+                    end = Offset(ally5X + crossArm, topY),
+                    strokeWidth = if (isSelected) 2.5f else 1.5f
+                )
+                drawLine(
+                    color = Color(0xFF00E5FF),
+                    start = Offset(ally5X, topY - crossArm),
+                    end = Offset(ally5X, topY + crossArm),
+                    strokeWidth = if (isSelected) 2.5f else 1.5f
+                )
+                drawContext.canvas.nativeCanvas.drawText(
+                    "10º PICK ALIADO",
+                    ally5X,
+                    topY + topRadius + 15f,
+                    allyTextPaint
+                )
+            }
+
+            if (drawEnemy10) {
+                val enemy5X = w * currentConfig.topEnemy5XRatio
+                val isSelected = (activeSide == 1)
+
+                drawCircle(
+                    color = if (isSelected) Color(0xFFFF5252) else Color(0x88FF5252),
+                    center = Offset(enemy5X, topY),
+                    radius = topRadius,
+                    style = Stroke(width = if (isSelected) 3.5f else 2.0f)
+                )
+                // Cruz de mira
+                val crossArm = topRadius + 6f
+                drawLine(
+                    color = Color(0xFFFF5252),
+                    start = Offset(enemy5X - crossArm, topY),
+                    end = Offset(enemy5X + crossArm, topY),
+                    strokeWidth = if (isSelected) 2.5f else 1.5f
+                )
+                drawLine(
+                    color = Color(0xFFFF5252),
+                    start = Offset(enemy5X, topY - crossArm),
+                    end = Offset(enemy5X, topY + crossArm),
+                    strokeWidth = if (isSelected) 2.5f else 1.5f
+                )
+                drawContext.canvas.nativeCanvas.drawText(
+                    "10º PICK RIVAL",
+                    enemy5X,
+                    topY + topRadius + 15f,
+                    enemyTextPaint
+                )
+            }
+            return@Canvas
         }
         
         // 1. SLOTS VERTICALES (LADO IZQUIERDO Y DERECHO)

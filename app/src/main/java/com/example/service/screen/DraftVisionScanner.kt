@@ -109,6 +109,8 @@ object DraftVisionScanner {
     private const val TAG = "DraftVisionScanner"
     var overlayRect: android.graphics.Rect? = null
     val showCalibrationBoxes = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val showTenthPickOnly = kotlinx.coroutines.flow.MutableStateFlow(false)
+    val activeTenthPickSide = kotlinx.coroutines.flow.MutableStateFlow<Int?>(null) // 0 = Ally, 1 = Enemy, null = Both
     val debugVisualMatches = kotlinx.coroutines.flow.MutableStateFlow<Map<String, String>>(emptyMap())
 
     

@@ -3564,11 +3564,15 @@ private fun TenthPickScannerViewerDialog(
 
     val step = if (isFastStep) 0.010f else 0.002f
 
-    // Proyectar círculos de calibración directamente sobre la pantalla mientras el visor está abierto
-    DisposableEffect(Unit) {
+    // Proyectar círculos de calibración directamente sobre la pantalla exclusivamente para el 10º pick
+    DisposableEffect(selectedVision) {
         com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = true
+        com.example.service.screen.DraftVisionScanner.showTenthPickOnly.value = true
+        com.example.service.screen.DraftVisionScanner.activeTenthPickSide.value = selectedVision
         onDispose {
             com.example.service.screen.DraftVisionScanner.showCalibrationBoxes.value = false
+            com.example.service.screen.DraftVisionScanner.showTenthPickOnly.value = false
+            com.example.service.screen.DraftVisionScanner.activeTenthPickSide.value = null
         }
     }
 

@@ -587,13 +587,15 @@ object LocalVisionAnalyzer {
 
             if (pixelCount == 0) continue
 
-            val rawZnccR = ((znccSumR / pixelCount.toFloat()) + 1.0f) / 2.0f
-            val rawZnccG = ((znccSumG / pixelCount.toFloat()) + 1.0f) / 2.0f
-            val rawZnccB = ((znccSumB / pixelCount.toFloat()) + 1.0f) / 2.0f
-            val pixelSimilarity = ((rawZnccR * 0.33f) + (rawZnccG * 0.33f) + (rawZnccB * 0.34f)).coerceIn(0f, 1f)
+            // 1. ZNCC por canal con correlación estricta
+            val rCorr = if (targetFp.rStdDev > 1f && sig.rStdDev > 1f) (znccSumR / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
+            val gCorr = if (targetFp.gStdDev > 1f && sig.gStdDev > 1f) (znccSumG / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
+            val bCorr = if (targetFp.bStdDev > 1f && sig.bStdDev > 1f) (znccSumB / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
+            val avgCorr = ((rCorr * 0.33f) + (gCorr * 0.33f) + (bCorr * 0.34f)).coerceIn(-1f, 1f)
+            val pixelSimilarity = if (avgCorr > 0f) avgCorr else 0f
 
             val avgPixelDist = pixelColorDistSum / pixelCount.toFloat()
-            val pixelColorSim = (1.0f - avgPixelDist).coerceIn(0f, 1f)
+            val pixelColorSim = kotlin.math.exp(- (avgPixelDist * 3.2f)).toFloat().coerceIn(0f, 1f)
 
             // 2. Similitud de Cuadrícula Espacial de 16 Bloques (4x4)
             var blockDiffSum = 0f
@@ -610,13 +612,14 @@ object LocalVisionAnalyzer {
                 val bDiff = (abs(bTargetR - bSigR) + abs(bTargetG - bSigG) + abs(bTargetB - bSigB)) / (3f * 255f)
                 blockDiffSum += bDiff
             }
-            val blockSim = (1.0f - (blockDiffSum / 16f)).coerceIn(0f, 1f)
+            val avgBlockDiff = blockDiffSum / 16f
+            val blockSim = kotlin.math.exp(- (avgBlockDiff * 3.0f)).toFloat().coerceIn(0f, 1f)
 
             // 3. Similitud de Balance Cromático Global
             val chromaDiff = (abs(targetFp.chromaR - sig.chromaR) +
                               abs(targetFp.chromaG - sig.chromaG) +
                               abs(targetFp.chromaB - sig.chromaB)) / 2.0f
-            val avgColorSim = (1.0f - chromaDiff).coerceIn(0f, 1f)
+            val avgColorSim = kotlin.math.exp(- (chromaDiff * 3.5f)).toFloat().coerceIn(0f, 1f)
 
             // 4. Similitud de Histograma de 16 Bins (12 HUE + 4 Acromáticos)
             var histIntersection = 0f
@@ -627,12 +630,12 @@ object LocalVisionAnalyzer {
 
             // 5. Puntuación visual combinada de alta precisión
             val baseVisualScore = (pixelSimilarity * 0.35f) +
-                                  (pixelColorSim * 0.30f) +
-                                  (blockSim * 0.20f) +
+                                  (pixelColorSim * 0.25f) +
+                                  (blockSim * 0.25f) +
                                   (histSimilarity * 0.15f)
 
             var roleBonus = 0f
-            if (expectedRole != null && baseVisualScore >= 0.30f) {
+            if (expectedRole != null && baseVisualScore >= 0.25f) {
                 if (champ.primaryRole == expectedRole) {
                     roleBonus = 0.03f
                 } else if (champ.secondaryRoles.contains(expectedRole)) {
