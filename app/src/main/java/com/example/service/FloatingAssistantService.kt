@@ -4409,15 +4409,23 @@ private fun TenthPickScannerViewerDialog(
                             Text("Recorte en Vivo", color = TextMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             if (displayCrop != null && !displayCrop.isRecycled) {
-                                Image(
-                                    bitmap = displayCrop.asImageBitmap(),
-                                    contentDescription = null,
+                                Box(
                                     modifier = Modifier
                                         .size(84.dp)
                                         .clip(CircleShape)
+                                        .background(HextechDarkBg)
                                         .border(2.dp, if (selectedVision == 0) AllyBlue else DangerRed, CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Image(
+                                        bitmap = displayCrop.asImageBitmap(),
+                                        contentDescription = "Recorte en Vivo",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             } else {
                                 Box(
                                     modifier = Modifier
@@ -4474,18 +4482,12 @@ private fun TenthPickScannerViewerDialog(
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             if (matchedChamp != null) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(84.dp)
-                                        .clip(CircleShape)
-                                        .border(2.dp, if (isConfirmed) HextechGold else HextechCyan, CircleShape)
-                                ) {
-                                    ChampionAvatar(
-                                        champion = matchedChamp,
-                                        size = 84.dp,
-                                        showTierBadge = false
-                                    )
-                                }
+                                ChampionAvatar(
+                                    champion = matchedChamp,
+                                    size = 84.dp,
+                                    showTierBadge = false,
+                                    borderColor = if (isConfirmed) HextechGold else HextechCyan
+                                )
                             } else {
                                 Box(
                                     modifier = Modifier

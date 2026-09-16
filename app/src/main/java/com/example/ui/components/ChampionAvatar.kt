@@ -50,6 +50,7 @@ fun ChampionAvatar(
     champion: Champion,
     size: Dp = 56.dp,
     showTierBadge: Boolean = true,
+    borderColor: Color = HextechGold,
     modifier: Modifier = Modifier
 ) {
     // Animación fluida de escala y deslizamiento al seleccionar o cambiar de campeón
@@ -107,7 +108,7 @@ fun ChampionAvatar(
                 .fillMaxSize()
                 .clip(CircleShape)
                 .background(HextechDarkBg)
-                .border(2.dp, HextechGold, CircleShape),
+                .border(2.dp, borderColor, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Box(

@@ -963,12 +963,14 @@ object LocalVisionAnalyzer {
                 }
                 val histSimilarity = histIntersection.coerceIn(0f, 1f)
 
-                // 5. Puntuación visual combinada de alta precisión
-                val rawScore = (pixelSimilarity * 0.35f) +
+                // 5. Puntuación visual combinada de alta precisión con ponderación cromática estricta
+                val colorWeightMultiplier = (avgColorSim * 0.5f + histSimilarity * 0.5f).coerceIn(0.1f, 1.0f)
+                val rawScore = ((pixelSimilarity * 0.30f) +
                                (pixelColorSim * 0.25f) +
-                               (blockSim * 0.25f) +
-                               (histSimilarity * 0.15f)
-                val variantScore = if (sig.variantName == "negative") rawScore * 0.90f else rawScore
+                               (blockSim * 0.20f) +
+                               (histSimilarity * 0.15f) +
+                               (avgColorSim * 0.10f)) * colorWeightMultiplier
+                val variantScore = if (sig.variantName == "negative") rawScore * 0.85f else rawScore
 
                 if (variantScore > bestVariantScore) {
                     bestVariantScore = variantScore
