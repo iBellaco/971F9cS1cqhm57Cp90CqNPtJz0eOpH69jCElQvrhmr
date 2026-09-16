@@ -20,8 +20,8 @@ android {
     applicationId = "com.Coach"
     minSdk = 24
     targetSdk = 36
-    versionCode = 493
-    versionName = "1.1.0.85"
+    versionCode = 494
+    versionName = "1.1.0.86"
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     val geminiKey = project.findProperty("GEMINI_API_KEY") as? String ?: System.getenv("GEMINI_API_KEY") ?: ""
     buildConfigField("String", "GEMINI_API_KEY", "\"${geminiKey}\"")
@@ -128,6 +128,7 @@ dependencies {
   implementation(libs.mlkit.text.recognition)
   implementation(libs.androidx.work.runtime.ktx)
   implementation(libs.jsoup)
+  implementation("androidx.documentfile:documentfile:1.0.1")
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
   implementation(libs.kotlinx.coroutines.play.services)

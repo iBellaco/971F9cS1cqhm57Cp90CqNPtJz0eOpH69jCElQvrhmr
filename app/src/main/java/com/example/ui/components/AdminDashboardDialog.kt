@@ -174,7 +174,7 @@ fun AdminDashboardDialog(
     var showDatabaseConsumptionDialog by remember { mutableStateOf(false) }
     var showSponsorModerationDialog by remember { mutableStateOf(false) }
     var showSponsorPanelDialog by remember { mutableStateOf(false) }
-    var showScraperDialog by remember { mutableStateOf(false) }
+    var showAugmentorDialog by remember { mutableStateOf(false) }
     var isMonitoringMinimized by remember { mutableStateOf(false) }
 
     // Sub-dialogs
@@ -210,8 +210,8 @@ fun AdminDashboardDialog(
         SponsorCpmPanelDialog(onDismiss = { showSponsorPanelDialog = false })
     }
 
-    if (showScraperDialog) {
-        AdminChampionScraperDialog(onDismiss = { showScraperDialog = false })
+    if (showAugmentorDialog) {
+        AdminDatasetAugmentorDialog(onDismiss = { showAugmentorDialog = false })
     }
 
     Dialog(
@@ -236,7 +236,7 @@ fun AdminDashboardDialog(
                     onOpenCpmAnalytics = { showCpmAnalyticsDialog = true },
                     onOpenDatabaseConsumption = { showDatabaseConsumptionDialog = true },
                     onOpenSponsorPanel = { showSponsorPanelDialog = true },
-                    onOpenScraper = { showScraperDialog = true },
+                    onOpenAugmentor = { showAugmentorDialog = true },
                     isFullAdmin = userRole == "admin" || com.example.util.AuthManager.isCurrentUserAdmin()
                 )
 
@@ -280,7 +280,7 @@ private fun AdminDashboardHeader(
     onOpenCpmAnalytics: () -> Unit = {},
     onOpenDatabaseConsumption: () -> Unit = {},
     onOpenSponsorPanel: () -> Unit = {},
-    onOpenScraper: () -> Unit = {},
+    onOpenAugmentor: () -> Unit = {},
     isFullAdmin: Boolean = true
 ) {
     Surface(
@@ -416,17 +416,17 @@ private fun AdminDashboardHeader(
                     Text("Base Datos", fontSize = 9.sp, color = HextechGold, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
-                // Botón Scraper Dataset
+                // Botón Dataset Augmentor IA
                 AnimatedAdminActionButton(
-                    onClick = onOpenScraper,
+                    onClick = onOpenAugmentor,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6).copy(alpha = 0.2f)),
                     shape = RoundedCornerShape(8.dp),
                     contentPadding = PaddingValues(horizontal = 2.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Default.CloudDownload, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(12.dp))
+                    Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color(0xFF60A5FA), modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(2.dp))
-                    Text("Scraper", fontSize = 9.sp, color = Color(0xFF60A5FA), fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    Text("Dataset IA", fontSize = 9.sp, color = Color(0xFF60A5FA), fontWeight = FontWeight.SemiBold, maxLines = 1)
                 }
 
 
