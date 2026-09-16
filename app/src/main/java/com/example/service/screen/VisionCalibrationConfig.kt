@@ -47,15 +47,15 @@ data class VisionCalibrationConfig(
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
     // En la barra superior de Wild Rift durante selección final y fase de preparación:
     // - A la izquierda están los 5 avatares aliados (1..5: del 2.8% al 16.8% de la pantalla).
-    // - A la derecha están los 5 avatares rivales (1..5: del 83.2% al 97.2% de la pantalla).
-    // - Si el usuario es Primera Selección: el 10º Pick es el último avatar del lado derecho superior (Rival 5: 0.972f).
+    // - A la derecha están los 5 avatares rivales (1..5: del 83.4% al 97.4% de la pantalla).
+    // - Si el usuario es Primera Selección: el 10º Pick es el último avatar del lado derecho superior (Rival 5: 0.974f).
     // - Si el usuario NO es Primera Selección: el 10º Pick es el último avatar del lado izquierdo superior (Aliado 5: 0.168f).
     val topAvatarYRatio: Float = 0.045f,
-    val topAvatarDiameterRatio: Float = 0.056f,
+    val topAvatarDiameterRatio: Float = 0.072f,
     val topAlly5XRatio: Float = 0.168f,
-    val topEnemy5XRatio: Float = 0.972f,
+    val topEnemy5XRatio: Float = 0.974f,
     val topAllyXRatios: List<Float> = listOf(0.028f, 0.063f, 0.098f, 0.133f, 0.168f),
-    val topEnemyXRatios: List<Float> = listOf(0.832f, 0.867f, 0.902f, 0.937f, 0.972f)
+    val topEnemyXRatios: List<Float> = listOf(0.834f, 0.869f, 0.904f, 0.939f, 0.974f)
 ) {
     fun toFormattedCoordinatesString(): String {
         val sb = StringBuilder()
@@ -130,7 +130,7 @@ VisionCalibrationConfig(
     }
 
     companion object {
-        private const val CURRENT_CALIBRATION_VERSION = 4
+        private const val CURRENT_CALIBRATION_VERSION = 5
 
         fun resetToDefaults(context: Context): VisionCalibrationConfig {
             val prefs = context.getSharedPreferences("vision_calibration_prefs", Context.MODE_PRIVATE)
