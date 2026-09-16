@@ -61,7 +61,7 @@ fun ScannerDebugOverlay(
         }
 
         if (tenthPickOnly) {
-            // MODO EXCLUSIVO 10º PICK: Dibujar ÚNICAMENTE las miras del 10º pick sobre la pantalla
+            // MODO EXCLUSIVO 10º PICK: Dibujar el anillo y guías exteriores limpias (interior 100% despejado)
             val drawAlly10 = (activeSide == null || activeSide == 0)
             val drawEnemy10 = (activeSide == null || activeSide == 1)
 
@@ -69,26 +69,29 @@ fun ScannerDebugOverlay(
                 val ally5X = w * currentConfig.topAlly5XRatio
                 val isSelected = (activeSide == 0)
 
+                // Anillo delimitador exterior del avatar
                 drawCircle(
                     color = if (isSelected) Color(0xFF00E5FF) else Color(0x8800E5FF),
                     center = Offset(ally5X, topY),
                     radius = topRadius,
-                    style = Stroke(width = if (isSelected) 3.5f else 2.0f)
+                    style = Stroke(width = if (isSelected) 2.5f else 1.5f)
                 )
-                // Cruz de mira
-                val crossArm = topRadius + 6f
-                drawLine(
-                    color = Color(0xFF00E5FF),
-                    start = Offset(ally5X - crossArm, topY),
-                    end = Offset(ally5X + crossArm, topY),
-                    strokeWidth = if (isSelected) 2.5f else 1.5f
-                )
-                drawLine(
-                    color = Color(0xFF00E5FF),
-                    start = Offset(ally5X, topY - crossArm),
-                    end = Offset(ally5X, topY + crossArm),
-                    strokeWidth = if (isSelected) 2.5f else 1.5f
-                )
+
+                // Guías exteriores tipo retícula (ticks) que NO invaden el interior del avatar
+                val tickStart = topRadius + 2f
+                val tickEnd = topRadius + 8f
+                val tickColor = if (isSelected) Color(0xFF00E5FF) else Color(0x8800E5FF)
+                val tickWidth = if (isSelected) 2.0f else 1.2f
+
+                // Izquierda
+                drawLine(tickColor, Offset(ally5X - tickEnd, topY), Offset(ally5X - tickStart, topY), tickWidth)
+                // Derecha
+                drawLine(tickColor, Offset(ally5X + tickStart, topY), Offset(ally5X + tickEnd, topY), tickWidth)
+                // Arriba
+                drawLine(tickColor, Offset(ally5X, topY - tickEnd), Offset(ally5X, topY - tickStart), tickWidth)
+                // Abajo
+                drawLine(tickColor, Offset(ally5X, topY + tickStart), Offset(ally5X, topY + tickEnd), tickWidth)
+
                 drawContext.canvas.nativeCanvas.drawText(
                     "10º PICK ALIADO",
                     ally5X,
@@ -101,26 +104,29 @@ fun ScannerDebugOverlay(
                 val enemy5X = w * currentConfig.topEnemy5XRatio
                 val isSelected = (activeSide == 1)
 
+                // Anillo delimitador exterior del avatar
                 drawCircle(
                     color = if (isSelected) Color(0xFFFF5252) else Color(0x88FF5252),
                     center = Offset(enemy5X, topY),
                     radius = topRadius,
-                    style = Stroke(width = if (isSelected) 3.5f else 2.0f)
+                    style = Stroke(width = if (isSelected) 2.5f else 1.5f)
                 )
-                // Cruz de mira
-                val crossArm = topRadius + 6f
-                drawLine(
-                    color = Color(0xFFFF5252),
-                    start = Offset(enemy5X - crossArm, topY),
-                    end = Offset(enemy5X + crossArm, topY),
-                    strokeWidth = if (isSelected) 2.5f else 1.5f
-                )
-                drawLine(
-                    color = Color(0xFFFF5252),
-                    start = Offset(enemy5X, topY - crossArm),
-                    end = Offset(enemy5X, topY + crossArm),
-                    strokeWidth = if (isSelected) 2.5f else 1.5f
-                )
+
+                // Guías exteriores tipo retícula (ticks) que NO invaden el interior del avatar
+                val tickStart = topRadius + 2f
+                val tickEnd = topRadius + 8f
+                val tickColor = if (isSelected) Color(0xFFFF5252) else Color(0x88FF5252)
+                val tickWidth = if (isSelected) 2.0f else 1.2f
+
+                // Izquierda
+                drawLine(tickColor, Offset(enemy5X - tickEnd, topY), Offset(enemy5X - tickStart, topY), tickWidth)
+                // Derecha
+                drawLine(tickColor, Offset(enemy5X + tickStart, topY), Offset(enemy5X + tickEnd, topY), tickWidth)
+                // Arriba
+                drawLine(tickColor, Offset(enemy5X, topY - tickEnd), Offset(enemy5X, topY - tickStart), tickWidth)
+                // Abajo
+                drawLine(tickColor, Offset(enemy5X, topY + tickStart), Offset(enemy5X, topY + tickEnd), tickWidth)
+
                 drawContext.canvas.nativeCanvas.drawText(
                     "10º PICK RIVAL",
                     enemy5X,

@@ -182,8 +182,8 @@ object DraftVisionScanner {
     private var cachedUserSlotIndex: Int? = null
 
     // Memoria persistente de campeones confirmados por slot para evitar que desaparezcan al terminar o transicionar
-    private val allySlotConfirmedChampions = arrayOfNulls<Champion>(5)
-    private val enemySlotConfirmedChampions = arrayOfNulls<Champion>(5)
+    val allySlotConfirmedChampions = arrayOfNulls<Champion>(5)
+    val enemySlotConfirmedChampions = arrayOfNulls<Champion>(5)
 
     // Filtros de estabilización temporal (anti-parpadeo y anti-oscilación)
     private class SlotTemporalFilter {
@@ -998,11 +998,13 @@ object DraftVisionScanner {
         var isTenthConfirmed = false
         var slotsDismissed = false
         // REGLA CRÍTICA ESTRICTA: ÚNICAMENTE cuando las otras 9 selecciones ya están confirmadas se evalúa la 10ª
-        val eligibleFor10thPick = (otherPicksConfirmed == 9)
+        val eligibleFor10thPick = (otherPicksConfirmed >= 9)
 
         if (eligibleFor10thPick) {
             val confirmedIds = (allySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id } +
-                                enemySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id }).toSet()
+                                enemySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id } +
+                                allySlotConfirmedChampions.filterIndexed { idx, _ -> !(tenthTargetIsAlly && idx == 4) }.mapNotNull { it?.id } +
+                                enemySlotConfirmedChampions.filterIndexed { idx, _ -> !(!tenthTargetIsAlly && idx == 4) }.mapNotNull { it?.id }).toSet()
 
             val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
             val (expectedRole, roleExplanation) = if (!tenthTargetIsAlly) {
@@ -1179,24 +1181,34 @@ object DraftVisionScanner {
             }
         } else {
             // Durante las selecciones 1 a 9, NUNCA se ejecuta reconocimiento visual de imagen.
-            lastPickVisualChampion = null
-            lastPickVisualConfidence = 0.0f
-            isLastPickVisualRecognized = false
+            // Si el 10º pick ya había sido fijado en un frame previo, preservarlo en memoria activa.
+            val previousConfirmed10 = if (tenthTargetIsAlly) allySlotConfirmedChampions[4] else enemySlotConfirmedChampions[4]
+            if (previousConfirmed10 != null) {
+                lastPickVisualChampion = previousConfirmed10
+                lastPickVisualConfidence = 1.0f
+                isLastPickVisualRecognized = true
+                targetSlot.champion = previousConfirmed10
+                targetSlot.confidencePercent = 100
+                targetSlot.isLikelyUnpicked = false
+            } else {
+                lastPickVisualChampion = null
+                lastPickVisualConfidence = 0.0f
+                isLastPickVisualRecognized = false
+            }
         }
 
-        // Si estamos en Fase de Preparación, asegurar que los slots conserven sus campeones confirmados
-        if (isPreparationPhase) {
-            for (i in 0..4) {
-                if (allySlots[i].champion == null && allySlotConfirmedChampions[i] != null) {
-                    allySlots[i].champion = allySlotConfirmedChampions[i]
-                    allySlots[i].confidencePercent = 100
-                    allySlots[i].isLikelyUnpicked = false
-                }
-                if (enemySlots[i].champion == null && enemySlotConfirmedChampions[i] != null) {
-                    enemySlots[i].champion = enemySlotConfirmedChampions[i]
-                    enemySlots[i].confidencePercent = 100
-                    enemySlots[i].isLikelyUnpicked = false
-                }
+        // Blindaje de persistencia incondicional: Asegurar que NINGÚN slot pierda un campeón ya confirmado
+        // (evita que fluctuaciones transitorias de OCR o cambios de animación borren la 10ª selección)
+        for (i in 0..4) {
+            if (allySlots[i].champion == null && allySlotConfirmedChampions[i] != null) {
+                allySlots[i].champion = allySlotConfirmedChampions[i]
+                allySlots[i].confidencePercent = 100
+                allySlots[i].isLikelyUnpicked = false
+            }
+            if (enemySlots[i].champion == null && enemySlotConfirmedChampions[i] != null) {
+                enemySlots[i].champion = enemySlotConfirmedChampions[i]
+                enemySlots[i].confidencePercent = 100
+                enemySlots[i].isLikelyUnpicked = false
             }
         }
         

@@ -1793,6 +1793,8 @@ private fun FloatingOverlayContent(
                             } else if (showTenthPickLogsDialog) {
                                 TenthPickScannerViewerDialog(
                                     screenCaptureManager = screenCaptureManager,
+                                    allies = allies.toList(),
+                                    enemies = enemies.toList(),
                                     onDismiss = { showTenthPickLogsDialog = false },
                                     onDragDelta = onDragDelta
                                 )
@@ -3548,6 +3550,8 @@ private fun CoachContent(
 @Composable
 private fun TenthPickScannerViewerDialog(
     screenCaptureManager: ScreenCaptureManager? = null,
+    allies: List<Champion?> = emptyList(),
+    enemies: List<Champion?> = emptyList(),
     onDismiss: () -> Unit,
     onDragDelta: ((dx: Int, dy: Int, isDragging: Boolean, isEnded: Boolean) -> Unit)? = null
 ) {
@@ -3587,12 +3591,18 @@ private fun TenthPickScannerViewerDialog(
                                 com.example.data.WildRiftRepository.initChampions(context)
                             }
                             val allChamps = com.example.data.WildRiftRepository.champions.toList()
+                            // Excluir de la evaluación visual del 10º pick a todos los campeones ya fijados en los picks 1 al 9
+                            val draftConfirmedIds = (allies.filterNotNull().map { it.id } +
+                                                     enemies.filterNotNull().map { it.id } +
+                                                     com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions.mapNotNull { it?.id } +
+                                                     com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions.mapNotNull { it?.id }).toSet()
                             val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
                                 bitmap = bmp,
                                 isAlly = (selectedVision == 0),
                                 slotIndex = 4, // 10º Pick (5º avatar)
                                 calib = calib,
                                 allChamps = allChamps,
+                                excludedChampionIds = draftConfirmedIds,
                                 context = context
                             )
                             val crop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop?.let {
@@ -4312,37 +4322,38 @@ private fun TenthPickScannerViewerDialog(
                         }
 
                         // Similitud / Coincidencia Central
-                        val topCand = currentLog?.topCandidates?.firstOrNull()
-                        val isConfirmed = currentLog?.selectedChampion != null
-                        val rawScore = if (isConfirmed) {
-                            (currentLog?.confidence ?: 0f)
+                        val log = currentLog
+                        val topCand = log?.topCandidates?.firstOrNull()
+                        val rawScore = if (log?.isConfirmed == true && log.selectedChampion != null) {
+                            log.confidence
                         } else {
-                            (topCand?.compositeScore ?: (currentLog?.confidence ?: 0f))
+                            (topCand?.compositeScore ?: (log?.confidence ?: 0f))
                         }
                         val score = (rawScore * 100).toInt()
+                        val isConfirmed = log?.isConfirmed == true && log.selectedChampion != null && score >= 65
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = "$score%",
-                                color = if (isConfirmed || score >= 48) HextechGold else TextMuted,
+                                color = if (isConfirmed || score >= 55) HextechGold else TextMuted,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 16.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = if (isConfirmed || score >= 70) "CONFIRMADO" else if (score >= 42) "COINCIDENCIA" else "BUSCANDO",
-                                color = if (isConfirmed || score >= 70) Color(0xFF00FF7F) else if (score >= 42) HextechCyan else TextMuted,
+                                text = if (isConfirmed) "CONFIRMADO" else if (score >= 48) "COINCIDENCIA" else "BUSCANDO",
+                                color = if (isConfirmed) Color(0xFF00FF7F) else if (score >= 48) HextechCyan else TextMuted,
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Black
                             )
                         }
 
                         // Avatar Campeón Referencia (84.dp)
-                        val matchedChamp = currentLog?.selectedChampion ?: topCand?.champion
+                        val matchedChamp = log?.selectedChampion ?: topCand?.champion
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = if (matchedChamp != null) {
-                                    "${matchedChamp.name} ${if (isConfirmed) "(100%)" else "(Candidato)"}"
+                                    if (isConfirmed) "${matchedChamp.name} (Confirmado)" else "${matchedChamp.name} ($score%)"
                                 } else "Sin asignar",
                                 color = if (isConfirmed) HextechGold else if (matchedChamp != null) HextechCyan else TextMuted,
                                 fontWeight = FontWeight.Bold,

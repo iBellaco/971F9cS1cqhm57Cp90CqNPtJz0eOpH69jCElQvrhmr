@@ -681,15 +681,15 @@ object LocalVisionAnalyzer {
             return unpopLog
         }
 
-        // Umbral adaptativo calibrado: 0.50f para barra superior / confirmación definitiva, 0.46f para preselección en cuadrícula
-        val minThreshold = if (isConfirmedPhase) 0.50f else 0.46f
+        // Umbral adaptativo calibrado: 0.58f para barra superior / confirmación definitiva, 0.52f para preselección en cuadrícula
+        val minThreshold = if (isConfirmedPhase) 0.58f else 0.52f
         val isConfidenceSufficient = if (best == null) false else {
             if (best.compositeScore >= minThreshold) {
                 true
-            } else if (best.compositeScore >= 0.42f) {
-                // Si hay clara ventaja sobre el segundo candidato (>= 0.03f)
+            } else if (best.compositeScore >= (minThreshold - 0.05f)) {
+                // Si está cerca del umbral pero tiene clara ventaja sobre el segundo candidato (>= 0.05f)
                 val diff = if (runnerUp != null) (best.compositeScore - runnerUp.compositeScore) else 0.1f
-                diff >= 0.030f
+                diff >= 0.050f
             } else {
                 false
             }
