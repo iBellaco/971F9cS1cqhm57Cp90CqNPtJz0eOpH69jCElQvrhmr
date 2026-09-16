@@ -147,14 +147,30 @@ object ZipDatasetManager {
                     if (ext in listOf("png", "jpg", "jpeg", "webp")) {
                         val parts = entryName.split('/')
                         val fileName = parts.last()
-                        val champName = when {
-                            parts.size >= 3 && parts[0].equals("dataset", true) -> parts[1]
-                            parts.size >= 2 -> parts[parts.size - 2]
-                            fileName.contains('_') -> fileName.substringBeforeLast('_')
-                            else -> fileName.substringBeforeLast('.')
-                        }.trim()
+                        
+                        // Determinar el nombre del campeón inspeccionando las carpetas o el nombre de archivo
+                        var champName = ""
+                        // 1. Buscar en las partes de carpeta si alguna coincide con campeón o no es genérica
+                        for (i in (parts.size - 2) downTo 0) {
+                            val candidateFolder = parts[i].trim()
+                            val lower = candidateFolder.lowercase()
+                            if (lower !in listOf("dataset", "campeones", "champions", "images", "assets", "wildrift", "archive", "__macosx") && !lower.startsWith(".")) {
+                                champName = candidateFolder
+                                break
+                            }
+                        }
+                        
+                        // 2. Si no se encontró en carpetas, extraer del nombre de archivo (ej: Volibear_blur.png o Volibear.png)
+                        if (champName.isBlank()) {
+                            val nameWithoutExt = fileName.substringBeforeLast('.')
+                            champName = when {
+                                nameWithoutExt.contains('_') -> nameWithoutExt.substringBeforeLast('_')
+                                nameWithoutExt.contains('-') -> nameWithoutExt.substringBeforeLast('-')
+                                else -> nameWithoutExt
+                            }.trim()
+                        }
 
-                        if (champName.isNotBlank() && !champName.equals("dataset", true) && !champName.startsWith(".")) {
+                        if (champName.isNotBlank() && !champName.startsWith(".")) {
                             val champFolder = File(datasetDir, champName)
                             if (!champFolder.exists()) champFolder.mkdirs()
 

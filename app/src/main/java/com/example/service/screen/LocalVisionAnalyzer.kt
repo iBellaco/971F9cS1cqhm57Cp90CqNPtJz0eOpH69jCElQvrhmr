@@ -180,13 +180,17 @@ object LocalVisionAnalyzer {
                         for (imgFile in imgFiles) {
                             val fName = imgFile.name.lowercase()
                             val variantName = when {
-                                fName.contains("negative") -> "negative"
-                                fName.contains("low_quality") || fName.contains("low") -> "low_quality"
-                                fName.contains("blur") -> "blur"
-                                fName.contains("noise") -> "noise"
-                                fName.contains("contrast") -> "contrast"
+                                fName.contains("negative") || fName.contains("negat") -> "negative"
+                                fName.contains("low_quality") || fName.contains("low") || fName.contains("baja") || fName.contains("compres") -> "low_quality"
+                                fName.contains("blur") || fName.contains("desenf") || fName.contains("borros") -> "blur"
+                                fName.contains("noise") || fName.contains("ruido") -> "noise"
+                                fName.contains("contrast") || fName.contains("contraste") -> "contrast"
                                 fName.contains("pixel") -> "pixelated"
-                                else -> "avatar"
+                                fName.contains("original") || fName.contains("base") || fName.contains("avatar") -> "avatar"
+                                else -> {
+                                    val cleanName = fName.substringBeforeLast('.')
+                                    if (cleanName.isNotBlank()) cleanName else "avatar"
+                                }
                             }
                             try {
                                 val bmp = BitmapFactory.decodeFile(imgFile.absolutePath)
