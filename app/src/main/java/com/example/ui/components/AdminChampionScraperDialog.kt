@@ -16,13 +16,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.graphics.Color
 import com.example.data.sync.WildRiftChampionScraper
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
@@ -41,13 +41,13 @@ fun AdminChampionScraperDialog(
     fun copyToClipboard(label: String, text: String) {
         val clip = ClipData.newPlainText(label, text)
         clipboardManager?.setPrimaryClip(clip)
-        Toast.makeText(context, "Copiado al portapapeles", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Copiado al portapapeles: $text", Toast.LENGTH_SHORT).show()
     }
 
     Dialog(
         onDismissRequest = {
             if (!state.isRunning) onDismiss()
-            else Toast.makeText(context, "El scraping está en curso, por favor espera...", Toast.LENGTH_SHORT).show()
+            else Toast.makeText(context, "El scraping está en curso...", Toast.LENGTH_SHORT).show()
         },
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
@@ -77,8 +77,8 @@ fun AdminChampionScraperDialog(
                             Icon(Icons.Default.CloudDownload, contentDescription = null, tint = HextechGold, modifier = Modifier.size(26.dp))
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
-                                Text("Scraper de Avatares & Dataset", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                Text("Extracción y optimización IA de avatares Wild Rift", color = TextSecondary, fontSize = 11.sp)
+                                Text("Scraper de Campeones (Wiki Wild Rift)", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text("Organización por carpetas con nombre del campeón", color = TextSecondary, fontSize = 11.sp)
                             }
                         }
                         IconButton(
@@ -99,7 +99,6 @@ fun AdminChampionScraperDialog(
                         .weight(1f)
                         .padding(16.dp)
                 ) {
-                    // Action Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(containerColor = HextechSurface),
@@ -113,12 +112,11 @@ fun AdminChampionScraperDialog(
 
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceEvenly
                             ) {
                                 StatBadge("Encontrados", "${state.totalFound}", HextechCyan)
                                 StatBadge("Procesados", "${state.processedCount}", Color(0xFF10B981))
                                 StatBadge("Errores", "${state.errorCount}", DangerRed)
-                                StatBadge("Duplicados", "${state.duplicateCount}", HextechGold)
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -139,24 +137,21 @@ fun AdminChampionScraperDialog(
                                 ) {
                                     Icon(Icons.Default.PlayArrow, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(if (state.isRunning) "Scraping en curso..." else "Iniciar Scraping & Dataset", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    Text(if (state.isRunning) "Scraping en curso..." else "Iniciar Scraping", color = HextechDarkBg, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                 }
 
-                                if (state.manifestPath != null) {
+                                if (state.datasetPath != null) {
                                     OutlinedButton(
                                         onClick = {
-                                            state.manifestPath?.let { path ->
-                                                val file = File(path)
-                                                if (file.exists()) {
-                                                    copyToClipboard("Manifest JSON", file.readText())
-                                                }
+                                            state.datasetPath?.let { path ->
+                                                copyToClipboard("Ruta Dataset", path)
                                             }
                                         },
                                         border = BorderStroke(1.dp, HextechCyan)
                                     ) {
                                         Icon(Icons.Default.ContentCopy, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Copiar Manifest", color = HextechCyan, fontSize = 12.sp)
+                                        Text("Copiar Ruta", color = HextechCyan, fontSize = 12.sp)
                                     }
                                 }
                             }
@@ -168,7 +163,6 @@ fun AdminChampionScraperDialog(
                     Text("Consola de Logs en Tiempo Real:", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
 
-                    // Console Box
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
