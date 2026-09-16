@@ -158,18 +158,30 @@ object LocalVisionAnalyzer {
 
             // 1. Comprobar si existe el dataset extraído del ZIP en filesDir/dataset
             val datasetDir = File(ctx.filesDir, "dataset")
-            val champDirs = if (datasetDir.exists() && datasetDir.isDirectory) {
-                datasetDir.listFiles { f -> f.isDirectory } ?: emptyArray()
-            } else emptyArray()
+            val allDirsInDataset = mutableListOf<File>()
+            if (datasetDir.exists() && datasetDir.isDirectory) {
+                // Recopilar tanto carpetas directas como subcarpetas (por si el ZIP vino con una carpeta contenedora raíz)
+                datasetDir.listFiles { f -> f.isDirectory }?.forEach { sub ->
+                    allDirsInDataset.add(sub)
+                    sub.listFiles { f -> f.isDirectory }?.forEach { deepSub ->
+                        allDirsInDataset.add(deepSub)
+                    }
+                }
+            }
 
-            if (champDirs.isNotEmpty()) {
+            if (allDirsInDataset.isNotEmpty()) {
                 var loadedVariantsTotal = 0
                 for (champ in allChamps) {
                     val sigList = CopyOnWriteArrayList<AvatarFingerprint>()
-                    val champFolder = champDirs.firstOrNull { dir ->
+                    val cleanChampName = champ.name.replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+                    val cleanChampId = champ.id.replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+
+                    val champFolder = allDirsInDataset.firstOrNull { dir ->
+                        val dirClean = dir.name.replace(Regex("[^a-zA-Z0-9]"), "").lowercase()
+                        dirClean == cleanChampName ||
+                        dirClean == cleanChampId ||
                         dir.name.equals(champ.name, ignoreCase = true) ||
-                        dir.name.equals(champ.id, ignoreCase = true) ||
-                        dir.name.replace(Regex("[^a-zA-Z0-9]"), "").equals(champ.name.replace(Regex("[^a-zA-Z0-9]"), ""), ignoreCase = true)
+                        dir.name.equals(champ.id, ignoreCase = true)
                     }
 
                     if (champFolder != null) {
