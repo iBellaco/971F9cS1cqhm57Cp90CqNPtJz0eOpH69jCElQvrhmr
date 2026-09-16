@@ -3583,7 +3583,10 @@ private fun TenthPickScannerViewerDialog(
                     val bmp = screenCaptureManager.captureCurrentFrame()
                     if (bmp != null && !bmp.isRecycled) {
                         try {
-                            val allChamps = com.example.data.WildRiftRepository.champions
+                            if (com.example.data.WildRiftRepository.champions.isEmpty()) {
+                                com.example.data.WildRiftRepository.initChampions(context)
+                            }
+                            val allChamps = com.example.data.WildRiftRepository.champions.toList()
                             val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
                                 bitmap = bmp,
                                 isAlly = (selectedVision == 0),
@@ -4230,6 +4233,33 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Banner informativo sobre dinámica de Draft vs Fase de Preparación
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                    border = BorderStroke(1.dp, HextechCardBorder.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "En selección activa, la barra superior muestra BANEADOS. Al concluir la selección (Fase de Preparación), la barra superior cambia a los 10 campeones ELEGIDOS.",
+                            color = TextMuted,
+                            fontSize = 7.5.sp,
+                            lineHeight = 10.sp
+                        )
+                    }
+                }
+
                 // COMPARATIVA EN VIVO DE GRAN TAMAÑO (84.dp): RECORTE EN VIVO VS AVATAR DE REFERENCIA
                 Text(
                     text = "COMPARATIVA DE VISIÓN (TAMAÑO AMPLIADO)",
@@ -4410,6 +4440,22 @@ private fun TenthPickScannerViewerDialog(
                                 )
                             }
                         }
+                    }
+                } else {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        color = HextechSurface,
+                        border = BorderStroke(1.dp, HextechCardBorder.copy(alpha = 0.3f))
+                    ) {
+                        Text(
+                            text = "Alineando retícula... En selección activa la barra superior muestra baneados. Al entrar a Fase de Preparación mostrará los campeones comparados.",
+                            color = TextMuted,
+                            fontSize = 8.sp,
+                            modifier = Modifier.padding(8.dp)
+                        )
                     }
                 }
 

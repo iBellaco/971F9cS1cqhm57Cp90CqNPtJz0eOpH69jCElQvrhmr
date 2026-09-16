@@ -123,6 +123,9 @@ object LocalVisionAnalyzer {
     fun ensureInitialized(context: Context? = null) {
         val ctx = context ?: WildRiftApp.instance ?: return
         try {
+            if (WildRiftRepository.champions.isEmpty()) {
+                WildRiftRepository.initChampions(ctx)
+            }
             val allChamps = WildRiftRepository.champions.toList()
             if (allChamps.isEmpty()) return
             if (isInitialized && cachedSignatures.size >= allChamps.size) return
@@ -419,8 +422,8 @@ object LocalVisionAnalyzer {
 
         val avgLum = if (samples > 0) totalLum.toFloat() / samples else 0f
         val contrast = if (samples > 0) maxLum - minLum else 0
-        // El slot se considera poblado/con avatar si tiene contraste y brillo suficientes (evita fondos oscuros o texturas vacías)
-        val isPopulated = samples >= 10 && ((avgLum in 18f..235f && contrast >= 14) || (avgLum >= 30f && contrast >= 10))
+        // El slot se considera poblado si contiene textura y no es un marco totalmente negro o apagado
+        val isPopulated = samples >= 8 && ((avgLum in 10f..245f && contrast >= 6) || (avgLum >= 16f))
 
         if (validHueCount > 0) {
             for (i in 0 until 8) {
@@ -531,7 +534,14 @@ object LocalVisionAnalyzer {
         }
 
         ensureInitialized(context)
-        if (cachedSignatures.isEmpty()) return null
+        val effectiveCandidates = if (candidates.isNotEmpty()) candidates else {
+            if (WildRiftRepository.champions.isEmpty()) {
+                val ctx = context ?: WildRiftApp.instance
+                if (ctx != null) WildRiftRepository.initChampions(ctx)
+            }
+            WildRiftRepository.champions.toList()
+        }
+        if (cachedSignatures.isEmpty() || effectiveCandidates.isEmpty()) return null
 
         val targetFp = extractFingerprint(crop, "target") ?: return null
 
@@ -540,7 +550,7 @@ object LocalVisionAnalyzer {
 
         val candidateComparisons = mutableListOf<CandidateMatchComparison>()
 
-        for (champ in candidates) {
+        for (champ in effectiveCandidates) {
             if (excludedChampionIds.contains(champ.id)) continue
             val sig = cachedSignatures[champ.id] ?: continue
 
@@ -1208,50 +1218,15 @@ object LocalVisionAnalyzer {
     /**
      * Detecta si los slots/cuadrícula de avatares de selección del centro/inferior
      * han desaparecido, lo cual indica que el 10º pick ya fijó y la selección concluyó.
+     * REGLA DE WILD RIFT: Durante la selección de campeones, la barra superior muestra BANEADOS.
+     * Recién al desaparecer los slots de selección y entrar en la Fase de Preparación,
+     * la barra superior cambia a los 10 campeones seleccionados.
      */
     fun areAvatarSlotsDismissed(bitmap: Bitmap, isPrepPhaseDetected: Boolean): Boolean {
+        // La barra superior SOLO se debe escanear cuando la Fase de Preparación está activa
+        // para garantizar que ya no muestra los baneados.
         if (isPrepPhaseDetected) return true
-        if (bitmap.isRecycled) return false
-
-        val width = bitmap.width
-        val height = bitmap.height
-
-        val checkAreaLeft = (width * 0.35f).toInt()
-        val checkAreaTop = (height * 0.72f).toInt()
-        val checkAreaWidth = (width * 0.30f).toInt()
-        val checkAreaHeight = (height * 0.15f).toInt()
-
-        if (checkAreaLeft + checkAreaWidth > width || checkAreaTop + checkAreaHeight > height) return false
-
-        return try {
-            val sampleColors = mutableListOf<Int>()
-            val step = 8
-
-            for (y in checkAreaTop until (checkAreaTop + checkAreaHeight) step step) {
-                for (x in checkAreaLeft until (checkAreaLeft + checkAreaWidth) step step) {
-                    sampleColors.add(bitmap.getPixel(x, y))
-                }
-            }
-
-            if (sampleColors.isEmpty()) return false
-
-            val brightnesses = sampleColors.map {
-                val r = (it shr 16) and 0xFF
-                val g = (it shr 8) and 0xFF
-                val b = it and 0xFF
-                (r * 0.299 + g * 0.587 + b * 0.114).toInt()
-            }
-            val mean = brightnesses.average()
-            val stdDev = Math.sqrt(brightnesses.map { Math.pow(it - mean, 2.0) }.average())
-
-            // Con la cuadrícula de avatares activa, la desviación estándar es alta (> 38).
-            // Al cerrarse la cuadrícula, la zona central queda plana/oscura (desviación baja).
-            val dismissed = stdDev < 28.0
-            AppLogger.d(TAG, "areAvatarSlotsDismissed: stdDev=${String.format(java.util.Locale.US, "%.1f", stdDev)} (umbral < 28.0) -> cuadrícula cerrada=$dismissed")
-            dismissed
-        } catch (_: Throwable) {
-            false
-        }
+        return false
     }
 
     /**

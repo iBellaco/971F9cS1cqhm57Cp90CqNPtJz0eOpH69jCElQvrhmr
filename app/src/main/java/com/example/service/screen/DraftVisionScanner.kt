@@ -294,7 +294,14 @@ object DraftVisionScanner {
 
             // Detección global de Fase de Preparación en todo el texto capturado
             val globalOcrNorm = DraftValidationLayer.normalize(visionText.text)
-            if (globalOcrNorm.contains("fase de preparacion") || globalOcrNorm.contains("fase de preparacao") || globalOcrNorm.contains("preparation phase")) {
+            if (globalOcrNorm.contains("fase de preparacion") || 
+                globalOcrNorm.contains("fase de preparacao") || 
+                globalOcrNorm.contains("preparation phase") ||
+                globalOcrNorm.contains("preparacion") ||
+                globalOcrNorm.contains("preparacao") ||
+                globalOcrNorm.contains("aspectos") ||
+                globalOcrNorm.contains("intercambiar") ||
+                globalOcrNorm.contains("intercambio")) {
                 isPreparationPhase = true
                 AppLogger.d(TAG, "OCR global: Fase de Preparación detectada en pantalla.")
             }
@@ -323,7 +330,8 @@ object DraftVisionScanner {
                                                  lowerText.contains("coach")
                     if (isAssistantOverlayText) continue
 
-                    if (yRatio < 0.2f && (lowerText.contains("fase de preparación") || lowerText.contains("fase de preparacion") || lowerText.contains("preparation phase"))) {
+                    val textNormLine = DraftValidationLayer.normalize(lowerText)
+                    if (yRatio < 0.22f && (textNormLine.contains("preparaci") || textNormLine.contains("preparaç") || textNormLine.contains("preparac") || textNormLine.contains("preparation"))) {
                         isPreparationPhase = true
                     }
 
