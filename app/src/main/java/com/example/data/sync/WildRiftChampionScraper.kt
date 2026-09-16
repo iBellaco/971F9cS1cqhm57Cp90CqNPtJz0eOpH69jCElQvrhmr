@@ -20,7 +20,6 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 data class ChampionScraperItem(
-    val id: String,
     val name: String,
     val imageUrl: String
 )
@@ -44,6 +43,8 @@ object WildRiftChampionScraper {
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
         .build()
 
     private val _scraperState = MutableStateFlow(
@@ -60,10 +61,10 @@ object WildRiftChampionScraper {
     )
     val scraperState: StateFlow<ScraperResultSummary> = _scraperState.asStateFlow()
 
-    fun safeName(name: String): String {
-        val allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
-        val result = name.map { if (allowed.indexOf(it) >= 0) it else '_' }.joinToString("")
-        return result.trim('_').ifBlank { "unknown" }
+    private fun cleanFolderName(name: String): String {
+        // Permitir letras, números, espacios y guiones, removiendo caracteres inválidos para sistemas de archivos
+        val cleaned = name.replace(Regex("[\\\\/:*?\"<>|]"), "").trim()
+        return cleaned.ifBlank { "unknown" }
     }
 
     private fun normalizeImageUrl(url: String?): String? {
@@ -77,7 +78,7 @@ object WildRiftChampionScraper {
             trimmed = "https://wiki.leagueoflegends.com/en-us/$trimmed"
         }
 
-        // Cambiar tamaño de miniatura a 120px
+        // Reemplazar cualquier tamaño de miniatura (ej: /40px-, /64px-, etc.) por /120px-
         return trimmed.replace(Regex("/\\d+px-"), "/120px-")
     }
 
@@ -150,10 +151,10 @@ object WildRiftChampionScraper {
             name = cleanChampionName(name)
             if (name.isBlank() || name.lowercase(Locale.ROOT) in setOf("champion", "name", "icon", "role")) continue
 
-            val id = safeName(name).lowercase(Locale.ROOT)
-            if (!seen.contains(id) && name.length in 2..40) {
-                seen.add(id)
-                champions.add(ChampionScraperItem(id, name, imageUrl))
+            val folderKey = cleanFolderName(name).lowercase(Locale.ROOT)
+            if (!seen.contains(folderKey) && name.length in 2..40) {
+                seen.add(folderKey)
+                champions.add(ChampionScraperItem(name = cleanFolderName(name), imageUrl = imageUrl))
             }
         }
 
@@ -170,10 +171,10 @@ object WildRiftChampionScraper {
                 name = cleanChampionName(name)
 
                 if (name.isNotBlank() && !name.contains("File:") && name.lowercase(Locale.ROOT) !in setOf("champion", "name")) {
-                    val id = safeName(name).lowercase(Locale.ROOT)
-                    if (!seen.contains(id)) {
-                        seen.add(id)
-                        champions.add(ChampionScraperItem(id, name, imageUrl))
+                    val folderKey = cleanFolderName(name).lowercase(Locale.ROOT)
+                    if (!seen.contains(folderKey)) {
+                        seen.add(folderKey)
+                        champions.add(ChampionScraperItem(name = cleanFolderName(name), imageUrl = imageUrl))
                     }
                 }
             }
@@ -184,7 +185,6 @@ object WildRiftChampionScraper {
 
     suspend fun runScraper(context: Context) {
         withContext(Dispatchers.IO) {
-            // Carpeta Descargas del dispositivo (Public Downloads / WildRiftChampions)
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             val datasetDir = File(downloadsDir, "WildRiftChampions")
             if (!datasetDir.exists()) datasetDir.mkdirs()
@@ -214,6 +214,9 @@ object WildRiftChampionScraper {
                     .build()
 
                 val response = client.newCall(request).execute()
+                if (!response.isSuccessful) {
+                    throw IOException("Error HTTP al conectar con la Wiki: ${response.code}")
+                }
                 val html = response.body?.string() ?: throw IOException("HTML vacío de la Wiki")
 
                 addLog("Analizando HTML de la Wiki oficial...")
@@ -230,14 +233,22 @@ object WildRiftChampionScraper {
                         addLog("[${index + 1}/${championsList.size}] Descargando 120px para ${champ.name}...")
                         val imgReq = Request.Builder()
                             .url(champ.imageUrl)
-                            .header("User-Agent", "Mozilla/5.0")
+                            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
                             .build()
                         val imgResp = client.newCall(imgReq).execute()
-                        val imgBytes = imgResp.body?.bytes() ?: throw IOException("Imagen vacía")
+                        if (!imgResp.isSuccessful) {
+                            throw IOException("HTTP ${imgResp.code} al descargar ${champ.imageUrl}")
+                        }
+                        val imgBytes = imgResp.body?.bytes() ?: throw IOException("Cuerpo de imagen vacío")
+                        if (imgBytes.isEmpty()) {
+                            throw IOException("Bytes de imagen vacíos")
+                        }
 
-                        // Carpeta en Descargas (Downloads/WildRiftChampions/<Campeon>/avatar.png)
+                        // Carpeta en Descargas con el nombre exacto del campeón (ej: Downloads/WildRiftChampions/Aatrox/avatar.png)
                         val champFolder = File(datasetDir, champ.name)
-                        if (!champFolder.exists()) champFolder.mkdirs()
+                        if (!champFolder.exists()) {
+                            champFolder.mkdirs()
+                        }
 
                         val avatarFile = File(champFolder, "avatar.png")
                         FileOutputStream(avatarFile).use { out ->
@@ -247,9 +258,9 @@ object WildRiftChampionScraper {
                         processed++
                         _scraperState.value = _scraperState.value.copy(
                             processedCount = processed,
-                            progressText = "Guardado en Descargas: ${champ.name} (${index + 1}/${championsList.size})"
+                            progressText = "Guardado: ${champ.name} (${index + 1}/${championsList.size})"
                         )
-                        delay(40)
+                        delay(30)
                     } catch (e: Exception) {
                         errors++
                         addLog("[ERROR] ${champ.name}: ${e.message}")
@@ -265,7 +276,7 @@ object WildRiftChampionScraper {
                 _scraperState.value = _scraperState.value.copy(
                     isRunning = false,
                     isFinished = true,
-                    progressText = "Scraping finalizado. $processed campeones guardados en Descargas (120px).",
+                    progressText = "Scraping finalizado. $processed campeones guardados en Descargas.",
                     datasetPath = datasetDir.absolutePath
                 )
 
