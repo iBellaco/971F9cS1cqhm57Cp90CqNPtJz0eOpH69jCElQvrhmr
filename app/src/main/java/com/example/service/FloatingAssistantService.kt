@@ -4244,6 +4244,73 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Banner del Dataset ZIP (141 campeones con variantes)
+                val isZipActive = LocalVisionAnalyzer.isDatasetZipLoaded
+                val variantCount = LocalVisionAnalyzer.datasetZipVariantCount
+                val coroutineScope = rememberCoroutineScope()
+                val context = LocalContext.current
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    colors = CardDefaults.cardColors(containerColor = if (isZipActive) HextechDarkBg else HextechSurface),
+                    border = BorderStroke(1.dp, if (isZipActive) HextechCyan else HextechGold.copy(alpha = 0.6f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = null,
+                                tint = if (isZipActive) HextechCyan else HextechGold,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Column {
+                                Text(
+                                    text = if (isZipActive) "Dataset ZIP Activo (141 Campeones)" else "Dataset: Catálogo de referencia",
+                                    color = if (isZipActive) HextechCyan else HextechGold,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 8.5.sp
+                                )
+                                Text(
+                                    text = if (isZipActive) "Comparando contra $variantCount imágenes reales del ZIP" else "Carga el ZIP desde el Panel de Administración o Descargas",
+                                    color = TextMuted,
+                                    fontSize = 7.5.sp
+                                )
+                            }
+                        }
+
+                        Surface(
+                            modifier = Modifier.clickable {
+                                coroutineScope.launch {
+                                    val found = com.example.data.sync.ZipDatasetManager.autoDetectAndImportFromDownloads(context)
+                                    if (found) {
+                                        LocalVisionAnalyzer.reloadFromExtractedDataset(context)
+                                        android.widget.Toast.makeText(context, "¡Dataset ZIP sincronizado con éxito!", android.widget.Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        LocalVisionAnalyzer.ensureInitialized(context, forceReload = true)
+                                        android.widget.Toast.makeText(context, "Dataset actualizado", android.widget.Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            },
+                            shape = RoundedCornerShape(4.dp),
+                            color = HextechGold.copy(alpha = 0.2f),
+                            border = BorderStroke(0.8.dp, HextechGold)
+                        ) {
+                            Text(
+                                text = "Sincronizar",
+                                color = HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 8.sp,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+
                 // Banner informativo sobre dinámica de Draft vs Fase de Preparación
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),

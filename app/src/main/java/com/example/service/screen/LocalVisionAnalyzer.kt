@@ -126,13 +126,27 @@ object LocalVisionAnalyzer {
     private val cachedSignatures = ConcurrentHashMap<String, CopyOnWriteArrayList<AvatarFingerprint>>()
     private var isInitialized = false
 
+    @Volatile
+    var isDatasetZipLoaded: Boolean = false
+
+    @Volatile
+    var datasetZipVariantCount: Int = 0
+
+    fun reloadFromExtractedDataset(context: Context) {
+        synchronized(this) {
+            isInitialized = false
+            cachedSignatures.clear()
+            ensureInitialized(context, forceReload = true)
+        }
+    }
+
     /**
      * Inicializa y cachea en memoria las huellas multi-variante de los 141 campeones.
-     * Carga las variantes existentes en almacenamiento local y sintetiza en memoria
-     * las restantes (estándar, contraste, desenfoque, ruido, pixelado, compresión y negativo)
-     * para garantizar comparativas de máxima precisión en la décima selección.
+     * Si existe el dataset extraído del ZIP en filesDir/dataset, carga directamente
+     * todas las variantes reales de cada campeón (avatar, negativo, compresión, desenfoque,
+     * ruido, contraste, pixelación) para comparaciones de máxima fidelidad en el 10º pick.
      */
-    fun ensureInitialized(context: Context? = null) {
+    fun ensureInitialized(context: Context? = null, forceReload: Boolean = false) {
         val ctx = context ?: WildRiftApp.instance ?: return
         try {
             if (WildRiftRepository.champions.isEmpty()) {
@@ -140,8 +154,81 @@ object LocalVisionAnalyzer {
             }
             val allChamps = WildRiftRepository.champions.toList()
             if (allChamps.isEmpty()) return
-            if (isInitialized && cachedSignatures.size >= allChamps.size) return
+            if (!forceReload && isInitialized && cachedSignatures.isNotEmpty()) return
 
+            // 1. Comprobar si existe el dataset extraído del ZIP en filesDir/dataset
+            val datasetDir = File(ctx.filesDir, "dataset")
+            val champDirs = if (datasetDir.exists() && datasetDir.isDirectory) {
+                datasetDir.listFiles { f -> f.isDirectory } ?: emptyArray()
+            } else emptyArray()
+
+            if (champDirs.isNotEmpty()) {
+                var loadedVariantsTotal = 0
+                for (champ in allChamps) {
+                    val sigList = CopyOnWriteArrayList<AvatarFingerprint>()
+                    val champFolder = champDirs.firstOrNull { dir ->
+                        dir.name.equals(champ.name, ignoreCase = true) ||
+                        dir.name.equals(champ.id, ignoreCase = true) ||
+                        dir.name.replace(Regex("[^a-zA-Z0-9]"), "").equals(champ.name.replace(Regex("[^a-zA-Z0-9]"), ""), ignoreCase = true)
+                    }
+
+                    if (champFolder != null) {
+                        val imgFiles = champFolder.listFiles { f ->
+                            f.isFile && (f.name.endsWith(".png", true) || f.name.endsWith(".jpg", true) || f.name.endsWith(".jpeg", true) || f.name.endsWith(".webp", true))
+                        } ?: emptyArray()
+
+                        for (imgFile in imgFiles) {
+                            val fName = imgFile.name.lowercase()
+                            val variantName = when {
+                                fName.contains("negative") -> "negative"
+                                fName.contains("low_quality") || fName.contains("low") -> "low_quality"
+                                fName.contains("blur") -> "blur"
+                                fName.contains("noise") -> "noise"
+                                fName.contains("contrast") -> "contrast"
+                                fName.contains("pixel") -> "pixelated"
+                                else -> "avatar"
+                            }
+                            try {
+                                val bmp = BitmapFactory.decodeFile(imgFile.absolutePath)
+                                if (bmp != null) {
+                                    extractFingerprint(bmp, champ.id, variantName)?.let { fp ->
+                                        sigList.add(fp)
+                                        loadedVariantsTotal++
+                                    }
+                                    try { bmp.recycle() } catch (_: Throwable) {}
+                                }
+                            } catch (_: Throwable) {}
+                        }
+                    }
+
+                    if (sigList.isEmpty()) {
+                        val assetPath = "champions/${champ.id}.png"
+                        try {
+                            ctx.assets.open(assetPath).use { stream ->
+                                val bmp = BitmapFactory.decodeStream(stream)
+                                if (bmp != null) {
+                                    extractFingerprint(bmp, champ.id, "avatar")?.let { sigList.add(it) }
+                                    try { bmp.recycle() } catch (_: Throwable) {}
+                                }
+                            }
+                        } catch (_: Throwable) {}
+                    }
+
+                    if (sigList.isNotEmpty()) {
+                        cachedSignatures[champ.id] = sigList
+                    }
+                }
+
+                if (cachedSignatures.isNotEmpty()) {
+                    isInitialized = true
+                    isDatasetZipLoaded = true
+                    datasetZipVariantCount = loadedVariantsTotal
+                    AppLogger.d(TAG, "Motor de visión cargado con Dataset ZIP: ${cachedSignatures.size} campeones y $loadedVariantsTotal variantes reales!")
+                    return
+                }
+            }
+
+            // Fallback a assets y generación en memoria si aún no se ha cargado el ZIP
             for (champ in allChamps) {
                 val existing = cachedSignatures[champ.id]
                 if (existing != null && existing.isNotEmpty()) continue
@@ -990,6 +1077,11 @@ object LocalVisionAnalyzer {
                 appendLine("- Histograma HUE: [${populatedMetrics.hueHistogram.joinToString(", ") { "${(it * 100).toInt()}%" }}]")
                 appendLine("")
                 appendLine("3. COMPARACIÓN CON CANDIDATOS (EXCLUYENDO PICKS 1-9):")
+                if (isDatasetZipLoaded) {
+                    appendLine("- Base de Referencia: DATASET ZIP ACTIVO (141 campeones x 7 variantes de distorsión cargadas en memoria)")
+                } else {
+                    appendLine("- Base de Referencia: Catálogo interno de campeones con variantes adaptativas")
+                }
                 appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones")
                 appendLine("- Criterios: Estructura ZNCC 45% + Balance Cromático 25% + Histograma HUE 20% + Saturación 10% + Bonus Rol")
                 appendLine("- TOP CANDIDATOS MÁS CERCANOS:")
@@ -1039,6 +1131,11 @@ object LocalVisionAnalyzer {
             appendLine("- Histograma HUE (8 Bins): [${populatedMetrics.hueHistogram.joinToString(", ") { "${(it * 100).toInt()}%" }}]")
             appendLine("")
             appendLine("3. COMPARACIÓN CON CANDIDATOS (EXCLUYENDO PICKS 1-9):")
+            if (isDatasetZipLoaded) {
+                appendLine("- Base de Referencia: DATASET ZIP ACTIVO (141 campeones x 7 variantes de distorsión cargadas en memoria)")
+            } else {
+                appendLine("- Base de Referencia: Catálogo interno de campeones con variantes adaptativas")
+            }
             appendLine("- Candidatos evaluados: ${candidateComparisons.size} campeones")
             appendLine("- Criterios: Estructura ZNCC 45% + Balance Cromático 25% + Histograma HUE 20% + Saturación 10% + Bonus Rol")
             appendLine("- TOP CANDIDATOS:")
