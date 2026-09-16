@@ -58,6 +58,11 @@ object GeminiCloudVisionTester {
         return BuildConfig.GEMINI_API_KEY.trim()
     }
 
+    fun getSavedCustomApiKey(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_CUSTOM_API_KEY, "")?.trim() ?: ""
+    }
+
     fun setCustomApiKey(context: Context, key: String) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putString(KEY_CUSTOM_API_KEY, key.trim()).apply()
