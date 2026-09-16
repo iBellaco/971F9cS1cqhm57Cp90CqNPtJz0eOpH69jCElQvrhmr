@@ -65,7 +65,7 @@ object ZipDatasetManager {
     }
 
     /**
-     * Busca automáticamente archivos ZIP en Descargas o almacenamiento interno y los importa.
+     * Busca automáticamente archivos ZIP en Descargas o almacenamiento interno y los descomprime directamente.
      */
     suspend fun autoDetectAndImportFromDownloads(context: Context): Boolean = withContext(Dispatchers.IO) {
         val candidateDirs = mutableListOf<File>()
@@ -73,26 +73,47 @@ object ZipDatasetManager {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.let { candidateDirs.add(it) }
         } catch (_: Throwable) {}
         try {
+            Environment.getExternalStorageDirectory()?.let { root ->
+                candidateDirs.add(File(root, "Download"))
+                candidateDirs.add(File(root, "Downloads"))
+                candidateDirs.add(File(root, "Telegram"))
+                candidateDirs.add(File(root, "Telegram/Telegram Documents"))
+                candidateDirs.add(File(root, "WhatsApp/Media/WhatsApp Documents"))
+                candidateDirs.add(root)
+            }
+        } catch (_: Throwable) {}
+        try {
             context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)?.let { candidateDirs.add(it) }
             context.getExternalFilesDir(null)?.let { candidateDirs.add(it) }
             candidateDirs.add(File("/sdcard/Download"))
+            candidateDirs.add(File("/sdcard/Downloads"))
+            candidateDirs.add(File("/sdcard"))
+            candidateDirs.add(File("/storage/emulated/0/Download"))
+            candidateDirs.add(File("/storage/emulated/0/Downloads"))
+            candidateDirs.add(File("/storage/emulated/0"))
         } catch (_: Throwable) {}
 
         val foundZips = mutableListOf<File>()
-        for (dir in candidateDirs) {
+        for (dir in candidateDirs.distinct()) {
             if (dir.exists() && dir.isDirectory) {
-                val zips = dir.listFiles { f -> f.isFile && f.name.endsWith(".zip", true) }
-                if (zips != null) {
-                    foundZips.addAll(zips)
-                }
+                try {
+                    val zips = dir.listFiles { f -> f.isFile && f.name.endsWith(".zip", true) }
+                    if (zips != null) {
+                        foundZips.addAll(zips)
+                    }
+                } catch (_: Throwable) {}
             }
         }
 
         if (foundZips.isEmpty()) return@withContext false
 
-        // Elegir el archivo zip más reciente
-        val targetZip = foundZips.maxByOrNull { it.lastModified() } ?: return@withContext false
-        return@withContext importZipFile(context, targetZip)
+        // Elegir con prioridad si tiene "dataset" o "campeon" o "wild" en el nombre, si no, el más reciente
+        val preferredZip = foundZips.firstOrNull { f ->
+            val n = f.name.lowercase()
+            n.contains("dataset") || n.contains("campeon") || n.contains("wild") || n.contains("wr") || n.contains("141")
+        } ?: foundZips.maxByOrNull { it.lastModified() } ?: return@withContext false
+
+        return@withContext importZipFile(context, preferredZip)
     }
 
     /**

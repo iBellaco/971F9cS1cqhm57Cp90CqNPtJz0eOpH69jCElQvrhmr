@@ -4285,13 +4285,13 @@ private fun TenthPickScannerViewerDialog(
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Column {
                                     Text(
-                                        text = if (isZipActive) "✓ DATASET ZIP ACTIVO (141 CAMPEONES)" else "⚠ DATASET ZIP NO DETECTADO",
+                                        text = if (isZipActive) "✓ DATASET LOCAL: ARCHIVO ZIP ACTIVO ($variantCount VARIANTES)" else "⚡ VINCULAR DATASET LOCAL (ARCHIVO ZIP)",
                                         color = if (isZipActive) Color(0xFF00FF7F) else HextechGold,
                                         fontWeight = FontWeight.Black,
                                         fontSize = 9.sp
                                     )
                                     Text(
-                                        text = if (isZipActive) "Comparando contra $variantCount variantes de archivos del ZIP" else "Usando catálogo base. Carga tu ZIP para comparar con las variantes.",
+                                        text = if (isZipActive) "El asistente descomprimió tu ZIP y compara el 10º pick contra tus $variantCount variantes de archivos." else "Selecciona tu archivo .zip: la app lo descomprime automáticamente y lo establece como tu nuevo dataset local.",
                                         color = TextSecondary,
                                         fontSize = 7.5.sp
                                     )
@@ -4305,7 +4305,7 @@ private fun TenthPickScannerViewerDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            // Botón 1: Cargar ZIP mediante selector de archivos
+                            // Botón 1: Cargar ZIP directamente (la app lo descomprime)
                             Surface(
                                 modifier = Modifier
                                     .weight(1f)
@@ -4324,10 +4324,10 @@ private fun TenthPickScannerViewerDialog(
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(Icons.Default.FileUpload, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                                    Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Cargar Archivo ZIP",
+                                        text = "Seleccionar Archivo ZIP",
                                         color = HextechGold,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 8.sp
@@ -4335,7 +4335,7 @@ private fun TenthPickScannerViewerDialog(
                                 }
                             }
 
-                            // Botón 2: Auto-detectar en descargas
+                            // Botón 2: Auto-detectar y descomprimir en descargas
                             Surface(
                                 modifier = Modifier
                                     .weight(1f)
@@ -4344,10 +4344,10 @@ private fun TenthPickScannerViewerDialog(
                                             val found = com.example.data.sync.ZipDatasetManager.autoDetectAndImportFromDownloads(context)
                                             if (found) {
                                                 LocalVisionAnalyzer.reloadFromExtractedDataset(context)
-                                                android.widget.Toast.makeText(context, "¡Dataset ZIP sincronizado con éxito!", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, "¡Dataset ZIP descomprimido y activado!", android.widget.Toast.LENGTH_SHORT).show()
                                             } else {
                                                 LocalVisionAnalyzer.ensureInitialized(context, forceReload = true)
-                                                android.widget.Toast.makeText(context, "Búsqueda finalizada. Si tienes el ZIP en otra carpeta, usa 'Cargar Archivo ZIP'", android.widget.Toast.LENGTH_LONG).show()
+                                                android.widget.Toast.makeText(context, "Búsqueda automática completada. Usa 'Seleccionar Archivo ZIP' para elegirlo directamente.", android.widget.Toast.LENGTH_LONG).show()
                                             }
                                         }
                                     },
@@ -4360,10 +4360,10 @@ private fun TenthPickScannerViewerDialog(
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(Icons.Default.Folder, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                                    Icon(Icons.Default.Refresh, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Buscar en Descargas",
+                                        text = "Auto-Detectar y Extraer",
                                         color = HextechCyan,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 8.sp
@@ -4875,7 +4875,12 @@ private fun TenthPickScannerViewerDialog(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
                                         Spacer(modifier = Modifier.width(3.dp))
-                                        Text("MIS ARCHIVOS", color = HextechGold, fontWeight = FontWeight.Black, fontSize = 8.sp)
+                                        Text(
+                                            text = if (isZipActive) "NUEVO LOCAL (ZIP)" else "LOCAL BASE",
+                                            color = HextechGold,
+                                            fontWeight = FontWeight.Black,
+                                            fontSize = 8.sp
+                                        )
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(

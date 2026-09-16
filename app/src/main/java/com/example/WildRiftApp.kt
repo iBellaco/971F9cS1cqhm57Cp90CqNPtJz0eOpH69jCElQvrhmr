@@ -105,7 +105,21 @@ open class WildRiftApp : Application(), ImageLoaderFactory {
             AppLogger.e("WildRiftApp", "Error inicializando gestores de avisos, analíticas y anuncios", e)
         }
 
-
+        // Auto-detección y descompresión automática del ZIP en segundo plano si el usuario descargó el dataset
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                com.example.data.sync.ZipDatasetManager.refreshStats(this@WildRiftApp)
+                if (!com.example.data.sync.ZipDatasetManager.status.value.isReady) {
+                    val imported = com.example.data.sync.ZipDatasetManager.autoDetectAndImportFromDownloads(this@WildRiftApp)
+                    if (imported) {
+                        com.example.service.screen.LocalVisionAnalyzer.reloadFromExtractedDataset(this@WildRiftApp)
+                        AppLogger.d("WildRiftApp", "Dataset ZIP auto-detectado y descomprimido en el arranque.")
+                    }
+                }
+            } catch (e: Exception) {
+                AppLogger.w("WildRiftApp", "Auto-escaneo de ZIP de dataset omitido: ${e.message}")
+            }
+        }
 
         setupInstantAndPeriodicScraping()
         AppLogger.d("APP", "Application started successfully.")

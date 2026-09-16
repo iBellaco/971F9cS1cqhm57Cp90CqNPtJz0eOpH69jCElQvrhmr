@@ -20,11 +20,21 @@ import kotlinx.coroutines.withContext
  */
 class ZipPickerActivity : ComponentActivity() {
 
-    private val zipPickerLauncher = registerForActivityResult(
+    private val openDocumentLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        handleSelectedZipUri(uri)
+    }
+
+    private val getContentLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri ->
+        handleSelectedZipUri(uri)
+    }
+
+    private fun handleSelectedZipUri(uri: android.net.Uri?) {
         if (uri != null) {
-            Toast.makeText(this, "Procesando archivo ZIP del dataset...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Descomprimiendo e importando dataset ZIP...", Toast.LENGTH_SHORT).show()
             CoroutineScope(Dispatchers.IO).launch {
                 val success = ZipDatasetManager.importFromUri(applicationContext, uri)
                 withContext(Dispatchers.Main) {
@@ -32,13 +42,13 @@ class ZipPickerActivity : ComponentActivity() {
                         LocalVisionAnalyzer.reloadFromExtractedDataset(applicationContext)
                         Toast.makeText(
                             applicationContext,
-                            "¡Dataset ZIP importado y sincronizado con éxito!",
+                            "¡Dataset ZIP descomprimido y activado como nuevo dataset local!",
                             Toast.LENGTH_LONG
                         ).show()
                     } else {
                         Toast.makeText(
                             applicationContext,
-                            "Error al extraer el archivo ZIP. Verifica el formato.",
+                            "Error al descomprimir el archivo ZIP. Verifica que contenga imágenes.",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -54,11 +64,22 @@ class ZipPickerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         try {
-            zipPickerLauncher.launch("*/*")
+            // Intentar con OpenDocument primero para acceso persistente al archivo .zip
+            val mimeTypes = arrayOf(
+                "application/zip",
+                "application/x-zip-compressed",
+                "application/octet-stream",
+                "*/*"
+            )
+            openDocumentLauncher.launch(mimeTypes)
         } catch (e: Exception) {
-            AppLogger.e("ZipPickerActivity", "Error lanzando selector de archivos", e)
-            Toast.makeText(this, "No se pudo abrir el selector de archivos", Toast.LENGTH_SHORT).show()
-            finish()
+            try {
+                getContentLauncher.launch("*/*")
+            } catch (e2: Exception) {
+                AppLogger.e("ZipPickerActivity", "Error lanzando selector de archivos", e2)
+                Toast.makeText(this, "No se pudo abrir el explorador de archivos", Toast.LENGTH_SHORT).show()
+                finish()
+            }
         }
     }
 }
