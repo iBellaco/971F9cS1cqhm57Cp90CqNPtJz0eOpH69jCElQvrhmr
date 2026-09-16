@@ -277,6 +277,8 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         var isLegendaryRanked = false
         var isPreparationPhase = false
+        var isActiveSelectionDetected = false
+        var isPreparationBannerDetected = false
         try {
             val inputImage = InputImage.fromBitmap(bitmap, 0)
             val visionText = recognizer.process(inputImage).await()
@@ -290,20 +292,6 @@ object DraftVisionScanner {
             if (isLegendaryRanked) {
                 AppLogger.d(TAG, "Clasificatoria Legendaria detectada en pantalla (Nombres anónimos). Búsqueda de invocadores desactivada.")
                 allySummonerNamesCache.clear()
-            }
-
-            // Detección global de Fase de Preparación en todo el texto capturado
-            val globalOcrNorm = DraftValidationLayer.normalize(visionText.text)
-            if (globalOcrNorm.contains("fase de preparacion") || 
-                globalOcrNorm.contains("fase de preparacao") || 
-                globalOcrNorm.contains("preparation phase") ||
-                globalOcrNorm.contains("preparacion") ||
-                globalOcrNorm.contains("preparacao") ||
-                globalOcrNorm.contains("aspectos") ||
-                globalOcrNorm.contains("intercambiar") ||
-                globalOcrNorm.contains("intercambio")) {
-                isPreparationPhase = true
-                AppLogger.d(TAG, "OCR global: Fase de Preparación detectada en pantalla.")
             }
 
             for (block in visionText.textBlocks) {
@@ -327,12 +315,33 @@ object DraftVisionScanner {
                     val isAssistantOverlayText = lowerText.contains("campeones confirmados") || 
                                                  lowerText.contains("escaneo manual") || 
                                                  lowerText.contains("modo manual") ||
-                                                 lowerText.contains("coach")
+                                                 lowerText.contains("coach") ||
+                                                 lowerText.contains("visor")
                     if (isAssistantOverlayText) continue
 
                     val textNormLine = DraftValidationLayer.normalize(lowerText)
-                    if (yRatio < 0.22f && (textNormLine.contains("preparaci") || textNormLine.contains("preparaç") || textNormLine.contains("preparac") || textNormLine.contains("preparation"))) {
-                        isPreparationPhase = true
+
+                    // Detección de Selección Activa en la cabecera / pantalla (Ej: "LOS OPONENTES ESTÁN ELIGIENDO", "ELIGE TU CAMPEÓN")
+                    val isSelectionPhaseText = textNormLine.contains("estan eligiendo") || 
+                                               textNormLine.contains("estao escolhendo") || 
+                                               textNormLine.contains("are picking") || 
+                                               textNormLine.contains("are choosing") ||
+                                               textNormLine.contains("elige tu") || 
+                                               textNormLine.contains("escolha seu") || 
+                                               textNormLine.contains("choose your") || 
+                                               textNormLine.contains("bloquea") || 
+                                               textNormLine.contains("bloqueie") || 
+                                               textNormLine.contains("ban a")
+                    if (isSelectionPhaseText) {
+                        isActiveSelectionDetected = true
+                    }
+
+                    if (yRatio < 0.22f && (textNormLine.contains("fase de preparacion") || 
+                        textNormLine.contains("fase de preparacao") || 
+                        textNormLine.contains("preparation phase") ||
+                        (textNormLine.contains("preparaci") && !textNormLine.contains("preselecci")) ||
+                        (textNormLine.contains("preparaç") && !textNormLine.contains("pre-seleç")))) {
+                        isPreparationBannerDetected = true
                     }
 
                     // EXCLUSIÓN ABSOLUTA DEL CENTRO (0.33f a 0.67f) Y DEL OVERLAY FLOTANTE DEL ASISTENTE
@@ -362,8 +371,7 @@ object DraftVisionScanner {
                     val hasPreparation = textNorm.contains("fase de preparacion") || textNorm.contains("fase de preparación") || 
                                          textNorm.contains("fase de preparacao") || textNorm.contains("preparation phase")
                     if (hasPreparation) {
-                        isPreparationPhase = true
-                        AppLogger.d(TAG, "OCR Fase de Preparación detectada.")
+                        isPreparationBannerDetected = true
                     }
 
                     // Detectar en la cabecera superior extrema donde aparecen los banners oficiales
@@ -473,6 +481,14 @@ object DraftVisionScanner {
                         }
                     }
                 }
+            }
+
+            if (isActiveSelectionDetected) {
+                isPreparationPhase = false
+                AppLogger.d(TAG, "OCR: Selección activa en curso detectada ('Están eligiendo / Elige / Bloquea'). Fase de Preparación desactivada.")
+            } else if (isPreparationBannerDetected) {
+                isPreparationPhase = true
+                AppLogger.d(TAG, "OCR: Banner 'Fase de Preparación' confirmado en cabecera.")
             }
 
             userExplicitlyConfirmed = false
@@ -981,7 +997,8 @@ object DraftVisionScanner {
 
         var isTenthConfirmed = false
         var slotsDismissed = false
-        val eligibleFor10thPick = otherPicksConfirmed >= 8 || isPreparationPhase
+        // REGLA CRÍTICA ESTRICTA: ÚNICAMENTE cuando las otras 9 selecciones ya están confirmadas se evalúa la 10ª
+        val eligibleFor10thPick = (otherPicksConfirmed == 9)
 
         if (eligibleFor10thPick) {
             val confirmedIds = (allySlots.filter { it != targetSlot }.mapNotNull { it.champion?.id } +
@@ -1019,18 +1036,16 @@ object DraftVisionScanner {
                 }
             }
 
-            slotsDismissed = isPreparationPhase || LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
+            // Los slots de selección solo se consideran desaparecidos si terminó la selección activa y se confirmó la Fase de Preparación
+            slotsDismissed = isPreparationPhase && !isActiveSelectionDetected && LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
 
             // Memoria previa del 10º pick capturado en el slot inferior durante selección activa
             val existingHover = if (tenthTargetIsAlly) allySlotConfirmedChampions[4] else enemySlotConfirmedChampions[4]
 
             if (slotsDismissed) {
-                // FASE B: Desaparecieron los slots de avatar de selección o estamos en Fase de Preparación.
-                // REGLA DE CORROBORACIÓN EN BARRA SUPERIOR:
-                // En la barra superior de Wild Rift se corroboran los avatares finales:
-                // - Si el usuario es Primera Selección: el 10º Pick es el último avatar del lado derecho superior (Rival 5: X ≈ 0.800f).
-                // - Si el usuario NO es Primera Selección: el 10º Pick es el último avatar del lado izquierdo superior (Aliado 5: X ≈ 0.400f).
-                AppLogger.d(TAG, "[10º PICK] Cuadrícula cerrada / Fase de Preparación -> Corroborando en barra superior...")
+                // FASE B: Desaparecieron los slots de avatar de selección Y estamos en Fase de Preparación (10/10 concluido).
+                // En este momento, la barra superior cambió de los baneados a los 10 campeones seleccionados.
+                AppLogger.d(TAG, "[10º PICK] 9 selecciones confirmadas y slots desaparecidos -> Escaneando 10º pick en barra superior...")
                 val superiorDecision = LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
                     bitmap = bitmap,
                     isFirstPick = effectiveFirstPick,
@@ -1169,66 +1184,18 @@ object DraftVisionScanner {
             isLastPickVisualRecognized = false
         }
 
-        // Si estamos en Fase de Preparación, asegurar que ningún slot quede vacío escaneando los círculos superiores
+        // Si estamos en Fase de Preparación, asegurar que los slots conserven sus campeones confirmados
         if (isPreparationPhase) {
-            // Salvaguarda: Si el 10º pick ya tenía campeón detectado/confirmado, asegurar que el slot conserve dicho campeón
-            if (allySlots[4].champion == null && allySlotConfirmedChampions[4] != null) {
-                allySlots[4].champion = allySlotConfirmedChampions[4]
-                allySlots[4].confidencePercent = 100
-                AppLogger.i(TAG, "Fase de Preparación: Restaurado 10º Pick Aliado en Slot 4: ${allySlotConfirmedChampions[4]?.name}")
-            }
-            if (enemySlots[4].champion == null && enemySlotConfirmedChampions[4] != null) {
-                enemySlots[4].champion = enemySlotConfirmedChampions[4]
-                enemySlots[4].confidencePercent = 100
-                AppLogger.i(TAG, "Fase de Preparación: Restaurado 10º Pick Rival en Slot 4: ${enemySlotConfirmedChampions[4]?.name}")
-            }
-
-            val confirmedIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toMutableSet()
             for (i in 0..4) {
-                if (allySlots[i].champion == null) {
-                    val expectedRole = allySlots[i].explicitRole ?: allySlotRolesCache[i] ?: defaultRolesList[i]
-                    val detected = LocalVisionAnalyzer.identifyTopSlotAvatar(
-                        bitmap = bitmap,
-                        isAlly = true,
-                        slotIndex = i,
-                        calib = calib,
-                        allChamps = allChamps,
-                        confirmedIds = confirmedIds,
-                        expectedRole = expectedRole,
-                        context = context
-                    )
-                    if (detected != null) {
-                        val champ = detected.first
-                        allySlots[i].champion = champ
-                        allySlots[i].confidencePercent = 100
-                        allySlotConfirmedChampions[i] = champ
-                        allyOcrChampions[i] = champ
-                        confirmedIds.add(champ.id)
-                        AppLogger.i(TAG, "Fase de Preparación: Campeón Aliado Slot $i confirmado de barra superior: ${champ.name}")
-                    }
+                if (allySlots[i].champion == null && allySlotConfirmedChampions[i] != null) {
+                    allySlots[i].champion = allySlotConfirmedChampions[i]
+                    allySlots[i].confidencePercent = 100
+                    allySlots[i].isLikelyUnpicked = false
                 }
-            }
-            for (i in 0..4) {
-                if (enemySlots[i].champion == null) {
-                    val detected = LocalVisionAnalyzer.identifyTopSlotAvatar(
-                        bitmap = bitmap,
-                        isAlly = false,
-                        slotIndex = i,
-                        calib = calib,
-                        allChamps = allChamps,
-                        confirmedIds = confirmedIds,
-                        expectedRole = null,
-                        context = context
-                    )
-                    if (detected != null) {
-                        val champ = detected.first
-                        enemySlots[i].champion = champ
-                        enemySlots[i].confidencePercent = 100
-                        enemySlotConfirmedChampions[i] = champ
-                        enemyOcrChampions[i] = champ
-                        confirmedIds.add(champ.id)
-                        AppLogger.i(TAG, "Fase de Preparación: Campeón Rival Slot $i confirmado de barra superior: ${champ.name}")
-                    }
+                if (enemySlots[i].champion == null && enemySlotConfirmedChampions[i] != null) {
+                    enemySlots[i].champion = enemySlotConfirmedChampions[i]
+                    enemySlots[i].confidencePercent = 100
+                    enemySlots[i].isLikelyUnpicked = false
                 }
             }
         }

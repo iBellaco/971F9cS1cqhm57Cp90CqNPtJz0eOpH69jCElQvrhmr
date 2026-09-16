@@ -497,41 +497,7 @@ object LocalVisionAnalyzer {
         val phaseName = if (isConfirmedPhase) "CONFIRMACIÓN DEFINITIVA (BARRA SUPERIOR)" else "PRESELECCIÓN PROVISIONAL (HOVER INFERIOR)"
         val roleLine = roleExplanation ?: (if (expectedRole != null) "Rol esperado: ${expectedRole.displayName}" else "Rol: No especificado")
 
-        if (!populatedMetrics.isPopulated) {
-            val unpopReason = "Slot 10 en $roiLabel actualmente a oscuras o esperando selección (Brillo=${populatedMetrics.avgLum.toInt()}, Contraste=${populatedMetrics.contrast})."
-            val unpopSummary = buildString {
-                appendLine("==================== [SELECCIÓN 10 - DIAGNÓSTICO VISUAL] ====================")
-                appendLine("Fase: $phaseName")
-                appendLine("Ubicación ROI: $roiLabel")
-                appendLine("")
-                appendLine("1. LÍNEA / ROL DEL 10º PICK:")
-                appendLine("- $roleLine")
-                appendLine("")
-                appendLine("2. CARACTERÍSTICAS ESCANEADAS:")
-                appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
-                appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: NO / Slot a oscuras)")
-                appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
-                appendLine("")
-                appendLine("3. ESTADO Y RESULTADO:")
-                appendLine("- $unpopReason")
-                appendLine("- El escaneo automático CONTINÚA ACTIVO esperando a que el jugador elija o fije un campeón.")
-                appendLine("=============================================================================")
-            }
-            val unpopLog = TenthPickDecisionLog(
-                selectedChampion = null,
-                confidence = 0f,
-                isConfirmed = false,
-                phaseName = phaseName,
-                scannedMetrics = populatedMetrics,
-                candidatesEvaluatedCount = 0,
-                topCandidates = emptyList(),
-                decisionReason = unpopReason,
-                formattedSummary = unpopSummary
-            )
-            lastTenthPickLog = unpopLog
-            AppLogger.i(TAG, unpopSummary)
-            return unpopLog
-        }
+        val isPopulatedSlot = populatedMetrics.isPopulated
 
         ensureInitialized(context)
         val effectiveCandidates = if (candidates.isNotEmpty()) candidates else {
@@ -673,6 +639,47 @@ object LocalVisionAnalyzer {
         val best = candidateComparisons.firstOrNull()
         val runnerUp = candidateComparisons.getOrNull(1)
         val topCandidates = candidateComparisons.take(5)
+
+        if (!isPopulatedSlot) {
+            val unpopReason = "Slot en $roiLabel actualmente a oscuras o esperando selección (Brillo=${populatedMetrics.avgLum.toInt()}, Contraste=${populatedMetrics.contrast})."
+            val unpopSummary = buildString {
+                appendLine("==================== [SELECCIÓN 10 - COMPARATIVA DE VISIÓN] ====================")
+                appendLine("Fase: $phaseName")
+                appendLine("Ubicación ROI: $roiLabel")
+                appendLine("")
+                appendLine("1. LÍNEA / ROL DEL 10º PICK:")
+                appendLine("- $roleLine")
+                appendLine("")
+                appendLine("2. CARACTERÍSTICAS ESCANEADAS:")
+                appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
+                appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: NO / Slot a oscuras)")
+                appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
+                appendLine("")
+                appendLine("3. COMPARATIVA CON CANDIDATOS (TOP 5 EVALUADOS):")
+                topCandidates.forEachIndexed { idx, c ->
+                    appendLine("  #${idx + 1} ${c.champion.name}: Similitud=${(c.compositeScore * 100).toInt()}% | Pix=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                }
+                appendLine("")
+                appendLine("4. ESTADO Y RESULTADO:")
+                appendLine("- $unpopReason")
+                appendLine("- No se auto-selecciona ningún campeón. El escaneo automático CONTINÚA ACTIVO esperando a que el jugador elija o fije un campeón.")
+                appendLine("=============================================================================")
+            }
+            val unpopLog = TenthPickDecisionLog(
+                selectedChampion = null,
+                confidence = 0f,
+                isConfirmed = false,
+                phaseName = phaseName,
+                scannedMetrics = populatedMetrics,
+                candidatesEvaluatedCount = candidateComparisons.size,
+                topCandidates = topCandidates,
+                decisionReason = unpopReason,
+                formattedSummary = unpopSummary
+            )
+            lastTenthPickLog = unpopLog
+            AppLogger.i(TAG, unpopSummary)
+            return unpopLog
+        }
 
         // Umbral adaptativo calibrado: 0.50f para barra superior / confirmación definitiva, 0.46f para preselección en cuadrícula
         val minThreshold = if (isConfirmedPhase) 0.50f else 0.46f
