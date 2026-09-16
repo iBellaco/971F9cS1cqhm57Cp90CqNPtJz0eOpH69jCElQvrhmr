@@ -3573,13 +3573,7 @@ private fun TenthPickScannerViewerDialog(
     var isFastStep by remember { mutableStateOf(false) }
     var currentCrop by remember { mutableStateOf<Bitmap?>(null) }
     var currentLog by remember { mutableStateOf<com.example.service.screen.LocalVisionAnalyzer.TenthPickDecisionLog?>(null) }
-    var isEvaluating by remember { mutableStateOf(false) }
-
-    // Estados para Modo de Prueba (Comparativa Local vs Internet)
-    var cloudTestResult by remember { mutableStateOf<CloudVisionTestResult?>(null) }
-    var isTestingCloud by remember { mutableStateOf(false) }
-    var showApiKeyDialog by remember { mutableStateOf(false) }
-    var apiKeyText by remember { mutableStateOf(GeminiCloudVisionTester.getEffectiveApiKey(context)) }
+    var isAutoEvaluating by remember { mutableStateOf(false) }
 
     val step = if (isFastStep) 0.010f else 0.002f
 
@@ -3642,15 +3636,15 @@ private fun TenthPickScannerViewerDialog(
         }
     }
 
-    // Bucle en Vivo (Live Stream): captura y actualiza en tiempo real
+    // Bucle en Vivo (Live Stream): captura y actualiza en tiempo real de forma 100% automática
     LaunchedEffect(isLiveStreaming, selectedVision, calib) {
         while (isLiveStreaming) {
             try {
-                isEvaluating = true
+                isAutoEvaluating = true
                 performSingleEvaluation()
             } catch (_: Throwable) {
             } finally {
-                isEvaluating = false
+                isAutoEvaluating = false
             }
             delay(500)
         }
@@ -4001,61 +3995,42 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // BOTONES PRINCIPALES: CALCULAR AHORA + EN VIVO + GUARDAR + COPIAR
+                // BOTONES PRINCIPALES: ESTADO EN VIVO (100% AUTOMÁTICO) + GUARDAR + COPIAR
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Botón CALCULAR COMPROBACIÓN
-                    Button(
-                        onClick = {
-                            coroutineScope.launch(Dispatchers.IO) {
-                                isEvaluating = true
-                                performSingleEvaluation()
-                                isEvaluating = false
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(1.3f)
-                            .height(34.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                        shape = RoundedCornerShape(6.dp),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp)
-                    ) {
-                        if (isEvaluating) {
-                            CircularProgressIndicator(modifier = Modifier.size(14.dp), color = Color.Black, strokeWidth = 2.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("CALCULANDO...", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 9.sp)
-                        } else {
-                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color.Black, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("CALCULAR AHORA", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 9.sp)
-                        }
-                    }
-
-                    // Toggle EN VIVO
+                    // Indicador de Escaneo Automático Continuo
                     Surface(
                         modifier = Modifier
-                            .clickable { isLiveStreaming = !isLiveStreaming }
+                            .weight(1.2f)
                             .height(34.dp),
                         shape = RoundedCornerShape(6.dp),
-                        color = if (isLiveStreaming) Color(0xFF00FF7F).copy(alpha = 0.20f) else HextechSurface,
+                        color = if (isLiveStreaming) Color(0xFF00FF7F).copy(alpha = 0.15f) else HextechSurface,
                         border = BorderStroke(1.dp, if (isLiveStreaming) Color(0xFF00FF7F) else HextechCardBorder)
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(7.dp)
-                                    .clip(CircleShape)
-                                    .background(if (isLiveStreaming) Color(0xFF00FF7F) else TextMuted)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            if (isAutoEvaluating) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(10.dp),
+                                    color = Color(0xFF00FF7F),
+                                    strokeWidth = 1.5.dp
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isLiveStreaming) Color(0xFF00FF7F) else TextMuted)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = if (isLiveStreaming) "EN VIVO" else "PAUSADO",
+                                text = if (isLiveStreaming) "ESCANEANDO SOLO" else "PAUSADO",
                                 color = if (isLiveStreaming) Color(0xFF00FF7F) else TextMuted,
                                 fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Bold
@@ -4614,8 +4589,7 @@ private fun TenthPickScannerViewerDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // =========================================================================
-                // MODO DE PRUEBA: COMPARACIÓN LOCAL (DATASET) vs INTERNET (IA CLOUD)
-                // "Modo de prueba que no hace nada en el draft, solo muestra qué captura y compara con internet"
+                // MODO DE AUDITORÍA: VISUALIZADOR DEL RECORTE Y EVALUACIÓN CON DATASET LOCAL
                 // =========================================================================
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -4624,7 +4598,7 @@ private fun TenthPickScannerViewerDialog(
                     border = BorderStroke(1.2.dp, HextechGold)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                        // Cabecera del Modo de Prueba
+                        // Cabecera del Modo de Auditoría
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -4639,22 +4613,22 @@ private fun TenthPickScannerViewerDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "MODO DE PRUEBA: LOCAL vs INTERNET",
+                                    text = "AUDITORÍA EN VIVO (100% OFFLINE / DATASET LOCAL)",
                                     color = HextechGold,
                                     fontWeight = FontWeight.Black,
-                                    fontSize = 10.sp
+                                    fontSize = 9.5.sp
                                 )
                             }
 
-                            // Badge de modo pasivo
+                            // Badge de modo automático
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
-                                color = HextechCyan.copy(alpha = 0.2f),
-                                border = BorderStroke(0.5.dp, HextechCyan)
+                                color = Color(0xFF00FF7F).copy(alpha = 0.2f),
+                                border = BorderStroke(0.5.dp, Color(0xFF00FF7F))
                             ) {
                                 Text(
-                                    text = "MODO PASIVO (AUDITORÍA)",
-                                    color = HextechCyan,
+                                    text = "AUTOMÁTICO",
+                                    color = Color(0xFF00FF7F),
                                     fontSize = 7.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
@@ -4664,7 +4638,7 @@ private fun TenthPickScannerViewerDialog(
 
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Este modo NO modifica tu draft ni realiza acciones en partida. Permite auditar exactamente qué recorta el escáner y comparar la rentabilidad de tus archivos locales frente a una consulta por Internet.",
+                            text = "Auditoría en tiempo real sin requerir APIs ni botones: el visor compara automáticamente el recorte capturado directamente contra las variantes de imágenes del dataset local.",
                             color = TextMuted,
                             fontSize = 7.5.sp,
                             lineHeight = 10.sp
@@ -4674,7 +4648,7 @@ private fun TenthPickScannerViewerDialog(
 
                         // 1. VISUALIZADOR DE LO QUE CAPTURA (PREVIEW DE RECORTE + MÉTRICAS)
                         Text(
-                            text = "1. EXACTAMENTE LO QUE CAPTURA EL ESCÁNER",
+                            text = "1. RECORTE CAPTURADO EN TIEMPO REAL",
                             color = HextechCyan,
                             fontWeight = FontWeight.Bold,
                             fontSize = 8.5.sp
@@ -4739,7 +4713,7 @@ private fun TenthPickScannerViewerDialog(
                                     }
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "Pulsa 'CALCULAR AHORA' arriba para capturar el slot actual y evaluar.",
+                                        text = "Capturando automáticamente en vivo...",
                                         color = TextMuted,
                                         fontSize = 8.sp
                                     )
@@ -4749,250 +4723,76 @@ private fun TenthPickScannerViewerDialog(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // 2. BOTÓN DE CONSULTA A INTERNET (IA)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Button(
-                                onClick = {
-                                    val bmpToTest = currentCrop
-                                    if (bmpToTest == null || bmpToTest.isRecycled) {
-                                        android.widget.Toast.makeText(context, "Primero realiza una captura con 'CALCULAR AHORA'", android.widget.Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        coroutineScope.launch {
-                                            isTestingCloud = true
-                                            cloudTestResult = GeminiCloudVisionTester.testVisionWithInternet(context, bmpToTest)
-                                            isTestingCloud = false
-                                        }
-                                    }
-                                },
-                                modifier = Modifier.weight(1f).height(34.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = HextechCyan),
-                                shape = RoundedCornerShape(6.dp),
-                                enabled = !isTestingCloud
-                            ) {
-                                if (isTestingCloud) {
-                                    CircularProgressIndicator(modifier = Modifier.size(14.dp), color = Color.Black, strokeWidth = 2.dp)
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("CONSULTANDO IA...", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 8.5.sp)
-                                } else {
-                                    Icon(Icons.Default.Cloud, contentDescription = null, tint = Color.Black, modifier = Modifier.size(14.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("EVALUAR CON INTERNET", color = Color.Black, fontWeight = FontWeight.Black, fontSize = 8.5.sp)
-                                }
-                            }
-
-                            // Botón de ajuste de clave API
-                            Surface(
-                                modifier = Modifier
-                                    .clickable { showApiKeyDialog = !showApiKeyDialog }
-                                    .height(34.dp),
-                                shape = RoundedCornerShape(6.dp),
-                                color = HextechSurface,
-                                border = BorderStroke(1.dp, if (showApiKeyDialog) HextechGold else HextechCardBorder)
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.Key, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    Text("Clave API", color = HextechGold, fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-
-                        // Formulario desplegable para configurar clave API si el usuario lo desea
-                        if (showApiKeyDialog) {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(6.dp),
-                                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                                border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
-                            ) {
-                                Column(modifier = Modifier.padding(6.dp)) {
-                                    Text("Clave de Gemini API para pruebas con Internet:", color = HextechGold, fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    androidx.compose.material3.OutlinedTextField(
-                                        value = apiKeyText,
-                                        onValueChange = { apiKeyText = it },
-                                        placeholder = { Text("Pega tu API Key de Gemini", fontSize = 8.sp) },
-                                        modifier = Modifier.fillMaxWidth(),
-                                        singleLine = true,
-                                        textStyle = androidx.compose.ui.text.TextStyle(fontSize = 8.5.sp, color = TextPrimary)
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                                        Button(
-                                            onClick = {
-                                                GeminiCloudVisionTester.setCustomApiKey(context, apiKeyText)
-                                                showApiKeyDialog = false
-                                                android.widget.Toast.makeText(context, "Clave API guardada", android.widget.Toast.LENGTH_SHORT).show()
-                                            },
-                                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                                            shape = RoundedCornerShape(4.dp),
-                                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 2.dp)
-                                        ) {
-                                            Text("Guardar Clave", color = Color.Black, fontSize = 8.sp, fontWeight = FontWeight.Bold)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // 3. COMPARATIVA LADO A LADO: ARCHIVOS LOCALES VS INTERNET
+                        // 2. DETECCIÓN Y MATCH CON DATASET LOCAL
                         Text(
-                            text = "3. RESULTADO DE COMPARATIVA & RENTABILIDAD",
+                            text = "2. CAMPEÓN IDENTIFICADO POR DATASET LOCAL",
                             color = HextechCyan,
                             fontWeight = FontWeight.Bold,
                             fontSize = 8.5.sp
                         )
                         Spacer(modifier = Modifier.height(4.dp))
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            // COLUMNA IZQUIERDA: ARCHIVOS LOCALES (DATASET)
-                            val topLocal = safeLog?.topCandidates?.firstOrNull()
-                            val localScore = ((topLocal?.compositeScore ?: 0f) * 100).toInt()
-                            val localChampName = safeLog?.selectedChampion?.name ?: topLocal?.champion?.name ?: "No detectado"
-                            val localVar = topLocal?.matchedVariant ?: "avatar"
-                            val localVarLabel = LocalVisionAnalyzer.getVariantLabel(localVar)
+                        val topLocal = safeLog?.topCandidates?.firstOrNull()
+                        val localScore = ((topLocal?.compositeScore ?: 0f) * 100).toInt()
+                        val localChampName = safeLog?.selectedChampion?.name ?: topLocal?.champion?.name ?: "Analizando..."
+                        val localVar = topLocal?.matchedVariant ?: "avatar"
+                        val localVarLabel = LocalVisionAnalyzer.getVariantLabel(localVar)
 
-                            Card(
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(6.dp),
-                                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                                border = BorderStroke(1.dp, if (localScore >= 50) Color(0xFF00FF7F).copy(alpha = 0.6f) else HextechCardBorder)
-                            ) {
-                                Column(modifier = Modifier.padding(6.dp)) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(6.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                            border = BorderStroke(1.dp, if (localScore >= 50) Color(0xFF00FF7F).copy(alpha = 0.6f) else HextechCardBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(6.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
-                                        Spacer(modifier = Modifier.width(3.dp))
+                                        Icon(Icons.Default.Folder, contentDescription = null, tint = HextechGold, modifier = Modifier.size(13.dp))
+                                        Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = if (isZipActive) "NUEVO LOCAL (ZIP)" else "LOCAL BASE",
+                                            text = if (isZipActive) "DATASET ZIP (LOCAL)" else "DATASET LOCAL BASE",
                                             color = HextechGold,
                                             fontWeight = FontWeight.Black,
-                                            fontSize = 8.sp
+                                            fontSize = 8.5.sp
                                         )
                                     }
-                                    Spacer(modifier = Modifier.height(3.dp))
-                                    Text(
-                                        text = localChampName,
-                                        color = TextPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 10.sp
-                                    )
-                                    Text(
-                                        text = "Variante: $localVarLabel",
-                                        color = HextechCyan,
-                                        fontSize = 7.5.sp
-                                    )
-                                    Text(
-                                        text = "Coincidencia: $localScore%",
-                                        color = if (localScore >= 55) HextechGold else TextSecondary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 8.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "• Latencia: ~10 ms\n• Coste: $0.00 (Offline)",
-                                        color = Color(0xFF00FF7F),
-                                        fontSize = 7.sp,
-                                        lineHeight = 9.sp
-                                    )
-                                }
-                            }
-
-                            // COLUMNA DERECHA: INTERNET (IA GEMINI)
-                            val cloudRes = cloudTestResult
-                            Card(
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(6.dp),
-                                colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                                border = BorderStroke(1.dp, if (cloudRes?.isSuccess == true) HextechCyan else HextechCardBorder)
-                            ) {
-                                Column(modifier = Modifier.padding(6.dp)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(Icons.Default.Cloud, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(12.dp))
-                                        Spacer(modifier = Modifier.width(3.dp))
-                                        Text("INTERNET / IA", color = HextechCyan, fontWeight = FontWeight.Black, fontSize = 8.sp)
-                                    }
-                                    Spacer(modifier = Modifier.height(3.dp))
-                                    if (cloudRes == null) {
-                                        Text("Pendiente de probar", color = TextMuted, fontSize = 8.sp)
-                                        Text("Pulsa 'EVALUAR CON INTERNET'", color = TextMuted, fontSize = 7.sp)
-                                    } else if (cloudRes.isSuccess) {
+                                    Surface(
+                                        shape = RoundedCornerShape(3.dp),
+                                        color = if (localScore >= 55) Color(0xFF00FF7F).copy(alpha = 0.2f) else HextechSurface,
+                                        border = BorderStroke(0.5.dp, if (localScore >= 55) Color(0xFF00FF7F) else TextMuted)
+                                    ) {
                                         Text(
-                                            text = cloudRes.championName ?: "Desconocido",
-                                            color = TextPrimary,
+                                            text = "$localScore% COINCIDENCIA",
+                                            color = if (localScore >= 55) Color(0xFF00FF7F) else TextSecondary,
+                                            fontSize = 7.5.sp,
                                             fontWeight = FontWeight.Bold,
-                                            fontSize = 10.sp
+                                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
                                         )
-                                        Text(
-                                            text = "Certeza IA: ${cloudRes.confidence}%",
-                                            color = HextechGold,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 8.sp
-                                        )
-                                        Text(
-                                            text = "Rasgos: ${cloudRes.details}",
-                                            color = TextSecondary,
-                                            fontSize = 7.sp,
-                                            maxLines = 2
-                                        )
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = "• Latencia: ${cloudRes.latencyMs} ms\n• Requiere red & cuota",
-                                            color = HextechCyan,
-                                            fontSize = 7.sp,
-                                            lineHeight = 9.sp
-                                        )
-                                    } else {
-                                        Text("Error en consulta", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
-                                        Text(cloudRes.errorMessage ?: "Fallo de conexión", color = DangerRed.copy(alpha = 0.8f), fontSize = 7.sp, maxLines = 3)
                                     }
                                 }
-                            }
-                        }
-
-                        // ANÁLISIS DE RENTABILIDAD
-                        if (cloudTestResult != null && cloudTestResult?.isSuccess == true) {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            val cloudChamp = cloudTestResult?.championName ?: ""
-                            val localTopChamp = safeLog?.topCandidates?.firstOrNull()?.champion?.name ?: ""
-                            val isMatch = cloudChamp.equals(localTopChamp, ignoreCase = true)
-                            Surface(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(6.dp),
-                                color = if (isMatch) Color(0xFF00FF7F).copy(alpha = 0.12f) else HextechGold.copy(alpha = 0.12f),
-                                border = BorderStroke(1.dp, if (isMatch) Color(0xFF00FF7F).copy(alpha = 0.5f) else HextechGold.copy(alpha = 0.5f))
-                            ) {
-                                Column(modifier = Modifier.padding(6.dp)) {
-                                    Text(
-                                        text = if (isMatch) "VEREDICTO: COINCIDENCIA TOTAL ($cloudChamp)" else "VEREDICTO: DIFERENCIA DE CRITERIO",
-                                        color = if (isMatch) Color(0xFF00FF7F) else HextechGold,
-                                        fontWeight = FontWeight.Black,
-                                        fontSize = 8.5.sp
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = if (isMatch) {
-                                            "Tus archivos locales y la IA de Internet coinciden en $cloudChamp. Conclusión de rentabilidad: Es 100% más rentable usar tus archivos locales porque procesan en ~10 ms vs ${cloudTestResult?.latencyMs} ms de internet, sin gastar datos ni cuota de API."
-                                        } else {
-                                            "La IA detectó '$cloudChamp' (${cloudTestResult?.confidence}%) mientras los archivos locales dieron prioridad a '$localTopChamp'. En partidas con skins o distorsiones extremas, la IA en la nube puede servir como apoyo secundario, aunque tus archivos locales garantizan velocidad en tiempo real sin latencia."
-                                        },
-                                        color = TextPrimary,
-                                        fontSize = 7.5.sp,
-                                        lineHeight = 10.sp
-                                    )
-                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = localChampName,
+                                    color = TextPrimary,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 11.sp
+                                )
+                                Text(
+                                    text = "Carpeta / Variante más parecida: $localVarLabel",
+                                    color = HextechCyan,
+                                    fontSize = 8.sp
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "• Tiempo de inferencia: ~5-15 ms\n• Funcionamiento autónomo: 100% Offline (Sin dependencias externas ni consumo de red)",
+                                    color = Color(0xFF00FF7F),
+                                    fontSize = 7.5.sp,
+                                    lineHeight = 9.5.sp
+                                )
                             }
                         }
                     }
