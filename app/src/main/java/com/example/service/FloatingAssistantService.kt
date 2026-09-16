@@ -169,6 +169,7 @@ import com.example.model.Champion
 import com.example.model.DraftSlot
 import com.example.model.LaneRole
 import com.example.service.screen.DraftVisionScanner
+import com.example.service.screen.LocalVisionAnalyzer
 import com.example.service.screen.ScreenCaptureManager
 import com.example.ui.components.AppAssetImage
 import com.example.ui.components.ChampionAvatar
@@ -4350,10 +4351,12 @@ private fun TenthPickScannerViewerDialog(
 
                         // Avatar Campeón Referencia (84.dp)
                         val matchedChamp = log?.selectedChampion ?: topCand?.champion
+                        val matchedVar = topCand?.matchedVariant ?: "avatar"
+                        val varLabel = LocalVisionAnalyzer.getVariantLabel(matchedVar)
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = if (matchedChamp != null) {
-                                    if (isConfirmed) "${matchedChamp.name} (Confirmado)" else "${matchedChamp.name} ($score%)"
+                                    if (isConfirmed) "${matchedChamp.name} • $varLabel (Confirmado)" else "${matchedChamp.name} • $varLabel ($score%)"
                                 } else "Sin asignar",
                                 color = if (isConfirmed) HextechGold else if (matchedChamp != null) HextechCyan else TextMuted,
                                 fontWeight = FontWeight.Bold,
@@ -4436,12 +4439,20 @@ private fun TenthPickScannerViewerDialog(
                                         size = 24.dp
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text(
-                                        text = c.champion.name,
-                                        color = if (isChosen) HextechGold else TextPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 10.sp
-                                    )
+                                    val varLabel = LocalVisionAnalyzer.getVariantLabel(c.matchedVariant)
+                                    Column {
+                                        Text(
+                                            text = c.champion.name,
+                                            color = if (isChosen) HextechGold else TextPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 9.5.sp
+                                        )
+                                        Text(
+                                            text = varLabel,
+                                            color = if (isChosen) HextechGold.copy(alpha = 0.8f) else TextMuted,
+                                            fontSize = 7.5.sp
+                                        )
+                                    }
                                 }
                                 Text(
                                     text = "${(c.compositeScore * 100).toInt()}%",

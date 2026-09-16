@@ -3,7 +3,12 @@ package com.example.service.screen
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
+import android.os.Environment
 import com.example.WildRiftApp
 import com.example.data.WildRiftRepository
 import com.example.model.Champion
@@ -11,8 +16,10 @@ import com.example.model.LaneRole
 import com.example.util.AppLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.InputStream
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -21,7 +28,8 @@ import kotlin.math.sqrt
 /**
  * Analizador Visual 100% Local y Autónomo para Wild Rift.
  * Identifica campeones mediante reconocimiento y comparación de huellas cromáticas/estructurales
- * contra los iconos oficiales almacenados en assets locales ('assets/champions/{id}.png').
+ * contra los iconos oficiales y dataset multi-variante (avatar, contraste, desenfoque, ruido,
+ * pixelado, compresión y negativo) almacenados en assets y almacenamiento local.
  * Cero consumo de APIs externas, latencia sub-milisegundo y funcionamiento completamente offline.
  */
 object LocalVisionAnalyzer {
@@ -31,6 +39,7 @@ object LocalVisionAnalyzer {
 
     data class AvatarFingerprint(
         val champId: String,
+        val variantName: String = "avatar", // "avatar", "contrast", "blur", "noise", "pixelated", "low_quality", "negative"
         val rgbPixels: IntArray, // Array de tamaño 24x24 = 576
         val avgR: Float,
         val avgG: Float,
@@ -77,7 +86,8 @@ object LocalVisionAnalyzer {
         val blockSim: Float,
         val histSimilarity: Float,
         val avgColorSim: Float,
-        val roleBonus: Float
+        val roleBonus: Float,
+        val matchedVariant: String = "avatar"
     )
 
     data class TenthPickDecisionLog(
@@ -113,12 +123,14 @@ object LocalVisionAnalyzer {
         AppLogger.d(TAG, "Datos de captura de 10º pick reiniciados")
     }
 
-    private val cachedSignatures = ConcurrentHashMap<String, AvatarFingerprint>()
+    private val cachedSignatures = ConcurrentHashMap<String, CopyOnWriteArrayList<AvatarFingerprint>>()
     private var isInitialized = false
 
     /**
-     * Inicializa y cachea en memoria las huellas de los avatares locales.
-     * Es ultra ligero (~120 KB de memoria total).
+     * Inicializa y cachea en memoria las huellas multi-variante de los 141 campeones.
+     * Carga las variantes existentes en almacenamiento local y sintetiza en memoria
+     * las restantes (estándar, contraste, desenfoque, ruido, pixelado, compresión y negativo)
+     * para garantizar comparativas de máxima precisión en la décima selección.
      */
     fun ensureInitialized(context: Context? = null) {
         val ctx = context ?: WildRiftApp.instance ?: return
@@ -130,42 +142,275 @@ object LocalVisionAnalyzer {
             if (allChamps.isEmpty()) return
             if (isInitialized && cachedSignatures.size >= allChamps.size) return
 
-            val assetManager = ctx.assets
-
             for (champ in allChamps) {
-                if (cachedSignatures.containsKey(champ.id)) continue
+                val existing = cachedSignatures[champ.id]
+                if (existing != null && existing.isNotEmpty()) continue
+                val sigList = CopyOnWriteArrayList<AvatarFingerprint>()
+
+                // 1. Cargar variantes de almacenamiento local o dataset externo si existen
+                loadExternalDatasetVariants(ctx, champ, sigList)
+
+                // 2. Cargar avatar original de assets si aún no está presente
                 val assetPath = "champions/${champ.id}.png"
-                var inputStream: InputStream? = null
-                var bmp: Bitmap? = null
-                try {
-                    inputStream = assetManager.open(assetPath)
-                    bmp = BitmapFactory.decodeStream(inputStream)
-                    if (bmp != null) {
-                        val fp = extractFingerprint(bmp, champ.id)
-                        if (fp != null) {
-                            cachedSignatures[champ.id] = fp
+                var baseBmp: Bitmap? = null
+                if (!sigList.any { it.variantName == "avatar" }) {
+                    try {
+                        ctx.assets.open(assetPath).use { stream ->
+                            baseBmp = BitmapFactory.decodeStream(stream)
+                            if (baseBmp != null) {
+                                extractFingerprint(baseBmp!!, champ.id, "avatar")?.let { sigList.add(it) }
+                            }
+                        }
+                    } catch (_: Exception) {}
+                }
+
+                if (baseBmp == null) {
+                    try {
+                        ctx.assets.open(assetPath).use { stream ->
+                            baseBmp = BitmapFactory.decodeStream(stream)
+                        }
+                    } catch (_: Exception) {}
+                }
+
+                // 3. Generar y enriquecer en memoria cualquier variante faltante
+                baseBmp?.let { bmp ->
+                    if (!sigList.any { it.variantName == "contrast" }) {
+                        generateContrastBmp(bmp)?.let {
+                            extractFingerprint(it, champ.id, "contrast")?.let { fp -> sigList.add(fp) }
+                            try { if (it != bmp) it.recycle() } catch (_: Throwable) {}
                         }
                     }
-                } catch (_: Exception) {
-                    // Si el activo con id no abre, continuar con los demás
-                } finally {
-                    try { inputStream?.close() } catch (_: Throwable) {}
-                    try { bmp?.recycle() } catch (_: Throwable) {}
+                    if (!sigList.any { it.variantName == "blur" }) {
+                        generateBlurBmp(bmp)?.let {
+                            extractFingerprint(it, champ.id, "blur")?.let { fp -> sigList.add(fp) }
+                            try { if (it != bmp) it.recycle() } catch (_: Throwable) {}
+                        }
+                    }
+                    if (!sigList.any { it.variantName == "noise" }) {
+                        generateNoiseBmp(bmp)?.let {
+                            extractFingerprint(it, champ.id, "noise")?.let { fp -> sigList.add(fp) }
+                            try { if (it != bmp) it.recycle() } catch (_: Throwable) {}
+                        }
+                    }
+                    if (!sigList.any { it.variantName == "pixelated" }) {
+                        generatePixelatedBmp(bmp)?.let {
+                            extractFingerprint(it, champ.id, "pixelated")?.let { fp -> sigList.add(fp) }
+                            try { if (it != bmp) it.recycle() } catch (_: Throwable) {}
+                        }
+                    }
+                    if (!sigList.any { it.variantName == "low_quality" }) {
+                        generateLowQualityBmp(bmp)?.let {
+                            extractFingerprint(it, champ.id, "low_quality")?.let { fp -> sigList.add(fp) }
+                            try { if (it != bmp) it.recycle() } catch (_: Throwable) {}
+                        }
+                    }
+                    if (!sigList.any { it.variantName == "negative" }) {
+                        generateNegativeBmp(bmp)?.let {
+                            extractFingerprint(it, champ.id, "negative")?.let { fp -> sigList.add(fp) }
+                            try { if (it != bmp) it.recycle() } catch (_: Throwable) {}
+                        }
+                    }
+                    try { bmp.recycle() } catch (_: Throwable) {}
+                }
+
+                if (sigList.isNotEmpty()) {
+                    cachedSignatures[champ.id] = sigList
                 }
             }
+
             if (cachedSignatures.isNotEmpty()) {
                 isInitialized = true
-                AppLogger.d(TAG, "Inicializadas ${cachedSignatures.size} huellas locales de campeones en memoria.")
+                val totalVariants = cachedSignatures.values.sumOf { it.size }
+                AppLogger.d(TAG, "Inicializadas ${cachedSignatures.size} huellas multi-variante ($totalVariants variantes totales) para comparativas del 10º pick.")
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error inicializando huellas de avatares locales", e)
         }
     }
 
+    private fun loadExternalDatasetVariants(ctx: Context, champ: Champion, outList: MutableList<AvatarFingerprint>) {
+        try {
+            val folderNames = listOf(
+                champ.name,
+                champ.name.replace("'", "%27"),
+                champ.name.replace("'", ""),
+                champ.id,
+                champ.id.replace("_", " ")
+            )
+            val variantFileNames = listOf(
+                Pair("avatar", listOf("avatar.png", "${champ.id}.png", "${champ.name}.png")),
+                Pair("contrast", listOf("contrast.png")),
+                Pair("blur", listOf("blur.png")),
+                Pair("noise", listOf("noise.png")),
+                Pair("pixelated", listOf("pixelated.png")),
+                Pair("low_quality", listOf("low_quality.jpg", "low_quality.png")),
+                Pair("negative", listOf("negative.png"))
+            )
+
+            val baseDirs = mutableListOf<File>()
+            try {
+                val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                if (downloadsDir != null && downloadsDir.exists()) {
+                    baseDirs.add(File(downloadsDir, "WildRiftChampions"))
+                    baseDirs.add(File(downloadsDir, "dataset"))
+                }
+            } catch (_: Throwable) {}
+
+            try {
+                baseDirs.add(File(ctx.filesDir, "dataset"))
+                ctx.getExternalFilesDir(null)?.let { baseDirs.add(File(it, "dataset")) }
+            } catch (_: Throwable) {}
+
+            for (baseDir in baseDirs) {
+                if (!baseDir.exists() || !baseDir.isDirectory) continue
+                var champDir: File? = null
+                for (fn in folderNames) {
+                    val candidate = File(baseDir, fn)
+                    if (candidate.exists() && candidate.isDirectory) {
+                        champDir = candidate
+                        break
+                    }
+                }
+                if (champDir != null) {
+                    for ((vName, fileNames) in variantFileNames) {
+                        if (outList.any { it.variantName == vName }) continue
+                        for (fName in fileNames) {
+                            val file = File(champDir, fName)
+                            if (file.exists() && file.isFile && file.length() > 50) {
+                                try {
+                                    val bmp = BitmapFactory.decodeFile(file.absolutePath)
+                                    if (bmp != null) {
+                                        extractFingerprint(bmp, champ.id, vName)?.let { fp -> outList.add(fp) }
+                                        try { bmp.recycle() } catch (_: Throwable) {}
+                                        break
+                                    }
+                                } catch (_: Throwable) {}
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (_: Throwable) {}
+    }
+
+    private fun applyColorMatrix(src: Bitmap, matrix: FloatArray): Bitmap? {
+        if (src.isRecycled) return null
+        return try {
+            val result = Bitmap.createBitmap(src.width, src.height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(result)
+            val paint = Paint().apply {
+                colorFilter = ColorMatrixColorFilter(ColorMatrix(matrix))
+            }
+            canvas.drawBitmap(src, 0f, 0f, paint)
+            result
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun generateContrastBmp(src: Bitmap): Bitmap? {
+        val scale = 1.4f
+        val translate = -20f
+        return applyColorMatrix(src, floatArrayOf(
+            scale, 0f, 0f, 0f, translate,
+            0f, scale, 0f, 0f, translate,
+            0f, 0f, scale, 0f, translate,
+            0f, 0f, 0f, 1f, 0f
+        ))
+    }
+
+    private fun generateNegativeBmp(src: Bitmap): Bitmap? {
+        return applyColorMatrix(src, floatArrayOf(
+            -1f,  0f,  0f,  0f, 255f,
+             0f, -1f,  0f,  0f, 255f,
+             0f,  0f, -1f,  0f, 255f,
+             0f,  0f,  0f,  1f,   0f
+        ))
+    }
+
+    private fun generateBlurBmp(src: Bitmap): Bitmap? {
+        if (src.isRecycled) return null
+        return try {
+            val smallW = maxOf(4, src.width / 4)
+            val smallH = maxOf(4, src.height / 4)
+            val small = Bitmap.createScaledBitmap(src, smallW, smallH, true)
+            val blurred = Bitmap.createScaledBitmap(small, src.width, src.height, true)
+            if (small != src && small != blurred) {
+                try { small.recycle() } catch (_: Throwable) {}
+            }
+            blurred
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun generatePixelatedBmp(src: Bitmap): Bitmap? {
+        if (src.isRecycled) return null
+        return try {
+            val block = 8
+            val smallW = maxOf(2, src.width / block)
+            val smallH = maxOf(2, src.height / block)
+            val small = Bitmap.createScaledBitmap(src, smallW, smallH, false)
+            val pixelated = Bitmap.createScaledBitmap(small, src.width, src.height, false)
+            if (small != src && small != pixelated) {
+                try { small.recycle() } catch (_: Throwable) {}
+            }
+            pixelated
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun generateNoiseBmp(src: Bitmap): Bitmap? {
+        if (src.isRecycled) return null
+        return try {
+            val copy = src.copy(Bitmap.Config.ARGB_8888, true)
+            val rnd = java.util.Random(42)
+            val numPixels = (copy.width * copy.height * 0.12).toInt()
+            for (i in 0 until numPixels) {
+                val nx = rnd.nextInt(copy.width)
+                val ny = rnd.nextInt(copy.height)
+                val p = copy.getPixel(nx, ny)
+                val delta = (rnd.nextInt(91) - 45)
+                val nr = (Color.red(p) + delta).coerceIn(0, 255)
+                val ng = (Color.green(p) + delta).coerceIn(0, 255)
+                val nb = (Color.blue(p) + delta).coerceIn(0, 255)
+                copy.setPixel(nx, ny, Color.argb(Color.alpha(p), nr, ng, nb))
+            }
+            copy
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    private fun generateLowQualityBmp(src: Bitmap): Bitmap? {
+        if (src.isRecycled) return null
+        return try {
+            val baos = java.io.ByteArrayOutputStream()
+            src.compress(Bitmap.CompressFormat.JPEG, 30, baos)
+            BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.size())
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    fun getVariantLabel(variant: String): String {
+        return when (variant.lowercase()) {
+            "avatar" -> "Estándar"
+            "contrast" -> "Contraste"
+            "blur" -> "Desenfoque"
+            "noise" -> "Ruido"
+            "pixelated" -> "Pixelado"
+            "low_quality" -> "Compresión"
+            "negative" -> "Negativo"
+            else -> variant
+        }
+    }
+
     /**
      * Extrae la huella cromática y espacial de un bitmap normalizándolo a FINGERPRINT_SIZE x FINGERPRINT_SIZE.
      */
-    fun extractFingerprint(bitmap: Bitmap, id: String = ""): AvatarFingerprint? {
+    fun extractFingerprint(bitmap: Bitmap, id: String = "", variantName: String = "avatar"): AvatarFingerprint? {
         if (bitmap.isRecycled || bitmap.width < 8 || bitmap.height < 8) return null
 
         val scaled = try {
@@ -338,6 +583,7 @@ object LocalVisionAnalyzer {
 
         return AvatarFingerprint(
             champId = id,
+            variantName = variantName,
             rgbPixels = pixels,
             avgR = avgR,
             avgG = avgG,
@@ -518,98 +764,123 @@ object LocalVisionAnalyzer {
 
         for (champ in effectiveCandidates) {
             if (excludedChampionIds.contains(champ.id)) continue
-            val sig = cachedSignatures[champ.id] ?: continue
+            val sigList = cachedSignatures[champ.id] ?: continue
+            if (sigList.isEmpty()) continue
 
-            // 1. Correlación Cruzada Normalizada Multicanal (ZNCC R, G, B individual + Luminancia)
-            var znccSumR = 0f
-            var znccSumG = 0f
-            var znccSumB = 0f
-            var pixelColorDistSum = 0f
-            var pixelCount = 0
+            var bestVariantScore = -1f
+            var bestSig: AvatarFingerprint? = null
+            var bestPixelSimilarity = 0f
+            var bestPixelColorSim = 0f
+            var bestBlockSim = 0f
+            var bestHistSimilarity = 0f
+            var bestAvgColorSim = 0f
 
-            for (y in 0 until FINGERPRINT_SIZE) {
-                for (x in 0 until FINGERPRINT_SIZE) {
-                    val dx = x - center
-                    val dy = y - center
-                    if (sqrt(dx * dx + dy * dy) > maxRadius) continue
+            for (sig in sigList) {
+                // 1. Correlación Cruzada Normalizada Multicanal (ZNCC R, G, B individual + Luminancia)
+                var znccSumR = 0f
+                var znccSumG = 0f
+                var znccSumB = 0f
+                var pixelColorDistSum = 0f
+                var pixelCount = 0
 
-                    val idx = y * FINGERPRINT_SIZE + x
-                    val p1 = targetFp.rgbPixels[idx]
-                    val p2 = sig.rgbPixels[idx]
+                for (y in 0 until FINGERPRINT_SIZE) {
+                    for (x in 0 until FINGERPRINT_SIZE) {
+                        val dx = x - center
+                        val dy = y - center
+                        if (sqrt(dx * dx + dy * dy) > maxRadius) continue
 
-                    val r1 = Color.red(p1).toFloat()
-                    val g1 = Color.green(p1).toFloat()
-                    val b1 = Color.blue(p1).toFloat()
+                        val idx = y * FINGERPRINT_SIZE + x
+                        val p1 = targetFp.rgbPixels[idx]
+                        val p2 = sig.rgbPixels[idx]
 
-                    val r2 = Color.red(p2).toFloat()
-                    val g2 = Color.green(p2).toFloat()
-                    val b2 = Color.blue(p2).toFloat()
+                        val r1 = Color.red(p1).toFloat()
+                        val g1 = Color.green(p1).toFloat()
+                        val b1 = Color.blue(p1).toFloat()
 
-                    // ZNCC por canal
-                    znccSumR += ((r1 - targetFp.rMean) / targetFp.rStdDev) * ((r2 - sig.rMean) / sig.rStdDev)
-                    znccSumG += ((g1 - targetFp.gMean) / targetFp.gStdDev) * ((g2 - sig.gMean) / sig.gStdDev)
-                    znccSumB += ((b1 - targetFp.bMean) / targetFp.bStdDev) * ((b2 - sig.bMean) / sig.bStdDev)
+                        val r2 = Color.red(p2).toFloat()
+                        val g2 = Color.green(p2).toFloat()
+                        val b2 = Color.blue(p2).toFloat()
 
-                    // Distancia Euclídea de color por píxel (0.0 a 1.0)
-                    val dr = r1 - r2
-                    val dg = g1 - g2
-                    val db = b1 - b2
-                    val colorDist = sqrt(dr * dr + dg * dg + db * db) / 441.67f
-                    pixelColorDistSum += colorDist
+                        // ZNCC por canal
+                        znccSumR += ((r1 - targetFp.rMean) / targetFp.rStdDev) * ((r2 - sig.rMean) / sig.rStdDev)
+                        znccSumG += ((g1 - targetFp.gMean) / targetFp.gStdDev) * ((g2 - sig.gMean) / sig.gStdDev)
+                        znccSumB += ((b1 - targetFp.bMean) / targetFp.bStdDev) * ((b2 - sig.bMean) / sig.bStdDev)
 
-                    pixelCount++
+                        // Distancia Euclídea de color por píxel (0.0 a 1.0)
+                        val dr = r1 - r2
+                        val dg = g1 - g2
+                        val db = b1 - b2
+                        val colorDist = sqrt(dr * dr + dg * dg + db * db) / 441.67f
+                        pixelColorDistSum += colorDist
+
+                        pixelCount++
+                    }
+                }
+
+                if (pixelCount == 0) continue
+
+                // 1. ZNCC por canal con correlación estricta
+                val rCorr = if (targetFp.rStdDev > 1f && sig.rStdDev > 1f) (znccSumR / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
+                val gCorr = if (targetFp.gStdDev > 1f && sig.gStdDev > 1f) (znccSumG / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
+                val bCorr = if (targetFp.bStdDev > 1f && sig.bStdDev > 1f) (znccSumB / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
+                val avgCorr = ((rCorr * 0.33f) + (gCorr * 0.33f) + (bCorr * 0.34f)).coerceIn(-1f, 1f)
+                val pixelSimilarity = if (avgCorr > 0f) avgCorr else 0f
+
+                val avgPixelDist = pixelColorDistSum / pixelCount.toFloat()
+                val pixelColorSim = kotlin.math.exp(- (avgPixelDist * 3.2f)).toFloat().coerceIn(0f, 1f)
+
+                // 2. Similitud de Cuadrícula Espacial de 16 Bloques (4x4)
+                var blockDiffSum = 0f
+                for (b in 0 until 16) {
+                    val bIdx = b * 3
+                    val bTargetR = targetFp.spatialBlockRgb[bIdx]
+                    val bTargetG = targetFp.spatialBlockRgb[bIdx + 1]
+                    val bTargetB = targetFp.spatialBlockRgb[bIdx + 2]
+
+                    val bSigR = sig.spatialBlockRgb[bIdx]
+                    val bSigG = sig.spatialBlockRgb[bIdx + 1]
+                    val bSigB = sig.spatialBlockRgb[bIdx + 2]
+
+                    val bDiff = (abs(bTargetR - bSigR) + abs(bTargetG - bSigG) + abs(bTargetB - bSigB)) / (3f * 255f)
+                    blockDiffSum += bDiff
+                }
+                val avgBlockDiff = blockDiffSum / 16f
+                val blockSim = kotlin.math.exp(- (avgBlockDiff * 3.0f)).toFloat().coerceIn(0f, 1f)
+
+                // 3. Similitud de Balance Cromático Global
+                val chromaDiff = (abs(targetFp.chromaR - sig.chromaR) +
+                                  abs(targetFp.chromaG - sig.chromaG) +
+                                  abs(targetFp.chromaB - sig.chromaB)) / 2.0f
+                val avgColorSim = kotlin.math.exp(- (chromaDiff * 3.5f)).toFloat().coerceIn(0f, 1f)
+
+                // 4. Similitud de Histograma de 16 Bins (12 HUE + 4 Acromáticos)
+                var histIntersection = 0f
+                for (i in 0 until 16) {
+                    histIntersection += min(targetFp.colorHistogram[i], sig.colorHistogram[i])
+                }
+                val histSimilarity = histIntersection.coerceIn(0f, 1f)
+
+                // 5. Puntuación visual combinada de alta precisión
+                val rawScore = (pixelSimilarity * 0.35f) +
+                               (pixelColorSim * 0.25f) +
+                               (blockSim * 0.25f) +
+                               (histSimilarity * 0.15f)
+                val variantScore = if (sig.variantName == "negative") rawScore * 0.90f else rawScore
+
+                if (variantScore > bestVariantScore) {
+                    bestVariantScore = variantScore
+                    bestSig = sig
+                    bestPixelSimilarity = pixelSimilarity
+                    bestPixelColorSim = pixelColorSim
+                    bestBlockSim = blockSim
+                    bestHistSimilarity = histSimilarity
+                    bestAvgColorSim = avgColorSim
                 }
             }
 
-            if (pixelCount == 0) continue
+            if (bestSig == null) continue
 
-            // 1. ZNCC por canal con correlación estricta
-            val rCorr = if (targetFp.rStdDev > 1f && sig.rStdDev > 1f) (znccSumR / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            val gCorr = if (targetFp.gStdDev > 1f && sig.gStdDev > 1f) (znccSumG / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            val bCorr = if (targetFp.bStdDev > 1f && sig.bStdDev > 1f) (znccSumB / pixelCount.toFloat()).coerceIn(-1f, 1f) else 0f
-            val avgCorr = ((rCorr * 0.33f) + (gCorr * 0.33f) + (bCorr * 0.34f)).coerceIn(-1f, 1f)
-            val pixelSimilarity = if (avgCorr > 0f) avgCorr else 0f
-
-            val avgPixelDist = pixelColorDistSum / pixelCount.toFloat()
-            val pixelColorSim = kotlin.math.exp(- (avgPixelDist * 3.2f)).toFloat().coerceIn(0f, 1f)
-
-            // 2. Similitud de Cuadrícula Espacial de 16 Bloques (4x4)
-            var blockDiffSum = 0f
-            for (b in 0 until 16) {
-                val bIdx = b * 3
-                val bTargetR = targetFp.spatialBlockRgb[bIdx]
-                val bTargetG = targetFp.spatialBlockRgb[bIdx + 1]
-                val bTargetB = targetFp.spatialBlockRgb[bIdx + 2]
-
-                val bSigR = sig.spatialBlockRgb[bIdx]
-                val bSigG = sig.spatialBlockRgb[bIdx + 1]
-                val bSigB = sig.spatialBlockRgb[bIdx + 2]
-
-                val bDiff = (abs(bTargetR - bSigR) + abs(bTargetG - bSigG) + abs(bTargetB - bSigB)) / (3f * 255f)
-                blockDiffSum += bDiff
-            }
-            val avgBlockDiff = blockDiffSum / 16f
-            val blockSim = kotlin.math.exp(- (avgBlockDiff * 3.0f)).toFloat().coerceIn(0f, 1f)
-
-            // 3. Similitud de Balance Cromático Global
-            val chromaDiff = (abs(targetFp.chromaR - sig.chromaR) +
-                              abs(targetFp.chromaG - sig.chromaG) +
-                              abs(targetFp.chromaB - sig.chromaB)) / 2.0f
-            val avgColorSim = kotlin.math.exp(- (chromaDiff * 3.5f)).toFloat().coerceIn(0f, 1f)
-
-            // 4. Similitud de Histograma de 16 Bins (12 HUE + 4 Acromáticos)
-            var histIntersection = 0f
-            for (i in 0 until 16) {
-                histIntersection += min(targetFp.colorHistogram[i], sig.colorHistogram[i])
-            }
-            val histSimilarity = histIntersection.coerceIn(0f, 1f)
-
-            // 5. Puntuación visual combinada de alta precisión
-            val baseVisualScore = (pixelSimilarity * 0.35f) +
-                                  (pixelColorSim * 0.25f) +
-                                  (blockSim * 0.25f) +
-                                  (histSimilarity * 0.15f)
-
+            val baseVisualScore = bestVariantScore.coerceAtLeast(0f)
             var roleBonus = 0f
             if (expectedRole != null && baseVisualScore >= 0.25f) {
                 if (champ.primaryRole == expectedRole) {
@@ -624,12 +895,13 @@ object LocalVisionAnalyzer {
                 CandidateMatchComparison(
                     champion = champ,
                     compositeScore = compositeScore,
-                    pixelSimilarity = pixelSimilarity,
-                    pixelColorSim = pixelColorSim,
-                    blockSim = blockSim,
-                    histSimilarity = histSimilarity,
-                    avgColorSim = avgColorSim,
-                    roleBonus = roleBonus
+                    pixelSimilarity = bestPixelSimilarity,
+                    pixelColorSim = bestPixelColorSim,
+                    blockSim = bestBlockSim,
+                    histSimilarity = bestHistSimilarity,
+                    avgColorSim = bestAvgColorSim,
+                    roleBonus = roleBonus,
+                    matchedVariant = bestSig.variantName
                 )
             )
         }
@@ -657,7 +929,7 @@ object LocalVisionAnalyzer {
                 appendLine("")
                 appendLine("3. COMPARATIVA CON CANDIDATOS (TOP 5 EVALUADOS):")
                 topCandidates.forEachIndexed { idx, c ->
-                    appendLine("  #${idx + 1} ${c.champion.name}: Similitud=${(c.compositeScore * 100).toInt()}% | Pix=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                    appendLine("  #${idx + 1} ${c.champion.name} [${getVariantLabel(c.matchedVariant)}]: Similitud=${(c.compositeScore * 100).toInt()}% | Pix=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
                 }
                 appendLine("")
                 appendLine("4. ESTADO Y RESULTADO:")
@@ -697,7 +969,7 @@ object LocalVisionAnalyzer {
 
         if (best == null || !isConfidenceSufficient) {
             val failReason = if (best != null) {
-                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (${(minThreshold * 100).toInt()}%). Requiere mayor nitidez o confirmación definitiva."
+                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} [${getVariantLabel(best.matchedVariant)}] con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo de reconocimiento (${(minThreshold * 100).toInt()}%). Requiere mayor nitidez o confirmación definitiva."
             } else {
                 "Sin candidatos válidos disponibles para comparar (todos los campeones evaluados estaban excluidos por selecciones 1-9)."
             }
@@ -722,7 +994,7 @@ object LocalVisionAnalyzer {
                 appendLine("- Criterios: Estructura ZNCC 45% + Balance Cromático 25% + Histograma HUE 20% + Saturación 10% + Bonus Rol")
                 appendLine("- TOP CANDIDATOS MÁS CERCANOS:")
                 topCandidates.forEachIndexed { idx, c ->
-                    appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                    appendLine("  #${idx + 1} ${c.champion.name} [${getVariantLabel(c.matchedVariant)}]: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
                 }
                 appendLine("")
                 appendLine("4. POR QUÉ SE RECHAZÓ / NO SE ASIGNÓ:")
@@ -749,7 +1021,7 @@ object LocalVisionAnalyzer {
 
         val delta = ((best.compositeScore - (runnerUp?.compositeScore ?: 0f)) * 100).toInt()
 
-        val decisionReason = "Seleccionado ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud global (Estructura ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Balance Cromático: ${(best.avgColorSim * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%. Compatible con $roleLine y no colisiona con selecciones 1-9."
+        val decisionReason = "Seleccionado ${best.champion.name} [${getVariantLabel(best.matchedVariant)}] con ${(best.compositeScore * 100).toInt()}% de similitud global (Estructura ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Balance Cromático: ${(best.avgColorSim * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%. Compatible con $roleLine y no colisiona con selecciones 1-9."
 
         val summary = buildString {
             appendLine("==================== [SELECCIÓN 10 - ANÁLISIS DE VISIÓN] ====================")
@@ -771,11 +1043,11 @@ object LocalVisionAnalyzer {
             appendLine("- Criterios: Estructura ZNCC 45% + Balance Cromático 25% + Histograma HUE 20% + Saturación 10% + Bonus Rol")
             appendLine("- TOP CANDIDATOS:")
             topCandidates.forEachIndexed { idx, c ->
-                appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
+                appendLine("  #${idx + 1} ${c.champion.name} [${getVariantLabel(c.matchedVariant)}]: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
             }
             appendLine("")
             appendLine("4. POR QUÉ SE DECIDIÓ ESTA SELECCIÓN:")
-            appendLine("- Campeón Seleccionado: ${best.champion.name}")
+            appendLine("- Campeón Seleccionado: ${best.champion.name} [${getVariantLabel(best.matchedVariant)}]")
             appendLine("- Justificación: $decisionReason")
             appendLine("- Estado Escaneo: ${if (isConfirmedPhase) "CONFIRMADO AL 100%. Selección sellada." else "PRESELECCIÓN PROVISIONAL. El escaneo automático CONTINÚA ACTIVO esperando confirmación final."}")
             appendLine("=============================================================================")
