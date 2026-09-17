@@ -151,18 +151,21 @@ fun SponsorCpmPanelDialog(
         durationValueInput.toIntOrNull()?.coerceAtLeast(1) ?: 1
     }
 
-    // El cálculo del multiplicador toma en cuenta ÚNICAMENTE los anuncios de publicidad activos
-    val activeAdsCount = remember(allNotices, now) {
+    // El cálculo toma en cuenta ÚNICAMENTE los anuncios de publicidad actualmente vigentes y no expirados
+    val activeAdsCount = remember(allNotices, currentMinute) {
+        val nowCurrent = System.currentTimeMillis()
         val activePublicidadAds = allNotices.filter { notice ->
-            val isPubTag = notice.tag.equals("Publicidad", ignoreCase = true) || notice.tag.equals("Ads", ignoreCase = true)
-            val isLive = notice.isApproved && notice.isEnabled && (notice.expiresAtMillis == 0L || notice.expiresAtMillis > now)
+            val isPubTag = notice.tag.equals("Publicidad", ignoreCase = true) || 
+                           notice.tag.equals("Ads", ignoreCase = true) || 
+                           notice.tag.equals("PUBLICIDAD", ignoreCase = true)
+            val isLive = notice.isApproved && notice.isEnabled && (notice.expiresAtMillis == 0L || notice.expiresAtMillis > nowCurrent)
             isPubTag && isLive
         }
-        (activePublicidadAds.size + 1).coerceAtLeast(1)
+        activePublicidadAds.size
     }
     val publicationsMultiplier = remember(activeAdsCount) {
         when (activeAdsCount) {
-            1 -> 1.0
+            0, 1 -> 1.0
             2 -> 1.7
             3 -> 2.3
             else -> 2.8 + 0.5 * (activeAdsCount - 3)
@@ -432,7 +435,7 @@ fun SponsorCpmPanelDialog(
 
                     // Multimedia Horizontal (Banner/Video horizontal para inicio)
                     Text("1. Multimedia Horizontal (Banner de Inicio):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    Text("• Medidas recomendadas: 1920 x 1080 px (Relación 16:9)\n• Formatos: PNG, JPG/JPEG o Video MP4 (máx 10s y 10 MB)", color = TextSecondary, fontSize = 10.sp)
+                    Text("• Medidas recomendadas: 1920 x 1080 px (Relación 16:9)\n• Formatos: PNG, JPG/JPEG (máx 5 MB) o Video MP4 (máx 15s y 10 MB)", color = TextSecondary, fontSize = 10.sp)
                     
                     Button(
                         onClick = { horizontalPicker.launch(arrayOf("image/jpeg", "image/jpg", "image/png", "video/mp4")) },
@@ -491,7 +494,7 @@ fun SponsorCpmPanelDialog(
 
                     // Multimedia Vertical (Imagen/Video vertical para modal pantalla completa)
                     Text("2. Multimedia Vertical (Vista Ampliada):", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                    Text("• Medidas recomendadas: 1080 x 1920 px (Relación 9:16)\n• Formatos: PNG, JPG/JPEG o Video MP4 (máx 10s y 10 MB)", color = TextSecondary, fontSize = 10.sp)
+                    Text("• Medidas recomendadas: 1080 x 1920 px (Relación 9:16)\n• Formatos: PNG, JPG/JPEG (máx 5 MB) o Video MP4 (máx 15s y 10 MB)", color = TextSecondary, fontSize = 10.sp)
 
                     Button(
                         onClick = { verticalPicker.launch(arrayOf("image/jpeg", "image/jpg", "image/png", "video/mp4")) },

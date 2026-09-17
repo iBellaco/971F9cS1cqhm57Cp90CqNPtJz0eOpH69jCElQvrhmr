@@ -77,6 +77,7 @@ object ChampionNameResolver {
         "jarvan 4" to "jarvan_iv",
         "jarvan" to "jarvan_iv",
         "jax" to "jax",
+        "jack" to "jax",
         "jayce" to "jayce",
         "jhin" to "jhin",
         "jinx" to "jinx",

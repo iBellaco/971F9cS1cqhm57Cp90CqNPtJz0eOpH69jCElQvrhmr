@@ -429,7 +429,7 @@ fun MainDraftingScreen(
                 }
 
                 val groupedNotices = remember(activeNotices) {
-                    val orderPriority = listOf("Anuncios importantes", "Publicidad", "Ofertas", "Mantenimiento", "Noticias", "Streamers")
+                    val orderPriority = listOf("Anuncios importantes", "PUBLICIDAD", "Ofertas", "Mantenimiento", "Noticias", "Streamers")
                     activeNotices.groupBy { normalizeNoticeTag(it.tag) }
                         .toList()
                         .sortedBy { (cat, _) ->
@@ -780,7 +780,7 @@ fun NoticeCategoryCard(
 
     val tagColor = getNoticeTagColor(categoryTag)
     val tagIcon = getNoticeTagIcon(categoryTag)
-    val isSponsored = currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("Publicidad", true)
+    val isSponsored = currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("PUBLICIDAD", true) || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("PUBLICIDAD", true) || categoryTag.equals("Publicidad", true)
     val displayTag = categoryTag
 
     // Registro de impresiones analíticas
@@ -822,7 +822,7 @@ fun NoticeCategoryCard(
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 // Encabezado del panel
-                val isPublicidadCategory = categoryTag.equals("Publicidad", true)
+                val isPublicidadCategory = categoryTag.equals("PUBLICIDAD", true) || categoryTag.equals("Publicidad", true)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
