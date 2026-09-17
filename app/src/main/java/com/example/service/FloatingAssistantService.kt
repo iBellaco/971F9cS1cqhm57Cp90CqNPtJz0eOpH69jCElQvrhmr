@@ -3706,6 +3706,16 @@ private fun TenthPickScannerViewerDialog(
                                 }
                                 currentLog = dec
                                 currentBenchmark = bench
+
+                                // Actualizar el 10º pick en el slot con el campeón ganador de los 4 motores
+                                val winningChamp = dec?.selectedChampion ?: bench?.topCandidate
+                                if (winningChamp != null) {
+                                    if (selectedVision == 0) {
+                                        com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions[4] = winningChamp
+                                    } else {
+                                        com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions[4] = winningChamp
+                                    }
+                                }
                             }
                         } finally {
                             try {
@@ -4409,13 +4419,9 @@ private fun TenthPickScannerViewerDialog(
                         val bench = currentBenchmark
                         val topCand = log?.topCandidates?.firstOrNull()
                         val matchedChamp = log?.selectedChampion ?: bench?.topCandidate ?: topCand?.champion
-                        val rawScore = if (log?.isConfirmed == true && log.selectedChampion != null) {
-                            log.confidence
-                        } else {
-                            (bench?.confidenceScore ?: (topCand?.compositeScore ?: (log?.confidence ?: 0f)))
-                        }
+                        val rawScore = log?.confidence ?: bench?.confidenceScore ?: topCand?.compositeScore ?: 0f
                         val score = (rawScore * 100).toInt()
-                        val isConfirmed = (log?.isConfirmed == true && log.selectedChampion != null && score >= 55) || (score >= 65 && matchedChamp != null)
+                        val isConfirmed = (score >= 50 && matchedChamp != null)
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(

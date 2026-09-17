@@ -666,9 +666,9 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Escaneo del 10º Pick en la PARTE INFERIOR con métricas y justificación completa.
-     * Incorpora muestreo multiescala y micro-jitter espacial para capturar con precisión
-     * milimétrica el avatar del campeón preseleccionado (hover) en el slot 5.
+     * Escaneo del 10º Pick EXCLUSIVAMENTE en el slot inferior (Aliado 5 o Rival 5).
+     * El campeón ganador es determinado al 100% por los 4 motores de inferencia (ZNCC, ONNX, NCNN, MediaPipe/LiteRT)
+     * sobre el recorte exacto del avatar en el slot 5.
      */
     suspend fun identify10thPickInferiorDetailed(
         bitmap: Bitmap,
@@ -693,71 +693,42 @@ object LocalVisionAnalyzer {
             (width * calib.enemyAvatarCenterX).toInt()
         }
         val slotCenterY = if (isAlly) {
-            (height * calib.allySlotYRatios[4]).toInt()
+            (height * calib.allySlotYRatios.getOrElse(4) { 0.739f }).toInt()
         } else {
-            (height * calib.enemySlotYRatios[4]).toInt()
+            (height * calib.enemySlotYRatios.getOrElse(4) { 0.739f }).toInt()
         }
-
-        val candidateXs = listOf(
-            slotCenterX,
-            slotCenterX - (width * 0.005f).toInt(),
-            slotCenterX + (width * 0.005f).toInt()
-        )
-        val candidateYs = listOf(
-            slotCenterY,
-            slotCenterY - (height * 0.004f).toInt(),
-            slotCenterY + (height * 0.004f).toInt()
-        )
 
         val sideDesc = if (isAlly) "Inferior Izquierda (Aliado 5 - 10º Pick)" else "Inferior Derecha (Rival 5 - 10º Pick)"
-        val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
+        val rawCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotAvatarDiam) ?: return@withContext null
+        val enhancedCrop = enhanceCropQuality(rawCrop)
+        if (rawCrop != enhancedCrop) {
+            try { rawCrop.recycle() } catch (_: Throwable) {}
+        }
 
-        for (curY in candidateYs) {
-            for (curX in candidateXs) {
-                val rawCrop = safeCrop(bitmap, curX, curY, slotAvatarDiam)
-                val standardCrop = if (rawCrop != null) enhanceCropQuality(rawCrop) else null
-                val innerCrop88 = safeCrop(bitmap, curX, curY, (slotAvatarDiam * 0.88f).toInt())?.let { enhanceCropQuality(it) }
-                val innerCrop94 = safeCrop(bitmap, curX, curY, (slotAvatarDiam * 0.94f).toInt())?.let { enhanceCropQuality(it) }
-                val outerCrop = safeCrop(bitmap, curX, curY, (slotAvatarDiam * 1.06f).toInt())?.let { enhanceCropQuality(it) }
+        try {
+            lastTenthPickCrop = enhancedCrop.copy(Bitmap.Config.ARGB_8888, false)
+            lastTenthPickRoiLabel = sideDesc
+            lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotAvatarDiam}px"
+        } catch (_: Throwable) {}
 
-                if (curX == slotCenterX && curY == slotCenterY) {
-                    try {
-                        standardCrop?.let { crop ->
-                            lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
-                            lastTenthPickRoiLabel = sideDesc
-                            lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotAvatarDiam}px"
-                        }
-                    } catch (_: Throwable) {}
-                }
-
-                try {
-                    if (standardCrop != null) {
-                        matchWith4InferenceEngines(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-                    }
-                    if (innerCrop94 != null) {
-                        matchWith4InferenceEngines(innerCrop94, "$sideDesc [Interior 94%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-                    }
-                    if (innerCrop88 != null) {
-                        matchWith4InferenceEngines(innerCrop88, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-                    }
-                    if (outerCrop != null) {
-                        matchWith4InferenceEngines(outerCrop, "$sideDesc [Exterior 106%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-                    }
-                } finally {
-                    try { rawCrop?.recycle() } catch (_: Throwable) {}
-                    try { standardCrop?.recycle() } catch (_: Throwable) {}
-                    try { innerCrop94?.recycle() } catch (_: Throwable) {}
-                    try { innerCrop88?.recycle() } catch (_: Throwable) {}
-                    try { outerCrop?.recycle() } catch (_: Throwable) {}
-                }
+        try {
+            val decision = matchWith4InferenceEngines(
+                crop = enhancedCrop,
+                roiLabel = sideDesc,
+                candidates = allChamps,
+                expectedRole = expectedRole,
+                excludedChampionIds = confirmedIds,
+                context = context,
+                isConfirmedPhase = false,
+                roleExplanation = roleExplanation
+            )
+            if (decision != null) {
+                lastTenthPickLog = decision.copy(cropBitmap = lastTenthPickCrop)
             }
+            return@withContext decision
+        } finally {
+            try { enhancedCrop.recycle() } catch (_: Throwable) {}
         }
-
-        val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
-        if (bestDecision != null) {
-            lastTenthPickLog = bestDecision.copy(cropBitmap = lastTenthPickCrop)
-        }
-        return@withContext bestDecision
     }
 
     suspend fun identify10thPickInferior(
