@@ -725,7 +725,7 @@ fun normalizeNoticeTag(tag: String): String {
     return when {
         lower.contains("importante") || lower.contains("aviso") -> "Anuncios importantes"
         lower.contains("oferta") || lower.contains("descuento") -> "Ofertas"
-        lower.contains("publicidad") || lower.contains("ads") || lower.contains("promo") -> "Ads"
+        lower.contains("publicidad") || lower.contains("ads") || lower.contains("promo") -> "PUBLICIDAD"
         lower.contains("mantenimiento") -> "Mantenimiento"
         lower.contains("noticia") -> "Noticias"
         lower.contains("streamer") -> "Streamers"

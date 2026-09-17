@@ -24,7 +24,7 @@ data class AppNotice(
     val videoUrl: String = "", // Multimedia horizontal para panel de inicio
     val expandedImageUrl: String = "", // Imagen vertical para vista ampliada
     val externalUrl: String = "", // Enlace web externo opcional al tocar la imagen ampliada
-    val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "Ads"
+    val tag: String = "Anuncios importantes", // "Anuncios importantes", "Ofertas", "Mantenimiento", "Noticia", "Streamer", "PUBLICIDAD"
     val titleColor: String = "#FFD700",
     val contentColor: String = "#CCCCCC",
     val isEnabled: Boolean = true,
@@ -585,7 +585,7 @@ object AppNoticeManager {
         val pendingNotice = notice.copy(
             isApproved = false,
             isEnabled = false,
-            tag = "Ads",
+            tag = "PUBLICIDAD",
             approvedAtMillis = 0L,
             expiresAtMillis = 0L
         )
@@ -608,7 +608,7 @@ object AppNoticeManager {
                 "videoUrl" to pendingNotice.videoUrl,
                 "expandedImageUrl" to pendingNotice.expandedImageUrl,
                 "externalUrl" to pendingNotice.externalUrl,
-                "tag" to "Ads",
+                "tag" to "PUBLICIDAD",
                 "budget" to pendingNotice.budget,
                 "budgetUnit" to pendingNotice.budgetUnit,
                 "durationValue" to pendingNotice.durationValue,

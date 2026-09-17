@@ -799,7 +799,7 @@ fun SponsorCpmPanelDialog(
                             videoUrl = horizontalMediaInput.trim(),
                             expandedImageUrl = verticalMediaInput.trim().ifBlank { horizontalMediaInput.trim() },
                             externalUrl = externalUrlInput.trim(),
-                            tag = "Ads",
+                            tag = "PUBLICIDAD",
                             titleColor = titleColor,
                             budget = parsedBudget,
                             budgetUnit = selectedDurationUnit,
