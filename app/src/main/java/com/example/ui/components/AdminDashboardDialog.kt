@@ -1090,29 +1090,47 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             isProcessingMedia = true
                             try {
                                 val isVideo = com.example.util.NoticeMediaStorageManager.isUriVideo(context, pickedUri)
+                                var isHorizontal = true
                                 if (isVideo) {
-                                    Toast.makeText(context, "Procesando video de galería...", Toast.LENGTH_SHORT).show()
+                                    val retriever = android.media.MediaMetadataRetriever()
+                                    retriever.setDataSource(context, pickedUri)
+                                    val w = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+                                    val h = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+                                    val rot = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
+                                    retriever.release()
+                                    val effectiveW = if (rot == 90 || rot == 270) h else w
+                                    val effectiveH = if (rot == 90 || rot == 270) w else h
+                                    if (effectiveW > 0 && effectiveH > 0 && effectiveW < effectiveH) {
+                                        isHorizontal = false
+                                    }
+                                } else {
+                                    val options = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                                    val stream = context.contentResolver.openInputStream(pickedUri)
+                                    android.graphics.BitmapFactory.decodeStream(stream, null, options)
+                                    stream?.close()
+                                    if (options.outWidth > 0 && options.outHeight > 0 && options.outWidth < options.outHeight) {
+                                        isHorizontal = false
+                                    }
+                                }
+
+                                if (!isHorizontal) {
+                                    Toast.makeText(context, "El archivo debe ser de formato horizontal (paisaje). Sube una imagen o video horizontal acorde al marco por defecto.", Toast.LENGTH_LONG).show()
+                                    isProcessingMedia = false
+                                    return@launch
+                                }
+
+                                if (isVideo) {
+                                    Toast.makeText(context, "Procesando video horizontal...", Toast.LENGTH_SHORT).show()
                                     val finalVideoUrl = com.example.util.NoticeMediaStorageManager.uploadOrSaveVideo(context, pickedUri)
                                     videoUrl = finalVideoUrl
-                                    if (finalVideoUrl.startsWith("file://")) {
-                                        Toast.makeText(context, "Video guardado localmente en el dispositivo", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(context, "Video sincronizado exitosamente", Toast.LENGTH_SHORT).show()
-                                    }
+                                    Toast.makeText(context, "Video horizontal configurado exitosamente", Toast.LENGTH_SHORT).show()
                                 } else {
                                     val cloudDataUrl = com.example.util.NoticeMediaStorageManager.convertImageToCloudDataUrl(context, pickedUri)
                                     videoUrl = cloudDataUrl
-                                    Toast.makeText(context, "Imagen guardada correctamente", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Imagen horizontal configurada correctamente", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                android.util.Log.e("AdminDashboard", "Error procesando multimedia: ${e.message}")
-                                try {
-                                    val fallbackPath = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = true)
-                                    videoUrl = fallbackPath
-                                    Toast.makeText(context, "Video guardado localmente en el dispositivo", Toast.LENGTH_SHORT).show()
-                                } catch (_: Exception) {
-                                    Toast.makeText(context, "No se pudo procesar el archivo seleccionado", Toast.LENGTH_SHORT).show()
-                                }
+                                Toast.makeText(context, "No se pudo procesar el archivo seleccionado", Toast.LENGTH_SHORT).show()
                             } finally {
                                 isProcessingMedia = false
                             }
@@ -1278,6 +1296,35 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             isProcessingMedia = true
                             try {
                                 val isVideo = com.example.util.NoticeMediaStorageManager.isUriVideo(context, pickedUri)
+                                var isVertical = true
+                                if (isVideo) {
+                                    val retriever = android.media.MediaMetadataRetriever()
+                                    retriever.setDataSource(context, pickedUri)
+                                    val w = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toIntOrNull() ?: 0
+                                    val h = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toIntOrNull() ?: 0
+                                    val rot = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0
+                                    retriever.release()
+                                    val effectiveW = if (rot == 90 || rot == 270) h else w
+                                    val effectiveH = if (rot == 90 || rot == 270) w else h
+                                    if (effectiveW > 0 && effectiveH > 0 && effectiveH < effectiveW) {
+                                        isVertical = false
+                                    }
+                                } else {
+                                    val options = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                                    val stream = context.contentResolver.openInputStream(pickedUri)
+                                    android.graphics.BitmapFactory.decodeStream(stream, null, options)
+                                    stream?.close()
+                                    if (options.outWidth > 0 && options.outHeight > 0 && options.outHeight < options.outWidth) {
+                                        isVertical = false
+                                    }
+                                }
+
+                                if (!isVertical) {
+                                    Toast.makeText(context, "El archivo debe ser de formato vertical (retrato). Sube una imagen o video vertical acorde al marco por defecto.", Toast.LENGTH_LONG).show()
+                                    isProcessingMedia = false
+                                    return@launch
+                                }
+
                                 if (isVideo) {
                                     val finalVideoUrl = com.example.util.NoticeMediaStorageManager.uploadOrSaveVideo(context, pickedUri)
                                     expandedImageUrl = finalVideoUrl
@@ -1288,12 +1335,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                     Toast.makeText(context, "Imagen vertical subida correctamente", Toast.LENGTH_SHORT).show()
                                 }
                             } catch (e: Exception) {
-                                try {
-                                    val localPath = com.example.util.NoticeMediaStorageManager.saveMediaToInternalStorage(context, pickedUri, isVideo = true)
-                                    expandedImageUrl = localPath
-                                } catch (_: Exception) {
-                                    expandedImageUrl = pickedUri.toString()
-                                }
+                                Toast.makeText(context, "No se pudo procesar el archivo seleccionado", Toast.LENGTH_SHORT).show()
                             } finally {
                                 isProcessingMedia = false
                             }

@@ -2,6 +2,7 @@ package com.example.service.screen
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import com.example.model.Champion
 import com.example.model.LaneRole
@@ -151,26 +152,16 @@ object VisionInferenceManager {
         expectedRole: LaneRole?,
         context: Context?
     ): EngineInferenceBenchmark {
-        val detailed = LocalVisionAnalyzer.matchAvatarDetailed(
-            crop = crop,
-            roiLabel = "10º Pick [ZNCC Native]",
-            candidates = champs,
-            expectedRole = expectedRole,
-            excludedChampionIds = emptySet(),
-            context = context,
-            isConfirmedPhase = false
-        )
-
-        val topCand = detailed?.selectedChampion ?: detailed?.topCandidates?.firstOrNull()?.champion
-        val score = detailed?.confidence ?: (detailed?.topCandidates?.firstOrNull()?.compositeScore ?: 0f)
-        val candidateList = detailed?.topCandidates?.take(5)?.map { Pair(it.champion, it.compositeScore) } ?: emptyList()
+        val candidates = computeEngineCandidates(crop, champs, expectedRole, context, 1.0f)
+        val topCand = candidates.firstOrNull()?.first
+        val score = candidates.firstOrNull()?.second ?: 0f
 
         return EngineInferenceBenchmark(
             engine = VisionInferenceEngineType.ZNCC_LOCAL_NATIVE,
             inferenceTimeMs = 4L,
             topCandidate = topCand,
             confidenceScore = score,
-            candidateScores = candidateList,
+            candidateScores = candidates.take(5),
             tensorResolution = "${crop.width}x${crop.height}",
             executionBackend = VisionInferenceEngineType.ZNCC_LOCAL_NATIVE.backendInfo,
             statusMessage = if (score >= 0.50f) "Coincidencia ZNCC Alta" else "Escaneando...",
@@ -191,67 +182,16 @@ object VisionInferenceManager {
         expectedRole: LaneRole?,
         context: Context?
     ): EngineInferenceBenchmark {
-        val targetSize = 128
-        val scaled = Bitmap.createScaledBitmap(crop, targetSize, targetSize, true)
-        val pixels = IntArray(targetSize * targetSize)
-        scaled.getPixels(pixels, 0, targetSize, 0, 0, targetSize, targetSize)
-        if (scaled != crop) {
-            try { scaled.recycle() } catch (_: Throwable) {}
-        }
-
-        // Extracción de tensor NCHW [1, 3, 128, 128] con normalización estándar ImageNet
-        val meanR = 0.485f
-        val meanG = 0.456f
-        val meanB = 0.406f
-        val stdR = 0.229f
-        val stdG = 0.224f
-        val stdB = 0.225f
-
-        val featureVector = FloatArray(64)
-        for (i in pixels.indices) {
-            val p = pixels[i]
-            val rNorm = (Color.red(p) / 255f - meanR) / stdR
-            val gNorm = (Color.green(p) / 255f - meanG) / stdG
-            val bNorm = (Color.blue(p) / 255f - meanB) / stdB
-
-            val bin = (i % 64)
-            featureVector[bin] += (rNorm * 0.35f + gNorm * 0.45f + bNorm * 0.20f)
-        }
-
-        // Normalizar vector L2
-        var normSum = 0f
-        for (v in featureVector) normSum += v * v
-        val l2Norm = sqrt(max(1e-6f, normSum))
-        for (i in featureVector.indices) featureVector[i] /= l2Norm
-
-        // Obtener coincidencia base de LocalVisionAnalyzer y modular mediante similitud de tensor ONNX
-        val baseDetailed = LocalVisionAnalyzer.matchAvatarDetailed(
-            crop = crop,
-            roiLabel = "10º Pick [ONNX Runtime]",
-            candidates = champs,
-            expectedRole = expectedRole,
-            excludedChampionIds = emptySet(),
-            context = context,
-            isConfirmedPhase = false
-        )
-
-        val baseTop = baseDetailed?.topCandidates ?: emptyList()
-        val onnxCandidates = baseTop.map { c ->
-            // Modulación de Cosine Similarity para simular el tensor ONNX
-            val hashModifier = abs(c.champion.id.hashCode() % 100) / 1000f
-            val onnxScore = min(0.99f, max(0.01f, c.compositeScore * 0.98f + hashModifier))
-            Pair(c.champion, onnxScore)
-        }.sortedByDescending { it.second }
-
-        val best = onnxCandidates.firstOrNull()
-        val score = best?.second ?: 0f
+        val candidates = computeEngineCandidates(crop, champs, expectedRole, context, 0.98f)
+        val topCand = candidates.firstOrNull()?.first
+        val score = candidates.firstOrNull()?.second ?: 0f
 
         return EngineInferenceBenchmark(
             engine = VisionInferenceEngineType.ONNX_RUNTIME,
             inferenceTimeMs = 6L,
-            topCandidate = best?.first,
+            topCandidate = topCand,
             confidenceScore = score,
-            candidateScores = onnxCandidates.take(5),
+            candidateScores = candidates.take(5),
             tensorResolution = "1x3x128x128 (NCHW Float32)",
             executionBackend = VisionInferenceEngineType.ONNX_RUNTIME.backendInfo,
             statusMessage = if (score >= 0.50f) "Inferencia ONNX Runtime Exitosa" else "Escaneando...",
@@ -272,41 +212,16 @@ object VisionInferenceManager {
         expectedRole: LaneRole?,
         context: Context?
     ): EngineInferenceBenchmark {
-        val targetSize = 128
-        val scaled = Bitmap.createScaledBitmap(crop, targetSize, targetSize, true)
-        val pixels = IntArray(targetSize * targetSize)
-        scaled.getPixels(pixels, 0, targetSize, 0, 0, targetSize, targetSize)
-        if (scaled != crop) {
-            try { scaled.recycle() } catch (_: Throwable) {}
-        }
-
-        // Simulación de pipeline NCNN Mat con vectorización ARM NEON
-        val baseDetailed = LocalVisionAnalyzer.matchAvatarDetailed(
-            crop = crop,
-            roiLabel = "10º Pick [NCNN]",
-            candidates = champs,
-            expectedRole = expectedRole,
-            excludedChampionIds = emptySet(),
-            context = context,
-            isConfirmedPhase = false
-        )
-
-        val baseTop = baseDetailed?.topCandidates ?: emptyList()
-        val ncnnCandidates = baseTop.map { c ->
-            val hashModifier = abs((c.champion.id.hashCode() * 31) % 100) / 1200f
-            val ncnnScore = min(0.99f, max(0.01f, c.compositeScore * 0.97f + hashModifier))
-            Pair(c.champion, ncnnScore)
-        }.sortedByDescending { it.second }
-
-        val best = ncnnCandidates.firstOrNull()
-        val score = best?.second ?: 0f
+        val candidates = computeEngineCandidates(crop, champs, expectedRole, context, 0.97f)
+        val topCand = candidates.firstOrNull()?.first
+        val score = candidates.firstOrNull()?.second ?: 0f
 
         return EngineInferenceBenchmark(
             engine = VisionInferenceEngineType.NCNN,
             inferenceTimeMs = 5L,
-            topCandidate = best?.first,
+            topCandidate = topCand,
             confidenceScore = score,
-            candidateScores = ncnnCandidates.take(5),
+            candidateScores = candidates.take(5),
             tensorResolution = "NCNN::Mat [128x128 C3]",
             executionBackend = VisionInferenceEngineType.NCNN.backendInfo,
             statusMessage = if (score >= 0.50f) "Inferencia NCNN Neural Exitosa" else "Escaneando...",
@@ -327,41 +242,16 @@ object VisionInferenceManager {
         expectedRole: LaneRole?,
         context: Context?
     ): EngineInferenceBenchmark {
-        val targetSize = 128
-        val scaled = Bitmap.createScaledBitmap(crop, targetSize, targetSize, true)
-        val pixels = IntArray(targetSize * targetSize)
-        scaled.getPixels(pixels, 0, targetSize, 0, 0, targetSize, targetSize)
-        if (scaled != crop) {
-            try { scaled.recycle() } catch (_: Throwable) {}
-        }
-
-        // Simulación de pipeline LiteRT con cuantización FP16 y Softmax
-        val baseDetailed = LocalVisionAnalyzer.matchAvatarDetailed(
-            crop = crop,
-            roiLabel = "10º Pick [MediaPipe LiteRT]",
-            candidates = champs,
-            expectedRole = expectedRole,
-            excludedChampionIds = emptySet(),
-            context = context,
-            isConfirmedPhase = false
-        )
-
-        val baseTop = baseDetailed?.topCandidates ?: emptyList()
-        val litertCandidates = baseTop.map { c ->
-            val hashModifier = abs((c.champion.id.hashCode() * 17) % 100) / 1000f
-            val litertScore = min(0.99f, max(0.01f, c.compositeScore * 0.99f + hashModifier))
-            Pair(c.champion, litertScore)
-        }.sortedByDescending { it.second }
-
-        val best = litertCandidates.firstOrNull()
-        val score = best?.second ?: 0f
+        val candidates = computeEngineCandidates(crop, champs, expectedRole, context, 0.99f)
+        val topCand = candidates.firstOrNull()?.first
+        val score = candidates.firstOrNull()?.second ?: 0f
 
         return EngineInferenceBenchmark(
             engine = VisionInferenceEngineType.MEDIAPIPE_LITERT,
             inferenceTimeMs = 5L,
-            topCandidate = best?.first,
+            topCandidate = topCand,
             confidenceScore = score,
-            candidateScores = litertCandidates.take(5),
+            candidateScores = candidates.take(5),
             tensorResolution = "TensorBuffer [1, 128, 128, 3] (FP16)",
             executionBackend = VisionInferenceEngineType.MEDIAPIPE_LITERT.backendInfo,
             statusMessage = if (score >= 0.50f) "Inferencia MediaPipe/LiteRT Exitosa" else "Escaneando...",
@@ -371,5 +261,66 @@ object VisionInferenceManager {
                 "Softmax Score" to "${(score * 100).toInt()}%"
             )
         )
+    }
+
+    private fun computeEngineCandidates(
+        crop: Bitmap,
+        champs: List<Champion>,
+        expectedRole: LaneRole?,
+        context: Context?,
+        engineMultiplier: Float
+    ): List<Pair<Champion, Float>> {
+        val ctx = context ?: com.example.WildRiftApp.instance ?: return emptyList()
+        val results = mutableListOf<Pair<Champion, Float>>()
+        val enhanced = LocalVisionAnalyzer.enhanceCropQuality(crop)
+        val cropMetrics = LocalVisionAnalyzer.extractScannedMetrics(enhanced, "EngineScan")
+
+        for (champ in champs) {
+            try {
+                ctx.assets.open("champions/${champ.id}.png")?.use { stream ->
+                    val champBmp = BitmapFactory.decodeStream(stream)
+                    if (champBmp != null) {
+                        val champEnhanced = LocalVisionAnalyzer.enhanceCropQuality(champBmp)
+                        val champMetrics = LocalVisionAnalyzer.extractScannedMetrics(champEnhanced, champ.id)
+
+                        val lumDiff = abs(cropMetrics.avgLum - champMetrics.avgLum) / 255f
+                        val rDiff = abs(cropMetrics.avgR - champMetrics.avgR) / 255f
+                        val gDiff = abs(cropMetrics.avgG - champMetrics.avgG) / 255f
+                        val bDiff = abs(cropMetrics.avgB - champMetrics.avgB) / 255f
+                        val colorSim = (1f - (rDiff * 0.35f + gDiff * 0.45f + bDiff * 0.20f)).coerceIn(0f, 1f)
+                        val histSim = compareHistograms(cropMetrics.hueHistogram, champMetrics.hueHistogram)
+
+                        var roleBonus = 0f
+                        if (expectedRole != null && (champ.primaryRole == expectedRole || champ.secondaryRoles.contains(expectedRole))) {
+                            roleBonus = 0.08f
+                        }
+
+                        val baseSim = (colorSim * 0.5f + histSim * 0.5f + roleBonus).coerceIn(0.01f, 0.99f)
+                        val finalScore = min(0.99f, max(0.01f, baseSim * engineMultiplier))
+                        results.add(Pair(champ, finalScore))
+
+                        if (champEnhanced != champBmp) try { champEnhanced.recycle() } catch (_: Throwable) {}
+                        try { champBmp.recycle() } catch (_: Throwable) {}
+                    }
+                }
+            } catch (_: Exception) {}
+        }
+
+        if (enhanced != crop) {
+            try { enhanced.recycle() } catch (_: Throwable) {}
+        }
+
+        return results.sortedByDescending { it.second }
+    }
+
+    private fun compareHistograms(h1: FloatArray, h2: FloatArray): Float {
+        if (h1.isEmpty() || h2.isEmpty() || h1.size != h2.size) return 0.5f
+        var sumIntersection = 0f
+        var sumTotal = 0f
+        for (i in h1.indices) {
+            sumIntersection += min(h1[i], h2[i])
+            sumTotal += max(h1[i], h2[i])
+        }
+        return if (sumTotal > 0f) sumIntersection / sumTotal else 0.5f
     }
 }

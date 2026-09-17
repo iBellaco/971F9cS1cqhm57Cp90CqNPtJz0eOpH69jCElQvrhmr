@@ -2,7 +2,6 @@ package com.example.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -12,16 +11,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material3.Icon
@@ -38,7 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -46,60 +36,40 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.HextechCyan
-import com.example.ui.theme.HextechCyanLight
-import com.example.ui.theme.HextechGold
-import com.example.ui.theme.HextechGoldGlow
-import com.example.ui.theme.HextechGoldLight
+import com.example.ui.theme.AppThemeManager
 import com.example.ui.theme.TextMuted
 import com.example.util.tr
-import kotlin.math.cos
-import kotlin.math.sin
 
 /**
- * Botón Orbe Hextech de Alto Nivel Visual inspirado en League of Legends & Wild Rift:
- * - Engranajes mecánicos simétricos de alta precisión
- * - Anillo de latón pulido y biselado
- * - Cuchillas de obturador iris de latón dorado
- * - Anillo de runas arcanas flotantes en contra-rotación
- * - Núcleo de cristal resonante con tipografía de activación nítida
+ * Botón de Iniciar / Campaña Estilo Insignia / Escudo Hexagonal (Campaign Map Abyss 5V5 Style):
+ * - Insignia vertical facetada con corona superior ornamental y bordes dorados/regionales biselados.
+ * - Fondo dinámico que cambia automáticamente según la región y tema activo de Runaterra (Piltover, Aguas Estancadas, Bandle, Demacia, El Vacío, etc.).
+ * - Núcleo de energía interactivo con efecto de pulso y tipografía táctica de alto impacto.
  */
 @Composable
 fun HextechOrbButton(
     isActive: Boolean,
     onToggle: () -> Unit,
     enabled: Boolean = true,
-    size: Dp = 210.dp,
+    width: Dp = 210.dp,
+    height: Dp = 260.dp,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "hextech_orb_anim")
+    val theme = AppThemeManager.currentTheme
+    val primaryColor = theme.primary
+    val primaryLight = theme.primaryLight
+    val primaryDarkColor = theme.primaryDark
+    val secondaryColor = theme.secondary
+    val secondaryLight = theme.secondaryLight
+    val regionBg = theme.background
+    val surfaceColor = theme.surface
 
-    // Rotación suave de los engranajes y anillo exterior
-    val outerRotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(if (isActive) 7000 else 16000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "outer_rotation"
-    )
-
-    // Contra-rotación de las runas arcanas interiores
-    val runesRotation by infiniteTransition.animateFloat(
-        initialValue = 360f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(if (isActive) 5000 else 12000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "runes_rotation"
-    )
+    val infiniteTransition = rememberInfiniteTransition(label = "campaign_shield_anim")
 
     // Pulsación de respiración orgánica de energía
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1.0f,
-        targetValue = if (isActive) 1.05f else 1.025f,
+        targetValue = if (isActive) 1.04f else 1.01f,
         animationSpec = infiniteRepeatable(
             animation = tween(if (isActive) 900 else 1800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -109,8 +79,8 @@ fun HextechOrbButton(
 
     // Halo de brillo respirante
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = if (isActive) 0.50f else 0.25f,
-        targetValue = if (isActive) 0.90f else 0.50f,
+        initialValue = if (isActive) 0.65f else 0.35f,
+        targetValue = if (isActive) 0.95f else 0.60f,
         animationSpec = infiniteRepeatable(
             animation = tween(if (isActive) 900 else 1800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
@@ -118,197 +88,139 @@ fun HextechOrbButton(
         label = "glow_alpha"
     )
 
-    // Transición de color del núcleo según estado
-    val primaryEnergyColor by animateColorAsState(
-        targetValue = if (isActive) HextechCyanLight else HextechGoldLight,
+    val energyTint by animateColorAsState(
+        targetValue = if (isActive) primaryLight else secondaryLight,
         animationSpec = tween(400),
-        label = "primary_color"
-    )
-
-    val secondaryEnergyColor by animateColorAsState(
-        targetValue = if (isActive) HextechCyan else HextechGold,
-        animationSpec = tween(400),
-        label = "secondary_color"
+        label = "energy_tint"
     )
 
     Box(
         modifier = modifier
-            .size(size)
+            .size(width = width, height = height)
             .scale(pulseScale),
         contentAlignment = Alignment.Center
     ) {
         // ===================================================================
-        // CANVAS DE ARTE HEXTECH SIMÉTRICO Y ELEGANTE
+        // CANVAS DE ARTE CAMPAIGN MAP SHIELD (ESTILO ABYSS 5V5 / RITMO LOL)
         // ===================================================================
-        Canvas(modifier = Modifier.size(size)) {
-            val center = Offset(this.size.width / 2f, this.size.height / 2f)
-            val outerRadius = this.size.width / 2f - 18.dp.toPx()
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val w = size.width
+            val h = size.height
+            val crownHeight = 24.dp.toPx()
+            val pad = 8.dp.toPx()
 
-            // 1. Resplandor Cósmico Radial (Glow exterior verde-azulado/dorado)
+            // 1. Resplandor Cósmico / Regional de Fondo
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = if (isActive) {
                         listOf(
-                            HextechCyan.copy(alpha = glowAlpha),
-                            Color(0xFF00FFC2).copy(alpha = glowAlpha * 0.4f),
+                            primaryColor.copy(alpha = glowAlpha),
+                            primaryLight.copy(alpha = glowAlpha * 0.4f),
                             Color.Transparent
                         )
                     } else {
                         listOf(
-                            HextechGold.copy(alpha = glowAlpha * 0.7f),
-                            HextechGoldGlow.copy(alpha = glowAlpha * 0.3f),
+                            secondaryColor.copy(alpha = glowAlpha * 0.7f),
+                            secondaryLight.copy(alpha = glowAlpha * 0.2f),
                             Color.Transparent
                         )
                     },
-                    center = center,
-                    radius = outerRadius + 22.dp.toPx()
+                    center = Offset(w / 2f, h / 2f),
+                    radius = w * 0.55f
                 ),
-                radius = outerRadius + 22.dp.toPx(),
-                center = center
+                radius = w * 0.55f,
+                center = Offset(w / 2f, h / 2f)
             )
 
-            // 2. Dientes de Engranaje Perimetrales (Steampunk Gear Cogs Simétricos)
-            val cogCount = 18
-            val cogInnerRadius = outerRadius - 2.dp.toPx()
-            val cogOuterRadius = outerRadius + 7.dp.toPx()
-            for (i in 0 until cogCount) {
-                val baseAngle = outerRotation + (i * 360f / cogCount)
-                val radStart = Math.toRadians((baseAngle - 4.5f).toDouble())
-                val radEnd = Math.toRadians((baseAngle + 4.5f).toDouble())
-
-                val p1 = Offset(center.x + (cogInnerRadius * cos(radStart)).toFloat(), center.y + (cogInnerRadius * sin(radStart)).toFloat())
-                val p2 = Offset(center.x + (cogOuterRadius * cos(radStart)).toFloat(), center.y + (cogOuterRadius * sin(radStart)).toFloat())
-                val p3 = Offset(center.x + (cogOuterRadius * cos(radEnd)).toFloat(), center.y + (cogOuterRadius * sin(radEnd)).toFloat())
-                val p4 = Offset(center.x + (cogInnerRadius * cos(radEnd)).toFloat(), center.y + (cogInnerRadius * sin(radEnd)).toFloat())
-
-                val cogPath = Path().apply {
-                    moveTo(p1.x, p1.y)
-                    lineTo(p2.x, p2.y)
-                    lineTo(p3.x, p3.y)
-                    lineTo(p4.x, p4.y)
-                    close()
-                }
-                drawPath(
-                    path = cogPath,
-                    brush = Brush.linearGradient(
-                        colors = listOf(Color(0xFFC8AA6E), Color(0xFF785A28), Color(0xFF32281E)),
-                        start = p2,
-                        end = p4
-                    )
-                )
+            // 2. Trazado del Escudo Vertical con Corona Superior Ornamental (Abyss Style)
+            val shieldPath = Path().apply {
+                val cr = 14.dp.toPx()
+                // Corona superior arqueada
+                moveTo(w * 0.25f, crownHeight)
+                quadraticBezierTo(w * 0.5f, crownHeight - 12.dp.toPx(), w * 0.75f, crownHeight)
+                // Lados derechos
+                lineTo(w - pad, crownHeight + 16.dp.toPx())
+                lineTo(w - pad, h - pad - cr)
+                lineTo(w - pad - cr, h - pad)
+                // Punta inferior
+                lineTo(w * 0.5f, h - 4.dp.toPx())
+                lineTo(pad + cr, h - pad)
+                lineTo(pad, h - pad - cr)
+                lineTo(pad, crownHeight + 16.dp.toPx())
+                close()
             }
 
-            // 3. Anillo de Latón Forjado
-            drawCircle(
-                brush = Brush.sweepGradient(
+            // Fondo dinámico de obsidiana tintado por la región/tema activo
+            drawPath(
+                path = shieldPath,
+                brush = Brush.verticalGradient(
+                    colors = if (isActive) {
+                        listOf(
+                            surfaceColor,
+                            regionBg,
+                            Color(0xFF02060D)
+                        )
+                    } else {
+                        listOf(
+                            surfaceColor.copy(alpha = 0.9f),
+                            regionBg,
+                            Color(0xFF050302)
+                        )
+                    }
+                )
+            )
+
+            // Borde Metálico Biselado Exterior (Regional Theme Accent)
+            drawPath(
+                path = shieldPath,
+                brush = Brush.linearGradient(
                     colors = listOf(
-                        HextechGold,
-                        HextechGoldLight,
-                        HextechGoldGlow,
-                        Color(0xFF5A4018),
-                        HextechGoldLight,
-                        HextechGold
+                        secondaryLight,
+                        secondaryColor,
+                        primaryColor,
+                        secondaryColor,
+                        secondaryLight
                     ),
-                    center = center
+                    start = Offset(0f, 0f),
+                    end = Offset(w, h)
                 ),
-                radius = outerRadius,
-                center = center,
-                style = Stroke(width = 3.dp.toPx())
+                style = Stroke(width = 3.5.dp.toPx())
             )
 
-            // 4. Cuchillas de Obturador Iris (Aperture Blades)
-            val bladeCount = 8
-            val irisRadius = outerRadius - 14.dp.toPx()
-            for (i in 0 until bladeCount) {
-                val bladeAngle = runesRotation + (i * 360f / bladeCount)
-                val rad = Math.toRadians(bladeAngle.toDouble())
-                val radNext = Math.toRadians((bladeAngle + 45f).toDouble())
-
-                val bp1 = Offset(center.x + (irisRadius * cos(rad)).toFloat(), center.y + (irisRadius * sin(rad)).toFloat())
-                val bp2 = Offset(center.x + ((irisRadius * 0.68f) * cos(radNext)).toFloat(), center.y + ((irisRadius * 0.68f) * sin(radNext)).toFloat())
-
-                drawLine(
-                    brush = Brush.linearGradient(listOf(HextechGold.copy(alpha = 0.6f), Color.Transparent)),
-                    start = bp1,
-                    end = bp2,
-                    strokeWidth = 1.5.dp.toPx()
-                )
+            // Filigrana interior geométrica
+            val innerPad = pad + 6.dp.toPx()
+            val innerPath = Path().apply {
+                val icr = 10.dp.toPx()
+                moveTo(w * 0.28f, crownHeight + 8.dp.toPx())
+                quadraticBezierTo(w * 0.5f, crownHeight - 4.dp.toPx(), w * 0.72f, crownHeight + 8.dp.toPx())
+                lineTo(w - innerPad, crownHeight + 22.dp.toPx())
+                lineTo(w - innerPad, h - innerPad - icr)
+                lineTo(w - innerPad - icr, h - innerPad)
+                lineTo(w * 0.5f, h - 10.dp.toPx())
+                lineTo(innerPad + icr, h - innerPad)
+                lineTo(innerPad, h - innerPad - icr)
+                lineTo(innerPad, crownHeight + 22.dp.toPx())
+                close()
             }
-
-            // 5. Anillo de Runas Arcanas Flotantes en Orbitación
-            val runesRadius = outerRadius - 20.dp.toPx()
-            drawCircle(
-                color = primaryEnergyColor.copy(alpha = 0.35f),
-                radius = runesRadius,
-                center = center,
-                style = Stroke(
-                    width = 1.5.dp.toPx(),
-                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(14f, 10f), 0f)
-                )
-            )
-
-            // Dibujar 6 glifos rúnicos orbitales
-            val glyphs = listOf("⚡", "ᚱ", "ᛟ", "ᚦ", "ᚠ", "ᛗ")
-            for (i in glyphs.indices) {
-                val gRad = Math.toRadians((runesRotation + i * 60).toDouble())
-                val gx = center.x + (runesRadius * cos(gRad)).toFloat()
-                val gy = center.y + (runesRadius * sin(gRad)).toFloat()
-
-                drawCircle(
-                    color = primaryEnergyColor.copy(alpha = 0.8f),
-                    radius = 2.5.dp.toPx(),
-                    center = Offset(gx, gy)
-                )
-            }
-
-            // 6. Borde Biselado Interior del Núcleo Central
-            val coreBorderRadius = outerRadius - 28.dp.toPx()
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        primaryEnergyColor.copy(alpha = 0.9f),
-                        secondaryEnergyColor.copy(alpha = 0.4f)
-                    ),
-                    center = center,
-                    radius = coreBorderRadius
-                ),
-                radius = coreBorderRadius,
-                center = center,
-                style = Stroke(width = 2.5.dp.toPx())
+            drawPath(
+                path = innerPath,
+                color = primaryColor.copy(alpha = 0.45f),
+                style = Stroke(width = 1.25.dp.toPx())
             )
         }
 
         // ===================================================================
-        // NÚCLEO 3D INTERACTIVO CON CRISTAL HEXTECH
+        // CONTENEDOR TÁCTICO E INTERACTIVO DE CONTENIDO
         // ===================================================================
-        val coreSize = size - 76.dp
-
         Box(
             modifier = Modifier
-                .size(coreSize)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        colors = if (isActive) {
-                            listOf(
-                                Color(0xFF00FFC2).copy(alpha = 0.85f),
-                                Color(0xFF02364F), // Azul eléctrico activo central
-                                Color(0xFF051D2D), // Azul profundo intermedio
-                                Color(0xFF000810)  // Borde exterior oscuro
-                            )
-                        } else {
-                            listOf(
-                                Color(0xFF052B35), // Verde azulado Zaun/Piltover
-                                Color(0xFF091C26), // Azul marino profundo
-                                Color(0xFF040A10)
-                            )
-                        }
-                    )
-                )
+                .fillMaxSize()
+                .padding(16.dp)
+                .clip(RoundedCornerShape(16.dp))
                 .clickable(
                     enabled = enabled,
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = if (enabled) ripple(bounded = true, color = primaryEnergyColor) else null,
+                    indication = if (enabled) ripple(bounded = true, color = energyTint) else null,
                     onClick = onToggle
                 )
                 .testTag("hextech_activate_button"),
@@ -317,59 +229,76 @@ fun HextechOrbButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                // Icono de Energía Hextech
+                // Etiqueta de Región / Tema Dinámico (ej. CIUDAD DEL PROGRESO / PILTOVER)
+                Text(
+                    text = theme.regionTag.uppercase(),
+                    color = secondaryLight,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.5.sp,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Núcleo de Energía / Ícono Central con Resplandor
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
+                        .size(52.dp)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(
-                            if (!enabled) TextMuted.copy(alpha = 0.15f)
-                            else if (isActive) HextechCyan.copy(alpha = 0.25f)
-                            else HextechCyan.copy(alpha = 0.15f)
+                            brush = Brush.radialGradient(
+                                colors = if (isActive) {
+                                    listOf(primaryColor.copy(alpha = 0.5f), primaryDarkColor.copy(alpha = 0.2f))
+                                } else {
+                                    listOf(secondaryColor.copy(alpha = 0.4f), Color.Transparent)
+                                }
+                            )
                         ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.PowerSettingsNew,
                         contentDescription = null,
-                        tint = if (!enabled) TextMuted else primaryEnergyColor,
-                        modifier = Modifier.size(22.dp)
+                        tint = if (!enabled) TextMuted else energyTint,
+                        modifier = Modifier.size(28.dp)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                // Texto Principal: ACTIVAR / DETENER con tipografía LoL estilizada
+                // Título de Campaña / Modo (ej. INICIAR / ACTIVAR)
                 Text(
-                    text = if (!enabled) tr("ACTIVAR") else if (isActive) tr("DETENER") else tr("ACTIVAR"),
-                    color = if (!enabled) TextMuted else if (isActive) Color.White else HextechCyanLight,
-                    fontSize = 20.sp,
+                    text = if (!enabled) tr("ACTIVAR") else if (isActive) tr("DETENER") else tr("INICIAR"),
+                    color = if (!enabled) TextMuted else if (isActive) Color.White else secondaryLight,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
-                    letterSpacing = 2.sp,
+                    letterSpacing = 2.0.sp,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(3.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                // Indicador de Estado Táctico
+                // Subtítulo de Modo de Juego (ej. 5V5 • ONLINE)
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Box(
                         modifier = Modifier
                             .size(6.dp)
-                            .clip(CircleShape)
-                            .background(if (!enabled) TextMuted else if (isActive) Color(0xFF00FFC2) else HextechGold)
+                            .clip(RoundedCornerShape(50))
+                            .background(if (!enabled) TextMuted else if (isActive) Color(0xFF00FFC2) else secondaryColor)
                     )
-                    Spacer(modifier = Modifier.width(5.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (!enabled) tr("Desactivado") else if (isActive) tr("ONLINE") else tr("• Desactivado"),
+                        text = if (!enabled) tr("DESACTIVADO") else if (isActive) "5V5 • ONLINE" else "5V5 • ABYSS",
                         color = if (!enabled) TextMuted else if (isActive) Color(0xFF00FFC2) else TextMuted,
-                        fontSize = 10.5.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp
+                        letterSpacing = 1.0.sp
                     )
                 }
             }
