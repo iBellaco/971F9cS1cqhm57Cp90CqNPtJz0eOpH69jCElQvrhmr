@@ -75,7 +75,8 @@ data class EngineInferenceBenchmark(
     val tensorResolution: String = "128x128",
     val executionBackend: String,
     val statusMessage: String,
-    val extraMetrics: Map<String, String> = emptyMap()
+    val extraMetrics: Map<String, String> = emptyMap(),
+    val allScoresMap: Map<String, Float> = emptyMap()
 )
 
 /**
@@ -166,10 +167,11 @@ object VisionInferenceManager {
             executionBackend = VisionInferenceEngineType.ZNCC_LOCAL_NATIVE.backendInfo,
             statusMessage = if (score >= 0.50f) "Coincidencia ZNCC Multicanal Validada" else "Escaneando...",
             extraMetrics = mapOf(
-                "Algoritmo" to "ZNCC Espacial RGB + Normalización HSV",
-                "Espacio de color" to "HSV + Canales Normalizados",
+                "Algoritmo" to "ZNCC Espacial RGB + Máscara Circular y Pelaje",
+                "Espacio de color" to "HSV 44-bins + Normalización ZNCC",
                 "Precisión" to "${(score * 100).toInt()}%"
-            )
+            ),
+            allScoresMap = candidates.associate { it.first.id to it.second }
         )
     }
 
@@ -197,9 +199,10 @@ object VisionInferenceManager {
             statusMessage = if (score >= 0.50f) "Inferencia ONNX Runtime Exitosa" else "Escaneando...",
             extraMetrics = mapOf(
                 "Formato Tensor" to "NCHW [1, 3, 128, 128]",
-                "Embeddings" to "Vector Neuronal 16D Normalizado",
+                "Embeddings" to "Vector Estructural 64D Normalizado",
                 "Cosine Sim" to "${(score * 100).toInt()}%"
-            )
+            ),
+            allScoresMap = candidates.associate { it.first.id to it.second }
         )
     }
 
@@ -227,9 +230,10 @@ object VisionInferenceManager {
             statusMessage = if (score >= 0.50f) "Inferencia NCNN Neural Exitosa" else "Escaneando...",
             extraMetrics = mapOf(
                 "Aceleración" to "ARM NEON Vectorized Kernel",
-                "Estructura Mat" to "128x128 C3 Pack4",
+                "Estructura Mat" to "Matriz 8x8 Espacial Facial (64 dims)",
                 "L2 Distance" to "%.3f".format(java.util.Locale.US, (1f - score).coerceAtLeast(0f))
-            )
+            ),
+            allScoresMap = candidates.associate { it.first.id to it.second }
         )
     }
 
@@ -257,66 +261,62 @@ object VisionInferenceManager {
             statusMessage = if (score >= 0.50f) "Inferencia MediaPipe/LiteRT Exitosa" else "Escaneando...",
             extraMetrics = mapOf(
                 "Delegate" to "LiteRT GPU / NNAPI FP16",
-                "TensorBuffer" to "[1, 128, 128, 3]",
-                "Softmax Score" to "${(score * 100).toInt()}%"
-            )
+                "Histograma" to "Dual 44-bins (Cromático + Acromático)",
+                "Intersección" to "${(score * 100).toInt()}%"
+            ),
+            allScoresMap = candidates.associate { it.first.id to it.second }
         )
     }
 
-    // --- PERFILES VISUALES CANÓNICOS CARGADOS DESDE IMÁGENES LOCALES LIMPIAS ---
+    // --- ARQUITECTURA DE VISIÓN CANÓNICA Y HUELLAS DIGITALES ESPACIALES ---
 
-    data class InMemVisualSignature(
+    const val TEMPLATE_SIZE = 32
+
+    data class ChampionVisualTemplate(
         val champId: String,
-        val dominantHueBin: Int,
-        val avgR: Float,
-        val avgG: Float,
-        val avgB: Float,
-        val avgLum: Float,
-        val hueWeights: FloatArray,
-        val embedding16D: FloatArray
+        val meanLum: Float,
+        val stdDevLum: Float,
+        val meanR: Float,
+        val stdDevR: Float,
+        val meanG: Float,
+        val stdDevG: Float,
+        val meanB: Float,
+        val stdDevB: Float,
+        val normLum: FloatArray,          // [1024]
+        val normR: FloatArray,            // [1024]
+        val normG: FloatArray,            // [1024]
+        val normB: FloatArray,            // [1024]
+        val spatialBlocks4x4: FloatArray,  // [48] (RGB en 16 regiones espaciales)
+        val spatialBlocks8x8: FloatArray,  // [64] (Luminancia en 64 micro-bloques)
+        val colorHistogram44: FloatArray,  // [44] (36 bins cromáticos HSV + 8 acromáticos de brillo)
+        val whiteFurRatio: Float,          // Proporción de pelaje blanco/gris claro (como Volibear)
+        val goldenMetalRatio: Float,       // Proporción de metal dorado/amarillo saturado (como Blitzcrank)
+        val textureEnergy: Float           // Varianza espacial de textura/pelo vs superficie lisa
     )
 
-    private val profileCache = java.util.concurrent.ConcurrentHashMap<String, InMemVisualSignature>()
+    private val templateCache = java.util.concurrent.ConcurrentHashMap<String, ChampionVisualTemplate>()
 
-    private fun getOrCreateProfile(champ: Champion, context: Context?): InMemVisualSignature {
-        return profileCache.getOrPut(champ.id) {
-            buildProfileForChampion(champ, context)
+    fun getOrCreateTemplate(champ: Champion, context: Context?): ChampionVisualTemplate {
+        return templateCache.getOrPut(champ.id) {
+            buildTemplateForChampion(champ, context)
         }
     }
 
-    private fun buildProfileForChampion(champ: Champion, context: Context?): InMemVisualSignature {
+    private fun buildTemplateForChampion(champ: Champion, context: Context?): ChampionVisualTemplate {
         val assetBitmap = loadChampionAssetBitmap(champ.id, context)
         if (assetBitmap != null) {
             try {
-                val metrics = LocalVisionAnalyzer.extractScannedMetrics(assetBitmap, "Asset_${champ.id}")
-                val vec16 = extractCropVector16D(assetBitmap, metrics)
-                // Enriquecer características de rol en el embedding 16D
-                vec16[12] = if (champ.primaryRole == LaneRole.TOP) 0.8f else 0.2f
-                vec16[13] = if (champ.primaryRole == LaneRole.JUNGLE) 0.8f else 0.2f
-                vec16[14] = if (champ.primaryRole == LaneRole.MID) 0.8f else 0.2f
-                vec16[15] = if (champ.primaryRole == LaneRole.ADC || champ.primaryRole == LaneRole.SUPPORT) 0.8f else 0.2f
-
-                return InMemVisualSignature(
-                    champId = champ.id,
-                    dominantHueBin = metrics.dominantHueBin,
-                    avgR = metrics.avgR,
-                    avgG = metrics.avgG,
-                    avgB = metrics.avgB,
-                    avgLum = metrics.avgLum,
-                    hueWeights = metrics.hueHistogram,
-                    embedding16D = vec16
-                )
+                return extractVisualTemplate(assetBitmap, champ.id)
             } finally {
                 try { assetBitmap.recycle() } catch (_: Throwable) {}
             }
         }
-
-        // Fallback analítico determinista si no se pudo cargar el asset local
-        return buildFallbackProfile(champ)
+        return buildSyntheticTemplate(champ)
     }
 
     private fun loadChampionAssetBitmap(champId: String, context: Context?): Bitmap? {
-        if (context == null || champId.isBlank()) return null
+        val safeCtx = context ?: com.example.WildRiftApp.instance
+        if (safeCtx == null || champId.isBlank()) return null
         val candidates = listOf(
             "champions/${champId}.png",
             "champions/${champId.lowercase(java.util.Locale.US)}.png",
@@ -324,7 +324,7 @@ object VisionInferenceManager {
         )
         for (path in candidates) {
             try {
-                context.assets.open(path).use { stream ->
+                safeCtx.assets.open(path).use { stream ->
                     val opts = BitmapFactory.Options().apply {
                         inPreferredConfig = Bitmap.Config.ARGB_8888
                     }
@@ -336,123 +336,271 @@ object VisionInferenceManager {
         return null
     }
 
-    private fun buildFallbackProfile(champ: Champion): InMemVisualSignature {
-        val id = champ.id.lowercase(java.util.Locale.US)
-        val name = champ.name.lowercase(java.util.Locale.US)
+    fun extractVisualTemplate(src: Bitmap, champId: String = ""): ChampionVisualTemplate {
+        val scaled = if (src.width == TEMPLATE_SIZE && src.height == TEMPLATE_SIZE) {
+            src
+        } else {
+            Bitmap.createScaledBitmap(src, TEMPLATE_SIZE, TEMPLATE_SIZE, true)
+        }
 
-        val (hueBin, r, g, b, lum) = when {
-            id.contains("voli") -> arrayOf(4, 130f, 175f, 220f, 160f)
-            id.contains("aatrox") -> arrayOf(0, 180f, 50f, 55f, 75f)
-            id.contains("ahri") -> arrayOf(7, 210f, 120f, 170f, 140f)
-            id.contains("brand") -> arrayOf(0, 235f, 105f, 30f, 155f)
-            id.contains("jinx") -> arrayOf(4, 55f, 160f, 225f, 145f)
-            id.contains("lux") -> arrayOf(1, 230f, 210f, 120f, 185f)
-            id.contains("malphite") -> arrayOf(1, 110f, 100f, 90f, 75f)
-            id.contains("teemo") -> arrayOf(2, 140f, 160f, 85f, 125f)
-            id.contains("yasuo") -> arrayOf(5, 100f, 130f, 175f, 110f)
-            id.contains("zed") -> arrayOf(0, 145f, 45f, 55f, 65f)
-            id.contains("darius") -> arrayOf(0, 155f, 55f, 65f, 85f)
-            id.contains("lee_sin") || id.contains("leesin") -> arrayOf(0, 185f, 100f, 80f, 120f)
-            id.contains("garen") -> arrayOf(1, 185f, 170f, 110f, 145f)
-            id.contains("cait") -> arrayOf(6, 135f, 90f, 175f, 120f)
-            id.contains("vayne") -> arrayOf(6, 115f, 60f, 145f, 85f)
-            id.contains("thresh") -> arrayOf(3, 60f, 195f, 155f, 120f)
-            id.contains("kaisa") -> arrayOf(6, 150f, 70f, 190f, 110f)
-            id.contains("samira") -> arrayOf(0, 175f, 95f, 80f, 110f)
-            id.contains("akali") -> arrayOf(3, 85f, 140f, 105f, 95f)
-            id.contains("katarina") -> arrayOf(0, 200f, 55f, 70f, 105f)
-            id.contains("miss_fortune") || id.contains("missfortune") -> arrayOf(0, 210f, 80f, 70f, 130f)
-            id.contains("sett") -> arrayOf(0, 190f, 110f, 85f, 130f)
-            id.contains("vi") -> arrayOf(7, 215f, 85f, 130f, 125f)
-            id.contains("warwick") -> arrayOf(3, 75f, 120f, 110f, 80f)
-            id.contains("braum") -> arrayOf(5, 120f, 145f, 180f, 135f)
-            id.contains("ezreal") -> arrayOf(1, 215f, 185f, 100f, 150f)
-            id.contains("pyke") -> arrayOf(3, 70f, 150f, 140f, 85f)
-            id.contains("yuumi") -> arrayOf(5, 140f, 160f, 210f, 165f)
-            id.contains("mordekaiser") -> arrayOf(3, 70f, 130f, 115f, 75f)
-            id.contains("kayn") -> arrayOf(5, 95f, 115f, 160f, 85f)
-            id.contains("yone") -> arrayOf(0, 175f, 65f, 80f, 105f)
-            id.contains("draven") -> arrayOf(0, 170f, 110f, 80f, 120f)
-            id.contains("nami") -> arrayOf(4, 75f, 175f, 205f, 130f)
-            id.contains("morgana") -> arrayOf(6, 120f, 65f, 150f, 80f)
-            id.contains("kayle") -> arrayOf(1, 230f, 200f, 110f, 175f)
-            id.contains("kassadin") -> arrayOf(6, 105f, 60f, 160f, 80f)
-            id.contains("pantheon") -> arrayOf(1, 190f, 150f, 90f, 120f)
-            id.contains("leona") -> arrayOf(1, 220f, 180f, 95f, 150f)
-            id.contains("diana") -> arrayOf(5, 150f, 175f, 210f, 140f)
-            id.contains("fizz") -> arrayOf(4, 60f, 165f, 200f, 125f)
-            id.contains("renekton") -> arrayOf(2, 120f, 145f, 75f, 100f)
-            id.contains("nasus") -> arrayOf(1, 130f, 120f, 90f, 90f)
-            id.contains("azir") -> arrayOf(1, 225f, 190f, 80f, 160f)
-            id.contains("kennen") -> arrayOf(5, 120f, 140f, 200f, 130f)
-            id.contains("ziggs") -> arrayOf(0, 200f, 120f, 60f, 130f)
-            id.contains("lulu") -> arrayOf(6, 165f, 95f, 185f, 130f)
-            id.contains("veigar") -> arrayOf(6, 85f, 50f, 135f, 70f)
-            id.contains("soraka") -> arrayOf(5, 160f, 175f, 220f, 155f)
-            else -> {
-                val hash = abs((id + name).hashCode())
-                val bin = hash % 8
-                val lumGen = 80f + (hash % 100)
-                val rGen = 60f + ((hash shr 2) % 150)
-                val gGen = 60f + ((hash shr 4) % 150)
-                val bGen = 60f + ((hash shr 6) % 150)
-                arrayOf(bin, rGen, gGen, bGen, lumGen)
+        val totalPixels = TEMPLATE_SIZE * TEMPLATE_SIZE
+        val pixels = IntArray(totalPixels)
+        scaled.getPixels(pixels, 0, TEMPLATE_SIZE, 0, 0, TEMPLATE_SIZE, TEMPLATE_SIZE)
+        if (scaled != src) {
+            try { scaled.recycle() } catch (_: Throwable) {}
+        }
+
+        val center = (TEMPLATE_SIZE - 1) / 2.0f
+        // Radio circular 0.42 para ignorar por completo bordes exteriores del marco/slot
+        val maxRadius = TEMPLATE_SIZE * 0.42f
+
+        val lumValues = FloatArray(totalPixels)
+        val rValues = FloatArray(totalPixels)
+        val gValues = FloatArray(totalPixels)
+        val bValues = FloatArray(totalPixels)
+        val mask = BooleanArray(totalPixels)
+
+        var sumLum = 0f
+        var sumR = 0f
+        var sumG = 0f
+        var sumB = 0f
+        var count = 0
+
+        val colorBins = FloatArray(44)
+        var totalHistWeight = 0f
+
+        var whiteFurCount = 0
+        var goldenMetalCount = 0
+
+        val hsv = FloatArray(3)
+
+        for (y in 0 until TEMPLATE_SIZE) {
+            for (x in 0 until TEMPLATE_SIZE) {
+                val dx = x - center
+                val dy = y - center
+                val dist = sqrt(dx * dx + dy * dy)
+                val idx = y * TEMPLATE_SIZE + x
+                if (dist > maxRadius) {
+                    mask[idx] = false
+                    continue
+                }
+                mask[idx] = true
+                val p = pixels[idx]
+                val r = Color.red(p)
+                val g = Color.green(p)
+                val b = Color.blue(p)
+                val lum = (r * 299 + g * 587 + b * 114) / 1000f
+
+                lumValues[idx] = lum
+                rValues[idx] = r.toFloat()
+                gValues[idx] = g.toFloat()
+                bValues[idx] = b.toFloat()
+
+                sumLum += lum
+                sumR += r
+                sumG += g
+                sumB += b
+                count++
+
+                Color.RGBToHSV(r, g, b, hsv)
+                val hue = hsv[0]
+                val sat = hsv[1]
+                val value = hsv[2]
+
+                // Análisis morfológico canónico:
+                // 1) Pelaje blanco / acromático brillante (como Volibear, pelaje polar)
+                if (value >= 0.38f && sat <= 0.22f) {
+                    whiteFurCount++
+                }
+                // 2) Metal dorado / bronce / latón amarillo saturado (como Blitzcrank)
+                if (hue in 25f..68f && sat >= 0.32f && value >= 0.25f) {
+                    goldenMetalCount++
+                }
+
+                // Histograma dual: 36 bins de tono HSV (cromático) + 8 bins acromáticos
+                if (sat > 0.12f && value > 0.12f) {
+                    val bin = ((hue / 360f) * 36f).toInt().coerceIn(0, 35)
+                    val w = sat * value
+                    colorBins[bin] += w
+                    totalHistWeight += w
+                } else {
+                    val achroBin = (36 + (value * 7.99f).toInt()).coerceIn(36, 43)
+                    val achroW = (1.0f - sat) * value
+                    colorBins[achroBin] += achroW
+                    totalHistWeight += achroW
+                }
             }
         }
 
-        val targetBin = hueBin.toInt()
-        val rF = r.toFloat()
-        val gF = g.toFloat()
-        val bF = b.toFloat()
-        val lumF = lum.toFloat()
-        val hueDist = FloatArray(8)
-        hueDist[targetBin] = 0.55f
-        hueDist[(targetBin + 7) % 8] = 0.15f
-        hueDist[(targetBin + 1) % 8] = 0.15f
-        hueDist[(targetBin + 4) % 8] = 0.05f
-        hueDist[(targetBin + 2) % 8] = 0.05f
-        hueDist[(targetBin + 6) % 8] = 0.05f
+        val safeCount = max(1, count)
+        val meanLum = sumLum / safeCount
+        val meanR = sumR / safeCount
+        val meanG = sumG / safeCount
+        val meanB = sumB / safeCount
 
-        val vec16 = FloatArray(16)
-        vec16[0] = rF / 255f
-        vec16[1] = gF / 255f
-        vec16[2] = bF / 255f
-        vec16[3] = lumF / 255f
-        for (i in 0 until 8) {
-            vec16[4 + i] = hueDist[i]
+        var varLum = 0f
+        var varR = 0f
+        var varG = 0f
+        var varB = 0f
+        var textureEnergySum = 0f
+
+        for (y in 0 until TEMPLATE_SIZE) {
+            for (x in 0 until TEMPLATE_SIZE) {
+                val idx = y * TEMPLATE_SIZE + x
+                if (mask[idx]) {
+                    val dLum = lumValues[idx] - meanLum
+                    varLum += dLum * dLum
+                    val dR = rValues[idx] - meanR
+                    varR += dR * dR
+                    val dG = gValues[idx] - meanG
+                    varG += dG * dG
+                    val dB = bValues[idx] - meanB
+                    varB += dB * dB
+
+                    if (x + 1 < TEMPLATE_SIZE && mask[idx + 1]) {
+                        textureEnergySum += abs(lumValues[idx] - lumValues[idx + 1])
+                    }
+                    if (y + 1 < TEMPLATE_SIZE && mask[idx + TEMPLATE_SIZE]) {
+                        textureEnergySum += abs(lumValues[idx] - lumValues[idx + TEMPLATE_SIZE])
+                    }
+                }
+            }
         }
-        vec16[12] = if (champ.primaryRole == LaneRole.TOP) 0.8f else 0.2f
-        vec16[13] = if (champ.primaryRole == LaneRole.JUNGLE) 0.8f else 0.2f
-        vec16[14] = if (champ.primaryRole == LaneRole.MID) 0.8f else 0.2f
-        vec16[15] = if (champ.primaryRole == LaneRole.ADC || champ.primaryRole == LaneRole.SUPPORT) 0.8f else 0.2f
 
-        return InMemVisualSignature(
-            champId = champ.id,
-            dominantHueBin = targetBin,
-            avgR = rF,
-            avgG = gF,
-            avgB = bF,
-            avgLum = lumF,
-            hueWeights = hueDist,
-            embedding16D = vec16
+        val stdDevLum = sqrt(varLum / safeCount).coerceAtLeast(1.0f)
+        val stdDevR = sqrt(varR / safeCount).coerceAtLeast(1.0f)
+        val stdDevG = sqrt(varG / safeCount).coerceAtLeast(1.0f)
+        val stdDevB = sqrt(varB / safeCount).coerceAtLeast(1.0f)
+
+        // Normalizar histograma
+        val normWeight = max(0.0001f, totalHistWeight)
+        for (i in 0 until 44) {
+            colorBins[i] /= normWeight
+        }
+
+        // Matriz 4x4 espacial (16 regiones x 3 canales RGB normalizados)
+        val block4Size = TEMPLATE_SIZE / 4
+        val blocks4x4 = FloatArray(16 * 3)
+        for (by in 0 until 4) {
+            for (bx in 0 until 4) {
+                var bR = 0f
+                var bG = 0f
+                var bB = 0f
+                var bCount = 0
+                for (py in (by * block4Size) until ((by + 1) * block4Size)) {
+                    for (px in (bx * block4Size) until ((bx + 1) * block4Size)) {
+                        val pIdx = py * TEMPLATE_SIZE + px
+                        if (mask[pIdx]) {
+                            bR += rValues[pIdx]
+                            bG += gValues[pIdx]
+                            bB += bValues[pIdx]
+                            bCount++
+                        }
+                    }
+                }
+                val outIdx = (by * 4 + bx) * 3
+                blocks4x4[outIdx] = if (bCount > 0) (bR / bCount) / 255f else 0f
+                blocks4x4[outIdx + 1] = if (bCount > 0) (bG / bCount) / 255f else 0f
+                blocks4x4[outIdx + 2] = if (bCount > 0) (bB / bCount) / 255f else 0f
+            }
+        }
+
+        // Matriz 8x8 de micro-bloques de luminancia
+        val block8Size = TEMPLATE_SIZE / 8
+        val blocks8x8 = FloatArray(64)
+        for (by in 0 until 8) {
+            for (bx in 0 until 8) {
+                var bLum = 0f
+                var bCount = 0
+                for (py in (by * block8Size) until ((by + 1) * block8Size)) {
+                    for (px in (bx * block8Size) until ((bx + 1) * block8Size)) {
+                        val pIdx = py * TEMPLATE_SIZE + px
+                        if (mask[pIdx]) {
+                            bLum += lumValues[pIdx]
+                            bCount++
+                        }
+                    }
+                }
+                blocks8x8[by * 8 + bx] = if (bCount > 0) (bLum / bCount) / 255f else 0f
+            }
+        }
+
+        val whiteFurRatio = whiteFurCount.toFloat() / safeCount
+        val goldenMetalRatio = goldenMetalCount.toFloat() / safeCount
+        val textureEnergy = (textureEnergySum / safeCount) / 255f
+
+        return ChampionVisualTemplate(
+            champId = champId,
+            meanLum = meanLum,
+            stdDevLum = stdDevLum,
+            meanR = meanR,
+            stdDevR = stdDevR,
+            meanG = meanG,
+            stdDevG = stdDevG,
+            meanB = meanB,
+            stdDevB = stdDevB,
+            normLum = lumValues,
+            normR = rValues,
+            normG = gValues,
+            normB = bValues,
+            spatialBlocks4x4 = blocks4x4,
+            spatialBlocks8x8 = blocks8x8,
+            colorHistogram44 = colorBins,
+            whiteFurRatio = whiteFurRatio,
+            goldenMetalRatio = goldenMetalRatio,
+            textureEnergy = textureEnergy
         )
     }
 
-    private fun extractCropVector16D(crop: Bitmap, metrics: LocalVisionAnalyzer.ScannedCropMetrics): FloatArray {
-        val vec = FloatArray(16)
-        vec[0] = (metrics.avgR / 255f).coerceIn(0f, 1f)
-        vec[1] = (metrics.avgG / 255f).coerceIn(0f, 1f)
-        vec[2] = (metrics.avgB / 255f).coerceIn(0f, 1f)
-        vec[3] = (metrics.avgLum / 255f).coerceIn(0f, 1f)
-        for (i in 0 until 8) {
-            vec[4 + i] = metrics.hueHistogram.getOrElse(i) { 0f }.coerceIn(0f, 1f)
+    private fun buildSyntheticTemplate(champ: Champion): ChampionVisualTemplate {
+        val dummy = Bitmap.createBitmap(TEMPLATE_SIZE, TEMPLATE_SIZE, Bitmap.Config.ARGB_8888)
+        try {
+            val canvas = android.graphics.Canvas(dummy)
+            val paint = android.graphics.Paint()
+            val id = champ.id.lowercase(java.util.Locale.US)
+            val color = when {
+                id.contains("voli") -> Color.rgb(180, 205, 230) // Blanco polar y relámpago azul
+                id.contains("blitz") -> Color.rgb(215, 175, 45) // Metal dorado/latón
+                id.contains("lux") -> Color.rgb(240, 220, 140)
+                id.contains("malph") -> Color.rgb(110, 100, 90)
+                id.contains("ashe") -> Color.rgb(140, 170, 210)
+                else -> {
+                    val hash = abs(id.hashCode())
+                    Color.rgb(80 + (hash % 120), 80 + ((hash shr 2) % 120), 80 + ((hash shr 4) % 120))
+                }
+            }
+            paint.color = color
+            canvas.drawCircle(TEMPLATE_SIZE / 2f, TEMPLATE_SIZE / 2f, TEMPLATE_SIZE * 0.4f, paint)
+            return extractVisualTemplate(dummy, champ.id)
+        } finally {
+            try { dummy.recycle() } catch (_: Throwable) {}
         }
-        vec[12] = (metrics.contrast / 255f).coerceIn(0f, 1f)
-        vec[13] = (metrics.dominantHuePercent / 100f).coerceIn(0f, 1f)
-        vec[14] = (metrics.minLum / 255f).coerceIn(0f, 1f)
-        vec[15] = (metrics.maxLum / 255f).coerceIn(0f, 1f)
-        return vec
     }
+
+    /**
+     * Penalización / Bonificación de afinidad morfológica:
+     * Separa radicalmente criaturas de pelaje blanco (Volibear) de robots dorados (Blitzcrank).
+     */
+    private fun computeMorphologicalAdjustment(crop: ChampionVisualTemplate, target: ChampionVisualTemplate): Float {
+        var adj = 0f
+        // 1) Disparidad extrema: oso polar / pelaje blanco vs robot de metal dorado
+        if (crop.whiteFurRatio >= 0.16f && target.goldenMetalRatio >= 0.22f) {
+            adj -= 0.45f // Penalización fulminante: un robot dorado NUNCA coincide con un oso blanco
+        } else if (crop.goldenMetalRatio >= 0.22f && target.whiteFurRatio >= 0.16f) {
+            adj -= 0.45f // Penalización fulminante contraria
+        }
+
+        // 2) Coincidencia morfológica positiva:
+        if (crop.whiteFurRatio >= 0.18f && target.whiteFurRatio >= 0.18f) {
+            adj += 0.08f // Bonificación por pelaje blanco compartido
+        }
+        if (crop.goldenMetalRatio >= 0.25f && target.goldenMetalRatio >= 0.25f) {
+            adj += 0.08f // Bonificación por metal dorado compartido
+        }
+        return adj
+    }
+
+    // --- CÁLCULO DE CANDIDATOS PARA CADA UNO DE LOS 4 MOTORES ---
 
     private fun computeEngineCandidatesZncc(
         crop: Bitmap,
@@ -461,28 +609,65 @@ object VisionInferenceManager {
         context: Context?
     ): List<Pair<Champion, Float>> {
         val enhanced = LocalVisionAnalyzer.enhanceCropQuality(crop)
-        val metrics = LocalVisionAnalyzer.extractScannedMetrics(enhanced, "ZNCC")
-        val cropVec = extractCropVector16D(enhanced, metrics)
+        val cropTemplate = extractVisualTemplate(enhanced, "crop")
         val results = mutableListOf<Pair<Champion, Float>>()
 
-        for (champ in champs) {
-            val prof = getOrCreateProfile(champ, context)
-            // ZNCC multicanal sobre características normalizadas
-            val rDiff = abs(metrics.avgR - prof.avgR) / 255f
-            val gDiff = abs(metrics.avgG - prof.avgG) / 255f
-            val bDiff = abs(metrics.avgB - prof.avgB) / 255f
-            val lumDiff = abs(metrics.avgLum - prof.avgLum) / 255f
-            val colorSim = (1f - (rDiff * 0.35f + gDiff * 0.40f + bDiff * 0.25f)).coerceIn(0f, 1f)
-            val histSim = compareHistograms(metrics.hueHistogram, prof.hueWeights)
-            val lumSim = (1f - lumDiff).coerceIn(0f, 1f)
+        val center = (TEMPLATE_SIZE - 1) / 2.0f
+        val maxRadius = TEMPLATE_SIZE * 0.42f
 
-            var roleBonus = 0f
-            if (expectedRole != null && (champ.primaryRole == expectedRole || champ.secondaryRoles.contains(expectedRole))) {
-                roleBonus = 0.08f
+        for (champ in champs) {
+            val target = getOrCreateTemplate(champ, context)
+
+            var dotR = 0f
+            var dotG = 0f
+            var dotB = 0f
+            var dotLum = 0f
+            var count = 0
+
+            for (y in 0 until TEMPLATE_SIZE) {
+                for (x in 0 until TEMPLATE_SIZE) {
+                    val dx = x - center
+                    val dy = y - center
+                    if (sqrt(dx * dx + dy * dy) > maxRadius) continue
+
+                    val idx = y * TEMPLATE_SIZE + x
+                    val drA = cropTemplate.normR[idx] - cropTemplate.meanR
+                    val drB = target.normR[idx] - target.meanR
+                    dotR += drA * drB
+
+                    val dgA = cropTemplate.normG[idx] - cropTemplate.meanG
+                    val dgB = target.normG[idx] - target.meanG
+                    dotG += dgA * dgB
+
+                    val dbA = cropTemplate.normB[idx] - cropTemplate.meanB
+                    val dbB = target.normB[idx] - target.meanB
+                    dotB += dbA * dbB
+
+                    val dlA = cropTemplate.normLum[idx] - cropTemplate.meanLum
+                    val dlB = target.normLum[idx] - target.meanLum
+                    dotLum += dlA * dlB
+
+                    count++
+                }
             }
 
-            val znccScore = (colorSim * 0.40f + histSim * 0.40f + lumSim * 0.12f + roleBonus).coerceIn(0.01f, 0.99f)
-            results.add(Pair(champ, znccScore))
+            val safeCount = max(1, count)
+            val znccR = (dotR / (safeCount * cropTemplate.stdDevR * target.stdDevR)).coerceIn(-1f, 1f)
+            val znccG = (dotG / (safeCount * cropTemplate.stdDevG * target.stdDevG)).coerceIn(-1f, 1f)
+            val znccB = (dotB / (safeCount * cropTemplate.stdDevB * target.stdDevB)).coerceIn(-1f, 1f)
+            val znccLum = (dotLum / (safeCount * cropTemplate.stdDevLum * target.stdDevLum)).coerceIn(-1f, 1f)
+
+            val rawZncc = (znccR * 0.30f + znccG * 0.35f + znccB * 0.25f + znccLum * 0.10f)
+            val normalizedScore = ((rawZncc + 1f) / 2f).coerceIn(0f, 1f)
+
+            val morphAdj = computeMorphologicalAdjustment(cropTemplate, target)
+            var roleBonus = 0f
+            if (expectedRole != null && (champ.primaryRole == expectedRole || champ.secondaryRoles.contains(expectedRole))) {
+                roleBonus = 0.04f
+            }
+
+            val finalScore = (normalizedScore + morphAdj + roleBonus).coerceIn(0.01f, 0.99f)
+            results.add(Pair(champ, finalScore))
         }
 
         if (enhanced != crop) {
@@ -498,19 +683,34 @@ object VisionInferenceManager {
         context: Context?
     ): List<Pair<Champion, Float>> {
         val enhanced = LocalVisionAnalyzer.enhanceCropQuality(crop)
-        val metrics = LocalVisionAnalyzer.extractScannedMetrics(enhanced, "ONNX")
-        val cropVec = extractCropVector16D(enhanced, metrics)
+        val cropTemplate = extractVisualTemplate(enhanced, "crop")
         val results = mutableListOf<Pair<Champion, Float>>()
 
+        // Vector denso de 64D: 48 dims (spatialBlocks4x4) + 12 dims (colorHistogram44 top) + 4 dims (morfología)
+        val vecCrop = FloatArray(64)
+        System.arraycopy(cropTemplate.spatialBlocks4x4, 0, vecCrop, 0, 48)
+        System.arraycopy(cropTemplate.colorHistogram44, 0, vecCrop, 48, 12)
+        vecCrop[60] = cropTemplate.whiteFurRatio
+        vecCrop[61] = cropTemplate.goldenMetalRatio
+        vecCrop[62] = cropTemplate.textureEnergy
+        vecCrop[63] = cropTemplate.meanLum / 255f
+
         for (champ in champs) {
-            val prof = getOrCreateProfile(champ, context)
-            // Cosine Similarity neuronal entre vector de recorte y embedding de campeón
+            val target = getOrCreateTemplate(champ, context)
+            val vecTarget = FloatArray(64)
+            System.arraycopy(target.spatialBlocks4x4, 0, vecTarget, 0, 48)
+            System.arraycopy(target.colorHistogram44, 0, vecTarget, 48, 12)
+            vecTarget[60] = target.whiteFurRatio
+            vecTarget[61] = target.goldenMetalRatio
+            vecTarget[62] = target.textureEnergy
+            vecTarget[63] = target.meanLum / 255f
+
             var dot = 0f
             var normA = 0f
             var normB = 0f
-            for (i in 0 until 16) {
-                val a = cropVec[i]
-                val b = prof.embedding16D[i]
+            for (i in 0 until 64) {
+                val a = vecCrop[i]
+                val b = vecTarget[i]
                 dot += a * b
                 normA += a * a
                 normB += b * b
@@ -518,13 +718,17 @@ object VisionInferenceManager {
             val denom = (sqrt(normA) * sqrt(normB)).coerceAtLeast(0.0001f)
             val cosineSim = (dot / denom).coerceIn(0f, 1f)
 
+            val lumDiff = abs(cropTemplate.meanLum - target.meanLum) / 255f
+            val colorDiff = (abs(cropTemplate.meanR - target.meanR) + abs(cropTemplate.meanG - target.meanG) + abs(cropTemplate.meanB - target.meanB)) / (255f * 3f)
+
+            val morphAdj = computeMorphologicalAdjustment(cropTemplate, target)
             var roleBonus = 0f
             if (expectedRole != null && (champ.primaryRole == expectedRole || champ.secondaryRoles.contains(expectedRole))) {
-                roleBonus = 0.07f
+                roleBonus = 0.04f
             }
 
-            val onnxScore = (cosineSim * 0.92f + roleBonus).coerceIn(0.01f, 0.99f)
-            results.add(Pair(champ, onnxScore))
+            val finalScore = (cosineSim * 0.65f + (1f - colorDiff) * 0.25f + (1f - lumDiff) * 0.10f + morphAdj + roleBonus).coerceIn(0.01f, 0.99f)
+            results.add(Pair(champ, finalScore))
         }
 
         if (enhanced != crop) {
@@ -540,28 +744,28 @@ object VisionInferenceManager {
         context: Context?
     ): List<Pair<Champion, Float>> {
         val enhanced = LocalVisionAnalyzer.enhanceCropQuality(crop)
-        val metrics = LocalVisionAnalyzer.extractScannedMetrics(enhanced, "NCNN")
-        val cropVec = extractCropVector16D(enhanced, metrics)
+        val cropTemplate = extractVisualTemplate(enhanced, "crop")
         val results = mutableListOf<Pair<Champion, Float>>()
 
         for (champ in champs) {
-            val prof = getOrCreateProfile(champ, context)
-            // Distancia Euclidiana / L2 espacial NCNN
+            val target = getOrCreateTemplate(champ, context)
+            // Distancia Euclidiana L2 espacial sobre la matriz 8x8 de micro-bloques
             var sumSq = 0f
-            for (i in 0 until 16) {
-                val diff = cropVec[i] - prof.embedding16D[i]
+            for (i in 0 until 64) {
+                val diff = cropTemplate.spatialBlocks8x8[i] - target.spatialBlocks8x8[i]
                 sumSq += diff * diff
             }
-            val l2Dist = sqrt(sumSq)
-            val ncnnSim = exp(-l2Dist * 0.9f).coerceIn(0f, 1f)
+            val l2Dist = sqrt(sumSq / 64f)
+            val ncnnSim = exp(-l2Dist * 2.8f).coerceIn(0f, 1f)
 
+            val morphAdj = computeMorphologicalAdjustment(cropTemplate, target)
             var roleBonus = 0f
             if (expectedRole != null && (champ.primaryRole == expectedRole || champ.secondaryRoles.contains(expectedRole))) {
-                roleBonus = 0.07f
+                roleBonus = 0.04f
             }
 
-            val ncnnScore = (ncnnSim * 0.92f + roleBonus).coerceIn(0.01f, 0.99f)
-            results.add(Pair(champ, ncnnScore))
+            val finalScore = (ncnnSim + morphAdj + roleBonus).coerceIn(0.01f, 0.99f)
+            results.add(Pair(champ, finalScore))
         }
 
         if (enhanced != crop) {
@@ -577,40 +781,40 @@ object VisionInferenceManager {
         context: Context?
     ): List<Pair<Champion, Float>> {
         val enhanced = LocalVisionAnalyzer.enhanceCropQuality(crop)
-        val metrics = LocalVisionAnalyzer.extractScannedMetrics(enhanced, "LiteRT")
-        val cropVec = extractCropVector16D(enhanced, metrics)
+        val cropTemplate = extractVisualTemplate(enhanced, "crop")
         val results = mutableListOf<Pair<Champion, Float>>()
 
         for (champ in champs) {
-            val prof = getOrCreateProfile(champ, context)
-            // LiteRT FP16 Softmax Classifier
-            val colorAffinity = 1f - (abs(metrics.avgR - prof.avgR) + abs(metrics.avgG - prof.avgG) + abs(metrics.avgB - prof.avgB)) / (255f * 3f)
-            val histAffinity = compareHistograms(metrics.hueHistogram, prof.hueWeights)
-            val hueBinBonus = if (metrics.dominantHueBin == prof.dominantHueBin) 0.15f else 0f
+            val target = getOrCreateTemplate(champ, context)
+            // Intersección de histograma dual de 44 bins (36 HUE + 8 acromáticos)
+            var sumIntersection = 0f
+            var sumTotal = 0f
+            for (i in 0 until 44) {
+                val a = cropTemplate.colorHistogram44[i]
+                val b = target.colorHistogram44[i]
+                sumIntersection += min(a, b)
+                sumTotal += max(a, b)
+            }
+            val histAffinity = if (sumTotal > 0f) (sumIntersection / sumTotal).coerceIn(0f, 1f) else 0.5f
+
+            val lumAffinity = (1f - abs(cropTemplate.meanLum - target.meanLum) / 255f).coerceIn(0f, 1f)
+            val textureAffinity = (1f - abs(cropTemplate.textureEnergy - target.textureEnergy)).coerceIn(0f, 1f)
+
+            val baseLite = (histAffinity * 0.55f + lumAffinity * 0.25f + textureAffinity * 0.20f)
+            val morphAdj = computeMorphologicalAdjustment(cropTemplate, target)
 
             var roleBonus = 0f
             if (expectedRole != null && (champ.primaryRole == expectedRole || champ.secondaryRoles.contains(expectedRole))) {
-                roleBonus = 0.08f
+                roleBonus = 0.04f
             }
 
-            val baseLite = (colorAffinity * 0.40f + histAffinity * 0.40f + hueBinBonus + roleBonus).coerceIn(0.01f, 0.99f)
-            results.add(Pair(champ, baseLite))
+            val finalScore = (baseLite + morphAdj + roleBonus).coerceIn(0.01f, 0.99f)
+            results.add(Pair(champ, finalScore))
         }
 
         if (enhanced != crop) {
             try { enhanced.recycle() } catch (_: Throwable) {}
         }
         return results.sortedByDescending { it.second }
-    }
-
-    private fun compareHistograms(h1: FloatArray, h2: FloatArray): Float {
-        if (h1.isEmpty() || h2.isEmpty() || h1.size != h2.size) return 0.5f
-        var sumIntersection = 0f
-        var sumTotal = 0f
-        for (i in h1.indices) {
-            sumIntersection += min(h1[i], h2[i])
-            sumTotal += max(h1[i], h2[i])
-        }
-        return if (sumTotal > 0f) sumIntersection / sumTotal else 0.5f
     }
 }

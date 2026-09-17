@@ -1038,7 +1038,7 @@ private fun FloatingOverlayContent(
                                     
                                     defaultRoles.forEachIndexed { idx, role ->
                                         if (manualLockedAllySlots[idx] != true) {
-                                            val scannedAlly = result.alliesByRole[role]
+                                            val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx] ?: result.allies.getOrNull(idx)
                                             if (scannedAlly != null) {
                                                 if (allies[idx] == null || allies[idx]?.id != scannedAlly.id) {
                                                     assignAllySlot(idx, scannedAlly)
@@ -1047,12 +1047,34 @@ private fun FloatingOverlayContent(
                                             }
                                         }
                                         if (manualLockedEnemySlots[idx] != true) {
-                                            val scannedEnemy = result.enemiesByRole[role]
+                                            val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx] ?: result.enemies.getOrNull(idx)
                                             if (scannedEnemy != null) {
                                                 if (enemies[idx] == null || enemies[idx]?.id != scannedEnemy.id) {
                                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                                     if (enemies[idx] == null) newEnemiesAdded++
                                                 }
+                                            }
+                                        }
+                                    }
+
+                                    // Garantizar asignación de cualquier campeón detectado restante a slots libres
+                                    val assignedAllyChampIds = allies.mapNotNull { it?.id }.toSet()
+                                    for (unassigned in result.allies) {
+                                        if (!assignedAllyChampIds.contains(unassigned.id)) {
+                                            val emptyIdx = (0..4).firstOrNull { allies[it] == null && manualLockedAllySlots[it] != true }
+                                            if (emptyIdx != null) {
+                                                assignAllySlot(emptyIdx, unassigned)
+                                                newAlliesAdded++
+                                            }
+                                        }
+                                    }
+                                    val assignedEnemyChampIds = enemies.mapNotNull { it?.id }.toSet()
+                                    for (unassigned in result.enemies) {
+                                        if (!assignedEnemyChampIds.contains(unassigned.id) && !assignedAllyChampIds.contains(unassigned.id)) {
+                                            val emptyIdx = (0..4).firstOrNull { enemies[it] == null && manualLockedEnemySlots[it] != true }
+                                            if (emptyIdx != null) {
+                                                assignEnemySlot(emptyIdx, unassigned, 85)
+                                                newEnemiesAdded++
                                             }
                                         }
                                     }
@@ -1094,7 +1116,7 @@ private fun FloatingOverlayContent(
                                     val finalAlliesPicked = allies.filterNotNull().size
                                     val finalEnemiesPicked = enemies.filterNotNull().size
 
-                                    val isDraftFullyConfirmed = (finalAlliesPicked == 5 && finalEnemiesPicked == 5 && result.isLastPickConfirmed) || result.isPreparationPhase
+                                    val isDraftFullyConfirmed = (finalAlliesPicked == 5 && finalEnemiesPicked == 5) && (result.isLastPickConfirmed || result.isPreparationPhase)
 
                                     if (result.userExplicitlyDetectedRole != null && activeRole != result.userExplicitlyDetectedRole) {
                                         activeRole = result.userExplicitlyDetectedRole
@@ -1104,6 +1126,9 @@ private fun FloatingOverlayContent(
                                         autoScanEnabled = false
                                         scanNoticeMessage = "10/10 Campeones confirmados (Fase de Preparación)"
                                         AppLogger.i("FloatingService", "Auto-Scan desactivado: 10/10 campeones confirmados definitivamente con el 10º pick sellado.")
+                                    } else if (result.isPreparationPhase && (finalAlliesPicked < 5 || finalEnemiesPicked < 5)) {
+                                        scanNoticeMessage = "Fase de Preparación: completando selección ($finalAlliesPicked/5 vs $finalEnemiesPicked/5)..."
+                                        AppLogger.d("FloatingService", "Fase de Preparación en curso ($finalAlliesPicked/5 vs $finalEnemiesPicked/5). Auto-scan continúa.")
                                     } else if (finalAlliesPicked == 5 && finalEnemiesPicked == 5 && !result.isLastPickConfirmed) {
                                         val hoverName = result.lastPickChampion?.name ?: "10º Pick"
                                         scanNoticeMessage = "10º Pick en preselección: $hoverName (esperando bloqueo...)"
@@ -1168,15 +1193,35 @@ private fun FloatingOverlayContent(
                         // 1. Asignación directa y de alta precisión por rol (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
                             if (manualLockedAllySlots[idx] != true) {
-                                val scannedAlly = result.alliesByRole[role]
+                                val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx] ?: result.allies.getOrNull(idx)
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
-                                val scannedEnemy = result.enemiesByRole[role]
+                                val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx] ?: result.enemies.getOrNull(idx)
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
+                                }
+                            }
+                        }
+
+                        // Garantizar asignación de cualquier campeón detectado restante a slots libres
+                        val assignedAllyChampIds = allies.mapNotNull { it?.id }.toSet()
+                        for (unassigned in result.allies) {
+                            if (!assignedAllyChampIds.contains(unassigned.id)) {
+                                val emptyIdx = (0..4).firstOrNull { allies[it] == null && manualLockedAllySlots[it] != true }
+                                if (emptyIdx != null) {
+                                    assignAllySlot(emptyIdx, unassigned)
+                                }
+                            }
+                        }
+                        val assignedEnemyChampIds = enemies.mapNotNull { it?.id }.toSet()
+                        for (unassigned in result.enemies) {
+                            if (!assignedEnemyChampIds.contains(unassigned.id) && !assignedAllyChampIds.contains(unassigned.id)) {
+                                val emptyIdx = (0..4).firstOrNull { enemies[it] == null && manualLockedEnemySlots[it] != true }
+                                if (emptyIdx != null) {
+                                    assignEnemySlot(emptyIdx, unassigned, 85)
                                 }
                             }
                         }
@@ -2818,27 +2863,32 @@ private fun OverlayVersusDraftBoard(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isFirstPick) {
-                    Surface(
-                        modifier = Modifier.clickable { onToggleFirstPick?.invoke() },
-                        shape = RoundedCornerShape(12.dp),
-                        color = AllyBlue.copy(alpha = 0.15f),
-                        border = BorderStroke(1.dp, AllyBlue.copy(alpha = 0.6f))
+                Surface(
+                    modifier = Modifier.clickable { onToggleFirstPick?.invoke() },
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (isFirstPick) AllyBlue.copy(alpha = 0.15f) else DangerRed.copy(alpha = 0.15f),
+                    border = BorderStroke(1.dp, if (isFirstPick) AllyBlue.copy(alpha = 0.6f) else DangerRed.copy(alpha = 0.6f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = tr("Primera Selección"),
-                                color = AllyBlue,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 9.5.sp
-                            )
-                        }
+                        Box(
+                            modifier = Modifier
+                                .size(5.dp)
+                                .clip(CircleShape)
+                                .background(if (isFirstPick) AllyBlue else DangerRed)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (isFirstPick) tr("1ª Selección: Aliados") else tr("1ª Selección: Rival"),
+                            color = if (isFirstPick) AllyBlue else DangerRed,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 9.5.sp
+                        )
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
                 }
+                Spacer(modifier = Modifier.width(6.dp))
 
                 Surface(
                     modifier = Modifier.clickable { onToggleLegendary?.invoke() },
@@ -2893,16 +2943,36 @@ private fun OverlayVersusDraftBoard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { onToggleFirstPick?.invoke() }
+                ) {
                     Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(AllyBlue))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(tr("EQUIPO ALIADO"), color = AllyBlue, fontWeight = FontWeight.Black, fontSize = 10.5.sp)
+                    if (isFirstPick) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = AllyBlue.copy(alpha = 0.2f),
+                            border = BorderStroke(0.5.dp, AllyBlue)
+                        ) {
+                            Text(
+                                text = tr("1ª SELECCIÓN"),
+                                color = AllyBlue,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 7.5.sp,
+                                modifier = Modifier.padding(horizontal = 3.dp, vertical = 0.5.dp)
+                            )
+                        }
+                    }
                 }
 
                 Surface(
                     color = HextechDarkBg,
                     shape = RoundedCornerShape(4.dp),
-                    border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.4f))
+                    border = BorderStroke(0.5.dp, HextechGold.copy(alpha = 0.4f)),
+                    modifier = Modifier.clickable { onToggleFirstPick?.invoke() }
                 ) {
                     Text(
                         "VS",
@@ -2913,7 +2983,26 @@ private fun OverlayVersusDraftBoard(
                     )
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { onToggleFirstPick?.invoke() }
+                ) {
+                    if (!isFirstPick) {
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = DangerRed.copy(alpha = 0.2f),
+                            border = BorderStroke(0.5.dp, DangerRed)
+                        ) {
+                            Text(
+                                text = tr("1ª SELECCIÓN"),
+                                color = DangerRed,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 7.5.sp,
+                                modifier = Modifier.padding(horizontal = 3.dp, vertical = 0.5.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                    }
                     Text(tr("EQUIPO RIVAL"), color = DangerRed, fontWeight = FontWeight.Black, fontSize = 10.5.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(DangerRed))
@@ -3600,11 +3689,23 @@ private fun TenthPickScannerViewerDialog(
                                 com.example.data.WildRiftRepository.initChampions(context)
                             }
                             val allChamps = com.example.data.WildRiftRepository.champions.toList()
-                            // Excluir de la evaluación visual del 10º pick a todos los campeones ya fijados en los picks 1 al 9
-                            val draftConfirmedIds = (allies.filterNotNull().map { it.id } +
-                                                     enemies.filterNotNull().map { it.id } +
-                                                     com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions.mapNotNull { it?.id } +
-                                                     com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions.mapNotNull { it?.id }).toSet()
+                            // Excluir de la evaluación visual del 10º pick a todos los campeones ya fijados en los otros 9 picks
+                            val isTenthAlly = (selectedVision == 0)
+                            val otherAllyIds = if (isTenthAlly) {
+                                allies.take(4).filterNotNull().map { it.id } +
+                                com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions.take(4).mapNotNull { it?.id }
+                            } else {
+                                allies.filterNotNull().map { it.id } +
+                                com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions.mapNotNull { it?.id }
+                            }
+                            val otherEnemyIds = if (!isTenthAlly) {
+                                enemies.take(4).filterNotNull().map { it.id } +
+                                com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions.take(4).mapNotNull { it?.id }
+                            } else {
+                                enemies.filterNotNull().map { it.id } +
+                                com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions.mapNotNull { it?.id }
+                            }
+                            val draftConfirmedIds = (otherAllyIds + otherEnemyIds).toSet()
                             val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
                                 bitmap = bmp,
                                 isAlly = (selectedVision == 0),

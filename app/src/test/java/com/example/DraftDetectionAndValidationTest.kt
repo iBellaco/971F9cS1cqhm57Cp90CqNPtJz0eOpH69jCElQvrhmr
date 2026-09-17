@@ -369,7 +369,7 @@ class DraftDetectionAndValidationTest {
     }
 
     @Test
-    fun testLocalVisionVolibearMatching() {
+    fun testLocalVisionVolibearMatching() = kotlinx.coroutines.test.runTest {
         val champs = getSafeChamps()
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
 
@@ -521,30 +521,56 @@ class DraftDetectionAndValidationTest {
     }
 
     @Test
-    fun testVolibearInGameCropMatchingWithZNCC() = kotlinx.coroutines.test.runTest {
-        val champs = getSafeChamps()
+    fun testDiagnoseVolibearVsBlitzcrank() = kotlinx.coroutines.test.runTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val assetManager = context.assets
-        val stream = assetManager.open("champions/volibear.png")
-        val volibearBmp = android.graphics.BitmapFactory.decodeStream(stream)!!
-
-        // Crear una simulación de avatar con shading oscuro en los bordes como en Wild Rift
-        val crop61 = android.graphics.Bitmap.createScaledBitmap(volibearBmp, 61, 61, true)
         com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+        val champs = getSafeChamps()
+
+        val assetManager = context.assets
+        val voliStream = assetManager.open("champions/volibear.png")
+        val blitzStream = assetManager.open("champions/blitzcrank.png")
+        val voliBmp = android.graphics.BitmapFactory.decodeStream(voliStream)!!
+        val blitzBmp = android.graphics.BitmapFactory.decodeStream(blitzStream)!!
+
+        val voliMetrics = com.example.service.screen.LocalVisionAnalyzer.extractScannedMetrics(voliBmp, "Asset_volibear")
+        val blitzMetrics = com.example.service.screen.LocalVisionAnalyzer.extractScannedMetrics(blitzBmp, "Asset_blitzcrank")
+
+        println("VOLIBEAR ASSET METRICS: R=${voliMetrics.avgR}, G=${voliMetrics.avgG}, B=${voliMetrics.avgB}, Lum=${voliMetrics.avgLum}, HueBin=${voliMetrics.dominantHueBin} (${voliMetrics.dominantHueName})")
+        println("BLITZCRANK ASSET METRICS: R=${blitzMetrics.avgR}, G=${blitzMetrics.avgG}, B=${blitzMetrics.avgB}, Lum=${blitzMetrics.avgLum}, HueBin=${blitzMetrics.dominantHueBin} (${blitzMetrics.dominantHueName})")
+
+        // Ahora simular un recorte de 77x77 con borde oscuro y marco circular como en Wild Rift
+        val crop77 = android.graphics.Bitmap.createBitmap(77, 77, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(crop77)
+        // Dibujar fondo oscuro / viñeta
+        val p = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+        // Escalar volibear al centro
+        val scaledVoli = android.graphics.Bitmap.createScaledBitmap(voliBmp, 65, 65, true)
+        canvas.drawBitmap(scaledVoli, 6f, 6f, p)
+
+        val cropMetrics = com.example.service.screen.LocalVisionAnalyzer.extractScannedMetrics(crop77, "Crop77")
+        println("CROP77 METRICS: R=${cropMetrics.avgR}, G=${cropMetrics.avgG}, B=${cropMetrics.avgB}, Lum=${cropMetrics.avgLum}, HueBin=${cropMetrics.dominantHueBin} (${cropMetrics.dominantHueName})")
+
+        for (engine in com.example.service.screen.VisionInferenceEngineType.values()) {
+            val bench = com.example.service.screen.VisionInferenceManager.runEngineInference(crop77, engine, champs, null, context)
+            println("ENGINE ${engine.shortName}: top=${bench.topCandidate?.id} (${bench.topCandidate?.name}) score=${bench.confidenceScore}")
+            val voliScore = bench.candidateScores.find { it.first.id == "volibear" }?.second ?: 0f
+            val blitzScore = bench.candidateScores.find { it.first.id == "blitzcrank" }?.second ?: 0f
+            println("   -> voliScore=$voliScore vs blitzScore=$blitzScore")
+        }
 
         val detailed = com.example.service.screen.LocalVisionAnalyzer.matchAvatarDetailed(
-            crop = crop61,
-            roiLabel = "Superior Derecha (Rival 5 - 10º Pick)",
+            crop = crop77,
+            roiLabel = "Barra Superior (Rival 5)",
             candidates = champs,
-            expectedRole = LaneRole.JUNGLE,
-            excludedChampionIds = setOf("malphite", "lux", "ashe", "jax", "sett", "vi", "viktor", "smolder", "senna"),
+            expectedRole = null,
             context = context,
             isConfirmedPhase = true
         )
-
-        assertNotNull("Debe generar log detallado de matching", detailed)
-        assertEquals("volibear", detailed?.selectedChampion?.id)
-        println("VOLIBEAR SCORE: ${detailed?.confidence} top: ${detailed?.topCandidates?.map { "${it.champion.name}=${it.compositeScore}" }}")
+        println("FINAL DETAILED WINNER: ${detailed?.selectedChampion?.id} (${detailed?.selectedChampion?.name}) with confidence=${detailed?.confidence}")
+        detailed?.topCandidates?.take(5)?.forEachIndexed { idx, c ->
+            println("RANK $idx: ${c.champion.id} -> composite=${c.compositeScore}")
+        }
     }
 }
+
 

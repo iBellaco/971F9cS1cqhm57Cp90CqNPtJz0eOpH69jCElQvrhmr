@@ -549,18 +549,21 @@ object LocalVisionAnalyzer {
         val championScoresMap = mutableMapOf<String, MutableMap<VisionInferenceEngineType, Float>>()
         val championObjMap = mutableMapOf<String, Champion>()
 
+        for (champ in effectiveCandidates) {
+            if (excludedChampionIds.contains(champ.id)) continue
+            championObjMap[champ.id] = champ
+        }
+
         for (engine in engines) {
             val benchmark = VisionInferenceManager.runEngineInference(crop, engine, effectiveCandidates, expectedRole, context)
-            for ((champ, score) in benchmark.candidateScores) {
-                if (excludedChampionIds.contains(champ.id)) continue
-                championObjMap[champ.id] = champ
-                championScoresMap.getOrPut(champ.id) { mutableMapOf() }[engine] = score.coerceIn(0f, 1f)
+            val scoreSource = if (benchmark.allScoresMap.isNotEmpty()) {
+                benchmark.allScoresMap
+            } else {
+                benchmark.candidateScores.associate { it.first.id to it.second }
             }
-            benchmark.topCandidate?.let { top ->
-                if (!excludedChampionIds.contains(top.id)) {
-                    championObjMap[top.id] = top
-                    championScoresMap.getOrPut(top.id) { mutableMapOf() }[engine] = benchmark.confidenceScore.coerceIn(0f, 1f)
-                }
+            for ((champId, score) in scoreSource) {
+                if (excludedChampionIds.contains(champId)) continue
+                championScoresMap.getOrPut(champId) { mutableMapOf() }[engine] = score.coerceIn(0f, 1f)
             }
         }
 
@@ -919,9 +922,9 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
         val targetXRatio = if (isAlly) {
-            if (idx == 4) calib.topAlly5XRatio else calib.topAllyXRatios.getOrElse(idx) { 0.180f + idx * 0.050f }
+            calib.topAllyXRatios.getOrNull(idx) ?: calib.topAlly5XRatio
         } else {
-            if (idx == 4) calib.topEnemy5XRatio else calib.topEnemyXRatios.getOrElse(idx) { 0.640f + idx * 0.060f }
+            calib.topEnemyXRatios.getOrNull(idx) ?: calib.topEnemy5XRatio
         }
         val topCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"
@@ -980,9 +983,9 @@ object LocalVisionAnalyzer {
         val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
         val topCenterY = (height * calib.topAvatarYRatio).toInt()
         val targetXRatio = if (isAlly) {
-            if (idx == 4) calib.topAlly5XRatio else calib.topAllyXRatios.getOrElse(idx) { 0.180f + idx * 0.050f }
+            calib.topAllyXRatios.getOrNull(idx) ?: calib.topAlly5XRatio
         } else {
-            if (idx == 4) calib.topEnemy5XRatio else calib.topEnemyXRatios.getOrElse(idx) { 0.640f + idx * 0.060f }
+            calib.topEnemyXRatios.getOrNull(idx) ?: calib.topEnemy5XRatio
         }
         val topCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"

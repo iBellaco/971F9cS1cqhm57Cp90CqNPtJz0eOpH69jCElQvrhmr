@@ -244,6 +244,24 @@ object ChampionNameResolver {
 
         val compact = normalizeCompact(trimmed)
 
+        // 0. Manejo de prefijos de línea/carril tras desaparecer el nombre de la línea (ej: "Solo Sett", "Jungla Vi", "Dúo Senna")
+        val lanePrefixes = listOf(
+            "calle de baron", "calle baron", "baron", "solo", "top",
+            "jungla", "jungle", "jug",
+            "calle central", "central", "medio", "mid",
+            "calle de duo", "calle duo", "duo", "carril dragon", "dragon", "adc", "tirador",
+            "soporte", "apoyo", "support", "sup"
+        )
+        for (prefix in lanePrefixes) {
+            if (clean.startsWith("$prefix ")) {
+                val remainder = clean.removePrefix("$prefix ").trim()
+                if (remainder.isNotBlank()) {
+                    val resolvedRemainder = findChampionInText(remainder, safeChamps)
+                    if (resolvedRemainder != null) return resolvedRemainder
+                }
+            }
+        }
+
         // 1. Coincidencia directa por mapa de nombres canónicos
         KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
             val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
@@ -263,6 +281,28 @@ object ChampionNameResolver {
             if (clean == champNorm || compact == champCompact || compact == champIdCompact) {
                 if (!DraftValidationLayer.isLikelySummonerName(trimmed, championName = champ.name)) {
                     return champ
+                }
+            }
+        }
+
+        // 2.1 Coincidencia con prefijo de icono fusionado al inicio (ej: "1Smolder", "ISmolder", "VSett", "0Vi", "IVi")
+        if (clean.length >= 3) {
+            val drop1 = clean.drop(1)
+            KNOWN_CHAMPIONS_MAP[drop1]?.let { id ->
+                safeChamps.find { it.id.equals(id, ignoreCase = true) }?.let { return it }
+            }
+            for (champ in safeChamps) {
+                val champNorm = normalize(champ.name)
+                if (champNorm.length >= 3 && drop1 == champNorm) return champ
+            }
+            if (clean.length >= 4) {
+                val drop2 = clean.drop(2)
+                KNOWN_CHAMPIONS_MAP[drop2]?.let { id ->
+                    safeChamps.find { it.id.equals(id, ignoreCase = true) }?.let { return it }
+                }
+                for (champ in safeChamps) {
+                    val champNorm = normalize(champ.name)
+                    if (champNorm.length >= 3 && drop2 == champNorm) return champ
                 }
             }
         }
@@ -298,9 +338,13 @@ object ChampionNameResolver {
         // 4. Coincidencia por palabra contenida (ej: "WUKONG" en "WUKONG XCS Alee22")
         val words = clean.split(" ").filter { it.length >= 2 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
-            // Para nombres ultracortos de 2 letras (ej: "VI"), exigir que la línea completa sea sólo esa palabra
-            if (word.length == 2 && words.size > 1) {
+            // Para nombres ultracortos de 2 letras distintos de "VI", exigir que la línea completa sea sólo esa palabra
+            if (word.length == 2 && word != "vi" && words.size > 1) {
                 continue
+            }
+
+            if (word == "vi") {
+                safeChamps.find { it.id.equals("vi", ignoreCase = true) }?.let { return it }
             }
 
             KNOWN_CHAMPIONS_MAP[word]?.let { id ->
@@ -320,6 +364,12 @@ object ChampionNameResolver {
                 // Si el icono de carril recortó la 1era letra (ej: GALIO -> ALIO, VEIGAR -> EIGAR)
                 if (word.length >= 4 && champNorm.length == word.length + 1 && champNorm.endsWith(word)) {
                     if (DraftValidationLayer.isValidChampionToken(word, champ.id)) {
+                        return champ
+                    }
+                }
+                // Si el icono fusionó una letra al inicio (ej: 1SMOLDER -> SMOLDER)
+                if (word.length >= 4 && word.length == champNorm.length + 1 && word.endsWith(champNorm)) {
+                    if (DraftValidationLayer.isValidChampionToken(champNorm, champ.id)) {
                         return champ
                     }
                 }
