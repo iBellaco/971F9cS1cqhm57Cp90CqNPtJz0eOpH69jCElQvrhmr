@@ -169,7 +169,7 @@ fun SponsorCpmPanelDialog(
         }
     }
 
-    // El presupuesto se calcula automáticamente de forma dinámica
+    // El presupuesto se calcula de forma justa y accesible para una aplicación en crecimiento
     val autoBudget = remember(
         selectedDurationUnit, 
         durationValueInt,
@@ -178,38 +178,32 @@ fun SponsorCpmPanelDialog(
         horizontalMediaInput,
         verticalMediaInput,
         externalUrlInput,
-        currentMinute,
-        publicationsMultiplier
+        activeAdsCount
     ) {
         val unitPrice = when (selectedDurationUnit) {
-            "hour" -> 1.50
-            "day" -> 10.00
-            "week" -> 50.00
-            "month" -> 150.00
-            else -> 10.00
+            "hour" -> 0.50
+            "day" -> 2.50
+            "week" -> 10.00
+            "month" -> 30.00
+            else -> 2.50
         }
         var total = unitPrice * durationValueInt
         
-        // Add explicit monetary surcharge for media content
         if (isHorizontalVideo || isVerticalVideo) {
-            total += 5.00 * durationValueInt // $5.00 extra per unit for video
+            total += 1.00 * durationValueInt
         } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
-            total += 2.50 * durationValueInt // $2.50 extra per unit for image
+            total += 0.50 * durationValueInt
         }
         
-        // Add explicit monetary surcharge for external link
         if (externalUrlInput.isNotBlank()) {
-            total += 2.00 * durationValueInt // $2.00 extra per unit for outbound link
+            total += 0.50 * durationValueInt
         }
         
-        // Publications count factor
-        total *= publicationsMultiplier
+        // Más anuncios activos optimizan el costo en lugar de encarecerlo (eficiencia compartida de tráfico)
+        val efficiencyDiscount = 1.0 / (1.0 + (activeAdsCount - 1) * 0.1)
+        total *= efficiencyDiscount
 
-        // Dynamic demand factor
-        val demandMultiplier = 1.0 + (currentMinute % 50) / 100.0
-        total *= demandMultiplier
-
-        String.format(Locale.US, "%.2f", total)
+        String.format(Locale.US, "%.2f", total.coerceAtLeast(0.50))
     }
     var budgetInput by remember { mutableStateOf("10.00") }
     var isManualBudget by remember { mutableStateOf(false) }
@@ -658,29 +652,28 @@ fun SponsorCpmPanelDialog(
                             .background(HextechDarkBg)
                             .padding(12.dp)
                     ) {
-                        Text("Desglose del cálculo:", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("Desglose del cálculo real y accesible:", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("• Tarifa base por tiempo ($selectedDurationUnit): USD ${String.format(Locale.US, "%.2f", when (selectedDurationUnit) { "hour" -> 1.50; "day" -> 10.00; "week" -> 50.00; "month" -> 150.00; else -> 10.00 } * durationValueInt)}", color = TextSecondary, fontSize = 10.sp)
+                        Text("• Tarifa base justa ($selectedDurationUnit): USD ${String.format(Locale.US, "%.2f", when (selectedDurationUnit) { "hour" -> 0.50; "day" -> 2.50; "week" -> 10.00; "month" -> 30.00; else -> 2.50 } * durationValueInt)}", color = TextSecondary, fontSize = 10.sp)
                         
                         if (isHorizontalVideo || isVerticalVideo) {
-                            Text("• Recargo por contenido en Video: +$${String.format(Locale.US, "%.2f", 5.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Costo de procesamiento multimedia: +$${String.format(Locale.US, "%.2f", 1.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         } else if (horizontalMediaInput.isNotBlank() || verticalMediaInput.isNotBlank()) {
-                            Text("• Recargo por contenido en Imagen: +$${String.format(Locale.US, "%.2f", 2.50 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Costo de procesamiento de imagen: +$${String.format(Locale.US, "%.2f", 0.50 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         }
 
                         if (externalUrlInput.isNotBlank()) {
-                            Text("• Recargo por redirección externa: +$${String.format(Locale.US, "%.2f", 2.00 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
+                            Text("• Redirección externa: +$${String.format(Locale.US, "%.2f", 0.50 * durationValueInt)} USD", color = TextSecondary, fontSize = 10.sp)
                         }
 
-                        Text("• Factor por número de anuncios de publicidad activos (${activeAdsCount}): x${String.format(Locale.US, "%.1f", publicationsMultiplier)}", color = TextSecondary, fontSize = 10.sp)
-                        Text("• Multiplicador por tráfico actual (demanda): +${((currentMinute % 50)).toInt()}%", color = TextSecondary, fontSize = 10.sp)
+                        Text("• Eficiencia por anuncios activos (${activeAdsCount}): tasa optimizada y competitiva", color = TextSecondary, fontSize = 10.sp)
 
-                        val estimatedBudgetFloat = autoBudget.toFloatOrNull() ?: 0f
-                        val estimatedVisits = ((estimatedBudgetFloat / 2.0f) * 1000).toInt()
-                        val estimatedClicks = (estimatedVisits * 0.025f).toInt()
+                        val estimatedBudgetFloat = autoBudget.toFloatOrNull() ?: 2.5f
+                        val estimatedVisits = (estimatedBudgetFloat * 45).toInt().coerceAtLeast(15)
+                        val estimatedClicks = (estimatedVisits * 0.04f).toInt().coerceAtLeast(1)
                         
                         androidx.compose.material3.Divider(modifier = Modifier.padding(vertical = 6.dp), color = Color(0xFF334155))
-                        Text("Rendimiento Estimado:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text("Rendimiento Estimado Realista:", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text("• Visitas esperadas: ~%,d".format(Locale.getDefault(), estimatedVisits), color = TextSecondary, fontSize = 10.sp)
                         Text("• Clics únicos esperados: ~%,d".format(Locale.getDefault(), estimatedClicks), color = TextSecondary, fontSize = 10.sp)

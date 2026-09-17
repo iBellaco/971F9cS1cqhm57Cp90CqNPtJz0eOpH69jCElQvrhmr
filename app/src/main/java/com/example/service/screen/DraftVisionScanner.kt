@@ -1056,17 +1056,18 @@ object DraftVisionScanner {
                         finalTenthChamp = existingHover
                         isConfirmedFinal = true
                         AppLogger.i(TAG, "10º Pick CORROBORADO Y SELLADO 100% en barra superior: ${existingHover.name}")
-                    } else if (topPickChamp != null && topConfidence >= 0.82f && topPickChamp.id != existingHover.id) {
+                    } else if (topPickChamp != null && topPickChamp.id != existingHover.id) {
+                        // CAMBIO OBLIGATORIO tras desaparecer los slots: la barra superior prevalece obligatoriamente
                         finalTenthChamp = topPickChamp
                         isConfirmedFinal = true
-                        AppLogger.i(TAG, "10º Pick CAMBIADO a último segundo en barra superior con certeza extrema: ${existingHover.name} -> ${topPickChamp.name} (${(topConfidence * 100).toInt()}%)")
+                        AppLogger.i(TAG, "10º Pick CAMBIADO OBLIGATORIAMENTE tras desaparecer los slots: ${existingHover.name} -> ${topPickChamp.name} (${(topConfidence * 100).toInt()}%)")
                     } else {
-                        // Preservar la selección previa: Volibear ya estaba bien detectado
+                        // Respaldo de preselección si este ciclo no leyó barra superior
                         finalTenthChamp = existingHover
                         isConfirmedFinal = true
-                        AppLogger.i(TAG, "10º Pick SELLADO 100% con campeón preseleccionado: ${existingHover.name} (preservado ante corroboración no disruptiva)")
+                        AppLogger.i(TAG, "10º Pick SELLADO 100% con campeón preseleccionado: ${existingHover.name}")
                     }
-                } else if (topPickChamp != null && topConfidence >= 0.48f) {
+                } else if (topPickChamp != null) {
                     finalTenthChamp = topPickChamp
                     isConfirmedFinal = true
                     AppLogger.i(TAG, "10º Pick asignado directamente de barra superior: ${topPickChamp.name}")

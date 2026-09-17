@@ -227,6 +227,33 @@ fun AdminSponsorNoticeItem(
     val statusText = if (notice.isApproved) "Aprobado (Visible)" else "Pendiente de Aprobación"
     val statusColor = if (notice.isApproved) Color(0xFF10B981) else Color(0xFFF59E0B)
 
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Advertencia de Eliminación", color = HextechGold, fontWeight = FontWeight.Bold) },
+            text = { Text("¿Estás seguro de que deseas eliminar este patrocinador? Esta acción no se puede deshacer.", color = TextPrimary) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onReject()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text("Eliminar", color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancelar", color = TextSecondary)
+                }
+            },
+            containerColor = HextechSurface
+        )
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
@@ -321,7 +348,7 @@ fun AdminSponsorNoticeItem(
                         }
                     }
                     Button(
-                        onClick = onReject,
+                        onClick = { showDeleteConfirm = true },
                         colors = ButtonDefaults.buttonColors(containerColor = DangerRed),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                         shape = RoundedCornerShape(6.dp)

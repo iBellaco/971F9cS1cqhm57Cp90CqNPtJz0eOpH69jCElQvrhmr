@@ -117,12 +117,10 @@ object LocalVisionAnalyzer {
         AppLogger.d(TAG, "Datos de captura de visión reiniciados")
     }
 
-    private val cachedSignatures = ConcurrentHashMap<String, AvatarFingerprint>()
     private var isInitialized = false
 
     /**
-     * Inicializa y cachea en memoria las huellas digitales de los 141 campeones
-     * cargadas directamente desde los assets locales.
+     * Inicializa el catálogo de campeones en memoria para los 4 motores de inferencia.
      */
     fun ensureInitialized(context: Context? = null, forceReload: Boolean = false) {
         val ctx = context ?: WildRiftApp.instance ?: return
@@ -130,37 +128,9 @@ object LocalVisionAnalyzer {
             if (WildRiftRepository.champions.isEmpty()) {
                 WildRiftRepository.initChampions(ctx)
             }
-            val allChamps = WildRiftRepository.champions.toList()
-            if (allChamps.isEmpty()) return
-            if (!forceReload && isInitialized && cachedSignatures.isNotEmpty()) return
-
-            for (champ in allChamps) {
-                val assetPath = "champions/${champ.id}.png"
-                try {
-                    ctx.assets.open(assetPath).use { stream ->
-                        val bmp = BitmapFactory.decodeStream(stream)
-                        if (bmp != null) {
-                            val enhanced = enhanceCropQuality(bmp)
-                            extractFingerprint(enhanced, champ.id)?.let { fp ->
-                                cachedSignatures[champ.id] = fp
-                            }
-                            if (enhanced != bmp) {
-                                try { enhanced.recycle() } catch (_: Throwable) {}
-                            }
-                            try { bmp.recycle() } catch (_: Throwable) {}
-                        }
-                    }
-                } catch (e: Exception) {
-                    AppLogger.w(TAG, "No se pudo cargar asset para campeón ${champ.id}: ${e.message}")
-                }
-            }
-
-            if (cachedSignatures.isNotEmpty()) {
-                isInitialized = true
-                AppLogger.d(TAG, "Inicializadas ${cachedSignatures.size} huellas de alta calidad para el catálogo de campeones.")
-            }
+            isInitialized = true
         } catch (e: Exception) {
-            AppLogger.e(TAG, "Error inicializando huellas de campeones", e)
+            AppLogger.e(TAG, "Error inicializando repositorio para motores de inferencia", e)
         }
     }
 
@@ -643,10 +613,10 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Comparación detallada de un recorte contra el catálogo local de campeones.
-     * Retorna un log exhaustivo de métricas escaneadas, métricas comparadas y justificación de decisión.
+     * Inferencia detallada de un recorte utilizando exclusivamente los 4 motores de reconocimiento.
+     * Retorna un log exhaustivo de métricas escaneadas y decisiones tomadas por los motores.
      */
-    fun matchAvatarDetailed(
+    suspend fun matchAvatarDetailed(
         crop: Bitmap,
         roiLabel: String,
         candidates: List<Champion>,
@@ -656,340 +626,22 @@ object LocalVisionAnalyzer {
         isConfirmedPhase: Boolean = false,
         roleExplanation: String? = null
     ): TenthPickDecisionLog? {
-        val populatedMetrics = extractScannedMetrics(crop, roiLabel)
-        val phaseName = if (isConfirmedPhase) "CONFIRMACIÓN DEFINITIVA (BARRA SUPERIOR)" else "PRESELECCIÓN PROVISIONAL (HOVER INFERIOR)"
-        val roleLine = roleExplanation ?: (if (expectedRole != null) "Rol esperado: ${expectedRole.displayName}" else "Rol: No especificado")
-
-        val isPopulatedSlot = populatedMetrics.isPopulated
-
-        ensureInitialized(context)
-        val effectiveCandidates = if (candidates.isNotEmpty()) candidates else {
-            if (WildRiftRepository.champions.isEmpty()) {
-                val ctx = context ?: WildRiftApp.instance
-                if (ctx != null) WildRiftRepository.initChampions(ctx)
-            }
-            WildRiftRepository.champions.toList()
-        }
-        if (cachedSignatures.isEmpty() || effectiveCandidates.isEmpty()) return null
-
-        val enhancedCrop = enhanceCropQuality(crop)
-        val targetFp = extractFingerprint(enhancedCrop, "target") ?: return null
-        if (enhancedCrop != crop) {
-            try { enhancedCrop.recycle() } catch (_: Throwable) {}
-        }
-
-        val center = (FINGERPRINT_SIZE - 1) / 2.0f
-        val maxRadius = FINGERPRINT_SIZE * 0.43f
-
-        val candidateComparisons = mutableListOf<CandidateMatchComparison>()
-
-        for (champ in effectiveCandidates) {
-            if (excludedChampionIds.contains(champ.id)) continue
-            val sig = cachedSignatures[champ.id] ?: continue
-
-            // 1. ZNCC Multi-Offset (Offsets espaciales dx, dy en -2..2 para máxima tolerancia a traslación)
-            var bestLumZNCC = -1.0f
-            var bestR_ZNCC = -1.0f
-            var bestG_ZNCC = -1.0f
-            var bestB_ZNCC = -1.0f
-            var bestPixelDist = 1.0f
-
-            for (dy in -2..2) {
-                for (dx in -2..2) {
-                    var znccSumLum = 0f
-                    var znccSumR = 0f
-                    var znccSumG = 0f
-                    var znccSumB = 0f
-                    var pixelColorDistSum = 0f
-                    var pixelCount = 0
-
-                    for (y in 0 until FINGERPRINT_SIZE) {
-                        val ty = y + dy
-                        if (ty !in 0 until FINGERPRINT_SIZE) continue
-                        for (x in 0 until FINGERPRINT_SIZE) {
-                            val tx = x + dx
-                            if (tx !in 0 until FINGERPRINT_SIZE) continue
-
-                            val tIdx = ty * FINGERPRINT_SIZE + tx
-                            val rIdx = y * FINGERPRINT_SIZE + x
-                            if (!targetFp.circularMask[tIdx] || !sig.circularMask[rIdx]) continue
-
-                            val p1 = targetFp.rgbPixels[tIdx]
-                            val p2 = sig.rgbPixels[rIdx]
-
-                            val r1 = Color.red(p1).toFloat()
-                            val g1 = Color.green(p1).toFloat()
-                            val b1 = Color.blue(p1).toFloat()
-                            val lum1 = targetFp.lumValues[tIdx]
-
-                            val r2 = Color.red(p2).toFloat()
-                            val g2 = Color.green(p2).toFloat()
-                            val b2 = Color.blue(p2).toFloat()
-                            val lum2 = sig.lumValues[rIdx]
-
-                            znccSumLum += ((lum1 - targetFp.lumMean) / targetFp.lumStdDev) * ((lum2 - sig.lumMean) / sig.lumStdDev)
-                            znccSumR += ((r1 - targetFp.rMean) / targetFp.rStdDev) * ((r2 - sig.rMean) / sig.rStdDev)
-                            znccSumG += ((g1 - targetFp.gMean) / targetFp.gStdDev) * ((g2 - sig.gMean) / sig.gStdDev)
-                            znccSumB += ((b1 - targetFp.bMean) / targetFp.bStdDev) * ((b2 - sig.bMean) / sig.bStdDev)
-
-                            val dr = abs(r1 - r2) / 255f
-                            val dg = abs(g1 - g2) / 255f
-                            val db = abs(b1 - b2) / 255f
-                            pixelColorDistSum += (dr + dg + db) / 3f
-
-                            pixelCount++
-                        }
-                    }
-
-                    if (pixelCount > (FINGERPRINT_SIZE * FINGERPRINT_SIZE * 0.35f)) {
-                        val lumC = (znccSumLum / pixelCount.toFloat()).coerceIn(-1f, 1f)
-                        val rC = (znccSumR / pixelCount.toFloat()).coerceIn(-1f, 1f)
-                        val gC = (znccSumG / pixelCount.toFloat()).coerceIn(-1f, 1f)
-                        val bC = (znccSumB / pixelCount.toFloat()).coerceIn(-1f, 1f)
-                        val avgDist = pixelColorDistSum / pixelCount.toFloat()
-
-                        if (lumC > bestLumZNCC) {
-                            bestLumZNCC = lumC
-                            bestR_ZNCC = rC
-                            bestG_ZNCC = gC
-                            bestB_ZNCC = bC
-                            bestPixelDist = avgDist
-                        }
-                    }
-                }
-            }
-
-            val avgCorr = ((bestLumZNCC * 0.40f) + (bestR_ZNCC * 0.20f) + (bestG_ZNCC * 0.20f) + (bestB_ZNCC * 0.20f)).coerceIn(-1f, 1f)
-            val pixelSimilarity = if (avgCorr > 0f) avgCorr else 0f
-            val pixelColorSim = (1.0f - bestPixelDist).coerceIn(0f, 1f)
-
-            // 2. Similitud de Bloques Espaciales 4x4 (Grid de 16 bloques)
-            var blockDiffSum = 0f
-            for (b in 0 until 16) {
-                val bIdx = b * 3
-                val bTargetR = targetFp.spatialBlockRgb[bIdx]
-                val bTargetG = targetFp.spatialBlockRgb[bIdx + 1]
-                val bTargetB = targetFp.spatialBlockRgb[bIdx + 2]
-
-                val bSigR = sig.spatialBlockRgb[bIdx]
-                val bSigG = sig.spatialBlockRgb[bIdx + 1]
-                val bSigB = sig.spatialBlockRgb[bIdx + 2]
-
-                val bDiff = (abs(bTargetR - bSigR) + abs(bTargetG - bSigG) + abs(bTargetB - bSigB)) / (3f * 255f)
-                blockDiffSum += bDiff
-            }
-            val avgBlockDiff = blockDiffSum / 16f
-            val blockSim = (1.0f - avgBlockDiff).coerceIn(0f, 1f)
-
-            // 3. Similitud de Balance Cromático Global
-            val chromaDiff = (abs(targetFp.chromaR - sig.chromaR) +
-                              abs(targetFp.chromaG - sig.chromaG) +
-                              abs(targetFp.chromaB - sig.chromaB)) / 2.0f
-            val avgColorSim = (1.0f - chromaDiff).coerceIn(0f, 1f)
-
-            // 4. Similitud de Histograma de 44 Bins (36 Hue ponderados por Sat*Val + 8 Acromáticos)
-            var histIntersection = 0f
-            for (i in 0 until 44) {
-                histIntersection += min(targetFp.colorHistogram[i], sig.colorHistogram[i])
-            }
-            val histSimilarity = histIntersection.coerceIn(0f, 1f)
-
-            // 5. Puntuación compuesta con balance de alta fidelidad cromática y espacial
-            val baseVisualScore = (pixelSimilarity * 0.45f) +
-                                   (histSimilarity * 0.40f) +
-                                   (avgColorSim * 0.15f)
-
-            // Calibración de confianza para campeones con alta coincidencia estructural y cromática
-            val calibratedScore = if (pixelSimilarity >= 0.60f && histSimilarity >= 0.65f) {
-                val boostFactor = (((pixelSimilarity - 0.60f) / 0.40f) * 0.5f + ((histSimilarity - 0.65f) / 0.35f) * 0.5f).coerceIn(0f, 1f)
-                baseVisualScore + (1.0f - baseVisualScore) * 0.60f * boostFactor
-            } else if (pixelSimilarity >= 0.45f && histSimilarity >= 0.55f) {
-                val boostFactor = ((pixelSimilarity - 0.45f) / 0.55f).coerceIn(0f, 1f)
-                baseVisualScore + (1.0f - baseVisualScore) * 0.35f * boostFactor
-            } else {
-                baseVisualScore
-            }
-
-            var roleBonus = 0f
-            if (expectedRole != null && calibratedScore >= 0.30f) {
-                if (champ.primaryRole == expectedRole) {
-                    roleBonus = 0.03f
-                } else if (champ.secondaryRoles.contains(expectedRole)) {
-                    roleBonus = 0.015f
-                }
-            }
-            val compositeScore = (calibratedScore + roleBonus).coerceIn(0f, 1f)
-
-            candidateComparisons.add(
-                CandidateMatchComparison(
-                    champion = champ,
-                    compositeScore = compositeScore,
-                    pixelSimilarity = pixelSimilarity,
-                    pixelColorSim = pixelColorSim,
-                    blockSim = blockSim,
-                    histSimilarity = histSimilarity,
-                    avgColorSim = avgColorSim,
-                    roleBonus = roleBonus
-                )
-            )
-        }
-
-        candidateComparisons.sortByDescending { it.compositeScore }
-
-        val best = candidateComparisons.firstOrNull()
-        val runnerUp = candidateComparisons.getOrNull(1)
-        val topCandidates = candidateComparisons.take(5)
-
-        if (!isPopulatedSlot) {
-            val unpopReason = "Slot en $roiLabel actualmente a oscuras o esperando selección (Brillo=${populatedMetrics.avgLum.toInt()}, Contraste=${populatedMetrics.contrast})."
-            val unpopSummary = buildString {
-                appendLine("==================== [SELECCIÓN 10 - COMPARATIVA DE VISIÓN] ====================")
-                appendLine("Fase: $phaseName")
-                appendLine("Ubicación ROI: $roiLabel")
-                appendLine("")
-                appendLine("1. LÍNEA / ROL DEL 10º PICK:")
-                appendLine("- $roleLine")
-                appendLine("")
-                appendLine("2. CARACTERÍSTICAS ESCANEADAS:")
-                appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
-                appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: NO / Slot a oscuras)")
-                appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
-                appendLine("")
-                appendLine("3. COMPARATIVA CON CANDIDATOS (TOP 5 EVALUADOS):")
-                topCandidates.forEachIndexed { idx, c ->
-                    appendLine("  #${idx + 1} ${c.champion.name}: Similitud=${(c.compositeScore * 100).toInt()}% | Pix=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
-                }
-                appendLine("")
-                appendLine("4. ESTADO Y RESULTADO:")
-                appendLine("- $unpopReason")
-                appendLine("- No se auto-selecciona ningún campeón. El escaneo automático CONTINÚA ACTIVO esperando a que el jugador elija o fije un campeón.")
-                appendLine("=============================================================================")
-            }
-            val unpopLog = TenthPickDecisionLog(
-                selectedChampion = null,
-                confidence = 0f,
-                isConfirmed = false,
-                phaseName = phaseName,
-                scannedMetrics = populatedMetrics,
-                candidatesEvaluatedCount = candidateComparisons.size,
-                topCandidates = topCandidates,
-                decisionReason = unpopReason,
-                formattedSummary = unpopSummary
-            )
-            lastTenthPickLog = unpopLog
-            AppLogger.i(TAG, unpopSummary)
-            return unpopLog
-        }
-
-        val minThreshold = if (isConfirmedPhase) 0.52f else 0.46f
-        val isConfidenceSufficient = if (best == null) false else {
-            if (best.compositeScore >= minThreshold) {
-                true
-            } else if (best.compositeScore >= (minThreshold - 0.05f)) {
-                val diff = if (runnerUp != null) (best.compositeScore - runnerUp.compositeScore) else 0.1f
-                diff >= 0.040f
-            } else {
-                false
-            }
-        }
-
-        if (best == null || !isConfidenceSufficient) {
-            val failReason = if (best != null) {
-                "Sin coincidencia concluyente: El candidato más cercano fue ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud visual (ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Hue: ${(best.histSimilarity * 100).toInt()}%, RGB: ${(best.avgColorSim * 100).toInt()}%), por debajo del umbral mínimo (${(minThreshold * 100).toInt()}%)."
-            } else {
-                "Sin candidatos válidos disponibles para comparar."
-            }
-
-            val failSummary = buildString {
-                appendLine("==================== [SELECCIÓN 10 - DIAGNÓSTICO VISUAL] ====================")
-                appendLine("Fase: $phaseName")
-                appendLine("Ubicación ROI: $roiLabel")
-                appendLine("")
-                appendLine("1. LÍNEA / ROL DEL 10º PICK:")
-                appendLine("- $roleLine")
-                appendLine("")
-                appendLine("2. CARACTERÍSTICAS ESCANEADAS EN PANTALLA:")
-                appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
-                appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: Sí)")
-                appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
-                appendLine("- Tono Dominante: Bin ${populatedMetrics.dominantHueBin} [${populatedMetrics.dominantHueName}] (${populatedMetrics.dominantHuePercent}% píxeles con color)")
-                appendLine("")
-                appendLine("3. COMPARACIÓN CON CANDIDATOS (141 CAMPEONES LOCALES):")
-                topCandidates.forEachIndexed { idx, c ->
-                    appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
-                }
-                appendLine("")
-                appendLine("4. ESTADO:")
-                appendLine("- $failReason")
-                appendLine("=============================================================================")
-            }
-
-            val failLog = TenthPickDecisionLog(
-                selectedChampion = null,
-                confidence = best?.compositeScore ?: 0f,
-                isConfirmed = false,
-                phaseName = phaseName,
-                scannedMetrics = populatedMetrics,
-                candidatesEvaluatedCount = candidateComparisons.size,
-                topCandidates = topCandidates,
-                decisionReason = failReason,
-                formattedSummary = failSummary
-            )
-            lastTenthPickLog = failLog
-            AppLogger.i(TAG, failSummary)
-            return failLog
-        }
-
-        val delta = ((best.compositeScore - (runnerUp?.compositeScore ?: 0f)) * 100).toInt()
-        val decisionReason = "Seleccionado ${best.champion.name} con ${(best.compositeScore * 100).toInt()}% de similitud global (Estructura ZNCC: ${(best.pixelSimilarity * 100).toInt()}%, Balance Cromático: ${(best.avgColorSim * 100).toInt()}%, Tono HUE: ${(best.histSimilarity * 100).toInt()}%${if (best.roleBonus > 0) ", Bonus Rol: +${(best.roleBonus * 100).toInt()}%" else ""}). Supera a ${runnerUp?.champion?.name ?: "N/A"} (${((runnerUp?.compositeScore ?: 0f) * 100).toInt()}%) por delta de +$delta%."
-
-        val summary = buildString {
-            appendLine("==================== [SELECCIÓN 10 - ANÁLISIS DE VISIÓN] ====================")
-            appendLine("Fase: $phaseName")
-            appendLine("Ubicación ROI: $roiLabel")
-            appendLine("")
-            appendLine("1. LÍNEA / ROL DEL 10º PICK:")
-            appendLine("- $roleLine")
-            appendLine("")
-            appendLine("2. CARACTERÍSTICAS ESCANEADAS EN PANTALLA:")
-            appendLine("- Dimensiones: ${populatedMetrics.width}x${populatedMetrics.height} px")
-            appendLine("- Brillo y Contraste: Promedio=${populatedMetrics.avgLum.toInt()} | Contraste=${populatedMetrics.contrast} (Avatar activo: Sí)")
-            appendLine("- Color Promedio RGB: R=${populatedMetrics.avgR.toInt()}, G=${populatedMetrics.avgG.toInt()}, B=${populatedMetrics.avgB.toInt()}")
-            appendLine("")
-            appendLine("3. COMPARACIÓN CON CANDIDATOS (141 CAMPEONES LOCALES):")
-            topCandidates.forEachIndexed { idx, c ->
-                appendLine("  #${idx + 1} ${c.champion.name}: Score=${(c.compositeScore * 100).toInt()}% | ZNCC=${(c.pixelSimilarity * 100).toInt()}% | Hue=${(c.histSimilarity * 100).toInt()}% | Chroma=${(c.avgColorSim * 100).toInt()}%${if (c.roleBonus > 0) " | BonusRol=+${(c.roleBonus * 100).toInt()}%" else ""}")
-            }
-            appendLine("")
-            appendLine("4. POR QUÉ SE DECIDIÓ ESTA SELECCIÓN:")
-            appendLine("- Campeón Seleccionado: ${best.champion.name}")
-            appendLine("- Justificación: $decisionReason")
-            appendLine("- Estado Escaneo: ${if (isConfirmedPhase) "CONFIRMADO AL 100%. Selección sellada." else "PRESELECCIÓN PROVISIONAL. El escaneo automático CONTINÚA ACTIVO esperando confirmación final."}")
-            appendLine("=============================================================================")
-        }
-
-        val decisionLog = TenthPickDecisionLog(
-            selectedChampion = best.champion,
-            confidence = best.compositeScore,
-            isConfirmed = isConfirmedPhase,
-            phaseName = phaseName,
-            scannedMetrics = populatedMetrics,
-            candidatesEvaluatedCount = candidateComparisons.size,
-            topCandidates = topCandidates,
-            decisionReason = decisionReason,
-            formattedSummary = summary
+        return matchWith4InferenceEngines(
+            crop = crop,
+            roiLabel = roiLabel,
+            candidates = candidates,
+            expectedRole = expectedRole,
+            excludedChampionIds = excludedChampionIds,
+            context = context,
+            isConfirmedPhase = isConfirmedPhase,
+            roleExplanation = roleExplanation
         )
-
-        lastTenthPickLog = decisionLog
-        AppLogger.i(TAG, summary)
-
-        return decisionLog
     }
 
     /**
-     * Compara un recorte de pantalla contra el catálogo local de campeones.
+     * Compara un recorte de pantalla usando los 4 motores de reconocimiento.
      */
-    fun matchAvatar(
+    suspend fun matchAvatar(
         crop: Bitmap,
         candidates: List<Champion>,
         expectedRole: LaneRole? = null,
@@ -1168,72 +820,63 @@ object LocalVisionAnalyzer {
             }
         }
 
-        if (preferredChampion != null) {
-            val matchWithPreferred = candidateDecisions.firstOrNull { it.selectedChampion?.id == preferredChampion.id }
-            if (matchWithPreferred != null) {
-                val corroboratedLog = matchWithPreferred.copy(
+        val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
+        if (bestDecision != null && bestDecision.selectedChampion != null) {
+            val detectedChamp = bestDecision.selectedChampion
+            if (preferredChampion != null) {
+                if (detectedChamp.id == preferredChampion.id) {
+                    val corroboratedLog = bestDecision.copy(
+                        confidence = 1.0f,
+                        isConfirmed = true,
+                        decisionReason = "10º Pick corroborado y sellado al 100%: Los 4 motores verificaron en la barra superior ($sideDesc) la coincidencia exacta con ${preferredChampion.name} preseleccionado en el slot.",
+                        cropBitmap = lastTenthPickCrop
+                    )
+                    lastTenthPickLog = corroboratedLog
+                    return@withContext corroboratedLog
+                } else {
+                    // CAMBIO OBLIGATORIO: Los slots desaparecieron y la barra superior muestra el campeón definitivo
+                    val changedLog = bestDecision.copy(
+                        confidence = 1.0f,
+                        isConfirmed = true,
+                        decisionReason = "10º Pick CAMBIADO OBLIGATORIAMENTE tras desaparecer los slots: Preselección (${preferredChampion.name}) -> Confirmación Superior (${detectedChamp.name}) en $sideDesc decidida por los motores de reconocimiento.",
+                        cropBitmap = lastTenthPickCrop
+                    )
+                    lastTenthPickLog = changedLog
+                    return@withContext changedLog
+                }
+            } else {
+                val confirmedLog = bestDecision.copy(
                     confidence = 1.0f,
                     isConfirmed = true,
-                    decisionReason = "10º Pick corroborado y sellado al 100%: Se verificó en la barra superior ($sideDesc) la coincidencia exacta con ${preferredChampion.name} preseleccionado.",
+                    decisionReason = "10º Pick confirmado definitivamente por barra superior ($sideDesc) mediante los 4 motores: ${detectedChamp.name}.",
                     cropBitmap = lastTenthPickCrop
                 )
-                lastTenthPickLog = corroboratedLog
-                return@withContext corroboratedLog
-            }
-
-            val anyComparisonWithPreferred = candidateDecisions
-                .flatMap { it.topCandidates }
-                .filter { it.champion.id == preferredChampion.id }
-                .maxByOrNull { it.compositeScore }
-
-            val rawBestAlternative = candidateDecisions.maxByOrNull { it.confidence }
-            val alternativeScore = rawBestAlternative?.confidence ?: 0.0f
-            val preferredScore = anyComparisonWithPreferred?.compositeScore ?: 0.0f
-
-            val canDisplace = (alternativeScore >= 0.82f && (alternativeScore - preferredScore) >= 0.25f)
-
-            if (!canDisplace) {
-                val baseMetrics = rawBestAlternative?.scannedMetrics ?: ScannedCropMetrics(
-                    roiLabel = sideDesc,
-                    width = topDiam,
-                    height = topDiam,
-                    avgLum = 100f,
-                    contrast = 50,
-                    minLum = 20,
-                    maxLum = 220,
-                    isPopulated = true,
-                    avgR = 100f,
-                    avgG = 100f,
-                    avgB = 100f,
-                    dominantHueBin = 0,
-                    dominantHueName = "Default",
-                    dominantHuePercent = 50,
-                    hueHistogram = FloatArray(8)
-                )
-
-                val preservedLog = (rawBestAlternative ?: TenthPickDecisionLog(
-                    selectedChampion = preferredChampion,
-                    confidence = 1.0f,
-                    isConfirmed = true,
-                    phaseName = "Confirmación Superior",
-                    scannedMetrics = baseMetrics,
-                    candidatesEvaluatedCount = allChamps.size,
-                    topCandidates = emptyList(),
-                    decisionReason = "10º Pick sellado al 100% con ${preferredChampion.name}: Prevalece la preselección detectada en el slot activo, corroborada en la barra superior ($sideDesc).",
-                    formattedSummary = "10º Pick Confirmado: ${preferredChampion.name}"
-                )).copy(
-                    selectedChampion = preferredChampion,
-                    confidence = 1.0f,
-                    isConfirmed = true,
-                    decisionReason = "10º Pick confirmado definitivamente: ${preferredChampion.name} detectado durante el draft, corroborado en la barra superior ($sideDesc).",
-                    cropBitmap = lastTenthPickCrop
-                )
-                lastTenthPickLog = preservedLog
-                return@withContext preservedLog
+                lastTenthPickLog = confirmedLog
+                return@withContext confirmedLog
             }
         }
 
-        val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
+        if (preferredChampion != null) {
+            val fallbackLog = (bestDecision ?: TenthPickDecisionLog(
+                selectedChampion = preferredChampion,
+                confidence = 1.0f,
+                isConfirmed = true,
+                phaseName = "Confirmación Superior",
+                scannedMetrics = extractScannedMetrics(lastTenthPickCrop ?: Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), sideDesc),
+                candidatesEvaluatedCount = allChamps.size,
+                topCandidates = emptyList(),
+                decisionReason = "10º Pick sellado con ${preferredChampion.name}: Prevalece la preselección registrada ante ausencia de lectura en barra superior.",
+                formattedSummary = "10º Pick Confirmado: ${preferredChampion.name}"
+            )).copy(
+                selectedChampion = preferredChampion,
+                confidence = 1.0f,
+                isConfirmed = true,
+                cropBitmap = lastTenthPickCrop
+            )
+            lastTenthPickLog = fallbackLog
+            return@withContext fallbackLog
+        }
+
         if (bestDecision != null) {
             lastTenthPickLog = bestDecision.copy(cropBitmap = lastTenthPickCrop)
         }

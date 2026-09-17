@@ -4739,12 +4739,35 @@ private fun TenthPickScannerViewerDialog(
                                 }
 
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = activeChamp?.name ?: "Analizando fotograma...",
-                                    color = TextPrimary,
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 11.5.sp
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (activeChamp != null) {
+                                        ChampionAvatar(
+                                            champion = activeChamp,
+                                            size = 36.dp,
+                                            showTierBadge = false,
+                                            borderColor = if (activeScore >= 50) Color(0xFF00FF7F) else HextechGold
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+                                    Column {
+                                        Text(
+                                            text = activeChamp?.name ?: "Analizando fotograma...",
+                                            color = TextPrimary,
+                                            fontWeight = FontWeight.Black,
+                                            fontSize = 11.5.sp
+                                        )
+                                        if (activeChamp != null) {
+                                            Text(
+                                                text = "ID: ${activeChamp.id} • Rol: ${activeChamp.primaryRole.name}",
+                                                color = TextSecondary,
+                                                fontSize = 7.5.sp
+                                            )
+                                        }
+                                    }
+                                }
 
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Text(
