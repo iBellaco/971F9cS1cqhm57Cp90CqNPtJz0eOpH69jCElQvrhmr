@@ -101,6 +101,7 @@ data class DraftScanResult(
     val isLegendaryRanked: Boolean = false,
     val isPreparationPhase: Boolean = false,
     val tenthPickLog: String? = null,
+    val hasDraftActivity: Boolean = false,
     val isSuccessful: Boolean,
     val statusMessage: String
 )
@@ -268,6 +269,7 @@ object DraftVisionScanner {
         var detectedFirstPick: Boolean? = null
         var isLastPickVisualRecognized = false
         var lastPickVisualConfidence = 0f
+        var isTenthConfirmed = false
         var isTenthPickOcrFound = false
         var lastPickVisualChampion: Champion? = null
         val allySlotTexts = Array(5) { mutableListOf<Pair<String, Rect?>>() }
@@ -473,6 +475,8 @@ object DraftVisionScanner {
                 emptyList()
             }
 
+            val tentativeFirstPick = detectedFirstPick ?: currentIsFirstPick ?: false
+
             // Procesar textos aliados: Detección estricta de Línea 1 (Rol o Campeón) y Línea 2 (Nombre de Invocador)
             for (i in 0..4) {
                 val slot = allySlots[i]
@@ -622,7 +626,17 @@ object DraftVisionScanner {
                 // REGLAS DEL USUARIO (CRÍTICAS):
                 // En aliados, de la selección 1 a la 9, solamente cuando se visualice el nombre del campeón
                 // en vez de la línea, es que se selecciona.
-                if (isSlotShowingLane) {
+                val isTenthPickSlot = (!tentativeFirstPick && i == 4)
+                if (isTenthPickSlot) {
+                    // El 10º Pick se deja exclusivamente a los motores de visión
+                    if (!isTenthConfirmed) {
+                        allySlotConfirmedChampions[i] = null
+                        allyOcrChampions[i] = null
+                        slot.champion = null
+                        slot.confidencePercent = 0
+                        slot.isLikelyUnpicked = true
+                    }
+                } else if (isSlotShowingLane) {
                     allySlotConfirmedChampions[i] = null
                     allyOcrChampions[i] = null
                     slot.champion = null
@@ -644,9 +658,48 @@ object DraftVisionScanner {
                     slot.confidencePercent = 0
                     slot.isLikelyUnpicked = true
                 }
+            }
 
-                if (allySlotRolesCache[i] != null) {
-                    slot.explicitRole = allySlotRolesCache[i]
+            // DEDUCIR Y COMPLETAR ROLES DE TODOS LOS SLOTS ALIADOS (5 ROLES ÚNICOS DETERMINÍSTICOS)
+            val allStandardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
+            for (i in 0..4) {
+                if (allySlots[i].explicitRole != null) {
+                    allySlotRolesCache[i] = allySlots[i].explicitRole!!
+                }
+            }
+            val claimedRoles = allySlotRolesCache.values.toSet()
+            val availableRoles = allStandardRoles.filterNot { claimedRoles.contains(it) }.toMutableList()
+
+            // 1. Para slots aliados sin carril cacheado que ya tienen campeón seleccionado (ej: Sett, Senna),
+            // asignar por afinidad del campeón con los carriles restantes disponibles
+            for (i in 0..4) {
+                if (!allySlotRolesCache.containsKey(i)) {
+                    val champ = allySlots[i].champion ?: allySlotConfirmedChampions[i] ?: allyOcrChampions[i]
+                    if (champ != null && availableRoles.isNotEmpty()) {
+                        val bestRole = when {
+                            availableRoles.contains(champ.primaryRole) -> champ.primaryRole
+                            else -> champ.secondaryRoles.firstOrNull { availableRoles.contains(it) } ?: availableRoles.firstOrNull()
+                        }
+                        if (bestRole != null) {
+                            allySlotRolesCache[i] = bestRole
+                            availableRoles.remove(bestRole)
+                            allySlots[i].explicitRole = bestRole
+                            AppLogger.d(TAG, "Slot Aliado $i deducido por afinidad de ${champ.name} -> ${bestRole.shortName}")
+                        }
+                    }
+                }
+            }
+
+            // 2. Si quedan slots sin rol asignado y sin campeón, repartir los roles restantes por orden
+            for (i in 0..4) {
+                if (!allySlotRolesCache.containsKey(i) && availableRoles.isNotEmpty()) {
+                    val role = availableRoles.removeAt(0)
+                    allySlotRolesCache[i] = role
+                    allySlots[i].explicitRole = role
+                    AppLogger.d(TAG, "Slot Aliado $i asignado por descarte de rol -> ${role.shortName}")
+                }
+                if (allySlotRolesCache.containsKey(i)) {
+                    allySlots[i].explicitRole = allySlotRolesCache[i]
                 }
             }
 
@@ -740,7 +793,18 @@ object DraftVisionScanner {
                 }
 
                 // REGLA DEL USUARIO: En rivales, solamente aparece el nombre del campeón cuando ya está seleccionado.
-                if (isWaitingPick) {
+                // Si el slot i==4 corresponde al 10º pick (cuando tentativeFirstPick es true), no se asigna por OCR (es 100% visual).
+                val isTenthPickSlot = (tentativeFirstPick && i == 4)
+                if (isTenthPickSlot) {
+                    // El 10º Pick se deja exclusivamente a los motores de visión
+                    if (!isTenthConfirmed) {
+                        enemySlotConfirmedChampions[i] = null
+                        enemyOcrChampions[i] = null
+                        enemySlots[i].champion = null
+                        enemySlots[i].confidencePercent = 0
+                        enemySlots[i].isLikelyUnpicked = true
+                    }
+                } else if (isWaitingPick) {
                     enemySlotConfirmedChampions[i] = null
                     enemyOcrChampions[i] = null
                     enemySlotFilters[i].reset()
@@ -1000,7 +1064,7 @@ object DraftVisionScanner {
         val totalEnemyOcrConfirmed = enemySlots.count { it != targetSlot && it.champion != null }
         val otherPicksConfirmed = totalAllyOcrConfirmed + totalEnemyOcrConfirmed
 
-        var isTenthConfirmed = false
+        isTenthConfirmed = false
         var slotsDismissed = false
         // REGLA CRÍTICA ESTRICTA: ÚNICAMENTE cuando las otras 9 selecciones ya están confirmadas se evalúa la 10ª
         val eligibleFor10thPick = (otherPicksConfirmed >= 9)
@@ -1072,15 +1136,9 @@ object DraftVisionScanner {
                 // REGLA CRÍTICA: La barra superior es 100% CONFIABLE Y CORRECTA.
                 // Si la preselección en la parte inferior contenía una discrepancia o error, se cambia obligatoriamente
                 // por el campeón detectado en la barra superior.
-                val finalTenthChamp: Champion? = if (topPickChamp != null) {
-                    if (existingHover != null && existingHover.id != topPickChamp.id) {
-                        AppLogger.i(TAG, "10º Pick CORREGIDO OBLIGATORIAMENTE por Barra Superior (100% Confiable): ${existingHover.name} -> ${topPickChamp.name} (${(topConfidence * 100).toInt()}%)")
-                    } else {
-                        AppLogger.i(TAG, "10º Pick CONFIRMADO Y SELLADO 100% en Barra Superior: ${topPickChamp.name}")
-                    }
-                    topPickChamp
-                } else {
-                    existingHover
+                val finalTenthChamp: Champion? = topPickChamp ?: existingHover
+                if (topPickChamp != null) {
+                    AppLogger.i(TAG, "10º Pick DECIDIDO EXCLUSIVAMENTE por Motores de Visión: ${topPickChamp.name} (${(topConfidence * 100).toInt()}%)")
                 }
 
                 if (finalTenthChamp != null) {
@@ -1187,26 +1245,25 @@ object DraftVisionScanner {
             }
         }
         
-        // 4.1 Aliados: Resolver roles combinando slots explícitos (OCR/Línea)
-        val validAllySlots = allySlots.filter { it.champion != null }
-        val allyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validAllySlots, allChamps, auditList)
-        val alliesMap = allyResolved.assignments.toMutableMap()
+        // 4.1 Aliados: Cada slot aliado (0..4) mapea determinísticamente a su carril (allySlotRolesCache)
+        val alliesMap = mutableMapOf<LaneRole, Champion>()
+        val allyConfidences = mutableMapOf<LaneRole, Int>()
 
-        // Garantizar que NINGÚN campeón aliado sea omitido por colisión de rol
-        val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
-        val assignedAllyChamps = alliesMap.values.map { it.id }.toSet()
-        for (slot in validAllySlots) {
-            val champ = slot.champion ?: continue
-            if (!assignedAllyChamps.contains(champ.id)) {
-                val availableRoles = standardRoles.filter { !alliesMap.containsKey(it) }
-                val targetRole = slot.explicitRole ?: slot.assignedRole ?: allySlotRolesCache[slot.slotIndex] ?: availableRoles.firstOrNull() ?: defaultRolesList.getOrNull(slot.slotIndex) ?: LaneRole.MID
-                alliesMap[targetRole] = champ
-                slot.assignedRole = targetRole
-                AppLogger.d(TAG, "Aliado ${champ.name} preservado y asignado a ${targetRole.shortName}")
+        for (i in 0..4) {
+            val slot = allySlots[i]
+            val role = allySlotRolesCache[i] ?: slot.explicitRole ?: slot.assignedRole ?: defaultRolesList[i]
+            slot.assignedRole = role
+            slot.explicitRole = role
+            val champ = slot.champion
+            if (champ != null) {
+                alliesMap[role] = champ
+                allyConfidences[role] = slot.confidencePercent.coerceIn(1, 100)
+                AppLogger.d(TAG, "Aliado Slot $i (${role.shortName}) -> ${champ.name}")
             }
         }
 
         // 4.2 Enemigos: Asignación validada por roles primarios y secundarios de los picks seleccionados
+        val standardRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
         val validEnemySlots = enemySlots.filter { it.champion != null }
         val enemyResolved = DraftValidationLayer.resolveTeamRolesDetailed(validEnemySlots, allChamps, auditList, isAllyTeam = false)
         val enemiesMap = enemyResolved.assignments.toMutableMap()
@@ -1311,6 +1368,7 @@ object DraftVisionScanner {
             isLegendaryRanked = isLegendaryRanked,
             isPreparationPhase = isPreparationPhase,
             tenthPickLog = LocalVisionAnalyzer.lastTenthPickLog?.formattedSummary,
+            hasDraftActivity = hasDraftActivity,
             isSuccessful = hasDraftActivity,
             statusMessage = statusMsg
         )

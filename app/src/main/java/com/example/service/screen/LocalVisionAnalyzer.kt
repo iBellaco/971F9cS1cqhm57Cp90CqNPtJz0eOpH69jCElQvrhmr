@@ -550,7 +550,6 @@ object LocalVisionAnalyzer {
         val championObjMap = mutableMapOf<String, Champion>()
 
         for (champ in effectiveCandidates) {
-            if (excludedChampionIds.contains(champ.id)) continue
             championObjMap[champ.id] = champ
         }
 
@@ -562,7 +561,6 @@ object LocalVisionAnalyzer {
                 benchmark.candidateScores.associate { it.first.id to it.second }
             }
             for ((champId, score) in scoreSource) {
-                if (excludedChampionIds.contains(champId)) continue
                 championScoresMap.getOrPut(champId) { mutableMapOf() }[engine] = score.coerceIn(0f, 1f)
             }
         }
@@ -599,7 +597,11 @@ object LocalVisionAnalyzer {
         val topEngineNames = engines.joinToString(", ") { it.shortName }
         val percentStr = "${(finalConfidence * 100).toInt()}%"
         val reason = "Inferencia Visual con 4 Motores ($topEngineNames): Coincidencia validada con ${selectedChamp.name} con un porcentaje de similitud global del $percentStr."
-        val summary = "$phaseName -> ${selectedChamp.name} ($percentStr similitud combinada de 4 motores)"
+        val summary = if (isConfirmedPhase) {
+            "CONFIRMACIÓN DEFINITIVA\n$phaseName -> ${selectedChamp.name} ($percentStr similitud combinada de 4 motores)"
+        } else {
+            "CARACTERÍSTICAS ESCANEADAS (PROVISIONAL)\n$phaseName -> ${selectedChamp.name} ($percentStr similitud combinada de 4 motores)"
+        }
 
         return@withContext TenthPickDecisionLog(
             selectedChampion = selectedChamp,
@@ -850,58 +852,14 @@ object LocalVisionAnalyzer {
         val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
         if (bestDecision != null && bestDecision.selectedChampion != null) {
             val detectedChamp = bestDecision.selectedChampion
-            if (preferredChampion != null) {
-                if (detectedChamp.id == preferredChampion.id) {
-                    val corroboratedLog = bestDecision.copy(
-                        confidence = 1.0f,
-                        isConfirmed = true,
-                        decisionReason = "10º Pick corroborado y sellado al 100%: Los 4 motores verificaron en la barra superior ($sideDesc) la coincidencia exacta con ${preferredChampion.name} preseleccionado en el slot.",
-                        cropBitmap = lastTenthPickCrop
-                    )
-                    lastTenthPickLog = corroboratedLog
-                    return@withContext corroboratedLog
-                } else {
-                    // CAMBIO OBLIGATORIO: Los slots desaparecieron y la barra superior muestra el campeón definitivo
-                    val changedLog = bestDecision.copy(
-                        confidence = 1.0f,
-                        isConfirmed = true,
-                        decisionReason = "10º Pick CAMBIADO OBLIGATORIAMENTE tras desaparecer los slots: Preselección (${preferredChampion.name}) -> Confirmación Superior (${detectedChamp.name}) en $sideDesc decidida por los motores de reconocimiento.",
-                        cropBitmap = lastTenthPickCrop
-                    )
-                    lastTenthPickLog = changedLog
-                    return@withContext changedLog
-                }
-            } else {
-                val confirmedLog = bestDecision.copy(
-                    confidence = 1.0f,
-                    isConfirmed = true,
-                    decisionReason = "10º Pick confirmado definitivamente por barra superior ($sideDesc) mediante los 4 motores: ${detectedChamp.name}.",
-                    cropBitmap = lastTenthPickCrop
-                )
-                lastTenthPickLog = confirmedLog
-                return@withContext confirmedLog
-            }
-        }
-
-        if (preferredChampion != null) {
-            val fallbackLog = (bestDecision ?: TenthPickDecisionLog(
-                selectedChampion = preferredChampion,
-                confidence = 1.0f,
+            val confirmedLog = bestDecision.copy(
+                confidence = bestDecision.confidence,
                 isConfirmed = true,
-                phaseName = "Confirmación Superior",
-                scannedMetrics = extractScannedMetrics(lastTenthPickCrop ?: Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888), sideDesc),
-                candidatesEvaluatedCount = allChamps.size,
-                topCandidates = emptyList(),
-                decisionReason = "10º Pick sellado con ${preferredChampion.name}: Prevalece la preselección registrada ante ausencia de lectura en barra superior.",
-                formattedSummary = "10º Pick Confirmado: ${preferredChampion.name}"
-            )).copy(
-                selectedChampion = preferredChampion,
-                confidence = 1.0f,
-                isConfirmed = true,
+                decisionReason = "10º Pick confirmado exclusivamente por los motores de visión en barra superior ($sideDesc): ${detectedChamp.name} (${(bestDecision.confidence * 100).toInt()}%).",
                 cropBitmap = lastTenthPickCrop
             )
-            lastTenthPickLog = fallbackLog
-            return@withContext fallbackLog
+            lastTenthPickLog = confirmedLog
+            return@withContext confirmedLog
         }
 
         if (bestDecision != null) {
