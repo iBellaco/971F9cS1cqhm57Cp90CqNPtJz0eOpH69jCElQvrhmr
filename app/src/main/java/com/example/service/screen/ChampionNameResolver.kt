@@ -230,6 +230,14 @@ object ChampionNameResolver {
             if (insideChamp != null) return insideChamp
         }
 
+        // Limpieza robusta de iconos de invocador, maestría, rango o carril antes del nombre del campeón
+        val strippedText = trimmed.replace(Regex("^[\\W_0-9]+"), "").trim()
+        val strippedClean = normalize(strippedText)
+        if (strippedClean.isNotBlank() && strippedClean != normalize(trimmed)) {
+            val resolvedFromStripped = findChampionInText(strippedText, safeChamps)
+            if (resolvedFromStripped != null) return resolvedFromStripped
+        }
+
         val clean = normalize(trimmed)
         if (clean.isBlank()) return null
         if (UI_IGNORE_WORDS.contains(clean)) return null
@@ -260,8 +268,7 @@ object ChampionNameResolver {
         }
 
         // 3. Manejo de iconos de maestría / insignias / prefijos a la izquierda del nombre
-        // En Wild Rift, al lado del nombre del campeón en la línea 1 puede haber un icono dorado de maestría.
-        // ML Kit a veces detecta un carácter espurio inicial (ej: "* JARVAN IV", "⭐ JINX", "> SHYVANA", "I JARVAN IV").
+        // En Wild Rift, al lado del nombre del campeón en la línea 1 puede haber un icono dorado de maestría o de invocador.
         val rawTokens = clean.split(" ").filter { it.isNotBlank() }
         if (rawTokens.size >= 2) {
             for (dropCount in 1 until rawTokens.size) {
@@ -288,7 +295,7 @@ object ChampionNameResolver {
             }
         }
 
-        // 3. Coincidencia por palabra contenida (ej: "WUKONG" en "WUKONG XCS Alee22")
+        // 4. Coincidencia por palabra contenida (ej: "WUKONG" en "WUKONG XCS Alee22")
         val words = clean.split(" ").filter { it.length >= 2 && !UI_IGNORE_WORDS.contains(it) }
         for (word in words) {
             // Para nombres ultracortos de 2 letras (ej: "VI"), exigir que la línea completa sea sólo esa palabra
