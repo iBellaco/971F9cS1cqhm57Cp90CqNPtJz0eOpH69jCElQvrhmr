@@ -121,7 +121,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import com.example.ui.components.FormattedWildRiftText
-import com.example.ui.components.formatWildRiftDescription
 import com.example.ui.components.SparklineTrendGraph
 import com.example.ui.components.DraftWomboSynergyCard
 import com.example.ui.components.WomboComboSynergyDetector
