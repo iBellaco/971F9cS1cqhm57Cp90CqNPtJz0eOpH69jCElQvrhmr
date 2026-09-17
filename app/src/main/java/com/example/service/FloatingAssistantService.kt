@@ -3731,29 +3731,30 @@ private fun TenthPickScannerViewerDialog(
     }
 
     val adjustCoordinates: (Float, Float, Float) -> Unit = { dx, dy, dDiam ->
-        val newY = (calib.topAvatarYRatio + dy).coerceIn(0.01f, 0.25f)
-        val newDiam = (calib.topAvatarDiameterRatio + dDiam).coerceIn(0.02f, 0.15f)
+        val newDiam = (calib.avatarDiameterRatio + dDiam).coerceIn(0.04f, 0.20f)
         val updated = if (selectedVision == 0) {
-            val currentX = calib.topAlly5XRatio
+            val currentX = calib.allyAvatarCenterX
             val newX = (currentX + dx).coerceIn(0.01f, 0.40f)
-            val updatedAllies = calib.topAllyXRatios.toMutableList()
-            if (4 in updatedAllies.indices) updatedAllies[4] = newX
+            val currentY = calib.allySlotYRatios.getOrElse(4) { 0.72f }
+            val newY = (currentY + dy).coerceIn(0.50f, 0.95f)
+            val updatedAlliesY = calib.allySlotYRatios.toMutableList()
+            if (4 in updatedAlliesY.indices) updatedAlliesY[4] = newY
             calib.copy(
-                topAvatarYRatio = newY,
-                topAvatarDiameterRatio = newDiam,
-                topAlly5XRatio = newX,
-                topAllyXRatios = updatedAllies
+                avatarDiameterRatio = newDiam,
+                allyAvatarCenterX = newX,
+                allySlotYRatios = updatedAlliesY
             )
         } else {
-            val currentX = calib.topEnemy5XRatio
+            val currentX = calib.enemyAvatarCenterX
             val newX = (currentX + dx).coerceIn(0.60f, 0.99f)
-            val updatedEnemies = calib.topEnemyXRatios.toMutableList()
-            if (4 in updatedEnemies.indices) updatedEnemies[4] = newX
+            val currentY = calib.enemySlotYRatios.getOrElse(4) { 0.72f }
+            val newY = (currentY + dy).coerceIn(0.50f, 0.95f)
+            val updatedEnemiesY = calib.enemySlotYRatios.toMutableList()
+            if (4 in updatedEnemiesY.indices) updatedEnemiesY[4] = newY
             calib.copy(
-                topAvatarYRatio = newY,
-                topAvatarDiameterRatio = newDiam,
-                topEnemy5XRatio = newX,
-                topEnemyXRatios = updatedEnemies
+                avatarDiameterRatio = newDiam,
+                enemyAvatarCenterX = newX,
+                enemySlotYRatios = updatedEnemiesY
             )
         }
         calib = updated
@@ -3764,14 +3765,15 @@ private fun TenthPickScannerViewerDialog(
 
     // Función para copiar coordenadas al portapapeles
     val copyCoordinatesToClipboard = {
-        val curX = if (selectedVision == 0) calib.topAlly5XRatio else calib.topEnemy5XRatio
-        val visionName = if (selectedVision == 0) "Izquierda (10º Aliado)" else "Derecha (10º Rival)"
+        val curX = if (selectedVision == 0) calib.allyAvatarCenterX else calib.enemyAvatarCenterX
+        val curY = if (selectedVision == 0) calib.allySlotYRatios.getOrElse(4) { 0.72f } else calib.enemySlotYRatios.getOrElse(4) { 0.72f }
+        val visionName = if (selectedVision == 0) "Inferior Izquierda (Slot 5 Aliado)" else "Inferior Derecha (Slot 5 Rival)"
         val text = """
-            [Coach 10º Pick - Calibración]
+            [Coach 10º Pick - Calibración Slot Inferior]
             • Visión: $visionName
             • Posición X: ${"%.1f".format(java.util.Locale.US, curX * 100)}% (${"%.3f".format(java.util.Locale.US, curX)}f)
-            • Posición Y: ${"%.1f".format(java.util.Locale.US, calib.topAvatarYRatio * 100)}% (${"%.3f".format(java.util.Locale.US, calib.topAvatarYRatio)}f)
-            • Diámetro (⌀): ${"%.1f".format(java.util.Locale.US, calib.topAvatarDiameterRatio * 100)}% (${"%.3f".format(java.util.Locale.US, calib.topAvatarDiameterRatio)}f)
+            • Posición Y: ${"%.1f".format(java.util.Locale.US, curY * 100)}% (${"%.3f".format(java.util.Locale.US, curY)}f)
+            • Diámetro (⌀): ${"%.1f".format(java.util.Locale.US, calib.avatarDiameterRatio * 100)}% (${"%.3f".format(java.util.Locale.US, calib.avatarDiameterRatio)}f)
         """.trimIndent()
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? android.content.ClipboardManager
         val clip = android.content.ClipData.newPlainText("Coordenadas 10º Pick", text)
@@ -4056,9 +4058,10 @@ private fun TenthPickScannerViewerDialog(
                                     fontSize = 9.5.sp
                                 )
                             }
-                            val curX = if (selectedVision == 0) calib.topAlly5XRatio else calib.topEnemy5XRatio
+                            val curX = if (selectedVision == 0) calib.allyAvatarCenterX else calib.enemyAvatarCenterX
+                            val curY = if (selectedVision == 0) calib.allySlotYRatios.getOrElse(4) { 0.72f } else calib.enemySlotYRatios.getOrElse(4) { 0.72f }
                             Text(
-                                text = "X: ${"%.1f".format(java.util.Locale.US, curX * 100)}% | Y: ${"%.1f".format(java.util.Locale.US, calib.topAvatarYRatio * 100)}% | ⌀: ${"%.1f".format(java.util.Locale.US, calib.topAvatarDiameterRatio * 100)}%",
+                                text = "X: ${"%.1f".format(java.util.Locale.US, curX * 100)}% | Y: ${"%.1f".format(java.util.Locale.US, curY * 100)}% | ⌀: ${"%.1f".format(java.util.Locale.US, calib.avatarDiameterRatio * 100)}%",
                                 color = HextechGold,
                                 fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Bold
@@ -4066,7 +4069,7 @@ private fun TenthPickScannerViewerDialog(
                         }
                         Spacer(modifier = Modifier.height(3.dp))
                         Text(
-                            text = "Los 10 círculos están visibles en la barra superior en tiempo real.",
+                            text = "Escaneando directamente el último slot inferior (${if (selectedVision == 0) "Izquierdo - Aliado 5" else "Derecho - Rival 5"}).",
                             color = TextMuted,
                             fontSize = 8.sp
                         )

@@ -1047,15 +1047,13 @@ object DraftVisionScanner {
         // -----------------------------------------------------------------------------------------
         // PASO 4: EVALUACIÓN DETERMINISTA DE LA 10ª SELECCIÓN (RECONOCIMIENTO DE IMAGEN)
         // REGLAS DEL USUARIO (CRÍTICAS):
-        // 1. De la selección 1 hasta la 9 se visualiza el nombre del campeón y dependiendo del nombre
-        //    del campeón es que se selecciona (OCR de texto 100%).
-        // 2. SOLAMENTE la selección número 10 no aparece su nombre de campeón y es reconocimiento de imagen.
-        // 3. Primero escanea en la PARTE INFERIOR dependiendo si es o no es primera selección:
-        //    - Si es primera selección -> escanea la parte INFERIOR DERECHA (Rival 5).
-        //    - Si NO es primera selección -> escanea la parte INFERIOR IZQUIERDA (Aliado 5).
-        // 4. En la parte inferior puede que solamente lo muestre (hover) y luego seleccione otro campeón.
-        // 5. Después que desaparezcan los slots de los avatares, quiere decir que ya seleccionó el campeón:
-        //    entonces se confirma en la PARTE SUPERIOR, donde se visualiza 100% la selección definitiva.
+        // 1. De la selección 1 hasta la 9 se visualiza el nombre del campeón y se selecciona por OCR (100%).
+        // 2. SOLAMENTE la selección número 10 es reconocimiento de imagen en los slots de la parte inferior:
+        //    - Si soy primera selección (First Pick = true) -> se escanea el último slot del lado DERECHO (Rival 5).
+        //    - Si el rival es primera selección (First Pick = false) -> se escanea el último slot del lado IZQUIERDO/ALIADO (Aliado 5).
+        // 3. Se escanea exclusivamente la última imagen que aparezca en dicho slot inferior en tiempo real,
+        //    actualizando de forma dinámica si el jugador cambia de un campeón a otro.
+        // 4. NO se escanea la barra superior.
         // -----------------------------------------------------------------------------------------
         val tenthTargetIsAlly = !effectiveFirstPick
         val targetSlot = if (tenthTargetIsAlly) allySlots[4] else enemySlots[4]
@@ -1107,59 +1105,37 @@ object DraftVisionScanner {
                 }
             }
 
-            // Detección robusta de desaparición de slots y finalización de selección activa:
+            // Detección de desaparición de slots y finalización de selección activa:
             val isSelectionEnded = isPreparationPhase || isPreparationBannerDetected || !isActiveSelectionDetected
             slotsDismissed = isSelectionEnded || LocalVisionAnalyzer.areAvatarSlotsDismissed(bitmap, isPreparationPhase)
 
-            // Memoria previa del 10º pick capturado en el slot inferior durante selección activa
+            // Memoria previa del 10º pick capturado en el slot inferior
             val existingHover = if (tenthTargetIsAlly) allySlotConfirmedChampions[4] else enemySlotConfirmedChampions[4]
 
-            // Evaluación de la barra superior por los 4 motores de inferencia (100% soberanía de los motores)
-            val superiorDecision = LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
-                bitmap = bitmap,
-                isFirstPick = effectiveFirstPick,
-                calib = calib,
-                allChamps = allChamps,
-                confirmedIds = confirmedIds,
-                expectedRole = expectedRole,
-                roleExplanation = roleExplanation,
-                context = context,
-                preferredChampion = existingHover
-            )
-
-            val topPickChamp = superiorDecision?.selectedChampion
-            val topConfidence = superiorDecision?.confidence ?: 0.0f
-            val hasValidSuperiorMatch = topPickChamp != null && topConfidence >= 0.35f
-
-            if (slotsDismissed || hasValidSuperiorMatch) {
-                // FASE B: Veredicto soberano y definitivo de los 4 motores de visión
-                val finalTenthChamp: Champion? = topPickChamp ?: existingHover
-                if (topPickChamp != null) {
-                    AppLogger.i(TAG, "10º Pick DECIDIDO EXCLUSIVAMENTE por Motores de Visión: ${topPickChamp.name} (${(topConfidence * 100).toInt()}%)")
-                }
-
-                if (finalTenthChamp != null) {
-                    lastPickVisualChampion = finalTenthChamp
-                    lastPickVisualConfidence = if (topPickChamp != null) topConfidence else 1.0f
+            if (slotsDismissed) {
+                // Si ya desaparecieron los slots (fase de preparación/fin de selección), se confirma el último campeón detectado en el slot
+                val finalChamp = existingHover ?: targetSlot.champion
+                if (finalChamp != null) {
+                    lastPickVisualChampion = finalChamp
+                    lastPickVisualConfidence = 1.0f
                     isLastPickVisualRecognized = true
                     isTenthConfirmed = true
 
-                    targetSlot.champion = finalTenthChamp
-                    targetSlot.confidencePercent = if (topPickChamp != null) (topConfidence * 100).toInt().coerceIn(60, 100) else 100
+                    targetSlot.champion = finalChamp
+                    targetSlot.confidencePercent = 100
                     targetSlot.isLikelyUnpicked = false
 
                     if (tenthTargetIsAlly) {
-                        allySlotConfirmedChampions[4] = finalTenthChamp
-                        allyOcrChampions[4] = finalTenthChamp
+                        allySlotConfirmedChampions[4] = finalChamp
+                        allyOcrChampions[4] = finalChamp
                     } else {
-                        enemySlotConfirmedChampions[4] = finalTenthChamp
-                        enemyOcrChampions[4] = finalTenthChamp
+                        enemySlotConfirmedChampions[4] = finalChamp
+                        enemyOcrChampions[4] = finalChamp
                     }
                 }
             } else {
-                // FASE A: Mientras los slots de selección permanecen activos en pantalla ->
-                // ESCANEO EN LA PARTE INFERIOR (Hover / Preselección directa por los 4 motores de inferencia)
-                AppLogger.d(TAG, "[10º PICK] Slots activos en pantalla -> Inferencia de motores sobre slot inferior...")
+                // ESCANEO EXCLUSIVO DEL SLOT INFERIOR (Aliado 5 o Rival 5)
+                // Escanea la última imagen que aparezca en el slot en tiempo real (por si cambia de un campeón a otro)
                 val inferiorDecision = LocalVisionAnalyzer.identify10thPickInferiorDetailed(
                     bitmap = bitmap,
                     isFirstPick = effectiveFirstPick,
@@ -1172,27 +1148,27 @@ object DraftVisionScanner {
                 )
 
                 if (inferiorDecision != null && inferiorDecision.selectedChampion != null) {
-                    val hoverChamp = inferiorDecision.selectedChampion
+                    val latestChamp = inferiorDecision.selectedChampion
                     val confidence = inferiorDecision.confidence
 
-                    if (confidence >= 0.38f) {
-                        lastPickVisualChampion = hoverChamp
+                    if (confidence >= 0.35f) {
+                        lastPickVisualChampion = latestChamp
                         lastPickVisualConfidence = confidence
                         isLastPickVisualRecognized = true
-                        isTenthConfirmed = false // PRESELECCIÓN PROVISIONAL (Aún no sellado definitivamente)
+                        isTenthConfirmed = false // Actualización continua en vivo mientras esté en el slot
 
-                        targetSlot.champion = hoverChamp
-                        targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(60, 95)
+                        targetSlot.champion = latestChamp
+                        targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(60, 99)
                         targetSlot.isLikelyUnpicked = false
 
                         if (tenthTargetIsAlly) {
-                            allySlotConfirmedChampions[4] = hoverChamp
-                            allyOcrChampions[4] = hoverChamp
-                            AppLogger.i(TAG, "10º Pick Aliado decidido por motores en slot inferior: ${hoverChamp.name} (${(confidence * 100).toInt()}%)")
+                            allySlotConfirmedChampions[4] = latestChamp
+                            allyOcrChampions[4] = latestChamp
+                            AppLogger.i(TAG, "10º Pick Aliado actualizado desde slot inferior 5: ${latestChamp.name} (${(confidence * 100).toInt()}%)")
                         } else {
-                            enemySlotConfirmedChampions[4] = hoverChamp
-                            enemyOcrChampions[4] = hoverChamp
-                            AppLogger.i(TAG, "10º Pick Rival decidido por motores en slot inferior: ${hoverChamp.name} (${(confidence * 100).toInt()}%)")
+                            enemySlotConfirmedChampions[4] = latestChamp
+                            enemyOcrChampions[4] = latestChamp
+                            AppLogger.i(TAG, "10º Pick Rival actualizado desde slot inferior 5: ${latestChamp.name} (${(confidence * 100).toInt()}%)")
                         }
                     } else if (existingHover != null) {
                         lastPickVisualChampion = existingHover

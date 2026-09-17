@@ -61,76 +61,79 @@ fun ScannerDebugOverlay(
         }
 
         if (tenthPickOnly) {
-            // MODO EXCLUSIVO 10º PICK: Dibujar el anillo y guías exteriores limpias (interior 100% despejado)
+            // MODO EXCLUSIVO 10º PICK: Dibujar el anillo y guías exteriores en el 5º slot inferior (izquierdo o derecho)
             val drawAlly10 = (activeSide == null || activeSide == 0)
             val drawEnemy10 = (activeSide == null || activeSide == 1)
+            val slotRadius = avatarDiameter / 2f
 
             if (drawAlly10) {
-                val ally5X = w * currentConfig.topAlly5XRatio
+                val ally5X = w * currentConfig.allyAvatarCenterX
+                val ally5Y = h * currentConfig.allySlotYRatios.getOrElse(4) { 0.72f }
                 val isSelected = (activeSide == 0)
 
-                // Anillo delimitador exterior del avatar
+                // Anillo delimitador exterior del avatar en slot inferior izquierdo (Aliado 5)
                 drawCircle(
                     color = if (isSelected) Color(0xFF00E5FF) else Color(0x8800E5FF),
-                    center = Offset(ally5X, topY),
-                    radius = topRadius,
+                    center = Offset(ally5X, ally5Y),
+                    radius = slotRadius,
                     style = Stroke(width = if (isSelected) 2.5f else 1.5f)
                 )
 
-                // Guías exteriores tipo retícula (ticks) que NO invaden el interior del avatar
-                val tickStart = topRadius + 2f
-                val tickEnd = topRadius + 8f
+                // Guías exteriores tipo retícula (ticks)
+                val tickStart = slotRadius + 2f
+                val tickEnd = slotRadius + 8f
                 val tickColor = if (isSelected) Color(0xFF00E5FF) else Color(0x8800E5FF)
                 val tickWidth = if (isSelected) 2.0f else 1.2f
 
                 // Izquierda
-                drawLine(tickColor, Offset(ally5X - tickEnd, topY), Offset(ally5X - tickStart, topY), tickWidth)
+                drawLine(tickColor, Offset(ally5X - tickEnd, ally5Y), Offset(ally5X - tickStart, ally5Y), tickWidth)
                 // Derecha
-                drawLine(tickColor, Offset(ally5X + tickStart, topY), Offset(ally5X + tickEnd, topY), tickWidth)
+                drawLine(tickColor, Offset(ally5X + tickStart, ally5Y), Offset(ally5X + tickEnd, ally5Y), tickWidth)
                 // Arriba
-                drawLine(tickColor, Offset(ally5X, topY - tickEnd), Offset(ally5X, topY - tickStart), tickWidth)
+                drawLine(tickColor, Offset(ally5X, ally5Y - tickEnd), Offset(ally5X, ally5Y - tickStart), tickWidth)
                 // Abajo
-                drawLine(tickColor, Offset(ally5X, topY + tickStart), Offset(ally5X, topY + tickEnd), tickWidth)
+                drawLine(tickColor, Offset(ally5X, ally5Y + tickStart), Offset(ally5X, ally5Y + tickEnd), tickWidth)
 
                 drawContext.canvas.nativeCanvas.drawText(
-                    "10º PICK ALIADO",
+                    "10º PICK (SLOT 5 ALIADO)",
                     ally5X,
-                    topY + topRadius + 15f,
+                    ally5Y + slotRadius + 15f,
                     allyTextPaint
                 )
             }
 
             if (drawEnemy10) {
-                val enemy5X = w * currentConfig.topEnemy5XRatio
+                val enemy5X = w * currentConfig.enemyAvatarCenterX
+                val enemy5Y = h * currentConfig.enemySlotYRatios.getOrElse(4) { 0.72f }
                 val isSelected = (activeSide == 1)
 
-                // Anillo delimitador exterior del avatar
+                // Anillo delimitador exterior del avatar en slot inferior derecho (Rival 5)
                 drawCircle(
                     color = if (isSelected) Color(0xFFFF5252) else Color(0x88FF5252),
-                    center = Offset(enemy5X, topY),
-                    radius = topRadius,
+                    center = Offset(enemy5X, enemy5Y),
+                    radius = slotRadius,
                     style = Stroke(width = if (isSelected) 2.5f else 1.5f)
                 )
 
-                // Guías exteriores tipo retícula (ticks) que NO invaden el interior del avatar
-                val tickStart = topRadius + 2f
-                val tickEnd = topRadius + 8f
+                // Guías exteriores tipo retícula (ticks)
+                val tickStart = slotRadius + 2f
+                val tickEnd = slotRadius + 8f
                 val tickColor = if (isSelected) Color(0xFFFF5252) else Color(0x88FF5252)
                 val tickWidth = if (isSelected) 2.0f else 1.2f
 
                 // Izquierda
-                drawLine(tickColor, Offset(enemy5X - tickEnd, topY), Offset(enemy5X - tickStart, topY), tickWidth)
+                drawLine(tickColor, Offset(enemy5X - tickEnd, enemy5Y), Offset(enemy5X - tickStart, enemy5Y), tickWidth)
                 // Derecha
-                drawLine(tickColor, Offset(enemy5X + tickStart, topY), Offset(enemy5X + tickEnd, topY), tickWidth)
+                drawLine(tickColor, Offset(enemy5X + tickStart, enemy5Y), Offset(enemy5X + tickEnd, enemy5Y), tickWidth)
                 // Arriba
-                drawLine(tickColor, Offset(enemy5X, topY - tickEnd), Offset(enemy5X, topY - tickStart), tickWidth)
+                drawLine(tickColor, Offset(enemy5X, enemy5Y - tickEnd), Offset(enemy5X, enemy5Y - tickStart), tickWidth)
                 // Abajo
-                drawLine(tickColor, Offset(enemy5X, topY + tickStart), Offset(enemy5X, topY + tickEnd), tickWidth)
+                drawLine(tickColor, Offset(enemy5X, enemy5Y + tickStart), Offset(enemy5X, enemy5Y + tickEnd), tickWidth)
 
                 drawContext.canvas.nativeCanvas.drawText(
-                    "10º PICK RIVAL",
+                    "10º PICK (SLOT 5 RIVAL)",
                     enemy5X,
-                    topY + topRadius + 15f,
+                    enemy5Y + slotRadius + 15f,
                     enemyTextPaint
                 )
             }
