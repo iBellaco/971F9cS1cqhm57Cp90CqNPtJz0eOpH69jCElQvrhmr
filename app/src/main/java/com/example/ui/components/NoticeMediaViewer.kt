@@ -308,10 +308,10 @@ object NoticeMediaUtils {
                         errorMessage = "Formato no admitido: Los videos deben estar estrictamente en formato MP4."
                     )
                 }
-                if (fileSizeBytes > 15 * 1024 * 1024L) {
+                if (fileSizeBytes > 10 * 1024 * 1024L) {
                     return MediaValidationResult(
                         isValid = false, isVideo = true, width = 0, height = 0, isVertical = false,
-                        errorMessage = "Tamaño excedido: El video no debe superar los 15 MB."
+                        errorMessage = "Tamaño excedido: El video no debe superar los 10 MB."
                     )
                 }
 
@@ -363,10 +363,10 @@ object NoticeMediaUtils {
                         errorMessage = "Formato no admitido: Las imágenes deben ser PNG, JPG o WEBP."
                     )
                 }
-                if (fileSizeBytes > 10 * 1024 * 1024L) {
+                if (fileSizeBytes > 5 * 1024 * 1024L) {
                     return MediaValidationResult(
                         isValid = false, isVideo = false, width = 0, height = 0, isVertical = false,
-                        errorMessage = "Tamaño excedido: La imagen no debe superar los 10 MB."
+                        errorMessage = "Tamaño excedido: La imagen no debe superar los 5 MB."
                     )
                 }
 

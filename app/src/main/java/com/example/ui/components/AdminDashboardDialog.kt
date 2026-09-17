@@ -756,11 +756,16 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // List of existing notices
-                if (noticesList.isNotEmpty()) {
-                    Text("Anuncios Actuales (${noticesList.size}):", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                // List of existing notices (only active/non-expired ones in Anuncios Actuales)
+                val now = System.currentTimeMillis()
+                val activeNotices = noticesList.filter { notice -> notice.expiresAtMillis == 0L || notice.expiresAtMillis > now }
+                val expiredNotices = noticesList.filter { notice -> notice.expiresAtMillis > 0L && notice.expiresAtMillis <= now }
+
+                if (activeNotices.isNotEmpty()) {
+                    Text("Anuncios Actuales (${activeNotices.size}):", color = HextechCyan, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(4.dp))
-                    noticesList.forEachIndexed { index, notice ->
+                    activeNotices.forEach { notice ->
+                        val originalIndex = noticesList.indexOfFirst { it.id == notice.id }
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -893,7 +898,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     IconButton(
                                         onClick = {
-                                            editingIndex = index
+                                            editingIndex = originalIndex
                                             editingNoticeId = notice.id
                                             title = notice.title
                                             content = notice.content
@@ -912,7 +917,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                     }
                                     IconButton(
                                         onClick = {
-                                            if (editingIndex == index) {
+                                            if (editingIndex == originalIndex || editingNoticeId == notice.id) {
                                                 editingIndex = null
                                                 editingNoticeId = null
                                                 title = ""
@@ -922,12 +927,49 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                                 externalUrl = ""
                                                 budgetText = ""
                                             }
-                                            noticesList = noticesList.filterIndexed { i, _ -> i != index }
+                                            noticesList = noticesList.filter { it.id != notice.id }
                                         },
                                         modifier = Modifier.size(28.dp)
                                     ) {
                                         Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(14.dp))
                                     }
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+
+                if (expiredNotices.isNotEmpty()) {
+                    Text("Anuncios Expirados (${expiredNotices.size}):", color = TextMuted, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    expiredNotices.forEach { notice ->
+                        val originalIndex = noticesList.indexOfFirst { it.id == notice.id }
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 2.dp),
+                            color = HextechSurfaceVariant.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(0.5.dp, TextMuted.copy(alpha = 0.3f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = "${notice.tag} • ${notice.title.ifBlank { "Sin título" }} (Expirado)", color = TextMuted, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                                }
+                                IconButton(
+                                    onClick = {
+                                        noticesList = noticesList.filter { it.id != notice.id }
+                                    },
+                                    modifier = Modifier.size(28.dp)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(14.dp))
                                 }
                             }
                         }
