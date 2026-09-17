@@ -88,6 +88,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
@@ -3579,6 +3580,7 @@ fun DraftAnalysisTab(
     var showSaveDraftDialog by remember { mutableStateOf(false) }
     var pendingSaveData by remember { mutableStateOf<PendingSaveData?>(null) }
     var showMatchupDialog by remember { mutableStateOf(false) }
+    var showClearDraftConfirm by remember { mutableStateOf(false) }
     val savedDraftToastText = tr("¡Draft guardado en el Historial!")
     val victoryToastText = " " + tr("Draft registrado como Victoria")
     val defeatToastText = " " + tr("Draft registrado como Derrota")
@@ -3590,6 +3592,32 @@ fun DraftAnalysisTab(
             enemyOpponent = opponent,
             activeRole = activeRole ?: myChampion.primaryRole,
             onDismiss = { showMatchupDialog = false }
+        )
+    }
+
+    if (showClearDraftConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearDraftConfirm = false },
+            title = { Text(tr("Limpiar Borrador"), color = DangerRed, fontWeight = FontWeight.Bold) },
+            text = { Text(tr("¿Estás seguro de que deseas vaciar los equipos y reiniciar el draft actual? Se perderán las selecciones de campeones actuales."), color = TextSecondary, fontSize = 13.sp) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showClearDraftConfirm = false
+                        onClearAll()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text(tr("Limpiar"), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearDraftConfirm = false }) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            },
+            containerColor = HextechSurface,
+            shape = RoundedCornerShape(16.dp)
         )
     }
 
@@ -3927,7 +3955,7 @@ fun DraftAnalysisTab(
             Button(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onClearAll()
+                    showClearDraftConfirm = true
                 },
                 modifier = Modifier
                     .weight(0.9f)

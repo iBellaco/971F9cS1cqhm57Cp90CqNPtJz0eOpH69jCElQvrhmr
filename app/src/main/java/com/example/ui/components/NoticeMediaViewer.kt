@@ -388,7 +388,7 @@ object NoticeMediaUtils {
                 if (!isVerticalSlot && isVertical) {
                     return MediaValidationResult(
                         isValid = false, isVideo = false, width = w, height = h, isVertical = isVertical,
-                        errorMessage = "Orientación incorrecta: Para el banner horizontal debes subir una imagen horizontal (proporción recomendada 16:9 / 1920x1080 o 985x425). Dimensiones detectadas: ${w}x${h}."
+                        errorMessage = "Orientación incorrecta: Para el banner horizontal debes subir una imagen horizontal (proporción recomendada 16:9 / 1920x1080). Dimensiones detectadas: ${w}x${h}."
                     )
                 }
 
@@ -425,7 +425,7 @@ fun NoticeMediaViewer(
         modifier
             .fillMaxWidth()
             .then(
-                if (isVertical) Modifier.aspectRatio(4f / 5f) else Modifier.aspectRatio(16f / 9f)
+                if (isVertical) Modifier.aspectRatio(9f / 16f) else Modifier.aspectRatio(16f / 9f)
             )
     }
 
@@ -638,28 +638,13 @@ fun NoticeMediaViewer(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                // Capa 1: Fondo ambiental difuminado que rellena bordes y evita huecos negros si la imagen tiene proporción diferente
-                AsyncImage(
-                    model = imageModel,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .drawWithContent {
-                            drawContent()
-                            drawRect(Color.Black.copy(alpha = 0.55f))
-                        },
-                    contentScale = ContentScale.Crop
-                )
-
-                // Capa 2: Imagen nítida centrada ajustada perfectamente al marco sin recortes ni deformaciones
                 AsyncImage(
                     model = imageModel,
                     contentDescription = "Multimedia de Anuncio",
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(if (isFullscreen) 0.dp else 4.dp)
-                        .clip(RoundedCornerShape(if (isFullscreen) 0.dp else 8.dp)),
-                    contentScale = ContentScale.Fit
+                        .clip(RoundedCornerShape(if (isFullscreen) 0.dp else 10.dp)),
+                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
                 )
 
                 if (!isFullscreen && onExpand != null) {

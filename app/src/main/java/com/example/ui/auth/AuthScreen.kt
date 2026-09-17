@@ -205,6 +205,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showSponsorPanel by remember { mutableStateOf(false) }
     var showSponsorModerationDialog by remember { mutableStateOf(false) }
     var showBuyEssenceDialog by remember { mutableStateOf(false) }
+    var showSignOutConfirm by remember { mutableStateOf(false) }
     val activeProfile by com.example.data.AccountProfileManager.activeProfile.collectAsState()
 
     val isExpiringSoon = remember(premiumUntil, isPremium, userRole) {
@@ -1138,7 +1139,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
             }
             
             com.example.ui.components.HextechAnimatedOutlinedButton(
-                onClick = onSignOut,
+                onClick = { showSignOutConfirm = true },
                 backgroundColor = com.example.ui.theme.HextechSurfaceVariant.copy(alpha = 0.5f),
                 borderColor = DangerRed.copy(alpha = 0.65f),
                 glowColor = DangerRed,
@@ -1158,6 +1159,32 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                 Text("Cerrar Sesión", color = DangerRed, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
+    }
+
+    if (showSignOutConfirm) {
+        AlertDialog(
+            onDismissRequest = { showSignOutConfirm = false },
+            title = { Text("Cerrar Sesión", color = DangerRed, fontWeight = FontWeight.Bold) },
+            text = { Text("¿Estás seguro de que deseas cerrar sesión? Se recomienda mantener la sesión abierta para asegurar la sincronización correcta de tu cuenta y licencias.", color = activeTheme.textSecondary, fontSize = 13.sp) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showSignOutConfirm = false
+                        onSignOut()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text("Cerrar Sesión", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutConfirm = false }) {
+                    Text("Cancelar", color = activeTheme.textMuted)
+                }
+            },
+            containerColor = activeTheme.surface,
+            shape = RoundedCornerShape(16.dp)
+        )
     }
 }
 

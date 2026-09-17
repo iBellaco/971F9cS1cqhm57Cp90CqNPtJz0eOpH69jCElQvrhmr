@@ -12,9 +12,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -63,8 +65,20 @@ fun AdminCpmAnalyticsDialog(
     var editingNoticeId by remember { mutableStateOf<String?>(null) }
     var showResetConfirmDialog by remember { mutableStateOf(false) }
     var showRecommendationInfoDialog by remember { mutableStateOf(false) }
+    var noticeToDelete by remember { mutableStateOf<AppNotice?>(null) }
     var cpmInputText by remember { mutableStateOf(String.format(Locale.US, "%.2f", baseCpmRate)) }
     var selectedTagFilter by remember { mutableStateOf("TODAS") }
+
+    // Función unificadora de etiquetas para tratar 'ADS' y 'PUBLICIDAD' como la misma categoría
+    fun normalizeNoticeTag(tag: String): String {
+        val trimmed = tag.trim()
+        if (trimmed.isBlank()) return "PUBLICIDAD"
+        val upper = trimmed.uppercase(Locale.ROOT)
+        if (upper == "ADS" || upper == "AD" || upper == "PUBLICIDAD" || upper == "PUBLICIDADES" || upper == "SPONSOR" || upper == "PATROCINADOR") {
+            return "PUBLICIDAD"
+        }
+        return upper
+    }
 
     // Presupuestos de anuncios
     var showEditBudgetDialog by remember { mutableStateOf(false) }
@@ -96,6 +110,68 @@ fun AdminCpmAnalyticsDialog(
         val clip = ClipData.newPlainText("Reporte CPM Coach", report)
         clipboardManager?.setPrimaryClip(clip)
         Toast.makeText(context, "Reporte CPM copiado al portapapeles", Toast.LENGTH_SHORT).show()
+    }
+
+    // Diálogo de confirmación para eliminar anuncio
+    if (noticeToDelete != null) {
+        val targetNotice = noticeToDelete!!
+        AlertDialog(
+            onDismissRequest = { noticeToDelete = null },
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.DeleteOutline, contentDescription = null, tint = DangerRed, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("¿Eliminar Anuncio?", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                }
+            },
+            text = {
+                Column {
+                    Text(
+                        text = "¿Estás seguro de que deseas eliminar permanentemente este anuncio?",
+                        color = TextPrimary,
+                        fontSize = 13.sp
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Surface(
+                        color = HextechSurfaceVariant,
+                        shape = RoundedCornerShape(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "\"${targetNotice.title}\"",
+                            color = HextechGold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = "Esta acción borrará el registro de la nube y de todos los dispositivos, retirándolo de la rotación publicitaria de inmediato.",
+                        color = TextMuted,
+                        fontSize = 11.sp
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        AppNoticeManager.deleteNotice(context, targetNotice.id)
+                        Toast.makeText(context, "Anuncio eliminado exitosamente", Toast.LENGTH_SHORT).show()
+                        noticeToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed, contentColor = Color.White)
+                ) {
+                    Text("Eliminar", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { noticeToDelete = null }) {
+                    Text("Cancelar", color = TextSecondary)
+                }
+            },
+            containerColor = HextechDarkBg
+        )
     }
 
     if (showRecommendationInfoDialog) {
@@ -258,130 +334,427 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
     }
 
     if (showEditCpmDialog) {
-        AlertDialog(
-            onDismissRequest = { 
-                showEditCpmDialog = false 
-                editingNoticeId = null
-            },
-            title = {
-                Text(if (editingNoticeId != null) "Tarifa CPM Individual (USD)" else "Tarifa CPM Global (USD)", color = HextechGold, fontWeight = FontWeight.Bold)
-            },
-            text = {
-                Column {
-                    Text(
-                        if (editingNoticeId != null) "Configura el costo específico para este anuncio. Si lo dejas vacío, usará el precio global." else "Configura el costo por cada 1,000 impresiones para calcular los ingresos estimados generados por tus anuncios y patrocinios:",
-                        color = TextSecondary,
-                        fontSize = 12.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+        if (editingNoticeId != null) {
+            // Modal de edición de CPM específico para un anuncio individual
+            AlertDialog(
+                onDismissRequest = { 
+                    showEditCpmDialog = false 
+                    editingNoticeId = null
+                },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.AttachMoney, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Tarifa CPM Individual (USD)", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    }
+                },
+                text = {
+                    Column {
+                        Text(
+                            text = "Configura el costo específico para este anuncio. Si lo dejas vacío o en 0, usará la tarifa global ($${String.format(Locale.US, "%.2f", baseCpmRate)} USD / 1k):",
+                            color = TextSecondary,
+                            fontSize = 12.sp
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    // Dynamic recommendation shortcut badge
-                    Surface(
-                        color = HextechGold.copy(alpha = 0.12f),
-                        shape = RoundedCornerShape(8.dp),
-                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                cpmInputText = String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)
-                            }
-                    ) {
+                        OutlinedTextField(
+                            value = cpmInputText,
+                            onValueChange = { cpmInputText = it },
+                            label = { Text("CPM en USD ($ por 1k vistas)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null, tint = HextechGold) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = HextechGold,
+                                unfocusedBorderColor = HextechCyan.copy(alpha = 0.5f),
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Row(
-                            modifier = Modifier.padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Column {
-                                    Text("Recomendación Automática de la IA:", color = HextechGold, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                                    Text(dynamicRec.tierName, color = HextechCyan, fontSize = 9.5.sp)
+                            listOf(1.00, 2.50, dynamicRec.recommendedCpm, 5.00).distinct().forEach { rate ->
+                                Surface(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable {
+                                            cpmInputText = String.format(Locale.US, "%.2f", rate)
+                                        },
+                                    color = HextechSurfaceVariant,
+                                    shape = RoundedCornerShape(6.dp),
+                                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
+                                ) {
+                                    Text(
+                                        text = "$$rate",
+                                        color = HextechCyan,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    )
                                 }
                             }
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val parsed = cpmInputText.replace(',', '.').toDoubleOrNull()
+                            AppNoticeAnalyticsManager.setNoticeCpm(context, editingNoticeId!!, parsed)
+                            Toast.makeText(context, "CPM individual actualizado", Toast.LENGTH_SHORT).show()
+                            showEditCpmDialog = false
+                            editingNoticeId = null
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
+                    ) {
+                        Text("Guardar", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { 
+                        showEditCpmDialog = false 
+                        editingNoticeId = null
+                    }) {
+                        Text("Cancelar", color = TextSecondary)
+                    }
+                },
+                containerColor = HextechDarkBg
+            )
+        } else {
+            // Modal Global Completo: Tarifas Publicitarias, Desglose de Precios (Imágenes, Videos, Publicidad, Tráfico, Clics)
+            val imageCpm = baseCpmRate
+            val videoCpm = baseCpmRate * 2.5
+            val fullscreenCpm = baseCpmRate * 1.5
+            val estimatedCpc = if (overallCtr > 0.0) (baseCpmRate / 1000.0) / (overallCtr / 100.0) else 0.15
+
+            AlertDialog(
+                onDismissRequest = { showEditCpmDialog = false },
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.MonetizationOn, contentDescription = null, tint = Color(0xFF00FF66), modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Tarifas & Desglose CPM", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+
+                        Surface(
+                            color = Color(0xFF00FF66).copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(0.8.dp, Color(0xFF00FF66).copy(alpha = 0.5f))
+                        ) {
                             Text(
-                                text = "Usar $${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} ↗",
+                                text = "Auto-Actualizable",
                                 color = Color(0xFF00FF66),
+                                fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 11.5.sp
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    OutlinedTextField(
-                        value = cpmInputText,
-                        onValueChange = { cpmInputText = it },
-                        label = { Text("CPM en USD ($ por 1k vistas)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null, tint = HextechGold) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechGold,
-                            unfocusedBorderColor = HextechCyan.copy(alpha = 0.5f),
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 420.dp)
                     ) {
-                        listOf(1.00, 2.50, dynamicRec.recommendedCpm, 5.00, 10.00).distinct().take(4).forEach { rate ->
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clickable {
-                                        cpmInputText = String.format(Locale.US, "%.2f", rate)
-                                    },
-                                color = HextechSurfaceVariant,
-                                shape = RoundedCornerShape(6.dp),
-                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
-                            ) {
-                                Text(
-                                    text = "$$rate",
-                                    color = if (rate == dynamicRec.recommendedCpm) Color(0xFF00FF66) else HextechCyan,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(vertical = 4.dp)
-                                )
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            // 1. Algoritmo Recomendado y Sincronización Automática
+                            item {
+                                Surface(
+                                    color = HextechGold.copy(alpha = 0.12f),
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.4f)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = HextechGold, modifier = Modifier.size(16.dp))
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text("CPM Dinámico Recomendado", color = HextechGold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                            Text(
+                                                text = "$${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} USD",
+                                                color = Color(0xFF00FF66),
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.sp
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "${dynamicRec.tierName} • Rango de mercado: $${String.format(Locale.US, "%.2f", dynamicRec.marketBenchmarkMin)} - $${String.format(Locale.US, "%.2f", dynamicRec.marketBenchmarkMax)} USD",
+                                            color = HextechCyan,
+                                            fontSize = 9.5.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Button(
+                                            onClick = {
+                                                cpmInputText = String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)
+                                                AppNoticeAnalyticsManager.setBaseCpm(context, dynamicRec.recommendedCpm)
+                                                Toast.makeText(context, "Tarifa sincronizada a $${String.format(Locale.US, "%.2f", dynamicRec.recommendedCpm)} USD", Toast.LENGTH_SHORT).show()
+                                            },
+                                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg),
+                                            shape = RoundedCornerShape(6.dp),
+                                            modifier = Modifier.fillMaxWidth(),
+                                            contentPadding = PaddingValues(vertical = 4.dp)
+                                        ) {
+                                            Text("Sincronizar y Aplicar Automático", fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 2. Precios por Formato Multimedia (Imágenes vs Videos vs Fullscreen)
+                            item {
+                                Surface(
+                                    color = HextechSurfaceVariant,
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.35f)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text("Precios por Formato Multimedia (CPM):", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+
+                                        // Imágenes
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+                                                Text("Imágenes y Banners (1.0x)", color = TextPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                                                Text("Costo: $${String.format(Locale.US, "%.4f", imageCpm / 1000.0)} USD por vista", color = TextMuted, fontSize = 9.sp)
+                                            }
+                                            Text("$${String.format(Locale.US, "%.2f", imageCpm)} / 1k", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+
+                                        Divider(color = HextechCyan.copy(alpha = 0.15f))
+
+                                        // Videos
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+                                                Text("Videos MP4 & Clips (2.5x)", color = TextPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                                                Text("Costo: $${String.format(Locale.US, "%.4f", videoCpm / 1000.0)} USD por vista", color = TextMuted, fontSize = 9.sp)
+                                            }
+                                            Text("$${String.format(Locale.US, "%.2f", videoCpm)} / 1k", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+
+                                        Divider(color = HextechCyan.copy(alpha = 0.15f))
+
+                                        // Pantalla Completa
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column {
+                                                Text("Pantalla Completa / Full (1.5x)", color = TextPrimary, fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold)
+                                                Text("Costo: $${String.format(Locale.US, "%.4f", fullscreenCpm / 1000.0)} USD por vista", color = TextMuted, fontSize = 9.sp)
+                                            }
+                                            Text("$${String.format(Locale.US, "%.2f", fullscreenCpm)} / 1k", color = Color(0xFF00FF66), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 3. Paquetes Publicitarios por Período (1 Día, 3 Días, 1 Semana, 1 Mes, 1 Año)
+                            item {
+                                Surface(
+                                    color = HextechSurfaceVariant,
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.35f)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text("Paquetes de Publicidad por Tiempo:", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                        Text("Precios calculados según el volumen de usuarios y engagement:", color = TextMuted, fontSize = 8.5.sp)
+                                        Spacer(modifier = Modifier.height(2.dp))
+
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("1 Día:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Day)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("3 Días:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.0f", dynamicRec.price3Days)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("1 Semana:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Week)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("1 Mes:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Month)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("1 Año:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.0f", dynamicRec.price1Year)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 4. Métricas de Tráfico & Costo por Clic (CPC / eCPC)
+                            item {
+                                Surface(
+                                    color = HextechSurfaceVariant,
+                                    shape = RoundedCornerShape(8.dp),
+                                    border = BorderStroke(1.dp, Color(0xFFCC66FF).copy(alpha = 0.35f)),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text("Tráfico y Rendimiento de Clics:", color = Color(0xFFCC66FF), fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                        
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("Tráfico Total Registrado:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("${String.format(Locale.US, "%,d", totalImpressions)} imp. únicas", color = HextechCyan, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("Clics Únicos Totales:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$totalClicks clics (${String.format(Locale.US, "%.2f", overallCtr)}% CTR)", color = HextechGold, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("Costo Estimado por Clic (eCPC):", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.3f", estimatedCpc)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                            Text("Valor Total del Tráfico:", color = TextSecondary, fontSize = 10.sp)
+                                            Text("$${String.format(Locale.US, "%.2f", totalRevenue)} USD", color = Color(0xFF00FF66), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // 5. Ajuste Manual de Tarifa Base
+                            item {
+                                Column {
+                                    Text("Ajuste Manual de Tarifa Base:", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    OutlinedTextField(
+                                        value = cpmInputText,
+                                        onValueChange = { cpmInputText = it },
+                                        label = { Text("CPM Base en USD ($ por 1k vistas)") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                                        leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null, tint = HextechGold) },
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = HextechGold,
+                                            unfocusedBorderColor = HextechCyan.copy(alpha = 0.5f),
+                                            focusedTextColor = TextPrimary,
+                                            unfocusedTextColor = TextPrimary
+                                        ),
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        listOf(1.00, 2.50, dynamicRec.recommendedCpm, 5.00, 10.00).distinct().forEach { rate ->
+                                            Surface(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .clickable {
+                                                        cpmInputText = String.format(Locale.US, "%.2f", rate)
+                                                    },
+                                                color = HextechSurfaceVariant,
+                                                shape = RoundedCornerShape(6.dp),
+                                                border = BorderStroke(1.dp, if (rate == dynamicRec.recommendedCpm) HextechGold else HextechCyan.copy(alpha = 0.3f))
+                                            ) {
+                                                Text(
+                                                    text = "$$rate",
+                                                    color = if (rate == dynamicRec.recommendedCpm) Color(0xFF00FF66) else HextechCyan,
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    textAlign = TextAlign.Center,
+                                                    modifier = Modifier.padding(vertical = 4.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        val parsed = cpmInputText.replace(',', '.').toDoubleOrNull()
-                        if (editingNoticeId != null) {
-                            AppNoticeAnalyticsManager.setNoticeCpm(context, editingNoticeId!!, parsed)
-                            Toast.makeText(context, "CPM individual actualizado", Toast.LENGTH_SHORT).show()
-                        } else {
-                            val globalParsed = parsed ?: 2.50
-                            AppNoticeAnalyticsManager.setBaseCpm(context, globalParsed)
-                            Toast.makeText(context, "Tarifa CPM actualizada: $$globalParsed USD", Toast.LENGTH_SHORT).show()
+                },
+                confirmButton = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = {
+                                val presentationText = """
+TARIFAS PUBLICITARIAS - COACH APP
+CPM Base: ${'$'}${String.format(Locale.US, "%.2f", baseCpmRate)} USD / 1,000 impresiones
+
+Precios por Formato:
+- Imágenes y Banners (1.0x): ${'$'}${String.format(Locale.US, "%.2f", imageCpm)} USD / 1k (${'$'}${String.format(Locale.US, "%.4f", imageCpm / 1000.0)} USD por vista)
+- Videos MP4 y Clips (2.5x): ${'$'}${String.format(Locale.US, "%.2f", videoCpm)} USD / 1k (${'$'}${String.format(Locale.US, "%.4f", videoCpm / 1000.0)} USD por vista)
+- Pantalla Completa / Fullscreen (1.5x): ${'$'}${String.format(Locale.US, "%.2f", fullscreenCpm)} USD / 1k (${'$'}${String.format(Locale.US, "%.4f", fullscreenCpm / 1000.0)} USD por vista)
+
+Paquetes por Tiempo (Precios Fijos):
+- 1 Día: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Day)} USD
+- 3 Días: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price3Days)} USD
+- 1 Semana: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Week)} USD
+- 1 Mes: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Month)} USD
+- 1 Año: ${'$'}${String.format(Locale.US, "%.0f", dynamicRec.price1Year)} USD
+
+Métricas de Tráfico y Rendimiento:
+- Impresiones Únicas Registradas: ${String.format(Locale.US, "%,d", totalImpressions)}
+- Clics Únicos Totales: ${totalClicks} (CTR promedio: ${String.format(Locale.US, "%.2f", overallCtr)}%)
+- Costo Estimado por Clic (eCPC): ${'$'}${String.format(Locale.US, "%.3f", estimatedCpc)} USD
+- Valor Monetario del Tráfico: ${'$'}${String.format(Locale.US, "%.2f", totalRevenue)} USD
+                                """.trimIndent()
+                                val clip = ClipData.newPlainText("Tarifario Completo Coach", presentationText)
+                                clipboardManager?.setPrimaryClip(clip)
+                                Toast.makeText(context, "Tarifario copiado al portapapeles", Toast.LENGTH_SHORT).show()
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechCyan),
+                            border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.5f))
+                        ) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Copiar Tarifario", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
-                        showEditCpmDialog = false
-                        editingNoticeId = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
-                ) {
-                    Text("Guardar", color = HextechDarkBg, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { 
-                    showEditCpmDialog = false 
-                    editingNoticeId = null
-                }) {
-                    Text("Cancelar", color = TextSecondary)
-                }
-            },
-            containerColor = HextechDarkBg
-        )
+
+                        Button(
+                            onClick = {
+                                val parsed = cpmInputText.replace(',', '.').toDoubleOrNull() ?: baseCpmRate
+                                AppNoticeAnalyticsManager.setBaseCpm(context, parsed)
+                                Toast.makeText(context, "Tarifa CPM actualizada: $$parsed USD", Toast.LENGTH_SHORT).show()
+                                showEditCpmDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold, contentColor = HextechDarkBg)
+                        ) {
+                            Text("Guardar", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        }
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showEditCpmDialog = false }) {
+                        Text("Cerrar", color = TextSecondary)
+                    }
+                },
+                containerColor = HextechDarkBg
+            )
+        }
     }
 
     if (showEditBudgetDialog && editingBudgetNoticeId != null) {
@@ -788,7 +1161,7 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
 
                 // TAG NAVIGATION BAR (Scrollable Navigation Chips / Tabs)
                 val allTags = remember(notices) {
-                    val rawTags = notices.map { it.tag.trim().ifBlank { "General" } }.distinct()
+                    val rawTags = notices.map { normalizeNoticeTag(it.tag) }.distinct().sorted()
                     listOf("TODAS") + rawTags
                 }
 
@@ -802,7 +1175,7 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                 ) {
                     allTags.forEach { tagItem ->
                         val isSelected = selectedTagFilter == tagItem
-                        val countInTag = if (tagItem == "TODAS") notices.size else notices.count { it.tag.trim().ifBlank { "General" }.equals(tagItem, ignoreCase = true) }
+                        val countInTag = if (tagItem == "TODAS") notices.size else notices.count { normalizeNoticeTag(it.tag) == tagItem }
                         
                         Tab(
                             selected = isSelected,
@@ -830,7 +1203,7 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                             Spacer(modifier = Modifier.width(5.dp))
                                         }
                                         Text(
-                                            text = if (tagItem == "TODAS") "TODAS ($countInTag)" else "${tagItem.uppercase()} ($countInTag)",
+                                            text = if (tagItem == "TODAS") "TODAS ($countInTag)" else "$tagItem ($countInTag)",
                                             fontSize = 11.sp,
                                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                                             color = if (isSelected) HextechGold else TextSecondary
@@ -847,7 +1220,7 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                 // List of notices grouped by Tag or filtered by tag navigation
                 val filteredNotices = remember(notices, selectedTagFilter) {
                     if (selectedTagFilter == "TODAS") notices
-                    else notices.filter { it.tag.trim().ifBlank { "General" }.equals(selectedTagFilter, ignoreCase = true) }
+                    else notices.filter { normalizeNoticeTag(it.tag) == selectedTagFilter }
                 }
 
                 if (filteredNotices.isEmpty()) {
@@ -861,7 +1234,7 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                     }
                 } else {
                     val groupedNotices = remember(filteredNotices) {
-                        filteredNotices.groupBy { it.tag.trim().ifBlank { "General" } }
+                        filteredNotices.groupBy { normalizeNoticeTag(it.tag) }
                     }
 
                     LazyColumn(
@@ -977,6 +1350,9 @@ Estos precios están calculados en base a nuestras analíticas activas y engagem
                                         editingBudgetNoticeTitle = notice.title
                                         budgetInputText = if (notice.budget > 0) String.format(Locale.US, "%.2f", notice.budget) else ""
                                         showEditBudgetDialog = true
+                                    },
+                                    onDelete = {
+                                        noticeToDelete = notice
                                     }
                                 )
                             }
@@ -1063,7 +1439,8 @@ private fun NoticeAnalyticsItemCard(
     metrics: NoticeMetrics,
     baseCpm: Double,
     onEditCustomCpm: () -> Unit,
-    onEditBudget: () -> Unit
+    onEditBudget: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val mediaMultiplier = if (notice.videoUrl.isNotBlank()) {
         if (notice.videoUrl.contains("video") || notice.videoUrl.endsWith(".mp4") || notice.videoUrl.contains("youtube")) 2.5 else 1.5
@@ -1074,7 +1451,7 @@ private fun NoticeAnalyticsItemCard(
         val l = tag.lowercase(Locale.ROOT)
         return when {
             l.contains("importante") -> HextechGold
-            l.contains("publicidad") -> Color(0xFF00FF66)
+            l.contains("publicidad") || l.contains("ads") -> Color(0xFF00FF66)
             l.contains("oferta") -> HextechCyan
             l.contains("mantenimiento") -> Color(0xFFFF3333)
             l.contains("noticia") -> Color(0xFFCC66FF)
@@ -1084,12 +1461,29 @@ private fun NoticeAnalyticsItemCard(
     }
 
     val tagColor = getTagColor(notice.tag)
+    val now = System.currentTimeMillis()
+    val isExpired = notice.expiresAtMillis > 0L && now >= notice.expiresAtMillis
+    val isDepleted = notice.budget > 0.0 && revenue >= notice.budget
+
+    val (statusText, statusColor, statusBg) = when {
+        isExpired -> Triple("Expirado", Color(0xFFFF5555), Color(0xFFFF3333).copy(alpha = 0.15f))
+        isDepleted -> Triple("Agotado", Color(0xFFFFB300), Color(0xFFFF9900).copy(alpha = 0.15f))
+        !notice.isEnabled -> Triple("Inactivo", TextMuted, Color.Gray.copy(alpha = 0.15f))
+        else -> Triple("Activo", Color(0xFF00FF66), Color(0xFF00FF66).copy(alpha = 0.15f))
+    }
+
+    val expDateStr = remember(notice.expiresAtMillis) {
+        if (notice.expiresAtMillis > 0L) {
+            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            sdf.format(Date(notice.expiresAtMillis))
+        } else ""
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = HextechSurface.copy(alpha = 0.95f)),
         shape = RoundedCornerShape(10.dp),
-        border = BorderStroke(1.dp, if (notice.isEnabled) tagColor.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f))
+        border = BorderStroke(1.dp, if (notice.isEnabled && !isExpired) tagColor.copy(alpha = 0.4f) else Color.Gray.copy(alpha = 0.2f))
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Row(
@@ -1102,13 +1496,14 @@ private fun NoticeAnalyticsItemCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
+                    val displayTag = if (notice.tag.trim().uppercase(Locale.ROOT) in listOf("ADS", "AD", "PUBLICIDAD", "PUBLICIDADES", "SPONSOR")) "PUBLICIDAD" else notice.tag.trim().ifBlank { "GENERAL" }
                     Surface(
                         color = tagColor.copy(alpha = 0.15f),
                         shape = RoundedCornerShape(4.dp),
                         border = BorderStroke(1.dp, tagColor.copy(alpha = 0.4f))
                     ) {
                         Text(
-                            text = notice.tag.uppercase(),
+                            text = displayTag.uppercase(),
                             color = tagColor,
                             fontSize = 8.5.sp,
                             fontWeight = FontWeight.Bold,
@@ -1126,18 +1521,57 @@ private fun NoticeAnalyticsItemCard(
                     )
                 }
 
-                Surface(
-                    color = if (notice.isEnabled) Color(0xFF00FF66).copy(alpha = 0.15f) else Color.Gray.copy(alpha = 0.15f),
-                    shape = RoundedCornerShape(4.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text(
-                        text = if (notice.isEnabled) "Activo" else "Inactivo",
-                        color = if (notice.isEnabled) Color(0xFF00FF66) else TextMuted,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp)
-                    )
+                    Surface(
+                        color = statusBg,
+                        shape = RoundedCornerShape(4.dp),
+                        border = BorderStroke(0.8.dp, statusColor.copy(alpha = 0.4f))
+                    ) {
+                        Text(
+                            text = statusText,
+                            color = statusColor,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DeleteOutline,
+                            contentDescription = "Eliminar Anuncio",
+                            tint = Color(0xFFFF5555),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
+            }
+
+            if (isExpired) {
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    text = "Venció el $expDateStr",
+                    color = Color(0xFFFF6666),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            } else if (notice.expiresAtMillis > 0L) {
+                Spacer(modifier = Modifier.height(3.dp))
+                val diff = notice.expiresAtMillis - now
+                val days = diff / (1000 * 60 * 60 * 24)
+                val hours = (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+                val timeRemainingStr = if (days > 0) "${days}d ${hours}h" else "${hours}h"
+                Text(
+                    text = "Expira en $timeRemainingStr ($expDateStr)",
+                    color = HextechCyan,
+                    fontSize = 9.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(8.dp))

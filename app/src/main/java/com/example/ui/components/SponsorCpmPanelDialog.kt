@@ -457,7 +457,7 @@ fun SponsorCpmPanelDialog(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .aspectRatio(985f / 425f)
+                                .aspectRatio(16f / 9f)
                                 .clip(RoundedCornerShape(8.dp))
                         ) {
                             Surface(

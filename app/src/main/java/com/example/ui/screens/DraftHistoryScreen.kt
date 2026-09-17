@@ -259,6 +259,8 @@ fun DraftHistoryScreen(
     var selectedDraftForDetail by remember { mutableStateOf<SavedDraftEntity?>(null) }
     var draftToDelete by remember { mutableStateOf<SavedDraftEntity?>(null) }
     var showClearAllConfirm by remember { mutableStateOf(false) }
+    var profileToClearHistory by remember { mutableStateOf<AccountProfile?>(null) }
+    var profileToDeleteProfile by remember { mutableStateOf<AccountProfile?>(null) }
 
     val currentLang = LocalLanguage.current
     val effectiveLang = if (currentLang == "auto") "es" else currentLang
@@ -1386,9 +1388,7 @@ fun DraftHistoryScreen(
                         
                         OutlinedButton(
                             onClick = {
-                                coroutineScope.launch {
-                                    DraftHistoryRepository.clearDraftsByProfile(context, prof.id)
-                                }
+                                profileToClearHistory = prof
                                 profileToEdit = null
                             },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
@@ -1404,13 +1404,7 @@ fun DraftHistoryScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedButton(
                             onClick = {
-                                coroutineScope.launch {
-                                    DraftHistoryRepository.clearDraftsByProfile(context, prof.id)
-                                }
-                                AccountProfileManager.deleteProfile(context, prof.id)
-                                if (selectedProfileIdFilter == prof.id) {
-                                    selectedProfileIdFilter = "ALL"
-                                }
+                                profileToDeleteProfile = prof
                                 profileToEdit = null
                             },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
@@ -1426,9 +1420,7 @@ fun DraftHistoryScreen(
                         Spacer(modifier = Modifier.height(14.dp))
                         OutlinedButton(
                             onClick = {
-                                coroutineScope.launch {
-                                    DraftHistoryRepository.clearDraftsByProfile(context, prof.id)
-                                }
+                                profileToClearHistory = prof
                                 profileToEdit = null
                             },
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
@@ -1495,6 +1487,70 @@ fun DraftHistoryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { draftToDelete = null }) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            }
+        )
+    }
+
+    // Confirm Clear Profile History Dialog
+    if (profileToClearHistory != null) {
+        val targetProf = profileToClearHistory!!
+        AdaptiveHistoryDialog(
+            isOverlay = effectiveOverlay,
+            onDismissRequest = { profileToClearHistory = null },
+            title = { Text(tr("Vaciar Historial del Perfil"), color = DangerRed, fontWeight = FontWeight.Bold) },
+            text = { Text(tr("¿Estás seguro de que deseas vaciar todo el historial del perfil '${targetProf.name}'? Esta acción no se puede deshacer."), color = TextSecondary, fontSize = 13.sp) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val profId = targetProf.id
+                        profileToClearHistory = null
+                        coroutineScope.launch {
+                            DraftHistoryRepository.clearDraftsByProfile(context, profId)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text(tr("Vaciar Historial"), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { profileToClearHistory = null }) {
+                    Text(tr("Cancelar"), color = TextMuted)
+                }
+            }
+        )
+    }
+
+    // Confirm Delete Profile Dialog
+    if (profileToDeleteProfile != null) {
+        val targetProf = profileToDeleteProfile!!
+        AdaptiveHistoryDialog(
+            isOverlay = effectiveOverlay,
+            onDismissRequest = { profileToDeleteProfile = null },
+            title = { Text(tr("Eliminar Perfil e Historial"), color = DangerRed, fontWeight = FontWeight.Bold) },
+            text = { Text(tr("¿Estás seguro de que deseas eliminar el perfil '${targetProf.name}' y todo su historial asociado? Esta acción es irreversible y permanente."), color = TextSecondary, fontSize = 13.sp) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val profId = targetProf.id
+                        profileToDeleteProfile = null
+                        coroutineScope.launch {
+                            DraftHistoryRepository.clearDraftsByProfile(context, profId)
+                            AccountProfileManager.deleteProfile(context, profId)
+                            if (selectedProfileIdFilter == profId) {
+                                selectedProfileIdFilter = "ALL"
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DangerRed)
+                ) {
+                    Text(tr("Eliminar Perfil"), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { profileToDeleteProfile = null }) {
                     Text(tr("Cancelar"), color = TextMuted)
                 }
             }

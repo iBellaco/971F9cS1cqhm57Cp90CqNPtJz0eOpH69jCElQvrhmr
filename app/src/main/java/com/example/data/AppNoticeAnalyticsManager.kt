@@ -577,6 +577,25 @@ object AppNoticeAnalyticsManager {
         }
     }
 
+    fun deleteNoticeMetrics(context: Context, noticeId: String) {
+        val currentMap = _metricsMap.value.toMutableMap()
+        currentMap.remove(noticeId)
+        _metricsMap.value = currentMap
+        saveToPrefs(context, currentMap)
+
+        try {
+            val db = FirebaseFirestore.getInstance()
+            val updates = hashMapOf<String, Any>(
+                "metrics.$noticeId" to FieldValue.delete(),
+                "updatedAt" to System.currentTimeMillis()
+            )
+            db.collection(FIRESTORE_COLLECTION).document(FIRESTORE_DOC_ANALYTICS)
+                .update(updates)
+        } catch (e: Exception) {
+            Log.w(TAG, "Error eliminando métricas de anuncio en la nube: ${e.message}")
+        }
+    }
+
     fun resetMetrics(context: Context) {
         _metricsMap.value = emptyMap()
         _trackingStartDate.value = System.currentTimeMillis()

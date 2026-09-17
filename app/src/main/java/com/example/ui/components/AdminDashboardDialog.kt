@@ -662,7 +662,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { copyToClipboard("Medida Horizontal", "985x425") },
+                                .clickable { copyToClipboard("Medida Horizontal", "1920x1080") },
                             color = HextechSurfaceVariant,
                             shape = RoundedCornerShape(6.dp),
                             border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f))
@@ -676,7 +676,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text("🖼️ Horizontal (Panel de Inicio / Tarjeta):", color = HextechCyan, fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                                    Text("985 x 425 px  (o 1280x720 / 16:9)", color = TextPrimary, fontSize = 10.sp)
+                                    Text("1920 x 1080 px  (Relación 16:9)", color = TextPrimary, fontSize = 10.sp)
                                 }
                                 Icon(Icons.Default.ContentCopy, contentDescription = "Copiar", tint = HextechCyan, modifier = Modifier.size(16.dp))
                             }
@@ -1169,7 +1169,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .aspectRatio(985f / 425f)
+                                    .aspectRatio(16f / 9f)
                                     .clip(RoundedCornerShape(6.dp))
                                     .background(Color.Black),
                                 contentAlignment = Alignment.Center
@@ -1681,7 +1681,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 mediaUrl = videoUrl,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .aspectRatio(985f / 425f)
+                                    .aspectRatio(16f / 9f)
                             )
                         }
                         if (expandedImageUrl.isNotBlank()) {

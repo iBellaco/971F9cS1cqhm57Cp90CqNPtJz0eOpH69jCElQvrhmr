@@ -538,6 +538,24 @@ object AppNoticeManager {
         pushNoticesToFirestore(appContext, newNotices)
     }
 
+    fun deleteNotice(context: Context, noticeId: String, onComplete: ((Boolean) -> Unit)? = null) {
+        val appContext = context.applicationContext
+        val updated = _notices.value.filter { it.id != noticeId }
+        _notices.value = updated
+        saveNoticesToPrefs(appContext, updated)
+        saveAllNoticesAndInterval(
+            context = appContext,
+            newNotices = updated,
+            intervalValue = _streamerIntervalValue.value,
+            intervalUnit = _streamerIntervalUnit.value,
+            onComplete = { success, _ ->
+                onComplete?.invoke(success)
+            }
+        )
+        // Eliminar también sus métricas asociadas
+        AppNoticeAnalyticsManager.deleteNoticeMetrics(appContext, noticeId)
+    }
+
     // For backward compatibility if single update is called
     fun updateNotice(context: Context, notice: AppNotice) {
         val current = _notices.value.toMutableList()
