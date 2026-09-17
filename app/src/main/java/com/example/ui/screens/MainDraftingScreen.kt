@@ -924,9 +924,7 @@ fun NoticeCategoryCard(
                             Spacer(modifier = Modifier.height(8.dp))
                             com.example.ui.components.NoticeMediaViewer(
                                 mediaUrl = noticeItem.videoUrl,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(985f / 425f),
+                                modifier = Modifier.fillMaxWidth(),
                                 onExpand = {
                                     com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)
                                     isFullscreenMedia = true

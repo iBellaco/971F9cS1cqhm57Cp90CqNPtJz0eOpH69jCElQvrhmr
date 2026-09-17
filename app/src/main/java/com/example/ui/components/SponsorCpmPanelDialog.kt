@@ -213,49 +213,18 @@ fun SponsorCpmPanelDialog(
         }
     }
 
-    // Launcher para seleccionar multimedia horizontal (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
+    // Launcher para seleccionar multimedia horizontal (imágenes PNG/JPG, videos solo MP4 máx 15s, validación estricta de tamaño recomendado)
     val horizontalPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val mimeType = context.contentResolver.getType(uri) ?: ""
-        val path = uri.toString().lowercase()
-        val isVideo = NoticeMediaStorageManager.isUriVideo(context, uri) || mimeType.startsWith("video")
-
-        if (isVideo) {
-            val isMp4 = mimeType.equals("video/mp4", true) || path.endsWith(".mp4")
-            if (!isMp4) {
-                Toast.makeText(context, "Los videos deben estar estrictamente en formato MP4", Toast.LENGTH_LONG).show()
-                return@rememberLauncherForActivityResult
-            }
-            try {
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(context, uri)
-                val durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                val durMs = durStr?.toLongOrNull() ?: 0L
-                retriever.release()
-                if (durMs > 10_500L) {
-                    Toast.makeText(context, "El video no puede superar los 10 segundos de duración", Toast.LENGTH_LONG).show()
-                    return@rememberLauncherForActivityResult
-                }
-            } catch (_: Exception) {}
-        } else {
-            val isPngOrJpg = mimeType.equals("image/png", true) || path.endsWith(".png") || mimeType.equals("image/jpeg", true) || mimeType.equals("image/jpg", true) || path.endsWith(".jpg") || path.endsWith(".jpeg")
-            if (!isPngOrJpg) {
-                Toast.makeText(context, "Las imágenes de galería deben ser en formato PNG o JPG", Toast.LENGTH_LONG).show()
-                return@rememberLauncherForActivityResult
-            }
-            try {
-                val pfd = context.contentResolver.openFileDescriptor(uri, "r")
-                val size = pfd?.statSize ?: 0L
-                pfd?.close()
-                if (size > 10 * 1024 * 1024L) {
-                    Toast.makeText(context, "La imagen no debe superar los 10MB", Toast.LENGTH_LONG).show()
-                    return@rememberLauncherForActivityResult
-                }
-            } catch (_: Exception) {}
+        val validation = NoticeMediaUtils.validateMediaForSlot(context, uri, isVerticalSlot = false)
+        if (!validation.isValid) {
+            Toast.makeText(context, validation.errorMessage ?: "El archivo no cumple con el tamaño o proporción recomendada", Toast.LENGTH_LONG).show()
+            return@rememberLauncherForActivityResult
         }
 
+        val isVideo = validation.isVideo
         isUploadingMedia = true
         coroutineScope.launch {
             val result = if (isVideo) {
@@ -266,53 +235,22 @@ fun SponsorCpmPanelDialog(
             horizontalMediaInput = result
             isHorizontalVideo = isVideo
             isUploadingMedia = false
-            Toast.makeText(context, "Multimedia horizontal cargada (PNG/MP4)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Multimedia horizontal válida cargada (${validation.width}x${validation.height})", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Launcher para seleccionar multimedia vertical (imágenes PNG/JPG, videos solo MP4 máx 10s, máx 10MB)
+    // Launcher para seleccionar multimedia vertical (imágenes PNG/JPG, videos solo MP4 máx 15s, validación estricta de tamaño recomendado)
     val verticalPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val mimeType = context.contentResolver.getType(uri) ?: ""
-        val path = uri.toString().lowercase()
-        val isVideo = NoticeMediaStorageManager.isUriVideo(context, uri) || mimeType.startsWith("video")
-
-        if (isVideo) {
-            val isMp4 = mimeType.equals("video/mp4", true) || path.endsWith(".mp4")
-            if (!isMp4) {
-                Toast.makeText(context, "Los videos deben estar estrictamente en formato MP4", Toast.LENGTH_LONG).show()
-                return@rememberLauncherForActivityResult
-            }
-            try {
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(context, uri)
-                val durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-                val durMs = durStr?.toLongOrNull() ?: 0L
-                retriever.release()
-                if (durMs > 10_500L) {
-                    Toast.makeText(context, "El video no puede superar los 10 segundos de duración", Toast.LENGTH_LONG).show()
-                    return@rememberLauncherForActivityResult
-                }
-            } catch (_: Exception) {}
-        } else {
-            val isPngOrJpg = mimeType.equals("image/png", true) || path.endsWith(".png") || mimeType.equals("image/jpeg", true) || mimeType.equals("image/jpg", true) || path.endsWith(".jpg") || path.endsWith(".jpeg")
-            if (!isPngOrJpg) {
-                Toast.makeText(context, "Las imágenes de galería deben ser en formato PNG o JPG", Toast.LENGTH_LONG).show()
-                return@rememberLauncherForActivityResult
-            }
-            try {
-                val pfd = context.contentResolver.openFileDescriptor(uri, "r")
-                val size = pfd?.statSize ?: 0L
-                pfd?.close()
-                if (size > 10 * 1024 * 1024L) {
-                    Toast.makeText(context, "La imagen no debe superar los 10MB", Toast.LENGTH_LONG).show()
-                    return@rememberLauncherForActivityResult
-                }
-            } catch (_: Exception) {}
+        val validation = NoticeMediaUtils.validateMediaForSlot(context, uri, isVerticalSlot = true)
+        if (!validation.isValid) {
+            Toast.makeText(context, validation.errorMessage ?: "El archivo no cumple con el tamaño o proporción recomendada", Toast.LENGTH_LONG).show()
+            return@rememberLauncherForActivityResult
         }
 
+        val isVideo = validation.isVideo
         isUploadingMedia = true
         coroutineScope.launch {
             val result = if (isVideo) {
@@ -323,7 +261,7 @@ fun SponsorCpmPanelDialog(
             verticalMediaInput = result
             isVerticalVideo = isVideo
             isUploadingMedia = false
-            Toast.makeText(context, "Multimedia vertical cargada (PNG/MP4)", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Multimedia vertical válida cargada (${validation.width}x${validation.height})", Toast.LENGTH_SHORT).show()
         }
     }
 

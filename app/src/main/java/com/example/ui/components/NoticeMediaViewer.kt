@@ -13,6 +13,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.VideoView
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.ui.draw.scale
@@ -270,6 +271,133 @@ object NoticeMediaUtils {
         val seconds = totalSeconds % 60
         return String.format("%02d:%02d", minutes, seconds)
     }
+
+    data class MediaValidationResult(
+        val isValid: Boolean,
+        val isVideo: Boolean,
+        val width: Int,
+        val height: Int,
+        val isVertical: Boolean,
+        val durationMs: Long = 0L,
+        val fileSizeBytes: Long = 0L,
+        val errorMessage: String? = null
+    )
+
+    /**
+     * Valida de forma estricta el tamaño, dimensiones, proporción y formato recomendado
+     * para la subida de anuncios tanto para el Promotor como para el Administrador.
+     */
+    fun validateMediaForSlot(context: Context, uri: Uri, isVerticalSlot: Boolean): MediaValidationResult {
+        try {
+            val mimeType = context.contentResolver.getType(uri) ?: ""
+            val path = uri.toString().lowercase()
+            val isVideo = com.example.util.NoticeMediaStorageManager.isUriVideo(context, uri) || mimeType.startsWith("video")
+
+            var fileSizeBytes = 0L
+            try {
+                val pfd = context.contentResolver.openFileDescriptor(uri, "r")
+                fileSizeBytes = pfd?.statSize ?: 0L
+                pfd?.close()
+            } catch (_: Exception) {}
+
+            if (isVideo) {
+                val isMp4 = mimeType.equals("video/mp4", true) || path.endsWith(".mp4")
+                if (!isMp4) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = true, width = 0, height = 0, isVertical = false,
+                        errorMessage = "Formato no admitido: Los videos deben estar estrictamente en formato MP4."
+                    )
+                }
+                if (fileSizeBytes > 15 * 1024 * 1024L) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = true, width = 0, height = 0, isVertical = false,
+                        errorMessage = "Tamaño excedido: El video no debe superar los 15 MB."
+                    )
+                }
+
+                val retriever = android.media.MediaMetadataRetriever()
+                retriever.setDataSource(context, uri)
+                val durStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)
+                val widthStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                val heightStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                val rotationStr = retriever.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION) ?: "0"
+                retriever.release()
+
+                val durMs = durStr?.toLongOrNull() ?: 0L
+                if (durMs > 15_500L) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = true, width = 0, height = 0, isVertical = false,
+                        errorMessage = "Duración excedida: El video no puede superar los 15 segundos (detectado: ${(durMs / 1000)}s)."
+                    )
+                }
+
+                val rawW = widthStr?.toIntOrNull() ?: 0
+                val rawH = heightStr?.toIntOrNull() ?: 0
+                val rot = rotationStr.toIntOrNull() ?: 0
+                val isRotated = rot == 90 || rot == 270
+                val w = if (isRotated) rawH else rawW
+                val h = if (isRotated) rawW else rawH
+                val isVertical = h >= w
+
+                if (isVerticalSlot && !isVertical) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = true, width = w, height = h, isVertical = isVertical,
+                        errorMessage = "Orientación incorrecta: Para la vista ampliada vertical debes subir un video vertical (proporción recomendada 9:16 / 1080x1920). Dimensiones detectadas: ${w}x${h}."
+                    )
+                }
+                if (!isVerticalSlot && isVertical) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = true, width = w, height = h, isVertical = isVertical,
+                        errorMessage = "Orientación incorrecta: Para el banner horizontal debes subir un video horizontal (proporción recomendada 16:9 / 1920x1080). Dimensiones detectadas: ${w}x${h}."
+                    )
+                }
+
+                return MediaValidationResult(isValid = true, isVideo = true, width = w, height = h, isVertical = isVertical, durationMs = durMs, fileSizeBytes = fileSizeBytes)
+            } else {
+                val isPngOrJpg = mimeType.equals("image/png", true) || path.endsWith(".png") ||
+                                 mimeType.equals("image/jpeg", true) || mimeType.equals("image/jpg", true) ||
+                                 path.endsWith(".jpg") || path.endsWith(".jpeg") || mimeType.equals("image/webp", true) || path.endsWith(".webp")
+                if (!isPngOrJpg) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = false, width = 0, height = 0, isVertical = false,
+                        errorMessage = "Formato no admitido: Las imágenes deben ser PNG, JPG o WEBP."
+                    )
+                }
+                if (fileSizeBytes > 10 * 1024 * 1024L) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = false, width = 0, height = 0, isVertical = false,
+                        errorMessage = "Tamaño excedido: La imagen no debe superar los 10 MB."
+                    )
+                }
+
+                val options = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                val stream = context.contentResolver.openInputStream(uri)
+                android.graphics.BitmapFactory.decodeStream(stream, null, options)
+                stream?.close()
+
+                val w = options.outWidth
+                val h = options.outHeight
+                val isVertical = h >= w
+
+                if (isVerticalSlot && !isVertical) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = false, width = w, height = h, isVertical = isVertical,
+                        errorMessage = "Orientación incorrecta: Para la vista ampliada vertical debes subir una imagen vertical (proporción recomendada 9:16 / 1080x1920). Dimensiones detectadas: ${w}x${h}."
+                    )
+                }
+                if (!isVerticalSlot && isVertical) {
+                    return MediaValidationResult(
+                        isValid = false, isVideo = false, width = w, height = h, isVertical = isVertical,
+                        errorMessage = "Orientación incorrecta: Para el banner horizontal debes subir una imagen horizontal (proporción recomendada 16:9 / 1920x1080 o 985x425). Dimensiones detectadas: ${w}x${h}."
+                    )
+                }
+
+                return MediaValidationResult(isValid = true, isVideo = false, width = w, height = h, isVertical = isVertical, fileSizeBytes = fileSizeBytes)
+            }
+        } catch (e: Exception) {
+            return MediaValidationResult(isValid = false, isVideo = false, width = 0, height = 0, isVertical = false, errorMessage = "Error al leer archivo: ${e.message}")
+        }
+    }
 }
 
 @Composable
@@ -297,7 +425,7 @@ fun NoticeMediaViewer(
         modifier
             .fillMaxWidth()
             .then(
-                if (isVertical) Modifier.aspectRatio(4f / 5f) else Modifier.aspectRatio(985f / 425f)
+                if (isVertical) Modifier.aspectRatio(4f / 5f) else Modifier.aspectRatio(16f / 9f)
             )
     }
 
@@ -305,9 +433,13 @@ fun NoticeMediaViewer(
         containerModifier.background(Color.Black)
     } else {
         containerModifier
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.Black)
-            .border(1.dp, HextechCyan.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(10.dp))
+            .background(HextechDarkBg)
+            .border(
+                1.2.dp,
+                if (isVertical) HextechCyan.copy(alpha = 0.65f) else HextechGold.copy(alpha = 0.65f),
+                RoundedCornerShape(10.dp)
+            )
     }
 
     Box(
@@ -503,13 +635,31 @@ fun NoticeMediaViewer(
                         } else if (!isFullscreen && onExpand != null) {
                             Modifier.clickable { onExpand() }
                         } else Modifier
-                    )
+                    ),
+                contentAlignment = Alignment.Center
             ) {
+                // Capa 1: Fondo ambiental difuminado que rellena bordes y evita huecos negros si la imagen tiene proporción diferente
+                AsyncImage(
+                    model = imageModel,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(Color.Black.copy(alpha = 0.55f))
+                        },
+                    contentScale = ContentScale.Crop
+                )
+
+                // Capa 2: Imagen nítida centrada ajustada perfectamente al marco sin recortes ni deformaciones
                 AsyncImage(
                     model = imageModel,
                     contentDescription = "Multimedia de Anuncio",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = if (isFullscreen || isVertical) ContentScale.Fit else ContentScale.Crop
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(if (isFullscreen) 0.dp else 4.dp)
+                        .clip(RoundedCornerShape(if (isFullscreen) 0.dp else 8.dp)),
+                    contentScale = ContentScale.Fit
                 )
 
                 if (!isFullscreen && onExpand != null) {
@@ -517,7 +667,8 @@ fun NoticeMediaViewer(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(6.dp)
-                            .background(HextechSurface.copy(alpha = 0.8f), RoundedCornerShape(4.dp))
+                            .background(HextechSurface.copy(alpha = 0.85f), RoundedCornerShape(4.dp))
+                            .border(0.8.dp, HextechCyan.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -795,17 +946,25 @@ fun LocalGalleryVideoPlayer(
 
                     videoView.setOnPreparedListener { mp ->
                         mediaPlayerRef = mp
-                        mp.isLooping = true
+                        try {
+                            mp.isLooping = true
+                            val vol = if (isMuted) 0f else 1f
+                            mp.setVolume(vol, vol)
+                            mp.start()
+                        } catch (_: Exception) {}
+                        try {
+                            videoView.start()
+                        } catch (_: Exception) {}
+                        isPlaying = true
                         isBuffering = false
                         hasError = false
-                        val vol = if (isMuted) 0f else 1f
-                        mp.setVolume(vol, vol)
+                    }
 
-                        if (isPlaying) {
+                    videoView.setOnCompletionListener {
+                        try {
+                            videoView.seekTo(0)
                             videoView.start()
-                        } else {
-                            videoView.pause()
-                        }
+                        } catch (_: Exception) {}
                     }
 
                     videoView.setOnInfoListener { _, what, _ ->
@@ -880,9 +1039,19 @@ fun LocalGalleryVideoPlayer(
                         mediaPlayerRef?.setVolume(vol, vol)
 
                         if (isPlaying) {
-                            if (mediaPlayerRef?.isPlaying == false) mediaPlayerRef?.start()
+                            if (mediaPlayerRef?.isPlaying == false) {
+                                try { mediaPlayerRef?.start() } catch (_: Exception) {}
+                            }
+                            if (videoViewInstance?.isPlaying == false) {
+                                try { videoViewInstance?.start() } catch (_: Exception) {}
+                            }
                         } else {
-                            if (mediaPlayerRef?.isPlaying == true) mediaPlayerRef?.pause()
+                            if (mediaPlayerRef?.isPlaying == true) {
+                                try { mediaPlayerRef?.pause() } catch (_: Exception) {}
+                            }
+                            if (videoViewInstance?.isPlaying == true) {
+                                try { videoViewInstance?.pause() } catch (_: Exception) {}
+                            }
                         }
                     } catch (_: Exception) {}
                 },

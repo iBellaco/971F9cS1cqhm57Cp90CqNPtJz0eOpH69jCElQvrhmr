@@ -665,6 +665,8 @@ object LocalVisionAnalyzer {
 
     /**
      * Escaneo del 10º Pick en la PARTE INFERIOR con métricas y justificación completa.
+     * Incorpora muestreo multiescala y micro-jitter espacial para capturar con precisión
+     * milimétrica el avatar del campeón preseleccionado (hover) en el slot 5.
      */
     suspend fun identify10thPickInferiorDetailed(
         bitmap: Bitmap,
@@ -694,37 +696,59 @@ object LocalVisionAnalyzer {
             (height * calib.enemySlotYRatios[4]).toInt()
         }
 
+        val candidateXs = listOf(
+            slotCenterX,
+            slotCenterX - (width * 0.005f).toInt(),
+            slotCenterX + (width * 0.005f).toInt()
+        )
+        val candidateYs = listOf(
+            slotCenterY,
+            slotCenterY - (height * 0.004f).toInt(),
+            slotCenterY + (height * 0.004f).toInt()
+        )
+
         val sideDesc = if (isAlly) "Inferior Izquierda (Aliado 5 - 10º Pick)" else "Inferior Derecha (Rival 5 - 10º Pick)"
-
-        val rawCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotAvatarDiam)
-        val standardCrop = if (rawCrop != null) enhanceCropQuality(rawCrop) else null
-        val innerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 0.88f).toInt())?.let { enhanceCropQuality(it) }
-        val outerCrop = safeCrop(bitmap, slotCenterX, slotCenterY, (slotAvatarDiam * 1.08f).toInt())?.let { enhanceCropQuality(it) }
-
-        try {
-            standardCrop?.let { crop ->
-                lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
-                lastTenthPickRoiLabel = sideDesc
-                lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotAvatarDiam}px"
-            }
-        } catch (_: Throwable) {}
-
         val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
-        try {
-            if (standardCrop != null) {
-                matchWith4InferenceEngines(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+
+        for (curY in candidateYs) {
+            for (curX in candidateXs) {
+                val rawCrop = safeCrop(bitmap, curX, curY, slotAvatarDiam)
+                val standardCrop = if (rawCrop != null) enhanceCropQuality(rawCrop) else null
+                val innerCrop88 = safeCrop(bitmap, curX, curY, (slotAvatarDiam * 0.88f).toInt())?.let { enhanceCropQuality(it) }
+                val innerCrop94 = safeCrop(bitmap, curX, curY, (slotAvatarDiam * 0.94f).toInt())?.let { enhanceCropQuality(it) }
+                val outerCrop = safeCrop(bitmap, curX, curY, (slotAvatarDiam * 1.06f).toInt())?.let { enhanceCropQuality(it) }
+
+                if (curX == slotCenterX && curY == slotCenterY) {
+                    try {
+                        standardCrop?.let { crop ->
+                            lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
+                            lastTenthPickRoiLabel = sideDesc
+                            lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotAvatarDiam}px"
+                        }
+                    } catch (_: Throwable) {}
+                }
+
+                try {
+                    if (standardCrop != null) {
+                        matchWith4InferenceEngines(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    }
+                    if (innerCrop94 != null) {
+                        matchWith4InferenceEngines(innerCrop94, "$sideDesc [Interior 94%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    }
+                    if (innerCrop88 != null) {
+                        matchWith4InferenceEngines(innerCrop88, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    }
+                    if (outerCrop != null) {
+                        matchWith4InferenceEngines(outerCrop, "$sideDesc [Exterior 106%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                    }
+                } finally {
+                    try { rawCrop?.recycle() } catch (_: Throwable) {}
+                    try { standardCrop?.recycle() } catch (_: Throwable) {}
+                    try { innerCrop94?.recycle() } catch (_: Throwable) {}
+                    try { innerCrop88?.recycle() } catch (_: Throwable) {}
+                    try { outerCrop?.recycle() } catch (_: Throwable) {}
+                }
             }
-            if (innerCrop != null) {
-                matchWith4InferenceEngines(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-            }
-            if (outerCrop != null) {
-                matchWith4InferenceEngines(outerCrop, "$sideDesc [Exterior 108%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
-            }
-        } finally {
-            try { rawCrop?.recycle() } catch (_: Throwable) {}
-            try { standardCrop?.recycle() } catch (_: Throwable) {}
-            try { innerCrop?.recycle() } catch (_: Throwable) {}
-            try { outerCrop?.recycle() } catch (_: Throwable) {}
         }
 
         val bestDecision = candidateDecisions.maxByOrNull { it.confidence }
