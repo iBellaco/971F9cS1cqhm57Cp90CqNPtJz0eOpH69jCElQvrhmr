@@ -4401,14 +4401,16 @@ private fun TenthPickScannerViewerDialog(
 
                         // Similitud / Coincidencia Central
                         val log = currentLog
+                        val bench = currentBenchmark
                         val topCand = log?.topCandidates?.firstOrNull()
+                        val matchedChamp = log?.selectedChampion ?: bench?.topCandidate ?: topCand?.champion
                         val rawScore = if (log?.isConfirmed == true && log.selectedChampion != null) {
                             log.confidence
                         } else {
-                            (topCand?.compositeScore ?: (log?.confidence ?: 0f))
+                            (bench?.confidenceScore ?: (topCand?.compositeScore ?: (log?.confidence ?: 0f)))
                         }
                         val score = (rawScore * 100).toInt()
-                        val isConfirmed = log?.isConfirmed == true && log.selectedChampion != null && score >= 65
+                        val isConfirmed = (log?.isConfirmed == true && log.selectedChampion != null && score >= 55) || (score >= 65 && matchedChamp != null)
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
@@ -4427,7 +4429,6 @@ private fun TenthPickScannerViewerDialog(
                         }
 
                         // Avatar Campeón Referencia (84.dp)
-                        val matchedChamp = log?.selectedChampion ?: topCand?.champion
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
                                 text = if (matchedChamp != null) {
