@@ -3674,13 +3674,15 @@ private fun TenthPickScannerViewerDialog(
                                 com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions.mapNotNull { it?.id }
                             }
                             val draftConfirmedIds = (otherAllyIds + otherEnemyIds).toSet()
-                            val dec = com.example.service.screen.LocalVisionAnalyzer.inspectSlotDetailed(
+                            val isFirstPickFor10th = (selectedVision == 1) // 0 = Visión Izquierda (10º Aliado / Slot 5 Aliado), 1 = Visión Derecha (10º Rival / Slot 5 Rival)
+                            val dec = com.example.service.screen.LocalVisionAnalyzer.identify10thPickInferiorDetailed(
                                 bitmap = bmp,
-                                isAlly = (selectedVision == 0),
-                                slotIndex = 4, // 10º Pick (5º avatar)
+                                isFirstPick = isFirstPickFor10th,
                                 calib = calib,
                                 allChamps = allChamps,
-                                excludedChampionIds = emptySet(),
+                                confirmedIds = emptySet(),
+                                expectedRole = null,
+                                roleExplanation = null,
                                 context = context
                             )
                             val crop = com.example.service.screen.LocalVisionAnalyzer.lastTenthPickCrop?.let {

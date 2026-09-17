@@ -885,7 +885,7 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Identificación visual de un avatar específico en la barra superior (slots 0..4).
+     * Identificación visual de un avatar específico en el slot inferior (slots 0..4).
      */
     suspend fun identifyTopSlotAvatar(
         bitmap: Bitmap,
@@ -901,16 +901,16 @@ object LocalVisionAnalyzer {
         val idx = slotIndex.coerceIn(0, 4)
         val width = bitmap.width
         val height = bitmap.height
-        val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
-        val topCenterY = (height * calib.topAvatarYRatio).toInt()
-        val targetXRatio = if (isAlly) {
-            calib.topAllyXRatios.getOrNull(idx) ?: calib.topAlly5XRatio
+        val slotDiam = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
+        val slotCenterY = if (isAlly) {
+            (height * calib.allySlotYRatios.getOrElse(idx) { 0.739f }).toInt()
         } else {
-            calib.topEnemyXRatios.getOrNull(idx) ?: calib.topEnemy5XRatio
+            (height * calib.enemySlotYRatios.getOrElse(idx) { 0.739f }).toInt()
         }
-        val topCenterX = (width * targetXRatio).toInt()
+        val targetXRatio = if (isAlly) calib.allyAvatarCenterX else calib.enemyAvatarCenterX
+        val slotCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"
-        val rawCrop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
+        val rawCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotDiam) ?: return@withContext null
         val crop = enhanceCropQuality(rawCrop)
         if (rawCrop != crop) {
             try { rawCrop.recycle() } catch (_: Throwable) {}
@@ -918,14 +918,14 @@ object LocalVisionAnalyzer {
         if (idx == 4) {
             try {
                 lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
-                lastTenthPickRoiLabel = "Barra Superior ($side 5 - 10º Pick)"
-                lastTenthPickCoordinates = "X: ${topCenterX}px (${(topCenterX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+                lastTenthPickRoiLabel = "Slot Inferior ($side 5 - 10º Pick)"
+                lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotDiam}px"
             } catch (_: Throwable) {}
         }
         try {
             val detailed = matchAvatarDetailed(
                 crop = crop,
-                roiLabel = "Barra Superior ($side ${idx + 1})",
+                roiLabel = "Slot Inferior ($side ${idx + 1})",
                 candidates = allChamps,
                 expectedRole = expectedRole,
                 excludedChampionIds = confirmedIds,
@@ -933,7 +933,7 @@ object LocalVisionAnalyzer {
                 isConfirmedPhase = true
             ) ?: return@withContext null
             val champ = detailed.selectedChampion ?: return@withContext null
-            if (detailed.confidence >= 0.45f) {
+            if (detailed.confidence >= 0.40f) {
                 if (idx == 4) {
                     lastTenthPickLog = detailed.copy(cropBitmap = lastTenthPickCrop)
                 }
@@ -946,7 +946,7 @@ object LocalVisionAnalyzer {
     }
 
     /**
-     * Inspección interactiva en tiempo real para cualquier slot superior (Aliado o Rival, 0..4).
+     * Inspección interactiva en tiempo real para cualquier slot inferior (Aliado o Rival, 0..4).
      */
     suspend fun inspectSlotDetailed(
         bitmap: Bitmap,
@@ -962,16 +962,16 @@ object LocalVisionAnalyzer {
         val idx = slotIndex.coerceIn(0, 4)
         val width = bitmap.width
         val height = bitmap.height
-        val topDiam = (height * calib.topAvatarDiameterRatio).toInt().coerceAtLeast(26)
-        val topCenterY = (height * calib.topAvatarYRatio).toInt()
-        val targetXRatio = if (isAlly) {
-            calib.topAllyXRatios.getOrNull(idx) ?: calib.topAlly5XRatio
+        val slotDiam = (height * calib.avatarDiameterRatio).toInt().coerceAtLeast(32)
+        val slotCenterY = if (isAlly) {
+            (height * calib.allySlotYRatios.getOrElse(idx) { 0.739f }).toInt()
         } else {
-            calib.topEnemyXRatios.getOrNull(idx) ?: calib.topEnemy5XRatio
+            (height * calib.enemySlotYRatios.getOrElse(idx) { 0.739f }).toInt()
         }
-        val topCenterX = (width * targetXRatio).toInt()
+        val targetXRatio = if (isAlly) calib.allyAvatarCenterX else calib.enemyAvatarCenterX
+        val slotCenterX = (width * targetXRatio).toInt()
         val side = if (isAlly) "Aliado" else "Rival"
-        val rawCrop = safeCrop(bitmap, topCenterX, topCenterY, topDiam) ?: return@withContext null
+        val rawCrop = safeCrop(bitmap, slotCenterX, slotCenterY, slotDiam) ?: return@withContext null
         val crop = enhanceCropQuality(rawCrop)
         if (rawCrop != crop) {
             try { rawCrop.recycle() } catch (_: Throwable) {}
@@ -979,19 +979,19 @@ object LocalVisionAnalyzer {
 
         try {
             lastTenthPickCrop = crop.copy(Bitmap.Config.ARGB_8888, false)
-            lastTenthPickRoiLabel = "Barra Superior ($side ${idx + 1})"
-            lastTenthPickCoordinates = "X: ${topCenterX}px (${(topCenterX * 100f / width).toInt()}%) | Y: ${topCenterY}px (${(topCenterY * 100f / height).toInt()}%) | Dim: ${topDiam}px"
+            lastTenthPickRoiLabel = "Slot Inferior ($side ${idx + 1})"
+            lastTenthPickCoordinates = "X: ${slotCenterX}px (${(slotCenterX * 100f / width).toInt()}%) | Y: ${slotCenterY}px (${(slotCenterY * 100f / height).toInt()}%) | Dim: ${slotDiam}px"
         } catch (_: Throwable) {}
 
         try {
             val detailed = matchAvatarDetailed(
                 crop = crop,
-                roiLabel = "Barra Superior ($side ${idx + 1})",
+                roiLabel = "Slot Inferior ($side ${idx + 1})",
                 candidates = allChamps,
                 expectedRole = expectedRole,
                 excludedChampionIds = excludedChampionIds,
                 context = context,
-                isConfirmedPhase = true
+                isConfirmedPhase = false
             )
             if (detailed != null) {
                 lastTenthPickLog = detailed.copy(cropBitmap = lastTenthPickCrop)
