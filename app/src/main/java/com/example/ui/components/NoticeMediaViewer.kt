@@ -232,6 +232,33 @@ object NoticeMediaUtils {
             } catch (_: Exception) {
                 try { retriever.release() } catch (_: Exception) {}
             }
+        } else {
+            try {
+                val options = android.graphics.BitmapFactory.Options().apply {
+                    inJustDecodeBounds = true
+                }
+                if (trimmed.startsWith("file://") || trimmed.startsWith("/")) {
+                    val path = if (trimmed.startsWith("file://")) Uri.parse(trimmed).path ?: "" else trimmed
+                    android.graphics.BitmapFactory.decodeFile(path, options)
+                } else if (trimmed.startsWith("content://")) {
+                    val stream = context.contentResolver.openInputStream(Uri.parse(trimmed))
+                    android.graphics.BitmapFactory.decodeStream(stream, null, options)
+                    stream?.close()
+                } else if (trimmed.startsWith("data:image/")) {
+                    val bytes = com.example.util.NoticeMediaStorageManager.decodeDataUriToBytes(trimmed)
+                    if (bytes != null) {
+                        android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
+                    }
+                } else if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+                    val cached = com.example.util.NoticeMediaStorageManager.getCachedVideoFile(context, trimmed)
+                    if (cached != null && cached.exists()) {
+                        android.graphics.BitmapFactory.decodeFile(cached.absolutePath, options)
+                    }
+                }
+                if (options.outWidth > 0 && options.outHeight > 0) {
+                    return options.outHeight >= options.outWidth
+                }
+            } catch (_: Exception) {}
         }
         return false
     }
@@ -262,13 +289,16 @@ fun NoticeMediaViewer(
     val ytVideoId = remember(normalizedUrl) { NoticeMediaUtils.extractYouTubeVideoId(normalizedUrl) }
     val isWebVideo = remember(normalizedUrl) { NoticeMediaUtils.isWebVideoUrl(normalizedUrl) }
     val isVideo = remember(normalizedUrl) { NoticeMediaUtils.isVideo(context, normalizedUrl) }
+    val isVertical = remember(normalizedUrl, context) { NoticeMediaUtils.isMediaVertical(context, normalizedUrl) }
 
     val containerModifier = if (isFullscreen) {
         modifier.fillMaxSize()
     } else {
         modifier
             .fillMaxWidth()
-            .aspectRatio(985f / 425f)
+            .then(
+                if (isVertical) Modifier.aspectRatio(4f / 5f) else Modifier.aspectRatio(985f / 425f)
+            )
     }
 
     val boxModifier = if (isFullscreen) {
@@ -479,7 +509,7 @@ fun NoticeMediaViewer(
                     model = imageModel,
                     contentDescription = "Multimedia de Anuncio",
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
+                    contentScale = if (isFullscreen || isVertical) ContentScale.Fit else ContentScale.Crop
                 )
 
                 if (!isFullscreen && onExpand != null) {

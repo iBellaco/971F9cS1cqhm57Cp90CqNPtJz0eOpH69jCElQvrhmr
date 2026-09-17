@@ -936,6 +936,31 @@ fun NoticeCategoryCard(
                     }
                 }
 
+                if (noticeList.size > 1) {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        noticeList.indices.forEach { idx ->
+                            val isSelected = idx == safeIndex
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 3.dp)
+                                    .size(if (isSelected) 8.dp else 6.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isSelected) tagColor else tagColor.copy(alpha = 0.3f))
+                                    .clickable {
+                                        slideDirection = if (idx > currentIndex) 1 else -1
+                                        currentIndex = idx
+                                        autoTimerTrigger++
+                                    }
+                            )
+                        }
+                    }
+                }
+
                 if (isFullscreenMedia) {
                     val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
                     val isVertical = currentNotice.expandedImageUrl.isNotBlank() && mediaToExpand == currentNotice.expandedImageUrl

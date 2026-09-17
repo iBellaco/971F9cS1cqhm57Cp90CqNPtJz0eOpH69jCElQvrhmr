@@ -522,7 +522,7 @@ fun SponsorCpmPanelDialog(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(120.dp)
+                                .aspectRatio(985f / 425f)
                                 .clip(RoundedCornerShape(8.dp))
                         ) {
                             Surface(
@@ -578,37 +578,42 @@ fun SponsorCpmPanelDialog(
                             if (verticalMediaInput.startsWith("/")) File(verticalMediaInput) else verticalMediaInput
                         }
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(160.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Surface(
-                                modifier = Modifier.fillMaxSize(),
-                                color = HextechDarkBg,
-                                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
-                            ) {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    NoticeMediaViewer(
-                                        mediaUrl = verticalMediaInput,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
-                            IconButton(
-                                onClick = {
-                                    verticalMediaInput = ""
-                                    isVerticalVideo = false
-                                    Toast.makeText(context, "Multimedia vertical eliminada", Toast.LENGTH_SHORT).show()
-                                },
+                            Box(
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(6.dp)
-                                    .size(32.dp)
-                                    .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(50))
-                                    .border(1.dp, DangerRed, RoundedCornerShape(50))
+                                    .fillMaxWidth(0.55f)
+                                    .aspectRatio(9f / 16f)
+                                    .clip(RoundedCornerShape(8.dp))
                             ) {
-                                Icon(Icons.Default.Close, contentDescription = "Borrar multimedia", tint = DangerRed, modifier = Modifier.size(16.dp))
+                                Surface(
+                                    modifier = Modifier.fillMaxSize(),
+                                    color = HextechDarkBg,
+                                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.8f))
+                                ) {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        NoticeMediaViewer(
+                                            mediaUrl = verticalMediaInput,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                                IconButton(
+                                    onClick = {
+                                        verticalMediaInput = ""
+                                        isVerticalVideo = false
+                                        Toast.makeText(context, "Multimedia vertical eliminada", Toast.LENGTH_SHORT).show()
+                                    },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(6.dp)
+                                        .size(32.dp)
+                                        .background(HextechDarkBg.copy(alpha = 0.85f), RoundedCornerShape(50))
+                                        .border(1.dp, DangerRed, RoundedCornerShape(50))
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Borrar multimedia", tint = DangerRed, modifier = Modifier.size(16.dp))
+                                }
                             }
                         }
                     }

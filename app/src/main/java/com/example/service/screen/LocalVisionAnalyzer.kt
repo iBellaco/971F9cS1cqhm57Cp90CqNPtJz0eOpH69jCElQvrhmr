@@ -542,6 +542,107 @@ object LocalVisionAnalyzer {
     }
 
     /**
+     * Compara un recorte de 10º Pick utilizando los 4 motores de inferencia visual de prueba,
+     * combinando los porcentajes de similitud y seleccionando el campeón con mayor porcentaje global.
+     */
+    suspend fun matchWith4InferenceEngines(
+        crop: Bitmap,
+        roiLabel: String,
+        candidates: List<Champion>,
+        expectedRole: LaneRole? = null,
+        excludedChampionIds: Set<String> = emptySet(),
+        context: Context? = null,
+        isConfirmedPhase: Boolean = false,
+        roleExplanation: String? = null
+    ): TenthPickDecisionLog? = withContext(Dispatchers.Default) {
+        if (crop.isRecycled || crop.width < 12 || crop.height < 12) return@withContext null
+        val populatedMetrics = extractScannedMetrics(crop, roiLabel)
+        val phaseName = if (isConfirmedPhase) "CONFIRMACIÓN 10º PICK (4 MOTORES DE INFERENCIA)" else "PRESELECCIÓN 10º PICK (4 MOTORES DE INFERENCIA)"
+        val roleLine = roleExplanation ?: (if (expectedRole != null) "Rol esperado: ${expectedRole.displayName}" else "Rol: No especificado")
+
+        val effectiveCandidates = if (candidates.isNotEmpty()) candidates else {
+            if (WildRiftRepository.champions.isEmpty()) {
+                val ctx = context ?: WildRiftApp.instance
+                if (ctx != null) WildRiftRepository.initChampions(ctx)
+            }
+            WildRiftRepository.champions.toList()
+        }
+        if (effectiveCandidates.isEmpty()) return@withContext null
+
+        val engines = listOf(
+            VisionInferenceEngineType.ZNCC_LOCAL_NATIVE,
+            VisionInferenceEngineType.ONNX_RUNTIME,
+            VisionInferenceEngineType.NCNN,
+            VisionInferenceEngineType.MEDIAPIPE_LITERT
+        )
+
+        val championScoresMap = mutableMapOf<String, MutableMap<VisionInferenceEngineType, Float>>()
+        val championObjMap = mutableMapOf<String, Champion>()
+
+        for (engine in engines) {
+            val benchmark = VisionInferenceManager.runEngineInference(crop, engine, effectiveCandidates, expectedRole, context)
+            for ((champ, score) in benchmark.candidateScores) {
+                if (excludedChampionIds.contains(champ.id)) continue
+                championObjMap[champ.id] = champ
+                championScoresMap.getOrPut(champ.id) { mutableMapOf() }[engine] = score.coerceIn(0f, 1f)
+            }
+            benchmark.topCandidate?.let { top ->
+                if (!excludedChampionIds.contains(top.id)) {
+                    championObjMap[top.id] = top
+                    championScoresMap.getOrPut(top.id) { mutableMapOf() }[engine] = benchmark.confidenceScore.coerceIn(0f, 1f)
+                }
+            }
+        }
+
+        if (championScoresMap.isEmpty()) return@withContext null
+
+        val comparisons = mutableListOf<CandidateMatchComparison>()
+        for ((champId, engineScores) in championScoresMap) {
+            val champ = championObjMap[champId] ?: continue
+            val scoresList = engines.map { engineScores[it] ?: 0f }
+            val avgScore = scoresList.average().toFloat()
+            val maxScore = scoresList.maxOrNull() ?: 0f
+            val compositeScore = (avgScore * 0.4f + maxScore * 0.6f).coerceIn(0f, 1f)
+
+            comparisons.add(
+                CandidateMatchComparison(
+                    champion = champ,
+                    compositeScore = compositeScore,
+                    pixelSimilarity = scoresList.getOrElse(0) { 0f },
+                    pixelColorSim = scoresList.getOrElse(1) { 0f },
+                    blockSim = scoresList.getOrElse(2) { 0f },
+                    histSimilarity = scoresList.getOrElse(3) { 0f },
+                    avgColorSim = avgScore,
+                    roleBonus = 0f
+                )
+            )
+        }
+
+        val sortedComparisons = comparisons.sortedByDescending { it.compositeScore }
+        val bestComparison = sortedComparisons.firstOrNull() ?: return@withContext null
+        val selectedChamp = bestComparison.champion
+        val finalConfidence = bestComparison.compositeScore
+
+        val topEngineNames = engines.joinToString(", ") { it.shortName }
+        val percentStr = "${(finalConfidence * 100).toInt()}%"
+        val reason = "Inferencia Visual con 4 Motores ($topEngineNames): Coincidencia validada con ${selectedChamp.name} con un porcentaje de similitud global del $percentStr."
+        val summary = "$phaseName -> ${selectedChamp.name} ($percentStr similitud combinada de 4 motores)"
+
+        return@withContext TenthPickDecisionLog(
+            selectedChampion = selectedChamp,
+            confidence = finalConfidence,
+            isConfirmed = isConfirmedPhase,
+            phaseName = phaseName,
+            scannedMetrics = populatedMetrics,
+            candidatesEvaluatedCount = effectiveCandidates.size,
+            topCandidates = sortedComparisons.take(5),
+            decisionReason = reason,
+            formattedSummary = summary,
+            cropBitmap = crop.copy(Bitmap.Config.ARGB_8888, false)
+        )
+    }
+
+    /**
      * Comparación detallada de un recorte contra el catálogo local de campeones.
      * Retorna un log exhaustivo de métricas escaneadas, métricas comparadas y justificación de decisión.
      */
@@ -956,13 +1057,13 @@ object LocalVisionAnalyzer {
         val candidateDecisions = mutableListOf<TenthPickDecisionLog>()
         try {
             if (standardCrop != null) {
-                matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                matchWith4InferenceEngines(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
             }
             if (innerCrop != null) {
-                matchAvatarDetailed(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                matchWith4InferenceEngines(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
             }
             if (outerCrop != null) {
-                matchAvatarDetailed(outerCrop, "$sideDesc [Exterior 108%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                matchWith4InferenceEngines(outerCrop, "$sideDesc [Exterior 108%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = false, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
             }
         } finally {
             try { rawCrop?.recycle() } catch (_: Throwable) {}
@@ -1054,10 +1155,10 @@ object LocalVisionAnalyzer {
 
                 try {
                     if (standardCrop != null) {
-                        matchAvatarDetailed(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                        matchWith4InferenceEngines(standardCrop, "$sideDesc [Estándar]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
                     }
                     if (innerCrop != null) {
-                        matchAvatarDetailed(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
+                        matchWith4InferenceEngines(innerCrop, "$sideDesc [Interior 88%]", allChamps, expectedRole, confirmedIds, context, isConfirmedPhase = true, roleExplanation = roleExplanation)?.let { candidateDecisions.add(it) }
                     }
                 } finally {
                     try { rawCrop?.recycle() } catch (_: Throwable) {}

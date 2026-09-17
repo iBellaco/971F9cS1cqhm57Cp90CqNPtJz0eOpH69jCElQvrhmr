@@ -719,9 +719,9 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                     border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.5f))
                 ) {
                     Column(modifier = Modifier.padding(10.dp)) {
-                        Text("⏱️ Intervalo de Rotación (Streamer y Ads > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                        Text("⏱️ Intervalo de Rotación (Todos los Anuncios > 1)", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Si hay más de 1 anuncio con etiqueta 'Streamer' o 'Ads', rotarán automáticamente con este intervalo (si solo hay 1, se queda fijo):", color = TextSecondary, fontSize = 10.sp)
+                        Text("Si hay más de 1 anuncio en una categoría, rotarán automáticamente con este intervalo (si solo hay 1, se queda fijo):", color = TextSecondary, fontSize = 10.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -1132,7 +1132,7 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(135.dp)
+                                    .aspectRatio(985f / 425f)
                                     .clip(RoundedCornerShape(6.dp))
                                     .background(Color.Black),
                                 contentAlignment = Alignment.Center
@@ -1318,8 +1318,8 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                                 }
                                 Box(
                                     modifier = Modifier
-                                        .width(75.dp)
-                                        .height(110.dp)
+                                        .fillMaxWidth(0.55f)
+                                        .aspectRatio(9f / 16f)
                                         .clip(RoundedCornerShape(6.dp))
                                         .background(Color.Black)
                                         .border(1.dp, HextechGold.copy(alpha = 0.5f), RoundedCornerShape(6.dp)),
