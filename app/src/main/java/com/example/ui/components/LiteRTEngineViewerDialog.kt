@@ -308,26 +308,50 @@ fun LiteRTEngineViewerDialog(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Métricas técnicas del Tensor
-                        Row(
+                        // Métricas técnicas del Tensor y Control de Estabilidad Temporal
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(Color(0xFF0F172A), RoundedCornerShape(6.dp))
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(8.dp)
                         ) {
-                            Text(
-                                text = "Tensor: ${report.tensorDimensions}",
-                                color = Color(0xFF64748B),
-                                fontSize = 10.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
-                            Text(
-                                text = "Espacio: RGB [-1.0, 1.0]",
-                                color = Color(0xFF64748B),
-                                fontSize = 10.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Tensor: ${report.tensorDimensions}",
+                                    color = Color(0xFF64748B),
+                                    fontSize = 10.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                                Text(
+                                    text = "Umbral mín: ${(report.minConfidenceThreshold * 100).toInt()}%",
+                                    color = Color(0xFF38BDF8),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Estabilidad: ${report.stableFramesCount}/${report.requiredStableFrames} frames",
+                                    color = if (report.isConfirmed) Color(0xFF10B981) else Color(0xFFF59E0B),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                                Text(
+                                    text = "Espacio: RGB [-1.0, 1.0]",
+                                    color = Color(0xFF64748B),
+                                    fontSize = 10.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            }
                         }
                     }
                 }

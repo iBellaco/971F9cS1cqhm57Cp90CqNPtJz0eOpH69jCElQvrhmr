@@ -37,6 +37,21 @@ object LiteRTVisionClassifier {
     private const val TENSOR_INPUT_SIZE = 48 // 48x48 tensor de entrada optimizado
     private const val EMBEDDING_DIM = 96     // Vector descriptor de 96 dimensiones
 
+    // Umbral de confianza mínimo de MediaPipe / LiteRT (80% similitud de tensor)
+    const val MIN_CONFIDENCE_THRESHOLD = 0.80f
+
+    // Cantidad de frames estables consecutivos requeridos para confirmar el 10º pick
+    const val REQUIRED_STABLE_FRAMES = 3
+
+    // Variables de seguimiento de estabilidad temporal entre fotogramas
+    private var lastCandidateId: String? = null
+    private var stableFramesCounter: Int = 0
+
+    fun resetStabilityTracker() {
+        lastCandidateId = null
+        stableFramesCounter = 0
+    }
+
     enum class EngineStatus {
         WAITING_FOR_PICKS_1_TO_9,
         WAITING_FOR_TENTH_PICK,
@@ -64,7 +79,10 @@ object LiteRTVisionClassifier {
         val slotDescription: String = "",
         val tensorDimensions: String = "${TENSOR_INPUT_SIZE}x${TENSOR_INPUT_SIZE}x3 (Float32)",
         val evaluatedPicksCount: Int = 0,
-        val isConfirmed: Boolean = false
+        val isConfirmed: Boolean = false,
+        val stableFramesCount: Int = 0,
+        val requiredStableFrames: Int = REQUIRED_STABLE_FRAMES,
+        val minConfidenceThreshold: Float = MIN_CONFIDENCE_THRESHOLD
     )
 
     private val _reportFlow = MutableStateFlow(LiteRTInferenceReport())
@@ -271,6 +289,7 @@ object LiteRTVisionClassifier {
 
         // REGLA FUNDAMENTAL: Requiere que las selecciones 1 a 9 estén presentes
         if (confirmedPicksCount < 9) {
+            resetStabilityTracker()
             _reportFlow.value = LiteRTInferenceReport(
                 status = EngineStatus.WAITING_FOR_PICKS_1_TO_9,
                 pickedChampion = null,
@@ -284,6 +303,7 @@ object LiteRTVisionClassifier {
         }
 
         if (cropBitmap == null || cropBitmap.isRecycled || cropBitmap.width < 16 || cropBitmap.height < 16) {
+            resetStabilityTracker()
             _reportFlow.value = LiteRTInferenceReport(
                 status = EngineStatus.NO_DETECTION,
                 decisionReason = "Recorte de imagen no disponible o inválido para inferencia",
@@ -300,6 +320,7 @@ object LiteRTVisionClassifier {
         // - ÚNICAMENTE cuando el jugador confirma la selección, el icono es reemplazado por el Avatar del campeón.
         val isWaitingIcon = isSlotWaitingIcon(cropBitmap, isAlly)
         if (isWaitingIcon) {
+            resetStabilityTracker()
             val persistentCrop = try { cropBitmap.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
             val reason = if (isAlly) {
                 "Slot final aliado en espera (icono de línea con borde azul visible). A la espera de que se reemplace por el Avatar del campeón."
@@ -340,6 +361,7 @@ object LiteRTVisionClassifier {
         }
 
         if (candidateScores.isEmpty()) {
+            resetStabilityTracker()
             _reportFlow.value = LiteRTInferenceReport(
                 status = EngineStatus.NO_DETECTION,
                 decisionReason = "No hay candidatos elegibles para comparar",
@@ -378,13 +400,35 @@ object LiteRTVisionClassifier {
         val winnerChamp = bestCandidate.champion
         val finalConfidence = bestCandidate.confidencePercent
 
-        // Umbral de validación de LiteRT: Requiere al menos 62% de similitud para confirmar
-        val isConfirmed = bestCandidate.similarityScore >= 0.62f
+        // CONTROL DE UMBRAL DE CONFIANZA MÍNIMO (Confidence Threshold) Y FRAMES ESTABLES:
+        // Solicitado expresamente por el usuario para evitar que selecciones aleatorias o parpadeos
+        // en pantalla disparen el décimo pick por error.
+        val passesConfidence = bestCandidate.similarityScore >= MIN_CONFIDENCE_THRESHOLD
 
-        val decisionReason = if (isConfirmed) {
-            "Google MediaPipe / LiteRT identificó a ${winnerChamp.name} con un score de tensor de ${(bestCandidate.similarityScore * 100).toInt()}% y probabilidad Softmax del ${(bestCandidate.softmaxProbability * 100).toInt()}% frente a ${top5.getOrNull(1)?.first?.name ?: "otros candidatos"}."
+        if (passesConfidence) {
+            if (winnerChamp.id == lastCandidateId) {
+                stableFramesCounter++
+            } else {
+                lastCandidateId = winnerChamp.id
+                stableFramesCounter = 1
+            }
         } else {
-            "Puntaje inferior al umbral mínimo (${(bestCandidate.similarityScore * 100).toInt()}% < 62%). El motor continúa evaluando los tensores en pantalla."
+            stableFramesCounter = 0
+            lastCandidateId = null
+        }
+
+        val isConfirmed = passesConfidence && (stableFramesCounter >= REQUIRED_STABLE_FRAMES)
+
+        val decisionReason = when {
+            isConfirmed -> {
+                "Google MediaPipe / LiteRT confirmó a ${winnerChamp.name} tras superar el umbral (${(bestCandidate.similarityScore * 100).toInt()}% >= ${(MIN_CONFIDENCE_THRESHOLD * 100).toInt()}%) durante $stableFramesCounter/$REQUIRED_STABLE_FRAMES frames estables consecutivos."
+            }
+            passesConfidence -> {
+                "Candidato ${winnerChamp.name} supera umbral (${(bestCandidate.similarityScore * 100).toInt()}% >= ${(MIN_CONFIDENCE_THRESHOLD * 100).toInt()}%). Estabilizando: $stableFramesCounter/$REQUIRED_STABLE_FRAMES frames..."
+            }
+            else -> {
+                "Puntaje inferior al umbral mínimo (${(bestCandidate.similarityScore * 100).toInt()}% < ${(MIN_CONFIDENCE_THRESHOLD * 100).toInt()}%). El motor continúa evaluando los tensores en pantalla."
+            }
         }
 
         val persistentCrop = try { cropBitmap.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
@@ -399,11 +443,14 @@ object LiteRTVisionClassifier {
             decisionReason = decisionReason,
             slotDescription = slotDesc,
             evaluatedPicksCount = confirmedPicksCount,
-            isConfirmed = isConfirmed
+            isConfirmed = isConfirmed,
+            stableFramesCount = stableFramesCounter,
+            requiredStableFrames = REQUIRED_STABLE_FRAMES,
+            minConfidenceThreshold = MIN_CONFIDENCE_THRESHOLD
         )
 
         if (isConfirmed) {
-            AppLogger.d(TAG, "LiteRT decidió 10º Pick: ${winnerChamp.name} ($finalConfidence% en ${inferenceDuration}ms)")
+            AppLogger.d(TAG, "LiteRT confirmó 10º Pick estable: ${winnerChamp.name} ($finalConfidence% tras $stableFramesCounter frames)")
             return@withContext Pair(winnerChamp, finalConfidence)
         } else {
             return@withContext null
