@@ -67,31 +67,20 @@ object AdaptiveScreenLayoutEngine {
         val ratio = geometry.aspectRatio
 
         // En Wild Rift, las columnas verticales de avatares están fijadas en los extremos de la pantalla:
-        // - Columna aliada (izquierda): el avatar circular está centrado en x ≈ 0.073f
-        // - Columna rival (derecha): el avatar circular está centrado en x ≈ 0.957f
-        // En pantallas panorámicas o con notch, se aplica un margen de seguridad mínimo para que el círculo
-        // no quede recortado por la cámara o esquinas redondeadas.
-        val adaptiveAllyCenterX = if (geometry.isUltrawide) {
-            (baseConfig.allyAvatarCenterX + geometry.safeHorizontalInsetRatio * 0.25f).coerceIn(0.070f, 0.085f)
-        } else {
-            baseConfig.allyAvatarCenterX
-        }
-
-        val adaptiveEnemyCenterX = if (geometry.isUltrawide) {
-            (baseConfig.enemyAvatarCenterX - geometry.safeHorizontalInsetRatio * 0.25f).coerceIn(0.945f, 0.965f)
-        } else {
-            baseConfig.enemyAvatarCenterX
-        }
+        // - Columna aliada (izquierda): el avatar circular está centrado en x ≈ 0.076f
+        // - Columna rival (derecha): el avatar circular está centrado en x ≈ 0.966f (borde derecho a ~0.993f)
+        val adaptiveAllyCenterX = if (geometry.isUltrawide) 0.076f else baseConfig.allyAvatarCenterX
+        val adaptiveEnemyCenterX = if (geometry.isUltrawide) 0.966f else baseConfig.enemyAvatarCenterX
 
         // Rango de búsqueda OCR adaptativo:
         // El texto del slot aliado está estrictamente a la derecha del avatar (entre x ≈ 0.08 y x ≈ 0.225).
         // JAMÁS debe invadir el carrusel central de selección de campeones (x >= 0.26).
-        val allyOcrMinX = (adaptiveAllyCenterX + 0.015f).coerceIn(0.08f, 0.10f)
+        val allyOcrMinX = 0.082f
         val allyOcrMaxX = 0.225f
 
-        // El texto del slot rival está estrictamente a la izquierda del avatar rival (entre x ≈ 0.78 y x ≈ 0.935).
+        // El texto del slot rival está estrictamente a la izquierda del avatar rival (entre x ≈ 0.78 y x ≈ 0.938).
         val enemyOcrMinX = 0.78f
-        val enemyOcrMaxX = (adaptiveEnemyCenterX - 0.018f).coerceIn(0.925f, 0.945f)
+        val enemyOcrMaxX = 0.938f
 
         // Ajuste de las posiciones horizontales de la barra superior (los 10 avatares de la cabecera)
         // En tablets los avatares superiores están ligeramente más comprimidos hacia el centro; en ultrawide hacia los bordes.
@@ -112,6 +101,7 @@ object AdaptiveScreenLayoutEngine {
         return baseConfig.copy(
             allyAvatarCenterX = adaptiveAllyCenterX,
             enemyAvatarCenterX = adaptiveEnemyCenterX,
+            avatarDiameterRatio = 0.120f,
             allyOcrMinX = allyOcrMinX,
             allyOcrMaxX = allyOcrMaxX,
             enemyOcrMinX = enemyOcrMinX,
@@ -137,11 +127,100 @@ object AdaptiveScreenLayoutEngine {
         val cx = if (isAlly) (width * config.allyAvatarCenterX).toInt() else (width * config.enemyAvatarCenterX).toInt()
         val yRatios = if (isAlly) config.allySlotYRatios else config.enemySlotYRatios
         val cy = (height * yRatios.getOrElse(sIdx) { 0.2f + sIdx * 0.13f }).toInt()
-        val diam = (height * config.avatarDiameterRatio).toInt().coerceAtLeast(24)
+        val diam = (height * config.avatarDiameterRatio).toInt().coerceAtLeast(32)
         val radius = diam / 2
 
-        val left = (cx - radius).coerceIn(0, width - diam)
-        val top = (cy - radius).coerceIn(0, height - diam)
-        return Rect(left, top, left + diam, top + diam)
+        val left = (cx - radius).coerceIn(0, (width - diam).coerceAtLeast(0))
+        val top = (cy - radius).coerceIn(0, (height - diam).coerceAtLeast(0))
+        return Rect(left, top, min(width, left + diam), min(height, top + diam))
+    }
+
+    /**
+     * Extrae un recorte perfectamente centrado y completo del círculo del avatar del slot.
+     * Incorpora auto-calibración de bordes por detección de aro circular:
+     * - En el rival: aro carmesí/rojo
+     * - En el aliado: aro azul/cian
+     * Si detecta el centroide del aro, ajusta dinámicamente las coordenadas para capturar
+     * el 100% del retrato del campeón sin cortar orejas ni extremos faciales.
+     */
+    fun extractSlotAvatarBitmap(
+        sourceBitmap: android.graphics.Bitmap,
+        width: Int,
+        height: Int,
+        isAlly: Boolean,
+        slotIndex: Int,
+        config: VisionCalibrationConfig
+    ): android.graphics.Bitmap? {
+        val sIdx = slotIndex.coerceIn(0, 4)
+        val cxNominal = if (isAlly) (width * config.allyAvatarCenterX).toInt() else (width * config.enemyAvatarCenterX).toInt()
+        val yRatios = if (isAlly) config.allySlotYRatios else config.enemySlotYRatios
+        val cyNominal = (height * yRatios.getOrElse(sIdx) { 0.2f + sIdx * 0.13f }).toInt()
+
+        val targetDiam = (height * config.avatarDiameterRatio).toInt().coerceAtLeast(32)
+        val radius = targetDiam / 2
+
+        // Ventana de búsqueda alrededor de la posición nominal
+        val margin = (targetDiam * 0.20f).toInt()
+        val searchLeft = (cxNominal - radius - margin).coerceIn(0, width - 1)
+        val searchRight = (cxNominal + radius + margin).coerceIn(0, width)
+        val searchTop = (cyNominal - radius - margin).coerceIn(0, height - 1)
+        val searchBottom = (cyNominal + radius + margin).coerceIn(0, height)
+
+        if (searchRight <= searchLeft + 16 || searchBottom <= searchTop + 16) {
+            val baseRect = calculateSlotCropRect(width, height, isAlly, slotIndex, config)
+            return try {
+                android.graphics.Bitmap.createBitmap(sourceBitmap, baseRect.left, baseRect.top, baseRect.width(), baseRect.height())
+            } catch (_: Throwable) { null }
+        }
+
+        var sumX = 0L
+        var sumY = 0L
+        var ringPixelCount = 0
+
+        val step = 2
+        for (y in searchTop until searchBottom step step) {
+            for (x in searchLeft until searchRight step step) {
+                val px = sourceBitmap.getPixel(x, y)
+                val r = (px shr 16) and 0xFF
+                val g = (px shr 8) and 0xFF
+                val b = px and 0xFF
+
+                val isRing = if (isAlly) {
+                    b > 110 && b > (r * 1.3f) && (g > 60 || b > 140)
+                } else {
+                    r > 105 && r > (g * 1.30f) && r > (b * 1.30f)
+                }
+
+                if (isRing) {
+                    sumX += x
+                    sumY += y
+                    ringPixelCount++
+                }
+            }
+        }
+
+        val actualCx: Int
+        val actualCy: Int
+        if (ringPixelCount >= 25) {
+            actualCx = (sumX / ringPixelCount).toInt().coerceIn(radius, width - radius)
+            actualCy = (sumY / ringPixelCount).toInt().coerceIn(radius, height - radius)
+        } else {
+            actualCx = cxNominal.coerceIn(radius, width - radius)
+            actualCy = cyNominal.coerceIn(radius, height - radius)
+        }
+
+        val cropLeft = (actualCx - radius).coerceIn(0, (width - targetDiam).coerceAtLeast(0))
+        val cropTop = (actualCy - radius).coerceIn(0, (height - targetDiam).coerceAtLeast(0))
+        val finalW = min(targetDiam, width - cropLeft)
+        val finalH = min(targetDiam, height - cropTop)
+
+        return try {
+            android.graphics.Bitmap.createBitmap(sourceBitmap, cropLeft, cropTop, finalW, finalH)
+        } catch (_: Throwable) {
+            val fallbackRect = calculateSlotCropRect(width, height, isAlly, slotIndex, config)
+            try {
+                android.graphics.Bitmap.createBitmap(sourceBitmap, fallbackRect.left, fallbackRect.top, fallbackRect.width(), fallbackRect.height())
+            } catch (_: Throwable) { null }
+        }
     }
 }

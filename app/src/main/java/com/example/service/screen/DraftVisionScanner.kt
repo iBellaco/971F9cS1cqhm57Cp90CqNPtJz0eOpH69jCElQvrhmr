@@ -1004,11 +1004,15 @@ object DraftVisionScanner {
         if (confirmedPicksCount == 9) {
             val targetSlot = if (tenthIsAlly) allySlots[tenthSlotIndex] else enemySlots[tenthSlotIndex]
             if (targetSlot.champion == null) {
-                // Obtener recorte adaptativo multipantalla centrado con total precisión en el slot final
-                val slotCropRect = AdaptiveScreenLayoutEngine.calculateSlotCropRect(width, height, tenthIsAlly, tenthSlotIndex, calib)
-                val tenthCrop: Bitmap? = try {
-                    Bitmap.createBitmap(bitmap, slotCropRect.left, slotCropRect.top, slotCropRect.width(), slotCropRect.height())
-                } catch (_: Throwable) { null }
+                // Obtener recorte adaptativo multipantalla centrado con total precisión y auto-calibración en el slot final
+                val tenthCrop: Bitmap? = AdaptiveScreenLayoutEngine.extractSlotAvatarBitmap(
+                    sourceBitmap = bitmap,
+                    width = width,
+                    height = height,
+                    isAlly = tenthIsAlly,
+                    slotIndex = tenthSlotIndex,
+                    config = calib
+                )
 
                 val liteRTDecision = LiteRTVisionClassifier.executeTenthPickInference(
                     cropBitmap = tenthCrop,
