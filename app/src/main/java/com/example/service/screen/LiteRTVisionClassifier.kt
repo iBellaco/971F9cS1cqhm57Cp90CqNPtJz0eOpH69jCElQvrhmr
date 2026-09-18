@@ -37,8 +37,8 @@ object LiteRTVisionClassifier {
     private const val TENSOR_INPUT_SIZE = 48 // 48x48 tensor de entrada optimizado
     private const val EMBEDDING_DIM = 96     // Vector descriptor de 96 dimensiones
 
-    // Umbral de confianza mínimo de MediaPipe / LiteRT (80% similitud de tensor)
-    const val MIN_CONFIDENCE_THRESHOLD = 0.80f
+    // Umbral de confianza mínimo de MediaPipe / LiteRT (65% similitud de tensor con 3 frames estables)
+    const val MIN_CONFIDENCE_THRESHOLD = 0.65f
 
     // Cantidad de frames estables consecutivos requeridos para confirmar el 10º pick
     const val REQUIRED_STABLE_FRAMES = 3
@@ -472,52 +472,46 @@ object LiteRTVisionClassifier {
         val cy = h / 2f
         val radius = min(cx, cy)
 
-        // Muestrear píxeles en el área central (0.15 * radius a 0.65 * radius)
-        // para ignorar el borde exterior rojo/azul y analizar el contenido central (yelmo o icono de línea).
+        // Muestrear píxeles en el área central (0.15 * radius a 0.55 * radius)
+        // para ignorar el borde exterior rojo/azul y analizar si el slot está verdaderamente vacío
         var totalSamples = 0
-        var lowSaturationCount = 0
-        var darkPixelCount = 0
-        var totalSaturation = 0f
+        var totalBrightness = 0f
+        var maxBrightness = 0
 
         val step = max(1, (radius * 0.08f).toInt())
-        val startY = (cy - radius * 0.65f).toInt()
-        val endY = (cy + radius * 0.65f).toInt()
-        val startX = (cx - radius * 0.65f).toInt()
-        val endX = (cx + radius * 0.65f).toInt()
+        val startY = (cy - radius * 0.55f).toInt()
+        val endY = (cy + radius * 0.55f).toInt()
+        val startX = (cx - radius * 0.55f).toInt()
+        val endX = (cx + radius * 0.55f).toInt()
 
         for (y in startY until endY step step) {
             for (x in startX until endX step step) {
                 val dx = x - cx
                 val dy = y - cy
                 val dist = sqrt(dx * dx + dy * dy)
-                if (dist < radius * 0.15f || dist > radius * 0.65f) continue
+                if (dist < radius * 0.15f || dist > radius * 0.55f) continue
 
                 val px = bitmap.getPixel(x.coerceIn(0, w - 1), y.coerceIn(0, h - 1))
                 val r = Color.red(px)
                 val g = Color.green(px)
                 val b = Color.blue(px)
-
-                val maxC = max(r, max(g, b))
-                val minC = min(r, min(g, b))
-                val sat = if (maxC > 0) (maxC - minC).toFloat() / maxC else 0f
+                val lum = (0.299f * r + 0.587f * g + 0.114f * b).toInt()
 
                 totalSamples++
-                totalSaturation += sat
-                if (sat < 0.22f) lowSaturationCount++
-                if (maxC < 110) darkPixelCount++
+                totalBrightness += lum
+                if (lum > maxBrightness) maxBrightness = lum
             }
         }
 
         if (totalSamples == 0) return true
-        val avgSat = totalSaturation / totalSamples
-        val lowSatRatio = lowSaturationCount.toFloat() / totalSamples
-        val darkRatio = darkPixelCount.toFloat() / totalSamples
+        val avgBrightness = totalBrightness / totalSamples
 
-        // El yelmo espartano (rival) o icono de línea (aliado) sobre fondo oscuro:
-        // - Son monocromáticos (saturación media baja < 0.24, o > 70% de píxeles sin saturación)
-        // - Son oscuros (más del 70% de píxeles < 110 de brillo)
-        // Un avatar de campeón contiene rostros, efectos, cabello y variaciones cromáticas con alta saturación.
-        val isIcon = (lowSatRatio > 0.70f && avgSat < 0.25f) || (darkRatio > 0.80f && avgSat < 0.28f)
+        // El yelmo espartano (rival) o el icono de línea (aliado) son siluetas oscuras sobre fondo negro:
+        // - El brillo promedio en su interior es muy bajo (< 45 de 255).
+        // - No contienen ninguna zona con brillo alto (maxBrightness < 115).
+        // Cualquier campeón (como Volibear con su pelaje blanco, Viktor, Ashe, etc.) tiene un maxBrightness > 160
+        // y un brillo promedio superior, por lo que pasa de inmediato a la inferencia LiteRT.
+        val isIcon = (avgBrightness < 45f && maxBrightness < 115)
         return isIcon
     }
 
