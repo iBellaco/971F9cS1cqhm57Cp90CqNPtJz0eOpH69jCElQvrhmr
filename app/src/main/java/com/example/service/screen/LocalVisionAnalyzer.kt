@@ -590,7 +590,10 @@ object LocalVisionAnalyzer {
         }
 
         val sortedComparisons = comparisons.sortedByDescending { it.compositeScore }
-        val bestComparison = sortedComparisons.firstOrNull() ?: return@withContext null
+        
+        // CRÍTICA: Umbral mínimo estricto de 60% para evitar inventar campeones.
+        val bestComparison = sortedComparisons.firstOrNull()?.takeIf { it.compositeScore >= 0.60f } ?: return@withContext null
+        
         val selectedChamp = bestComparison.champion
         val finalConfidence = bestComparison.compositeScore
 
