@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,8 +47,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.service.screen.LiteRTVisionClassifier
 
@@ -56,17 +56,20 @@ fun LiteRTEngineViewerDialog(
 ) {
     val report by LiteRTVisionClassifier.reportFlow.collectAsStateWithLifecycle()
 
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.85f))
+            .clickable { onDismissRequest() },
+        contentAlignment = Alignment.Center
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth(0.94f)
-                .heightIn(max = 680.dp)
-                .padding(8.dp)
+                .fillMaxSize()
+                .clickable(enabled = false) { /* Evitar cerrar al hacer click dentro */ }
+                .padding(4.dp)
                 .testTag("litert_viewer_dialog"),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(14.dp),
             color = Color(0xFF0F172A),
             tonalElevation = 8.dp,
             border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155))

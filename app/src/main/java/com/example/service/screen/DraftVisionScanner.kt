@@ -188,18 +188,12 @@ object DraftVisionScanner {
         private var lastConfirmedChampion: Champion? = null
 
         fun process(candidate: Champion?, isUnpicked: Boolean, persistentCache: Champion?): Champion? {
-            if (isUnpicked) {
+            if (isUnpicked || candidate == null) {
                 lastConfirmedChampion = null
                 return null
             }
-            if (candidate != null) {
-                lastConfirmedChampion = candidate
-                return candidate
-            }
-            if (persistentCache != null) {
-                return persistentCache
-            }
-            return lastConfirmedChampion
+            lastConfirmedChampion = candidate
+            return candidate
         }
 
         fun reset() {
@@ -627,30 +621,22 @@ object DraftVisionScanner {
                     }
                 }
 
-                // REGLAS DEL USUARIO:
-                // En aliados, de la selección 1 a la 9, solamente cuando se visualice el nombre del campeón
-                // en vez de la línea, es que se selecciona.
-                if (isSlotShowingLane) {
+                // REGLAS ESTRICTAS DEL USUARIO:
+                // "únicamente la selección se hace cuando el nombre de la línea cambia por el nombre del campeón esto es del lado aliado
+                // si no sé visualizar el nombre del campeón entonces no tienes que seleccionar ningún campeón"
+                if (isSlotShowingLane || detectedChampInSlot == null) {
                     allySlotConfirmedChampions[i] = null
                     allyOcrChampions[i] = null
+                    allySlotFilters[i].reset()
                     slot.champion = null
                     slot.confidencePercent = 0
                     slot.isLikelyUnpicked = true
-                } else if (detectedChampInSlot != null) {
+                } else {
                     allySlotConfirmedChampions[i] = detectedChampInSlot
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
-                } else if (allySlotConfirmedChampions[i] != null) {
-                    // PRESERVAR VERDAD ABSOLUTA INMUTABLE
-                    slot.champion = allySlotConfirmedChampions[i]
-                    slot.confidencePercent = 100
-                    slot.isLikelyUnpicked = false
-                } else {
-                    slot.champion = null
-                    slot.confidencePercent = 0
-                    slot.isLikelyUnpicked = true
                 }
             }
 
@@ -798,29 +784,22 @@ object DraftVisionScanner {
                     }
                 }
 
-                // REGLA DEL USUARIO: En rivales, solamente aparece el nombre del campeón cuando ya está seleccionado.
-                if (isWaitingPick) {
+                // REGLA ESTRICTA DEL USUARIO:
+                // "y de lado rival no se visualizan el nombre de la línea pero si el nombre del campeón"
+                // Si no se visualiza el nombre del campeón en el slot rival, no se selecciona ningún campeón.
+                if (isWaitingPick || detectedEnemyChamp == null) {
                     enemySlotConfirmedChampions[i] = null
                     enemyOcrChampions[i] = null
                     enemySlotFilters[i].reset()
                     enemySlots[i].champion = null
                     enemySlots[i].confidencePercent = 0
                     enemySlots[i].isLikelyUnpicked = true
-                } else if (detectedEnemyChamp != null) {
+                } else {
                     enemySlotConfirmedChampions[i] = detectedEnemyChamp
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
-                } else if (enemySlotConfirmedChampions[i] != null) {
-                    // PRESERVAR VERDAD ABSOLUTA INMUTABLE
-                    enemySlots[i].champion = enemySlotConfirmedChampions[i]
-                    enemySlots[i].confidencePercent = 100
-                    enemySlots[i].isLikelyUnpicked = false
-                } else {
-                    enemySlots[i].champion = null
-                    enemySlots[i].confidencePercent = 0
-                    enemySlots[i].isLikelyUnpicked = true
                 }
             }
         } catch (e: Exception) {
@@ -1051,7 +1030,10 @@ object DraftVisionScanner {
 
         val confirmedChampIds = (allySlots.mapNotNull { it.champion?.id } + enemySlots.mapNotNull { it.champion?.id }).toSet()
 
-        if (confirmedPicksCount >= 9) {
+        // REGLA CRÍTICA DEL USUARIO:
+        // "únicamente la Selección del décimo pick este pues de haber seleccionado las otras 9"
+        // Google MediaPipe / LiteRT se activa exclusivamente cuando las selecciones 1 al 9 ya están presentes.
+        if (confirmedPicksCount == 9) {
             val targetSlot = if (tenthIsAlly) allySlots[tenthSlotIndex] else enemySlots[tenthSlotIndex]
             if (targetSlot.champion == null) {
                 // Obtener recorte adaptativo multipantalla del slot correspondiente al 10º pick
@@ -1105,7 +1087,7 @@ object DraftVisionScanner {
                 try { tenthCrop?.recycle() } catch (_: Throwable) {}
             }
         } else {
-            // Notificar estado al motor para visualización precisa en el visor
+            // Si hay menos de 9 selecciones confirmadas, notificar al motor para que el visor informe al usuario
             LiteRTVisionClassifier.executeTenthPickInference(
                 cropBitmap = null,
                 isAlly = tenthIsAlly,
@@ -1114,21 +1096,6 @@ object DraftVisionScanner {
                 slotIndex = tenthSlotIndex,
                 context = context
             )
-        }
-
-        // -----------------------------------------------------------------------------------------
-        // Blindaje de persistencia incondicional: Asegurar que NINGÚN slot pierda un campeón ya confirmado
-        for (i in 0..4) {
-            if (allySlots[i].champion == null && allySlotConfirmedChampions[i] != null) {
-                allySlots[i].champion = allySlotConfirmedChampions[i]
-                allySlots[i].confidencePercent = 100
-                allySlots[i].isLikelyUnpicked = false
-            }
-            if (enemySlots[i].champion == null && enemySlotConfirmedChampions[i] != null) {
-                enemySlots[i].champion = enemySlotConfirmedChampions[i]
-                enemySlots[i].confidencePercent = 100
-                enemySlots[i].isLikelyUnpicked = false
-            }
         }
         
         // 4.1 Aliados: Cada slot aliado (0..4) mapea determinísticamente a su carril (allySlotRolesCache)

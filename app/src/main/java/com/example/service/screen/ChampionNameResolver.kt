@@ -215,10 +215,22 @@ object ChampionNameResolver {
             .lowercase(Locale.ROOT)
     }
 
-    // Encuentra el campeón correspondiente a una línea de texto OCR con validación anti-falsos positivos
+    // Encuentra el campeón correspondiente a una línea de texto OCR con validación anti-falsos positivos estricta
     fun findChampionInText(text: String, allChampions: List<Champion>): Champion? {
         val trimmed = text.trim()
         if (trimmed.isBlank() || trimmed.length < 2) return null
+
+        // REGLA CRÍTICA: Si el texto contiene o representa una línea/rol (ej: "Calle Central", "Jungla", "Soporte", "Barón"),
+        // bajo ninguna circunstancia debe interpretarse como un campeón.
+        if (DraftValidationLayer.parseRoleFromText(trimmed) != null) {
+            return null
+        }
+
+        // Si es ruido de interfaz o etiqueta genérica de jugador, descartar
+        if (DraftValidationLayer.isNoiseText(trimmed)) {
+            return null
+        }
+
         val safeChamps = synchronized(WildRiftRepository) {
             ArrayList(allChampions)
         }
@@ -231,149 +243,66 @@ object ChampionNameResolver {
             if (insideChamp != null) return insideChamp
         }
 
-        // Limpieza robusta de iconos de invocador, maestría, rango o carril antes del nombre del campeón
-        val strippedText = trimmed.replace(Regex("^[\\W_0-9]+"), "").trim()
-        val strippedClean = normalize(strippedText)
-        if (strippedClean.isNotBlank() && strippedClean != normalize(trimmed)) {
-            val resolvedFromStripped = findChampionInText(strippedText, safeChamps)
-            if (resolvedFromStripped != null) return resolvedFromStripped
-        }
-
         val clean = normalize(trimmed)
-        if (clean.isBlank()) return null
-        if (UI_IGNORE_WORDS.contains(clean)) return null
+        if (clean.isBlank() || UI_IGNORE_WORDS.contains(clean)) return null
+
+        // Si parece nombre de invocador con clanes, números o diminutivos, descartar
+        if (DraftValidationLayer.isLikelySummonerName(trimmed)) {
+            return null
+        }
 
         val compact = normalizeCompact(trimmed)
 
-        // 0. Manejo de prefijos de línea/carril tras desaparecer el nombre de la línea (ej: "Solo Sett", "Jungla Vi", "Dúo Senna")
-        val lanePrefixes = listOf(
-            "calle de baron", "calle baron", "baron", "solo", "top",
-            "jungla", "jungle", "jug",
-            "calle central", "central", "medio", "mid",
-            "calle de duo", "calle duo", "duo", "carril dragon", "dragon", "adc", "tirador",
-            "soporte", "apoyo", "support", "sup"
-        )
-        for (prefix in lanePrefixes) {
-            if (clean.startsWith("$prefix ")) {
-                val remainder = clean.removePrefix("$prefix ").trim()
-                if (remainder.isNotBlank()) {
-                    val resolvedRemainder = findChampionInText(remainder, safeChamps)
-                    if (resolvedRemainder != null) return resolvedRemainder
-                }
-            }
-        }
-
-        // 1. Coincidencia directa por mapa de nombres canónicos
+        // 1. Coincidencia directa por mapa de nombres canónicos oficiales (Cadena completa)
         KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
             val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
+            if (found != null) return found
         }
         KNOWN_CHAMPIONS_MAP[compact]?.let { id ->
             val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
+            if (found != null) return found
         }
 
-        // 2. Coincidencia exacta por lista de campeones en memoria
+        // 2. Coincidencia exacta por lista de campeones en memoria (Cadena completa)
         for (champ in safeChamps) {
             val champNorm = normalize(champ.name)
             val champCompact = normalizeCompact(champ.name)
             val champIdCompact = normalizeCompact(champ.id)
 
             if (clean == champNorm || compact == champCompact || compact == champIdCompact) {
-                if (!DraftValidationLayer.isLikelySummonerName(trimmed, championName = champ.name)) {
+                return champ
+            }
+        }
+
+        // 3. Coincidencia tras eliminar posibles prefijos de icono o números residuales iniciales
+        // (ej: "1 DARIUS", "# SETT", "• AHRI", "1DARIUS", "- JINX")
+        val strippedLeading = trimmed.replace(Regex("^[\\W_0-9]+"), "").trim()
+        val strippedClean = normalize(strippedLeading)
+        if (strippedClean.isNotBlank() && strippedClean != clean) {
+            KNOWN_CHAMPIONS_MAP[strippedClean]?.let { id ->
+                val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                if (found != null) return found
+            }
+            for (champ in safeChamps) {
+                val champNorm = normalize(champ.name)
+                if (strippedClean == champNorm || normalizeCompact(strippedClean) == normalizeCompact(champ.name)) {
                     return champ
                 }
             }
         }
 
-        // 2.1 Coincidencia con prefijo de icono fusionado al inicio (ej: "1Smolder", "ISmolder", "VSett", "0Vi", "IVi")
-        if (clean.length >= 3) {
-            val drop1 = clean.drop(1)
-            KNOWN_CHAMPIONS_MAP[drop1]?.let { id ->
-                safeChamps.find { it.id.equals(id, ignoreCase = true) }?.let { return it }
-            }
-            for (champ in safeChamps) {
-                val champNorm = normalize(champ.name)
-                if (champNorm.length >= 3 && drop1 == champNorm) return champ
-            }
-            if (clean.length >= 4) {
-                val drop2 = clean.drop(2)
-                KNOWN_CHAMPIONS_MAP[drop2]?.let { id ->
-                    safeChamps.find { it.id.equals(id, ignoreCase = true) }?.let { return it }
-                }
-                for (champ in safeChamps) {
-                    val champNorm = normalize(champ.name)
-                    if (champNorm.length >= 3 && drop2 == champNorm) return champ
-                }
-            }
-        }
-
-        // 3. Manejo de iconos de maestría / insignias / prefijos a la izquierda del nombre
-        // En Wild Rift, al lado del nombre del campeón en la línea 1 puede haber un icono dorado de maestría o de invocador.
-        val rawTokens = clean.split(" ").filter { it.isNotBlank() }
-        if (rawTokens.size >= 2) {
-            for (dropCount in 1 until rawTokens.size) {
-                val candidateSuffix = rawTokens.drop(dropCount).joinToString(" ")
-                val candidateCompact = rawTokens.drop(dropCount).joinToString("")
-                
-                KNOWN_CHAMPIONS_MAP[candidateSuffix]?.let { id ->
-                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                    if (found != null && !DraftValidationLayer.isLikelySummonerName(candidateSuffix, championName = found.name)) return found
-                }
-                KNOWN_CHAMPIONS_MAP[candidateCompact]?.let { id ->
-                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                    if (found != null && !DraftValidationLayer.isLikelySummonerName(candidateCompact, championName = found.name)) return found
-                }
-                for (champ in safeChamps) {
-                    val champNorm = normalize(champ.name)
-                    val champCompact = normalizeCompact(champ.name)
-                    if (candidateSuffix == champNorm || candidateCompact == champCompact) {
-                        if (!DraftValidationLayer.isLikelySummonerName(candidateSuffix, championName = champ.name)) {
-                            return champ
-                        }
-                    }
-                }
-            }
-        }
-
-        // 4. Coincidencia por palabra contenida (ej: "WUKONG" en "WUKONG XCS Alee22")
-        val words = clean.split(" ").filter { it.length >= 2 && !UI_IGNORE_WORDS.contains(it) }
-        for (word in words) {
-            // Para nombres ultracortos de 2 letras distintos de "VI", exigir que la línea completa sea sólo esa palabra
-            if (word.length == 2 && word != "vi" && words.size > 1) {
-                continue
-            }
-
-            if (word == "vi") {
-                safeChamps.find { it.id.equals("vi", ignoreCase = true) }?.let { return it }
-            }
-
-            KNOWN_CHAMPIONS_MAP[word]?.let { id ->
+        // 4. Coincidencia si el primer o último token es un icono de 1 o 2 letras separado por espacio
+        // (ej: "I DARIUS", "A SETT")
+        val tokens = clean.split(" ").filter { it.isNotBlank() }
+        if (tokens.size == 2 && tokens[0].length <= 2) {
+            val candidate = tokens[1]
+            KNOWN_CHAMPIONS_MAP[candidate]?.let { id ->
                 val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                if (found != null && DraftValidationLayer.isValidChampionToken(word, found.id)) {
-                    return found
-                }
+                if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
             }
             for (champ in safeChamps) {
                 val champNorm = normalize(champ.name)
-                val champCompact = normalizeCompact(champ.name)
-                if (champNorm == word || champCompact == word) {
-                    if (DraftValidationLayer.isValidChampionToken(word, champ.id)) {
-                        return champ
-                    }
-                }
-                // Si el icono de carril recortó la 1era letra (ej: GALIO -> ALIO, VEIGAR -> EIGAR)
-                if (word.length >= 4 && champNorm.length == word.length + 1 && champNorm.endsWith(word)) {
-                    if (DraftValidationLayer.isValidChampionToken(word, champ.id)) {
-                        return champ
-                    }
-                }
-                // Si el icono fusionó una letra al inicio (ej: 1SMOLDER -> SMOLDER)
-                if (word.length >= 4 && word.length == champNorm.length + 1 && word.endsWith(champNorm)) {
-                    if (DraftValidationLayer.isValidChampionToken(champNorm, champ.id)) {
-                        return champ
-                    }
-                }
+                if (candidate == champNorm) return champ
             }
         }
 
