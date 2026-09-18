@@ -2,6 +2,11 @@ package com.example.ui.components
 
 import android.widget.Toast
 import com.example.data.WildRiftRepository
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,9 +33,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.filled.Favorite
+import com.example.data.local.AppDatabase
 import com.example.data.local.CustomChampionBuildRecord
 import com.example.data.local.CustomChampionBuildsManager
 import com.example.ui.theme.*
+
+enum class BuildsFilterTab {
+    ALL,
+    FAVORITES
+}
 
 @Composable
 fun AdminCreatorBuildsDialog(
@@ -41,6 +55,20 @@ fun AdminCreatorBuildsDialog(
     var showBuildCreator by remember { mutableStateOf(false) }
     var buildToEdit by remember { mutableStateOf<CustomChampionBuildRecord?>(null) }
     var selectedBuildForDetail by remember { mutableStateOf<CustomChampionBuildRecord?>(null) }
+
+    val favoriteDao = remember { AppDatabase.getDatabase(context).favoriteBuildsDao() }
+    val favorites by favoriteDao.getAllFavorites().collectAsStateWithLifecycle(initialValue = emptyList())
+    var selectedFilter by remember { mutableStateOf(BuildsFilterTab.ALL) }
+
+    val filteredBuilds = remember(customBuilds, favorites, selectedFilter) {
+        when (selectedFilter) {
+            BuildsFilterTab.ALL -> customBuilds
+            BuildsFilterTab.FAVORITES -> {
+                val favIds = favorites.map { it.buildId }.toSet()
+                customBuilds.filter { it.id in favIds }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         CustomChampionBuildsManager.init(context)
@@ -117,17 +145,45 @@ fun AdminCreatorBuildsDialog(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text("Builds Publicadas y Usuarios Creadores (${customBuilds.size})", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FilterChip(
+                        selected = selectedFilter == BuildsFilterTab.ALL,
+                        onClick = { selectedFilter = BuildsFilterTab.ALL },
+                        label = { Text("Todas (${customBuilds.size})") },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = HextechGold.copy(alpha = 0.2f),
+                            selectedLabelColor = HextechGold
+                        )
+                    )
+                    FilterChip(
+                        selected = selectedFilter == BuildsFilterTab.FAVORITES,
+                        onClick = { selectedFilter = BuildsFilterTab.FAVORITES },
+                        label = { Text("Mis Favoritos (${favorites.size})") },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = DangerRed.copy(alpha = 0.2f),
+                            selectedLabelColor = DangerRed
+                        ),
+                        leadingIcon = {
+                            Icon(Icons.Default.Favorite, contentDescription = null, modifier = Modifier.size(16.dp), tint = DangerRed)
+                        }
+                    )
+                }
 
                 // Builds List
-                if (customBuilds.isEmpty()) {
+                if (filteredBuilds.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No hay builds creadas todavía.", color = TextSecondary, fontSize = 13.sp)
+                        Text(if (selectedFilter == BuildsFilterTab.FAVORITES) "No tienes builds favoritas guardadas." else "No hay builds creadas todavía.", color = TextSecondary, fontSize = 13.sp)
                     }
                 } else {
                     LazyColumn(
@@ -136,7 +192,7 @@ fun AdminCreatorBuildsDialog(
                             .weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(customBuilds) { record ->
+                        items(filteredBuilds) { record ->
                             val champObj = remember(record.championId) {
                                 WildRiftRepository.champions.find { it.id.equals(record.championId, ignoreCase = true) }
                             }
@@ -214,27 +270,23 @@ fun AdminCreatorBuildsDialog(
                                         }
                                     }
 
-                                    if (record.coreItems.isNotEmpty()) {
-                                        Text(
-                                            text = "Core: ${record.coreItems.joinToString(", ")}",
-                                            color = TextSecondary,
-                                            fontSize = 10.sp
+                                    // Animated text prompting to tap
+                                    val infiniteTransition = rememberInfiniteTransition()
+                                    val alpha by infiniteTransition.animateFloat(
+                                        initialValue = 0.3f,
+                                        targetValue = 1f,
+                                        animationSpec = infiniteRepeatable(
+                                            animation = tween(1000),
+                                            repeatMode = RepeatMode.Reverse
                                         )
-                                    }
-                                    if (record.situationalItems.isNotEmpty()) {
-                                        Text(
-                                            text = "Situacionales: ${record.situationalItems.joinToString(", ")}",
-                                            color = TextSecondary,
-                                            fontSize = 10.sp
-                                        )
-                                    }
-                                    if (record.runes.isNotBlank()) {
-                                        Text(
-                                            text = "Runas: ${record.runes}",
-                                            color = TextSecondary,
-                                            fontSize = 10.sp
-                                        )
-                                    }
+                                    )
+                                    Text(
+                                        text = "Presiona para ver completo",
+                                        color = HextechGold.copy(alpha = alpha),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 4.dp)
+                                    )
                                 }
                             }
                         }

@@ -5,16 +5,19 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.data.local.dao.DraftDao
+import com.example.data.local.dao.FavoriteBuildsDao
 import com.example.data.local.entity.SavedDraftEntity
+import com.example.data.local.entity.FavoriteBuildEntity
 
 @Database(
-    entities = [SavedDraftEntity::class],
-    version = 3,
+    entities = [SavedDraftEntity::class, FavoriteBuildEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun draftDao(): DraftDao
+    abstract fun favoriteBuildsDao(): FavoriteBuildsDao
 
     companion object {
         @Volatile

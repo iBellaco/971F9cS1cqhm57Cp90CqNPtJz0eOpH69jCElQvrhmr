@@ -1850,7 +1850,9 @@ enum class UserFilterTab(val label: String) {
     FREE("🎮 Gratis"),
     ONLINE("🟢 Online"),
     ADMINS("🛡️ Admins"),
-    BANNED("⛔ Baneados")
+    BANNED("⛔ Baneados"),
+    STREAMERS("🎥 Streamers"),
+    CREATORS("✨ Creador VIP")
 }
 
 @Composable
@@ -1930,6 +1932,8 @@ fun EnhancedUserManagementPanel(
     }
 
     val adminUsers = users.count { (it["role"] as? String) == "admin" }
+    val streamerUsers = users.count { (it["role"] as? String) == "streamer" }
+    val creatorUsers = users.count { (it["role"] as? String) == "creador_vip" }
     val freeUsers = users.count { u ->
         val role = u["role"] as? String ?: "free"
         val until = (u["premiumUntil"] as? Number)?.toLong()
@@ -1958,9 +1962,11 @@ fun EnhancedUserManagementPanel(
             val matchesTab = when (selectedFilter) {
                 UserFilterTab.ALL -> true
                 UserFilterTab.PREMIUM -> isPrem
-                UserFilterTab.FREE -> role == "free" || (!isPrem && role != "admin")
+                UserFilterTab.FREE -> role == "free" || (!isPrem && role != "admin" && role != "streamer" && role != "creador_vip")
                 UserFilterTab.ONLINE -> isOnline
                 UserFilterTab.ADMINS -> role == "admin"
+                UserFilterTab.STREAMERS -> role == "streamer"
+                UserFilterTab.CREATORS -> role == "creador_vip"
                 UserFilterTab.BANNED -> isBanned
             }
 
@@ -2069,6 +2075,8 @@ fun EnhancedUserManagementPanel(
                             UserFilterTab.FREE -> freeUsers
                             UserFilterTab.ONLINE -> onlineUsers
                             UserFilterTab.ADMINS -> adminUsers
+                            UserFilterTab.STREAMERS -> streamerUsers
+                            UserFilterTab.CREATORS -> creatorUsers
                             UserFilterTab.BANNED -> bannedUsers
                         }
 

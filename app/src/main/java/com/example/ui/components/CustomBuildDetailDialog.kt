@@ -28,6 +28,15 @@ import com.example.data.local.CustomChampionBuildRecord
 import com.example.data.local.CustomChampionBuildsManager
 import com.example.ui.theme.*
 
+import android.content.Intent
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Share
+import com.example.data.local.AppDatabase
+import com.example.data.local.entity.FavoriteBuildEntity
+import kotlinx.coroutines.launch
+import androidx.compose.ui.text.style.TextOverflow
+
 @Composable
 fun CustomBuildDetailDialog(
     record: CustomChampionBuildRecord,
@@ -42,6 +51,27 @@ fun CustomBuildDetailDialog(
     var hasVoted by remember { mutableStateOf(false) }
 
     val avgRating = if (record.voteCount > 0) record.ratingSum / record.voteCount else 0.0
+
+    val scope = rememberCoroutineScope()
+    val favoriteDao = remember { AppDatabase.getDatabase(context).favoriteBuildsDao() }
+    val isFavorite by favoriteDao.isFavorite(record.id).collectAsState(initial = false)
+
+    val shareBuild = {
+        val shareText = buildString {
+            appendLine("🛡️ Build: ${record.buildTitle} para ${record.championName}")
+            appendLine("👤 Rol: ${record.role}")
+            appendLine("⚔️ Core: ${record.coreItems.joinToString(", ")}")
+            if (record.situationalItems.isNotEmpty()) appendLine("🔄 Situacionales: ${record.situationalItems.joinToString(", ")}")
+            appendLine("💎 Runas: ${record.runes}")
+            if (record.coreSpells.isNotEmpty()) appendLine("✨ Hechizos: ${record.coreSpells.joinToString(", ") { it.spellName }}")
+            appendLine("🔥 ¡Creada por ${record.creatorName} en Coach App!")
+        }
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+        context.startActivity(Intent.createChooser(intent, "Compartir Build"))
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -60,7 +90,8 @@ fun CustomBuildDetailDialog(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.weight(1f)
                 ) {
                     if (champ != null) {
                         ChampionAvatar(champion = champ, size = 48.dp, showTierBadge = false)
@@ -70,17 +101,41 @@ fun CustomBuildDetailDialog(
                             text = record.buildTitle,
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = "${record.championName} • Rol: ${record.role} • Creador: ${record.creatorName}",
                             color = HextechGold,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }
-                IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = shareBuild) {
+                        Icon(Icons.Default.Share, contentDescription = "Compartir", tint = HextechCyan)
+                    }
+                    IconButton(onClick = {
+                        scope.launch {
+                            if (isFavorite) {
+                                favoriteDao.deleteFavorite(record.id)
+                            } else {
+                                favoriteDao.insertFavorite(FavoriteBuildEntity(buildId = record.id))
+                            }
+                        }
+                    }) {
+                        Icon(
+                            if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorito",
+                            tint = if (isFavorite) DangerRed else HextechGold
+                        )
+                    }
+                    IconButton(onClick = onDismiss) {
+                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                    }
                 }
             }
 

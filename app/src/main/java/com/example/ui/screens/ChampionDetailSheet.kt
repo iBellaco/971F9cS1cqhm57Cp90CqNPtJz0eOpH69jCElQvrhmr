@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -763,40 +764,61 @@ fun ChampionDetailSheet(
                                 fontWeight = FontWeight.Bold
                             )
                         }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(
-                                    when (activeOption.optionNumber) {
-                                        2 -> Color(0xFFE53935).copy(alpha = 0.2f)
-                                        3 -> Color(0xFFFB8C00).copy(alpha = 0.2f)
-                                        4 -> Color(0xFF8E24AA).copy(alpha = 0.2f)
-                                        else -> HextechCyan.copy(alpha = 0.2f)
-                                    }
-                                )
-                                .border(
-                                    1.dp,
-                                    when (activeOption.optionNumber) {
-                                        2 -> Color(0xFFE53935)
-                                        3 -> Color(0xFFFB8C00)
-                                        4 -> Color(0xFF8E24AA)
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            val context = androidx.compose.ui.platform.LocalContext.current
+                            val shareBuild = {
+                                val shareText = buildString {
+                                    appendLine("🛡️ Build: ${activeOption.title} para ${champion.name}")
+                                    appendLine("👤 Rol: ${selectedRole.name}")
+                                    appendLine("⚔️ Core: ${activeOption.items.joinToString(", ")}")
+                                    if (activeOption.situationalItems.isNotEmpty()) appendLine("🔄 Situacionales: ${activeOption.situationalItems.joinToString(", ")}")
+                                    appendLine("💎 Runas: ${activeOption.runes.joinToString(", ")}")
+                                    appendLine("🔥 ¡Comparte desde Coach App!")
+                                }
+                                val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                                }
+                                context.startActivity(android.content.Intent.createChooser(intent, "Compartir Build"))
+                            }
+                            IconButton(onClick = shareBuild, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Default.Share, contentDescription = "Compartir", tint = HextechCyan, modifier = Modifier.size(16.dp))
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(
+                                        when (activeOption.optionNumber) {
+                                            2 -> Color(0xFFE53935).copy(alpha = 0.2f)
+                                            3 -> Color(0xFFFB8C00).copy(alpha = 0.2f)
+                                            4 -> Color(0xFF8E24AA).copy(alpha = 0.2f)
+                                            else -> HextechCyan.copy(alpha = 0.2f)
+                                        }
+                                    )
+                                    .border(
+                                        1.dp,
+                                        when (activeOption.optionNumber) {
+                                            2 -> Color(0xFFE53935)
+                                            3 -> Color(0xFFFB8C00)
+                                            4 -> Color(0xFF8E24AA)
+                                            else -> HextechCyan
+                                        },
+                                        RoundedCornerShape(6.dp)
+                                    )
+                                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                            ) {
+                                Text(
+                                    text = activeOption.badge,
+                                    color = when (activeOption.optionNumber) {
+                                        2 -> Color(0xFFFF5252)
+                                        3 -> Color(0xFFFFB74D)
+                                        4 -> Color(0xFFCE93D8)
                                         else -> HextechCyan
                                     },
-                                    RoundedCornerShape(6.dp)
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Black
                                 )
-                                .padding(horizontal = 8.dp, vertical = 3.dp)
-                        ) {
-                            Text(
-                                text = activeOption.badge,
-                                color = when (activeOption.optionNumber) {
-                                    2 -> Color(0xFFFF5252)
-                                    3 -> Color(0xFFFFB74D)
-                                    4 -> Color(0xFFCE93D8)
-                                    else -> HextechCyan
-                                },
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Black
-                            )
+                            }
                         }
                     }
 
