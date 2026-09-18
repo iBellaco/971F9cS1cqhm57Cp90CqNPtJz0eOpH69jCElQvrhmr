@@ -112,12 +112,16 @@ object DraftValidationLayer {
 
         // Si coincide con el nombre o ID de un campeón explícito, nunca es invocador
         if (championName != null) {
+            val stripped = stripLeadingMasteryOrRoleIcon(trimmed)
             val normTrimmed = normalize(trimmed)
+            val normStripped = normalize(stripped)
             val normChamp = normalize(championName)
-            if (normTrimmed == normChamp || normTrimmed == normChamp.replace(" ", "") || normTrimmed.replace(" ", "") == normChamp.replace(" ", "")) {
+            if (normTrimmed == normChamp || normStripped == normChamp ||
+                normTrimmed.replace(" ", "") == normChamp.replace(" ", "") ||
+                normStripped.replace(" ", "") == normChamp.replace(" ", "")) {
                 return false
             }
-            if (normChamp == "jarvan iv" && (normTrimmed == "jarvan 4" || normTrimmed == "jarvan iv" || normTrimmed == "jarvan")) {
+            if (normChamp.contains("jarvan") && (normTrimmed.contains("jarvan") || normStripped.contains("jarvan"))) {
                 return false
             }
         }
@@ -185,6 +189,43 @@ object DraftValidationLayer {
     }
 
     /**
+     * Limpia cualquier icono de maestría, insignia de elo o glifo de carril al inicio del texto.
+     * En Wild Rift, cada slot muestra: [ICONO_MAESTRIA_O_ROL] + [NOMBRE_DE_LINEA o NOMBRE_DE_CAMPEON].
+     * El icono siempre se mantiene a la izquierda y debe ignorarse.
+     * Casos soportados:
+     * - Símbolos y puntuación: • JINX, > JINX, » JINX, * JINX, # JINX, etc.
+     * - Letras aisladas del icono: V JINX, W JINX, Y JINX, M JINX, I JINX, T JINX, X JINX
+     * - Niveles de maestría o rango: LV7 JINX, M7 JINX, 7 JINX, 1 JINX, VII JINX
+     * - Lo mismo para líneas: • APOYO, > CALLE CENTRAL, V DÚO, M7 APOYO
+     */
+    fun stripLeadingMasteryOrRoleIcon(rawText: String): String {
+        val trimmed = rawText.trim()
+        if (trimmed.isBlank()) return ""
+
+        // 1. Quitar símbolos no alfanuméricos iniciales (ej: "• JINX" -> "JINX", "> APOYO" -> "APOYO", "» CAITLYN" -> "CAITLYN")
+        var clean = trimmed.replace(Regex("^[\\W_]+"), "").trim()
+
+        // 2. Quitar prefijo de icono de maestría/elo separado por espacio (de 1 a 4 caracteres)
+        // Ejemplos: "V JINX" -> "JINX", "LV7 JINX" -> "JINX", "M7 JINX" -> "JINX", "1 JINX" -> "JINX", "• APOYO" -> "APOYO"
+        val spaceIndex = clean.indexOf(' ')
+        if (spaceIndex in 1..4) {
+            val potentialIcon = clean.substring(0, spaceIndex).trim()
+            val remainder = clean.substring(spaceIndex + 1).trim()
+            // No cortar nombres legítimos de 2 palabras como "DR MUNDO", "LEE SIN", "XIN ZHAO"
+            val normLower = clean.lowercase(Locale.ROOT)
+            val isKnownTwoWordChamp = normLower.startsWith("dr ") || normLower.startsWith("lee ") ||
+                normLower.startsWith("xin ") || normLower.startsWith("jarvan ") ||
+                normLower.startsWith("miss ") || normLower.startsWith("twisted ") ||
+                normLower.startsWith("master ") || normLower.startsWith("aurelion ")
+            if (!isKnownTwoWordChamp && remainder.isNotBlank()) {
+                clean = remainder
+            }
+        }
+
+        return clean
+    }
+
+    /**
      * Normaliza un texto eliminando tildes y caracteres especiales.
      */
     fun normalize(text: String): String {
@@ -199,8 +240,10 @@ object DraftValidationLayer {
      * Soporta prefijos de iconos de elo alto, maestría o asignación de rol (ej: "> CARRIL CENTRAL", "• MID", "vmid").
      */
     fun parseRoleFromText(rawText: String): LaneRole? {
+        val stripped = stripLeadingMasteryOrRoleIcon(rawText)
         val lower = normalize(rawText)
-        if (lower.isBlank()) return null
+        val lowerStripped = normalize(stripped)
+        if (lower.isBlank() && lowerStripped.isBlank()) return null
 
         // Ignorar identificadores de jugador genéricos como "Jugador 1", "Player 2", etc.
         if (lower.startsWith("jugador") || lower.startsWith("player") || lower.startsWith("jogador")) {
@@ -209,12 +252,15 @@ object DraftValidationLayer {
 
         // Limpieza de posibles iconos o artefactos iniciales (símbolos, números o 1-3 letras iniciales que representan insignias)
         val textWithoutSymbols = lower.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
+        val textWithoutSymbolsStripped = lowerStripped.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
         val tokens = textWithoutSymbols.split(Regex("[\\s,.:;\\-_/()]+")).filter { it.isNotBlank() }
 
         // Evaluamos tanto la cadena completa como tokens individuales y combinaciones
         val candidatesToEvaluate = mutableListOf<String>()
         candidatesToEvaluate.add(lower)
+        if (lowerStripped.isNotBlank()) candidatesToEvaluate.add(lowerStripped)
         candidatesToEvaluate.add(textWithoutSymbols)
+        if (textWithoutSymbolsStripped.isNotBlank()) candidatesToEvaluate.add(textWithoutSymbolsStripped)
 
         // Si hay varios tokens y el primero parece un icono/prefijo de elo (ej: "v carril central", "1 mid", "o duo")
         if (tokens.size >= 2) {

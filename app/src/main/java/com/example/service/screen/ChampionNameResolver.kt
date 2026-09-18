@@ -243,28 +243,32 @@ object ChampionNameResolver {
             if (insideChamp != null) return insideChamp
         }
 
+        val stripped = DraftValidationLayer.stripLeadingMasteryOrRoleIcon(trimmed)
         val clean = normalize(trimmed)
+        val cleanStripped = normalize(stripped)
         if (clean.isBlank() || UI_IGNORE_WORDS.contains(clean)) return null
 
         val compact = normalizeCompact(trimmed)
+        val compactStripped = normalizeCompact(stripped)
 
-        // 1. Coincidencia directa por mapa de nombres canónicos oficiales (Cadena completa)
-        KNOWN_CHAMPIONS_MAP[clean]?.let { id ->
-            val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null) return found
-        }
-        KNOWN_CHAMPIONS_MAP[compact]?.let { id ->
-            val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-            if (found != null) return found
+        // 1. Coincidencia directa por mapa de nombres canónicos oficiales (Cadena completa o con icono limpio)
+        for (c in listOf(cleanStripped, compactStripped, clean, compact)) {
+            if (c.isNotBlank()) {
+                KNOWN_CHAMPIONS_MAP[c]?.let { id ->
+                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                    if (found != null) return found
+                }
+            }
         }
 
-        // 2. Coincidencia exacta por lista de campeones en memoria (Cadena completa)
+        // 2. Coincidencia exacta por lista de campeones en memoria (Cadena completa o con icono limpio)
         for (champ in safeChamps) {
             val champNorm = normalize(champ.name)
             val champCompact = normalizeCompact(champ.name)
             val champIdCompact = normalizeCompact(champ.id)
 
-            if (clean == champNorm || compact == champCompact || compact == champIdCompact) {
+            if (cleanStripped == champNorm || compactStripped == champCompact || compactStripped == champIdCompact ||
+                clean == champNorm || compact == champCompact || compact == champIdCompact) {
                 return champ
             }
         }
@@ -287,19 +291,23 @@ object ChampionNameResolver {
         }
 
         // 4. Coincidencia por tokens separados por espacio o símbolos (icono de elo/maestría antes del nombre del campeón)
-        // Ejemplo: "V WUKONG", "• YUUMI", "LV7 CAITLYN", "10 GALIO", "> PANTHEON", "ICON JAX"
-        val tokens = clean.split(" ").filter { it.isNotBlank() }
-        if (tokens.size in 2..4) {
+        // Ejemplo: "V JINX", "LV7 JINX", "• JINX", "W JINX", "1 JINX", "M7 JINX", "> WUKONG", "» CAITLYN", "10 GALIO"
+        val tokensToScan = if (cleanStripped.isNotBlank() && cleanStripped != clean) {
+            cleanStripped.split(" ").filter { it.isNotBlank() }
+        } else {
+            clean.split(" ").filter { it.isNotBlank() }
+        }
+        if (tokensToScan.isNotEmpty()) {
             // Revisamos cada token individualmente de derecha a izquierda (el nombre del campeón suele estar al final tras el icono)
-            for (token in tokens.reversed()) {
+            for (token in tokensToScan.reversed()) {
                 if (token.length >= 3 && !UI_IGNORE_WORDS.contains(token)) {
                     KNOWN_CHAMPIONS_MAP[token]?.let { id ->
                         val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                        if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
+                        if (found != null && !DraftValidationLayer.isLikelySummonerName(token, championName = found.name)) return found
                     }
                     for (champ in safeChamps) {
                         val champNorm = normalize(champ.name)
-                        if (token == champNorm && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = champ.name)) {
+                        if (token == champNorm && !DraftValidationLayer.isLikelySummonerName(token, championName = champ.name)) {
                             return champ
                         }
                     }
@@ -307,8 +315,8 @@ object ChampionNameResolver {
             }
 
             // Campeones de 2 palabras (ej: "DR MUNDO", "LEE SIN", "JARVAN IV", "MASTER YI", "AURELION SOL", "XIN ZHAO")
-            for (i in 0 until tokens.size - 1) {
-                val pair = "${tokens[i]} ${tokens[i + 1]}"
+            for (i in 0 until tokensToScan.size - 1) {
+                val pair = "${tokensToScan[i]} ${tokensToScan[i + 1]}"
                 KNOWN_CHAMPIONS_MAP[pair]?.let { id ->
                     val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
                     if (found != null) return found
@@ -316,16 +324,18 @@ object ChampionNameResolver {
             }
         }
 
-        // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon")
-        // Típico cuando el OCR concatena el icono de rango/elo con la primera letra del nombre del campeón
-        if (compact.length in 4..18) {
-            for (champ in safeChamps) {
-                val champCompact = normalizeCompact(champ.name)
-                if (champCompact.length >= 3 && compact.endsWith(champCompact)) {
-                    val prefixLen = compact.length - champCompact.length
-                    // Si el prefijo sobrante al inicio es de 1 a 3 caracteres (la insignia/icono)
-                    if (prefixLen in 1..3) {
-                        return champ
+        // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon", "vjinx", "1jinx")
+        // Típico cuando el OCR concatena el icono de rango/elo/maestría con la primera letra del nombre del campeón
+        for (candCompact in listOf(compactStripped, compact)) {
+            if (candCompact.length in 4..18) {
+                for (champ in safeChamps) {
+                    val champCompact = normalizeCompact(champ.name)
+                    if (champCompact.length >= 3 && candCompact.endsWith(champCompact)) {
+                        val prefixLen = candCompact.length - champCompact.length
+                        // Si el prefijo sobrante al inicio es de 1 a 3 caracteres (la insignia/icono)
+                        if (prefixLen in 1..3) {
+                            return champ
+                        }
                     }
                 }
             }

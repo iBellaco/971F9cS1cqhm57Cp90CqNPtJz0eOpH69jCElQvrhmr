@@ -476,23 +476,39 @@ object DraftVisionScanner {
                 val summonerCandidates = mutableListOf<String>()
 
                 if (entries.isNotEmpty()) {
-                    // 1. REGLA FUNDAMENTAL DE WILD RIFT (LADO ALIADO):
-                    // Mientras el jugador NO haya confirmado su campeón, se visualiza el nombre de su línea asignada:
-                    // "CALLE DEL BARÓN", "CALLE DEL DRAGÓN", "CALLE CENTRAL", "JUNGLA", "SOPORTE" (o variantes).
-                    // Si CUALQUIER texto dentro de este slot corresponde a una línea/rol, la línea AÚN SIGUE VISIBLE.
+                    // En Wild Rift (Lado Aliado): cada slot muestra [ICONO_MAESTRIA_O_ROL] + [VALOR].
+                    // - Si el jugador ya seleccionó su campeón: el nombre de la línea cambia por el NOMBRE DEL CAMPEÓN (ej: "• JINX", "V JARVAN IV").
+                    // - Si el jugador aún no ha seleccionado: el valor sigue siendo el NOMBRE DE LA LÍNEA (ej: "CALLE CENTRAL", "• APOYO", "JUNGLA").
+                    // El icono a la izquierda siempre se mantiene y debe ignorarse.
                     for ((line, box) in entries) {
                         if (DraftValidationLayer.isNoiseText(line)) continue
-                        val cleanLine = line.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
-                        val lineWithoutLeadingArtifact = if (cleanLine.length > 2 && (cleanLine[1] == ' ' || cleanLine[2] == ' ')) {
-                            cleanLine.dropWhile { it != ' ' }.trim()
-                        } else cleanLine
+                        val strippedLine = DraftValidationLayer.stripLeadingMasteryOrRoleIcon(line)
 
-                        val role = DraftValidationLayer.parseRoleFromText(cleanLine)
-                            ?: DraftValidationLayer.parseRoleFromText(lineWithoutLeadingArtifact)
+                        // 1. ¿Es un campeón seleccionado?
+                        val matchedChamp = ChampionNameResolver.findChampionInText(strippedLine, allChamps)
+                            ?: ChampionNameResolver.findChampionInText(line, allChamps)
+
+                        if (matchedChamp != null) {
+                            detectedChampInSlot = matchedChamp
+                            textDiagnosticsList.add(
+                                TextBlockDiagnostic(
+                                    text = line,
+                                    rect = box ?: Rect(0, 0, 10, 10),
+                                    isAlly = true,
+                                    slotIndex = i,
+                                    tag = "CAMPEÓN: ${matchedChamp.name}",
+                                    color = android.graphics.Color.GREEN
+                                )
+                            )
+                            AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón confirmado tras icono: ${matchedChamp.name}")
+                            break // Campeón confirmado en este slot; la línea ya cambió
+                        }
+
+                        // 2. ¿Es el nombre de la línea asignada (en espera de selección)?
+                        val role = DraftValidationLayer.parseRoleFromText(strippedLine)
                             ?: DraftValidationLayer.parseRoleFromText(line)
 
                         if (role != null) {
-                            isSlotShowingLane = true
                             detectedRoleInSlot = role
                             slot.explicitRole = role
                             allySlotRolesCache[i] = role
@@ -507,39 +523,13 @@ object DraftVisionScanner {
                                 )
                             )
                             AppLogger.d(TAG, "OCR Aliado Slot $i -> Línea: ${role.shortName} (Esperando selección)")
-                            break
                         }
                     }
 
-                    // 2. Si la línea YA NO está visible (ha cambiado por el nombre del campeón):
-                    if (!isSlotShowingLane) {
-                        for ((line, box) in entries) {
-                            if (DraftValidationLayer.isNoiseText(line)) continue
-                            val cleanLine = line.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
-                            val lineWithoutLeadingArtifact = if (cleanLine.length > 2 && (cleanLine[1] == ' ' || cleanLine[2] == ' ')) {
-                                cleanLine.dropWhile { it != ' ' }.trim()
-                            } else cleanLine
-
-                            val matchedChamp = ChampionNameResolver.findChampionInText(cleanLine, allChamps)
-                                ?: ChampionNameResolver.findChampionInText(lineWithoutLeadingArtifact, allChamps)
-                                ?: ChampionNameResolver.findChampionInText(line, allChamps)
-
-                            if (matchedChamp != null) {
-                                detectedChampInSlot = matchedChamp
-                                textDiagnosticsList.add(
-                                    TextBlockDiagnostic(
-                                        text = line,
-                                        rect = box ?: Rect(0, 0, 10, 10),
-                                        isAlly = true,
-                                        slotIndex = i,
-                                        tag = "CAMPEÓN: ${matchedChamp.name}",
-                                        color = android.graphics.Color.GREEN
-                                    )
-                                )
-                                AppLogger.d(TAG, "OCR Aliado Slot $i -> Campeón 100%: ${matchedChamp.name}")
-                                break
-                            }
-                        }
+                    if (detectedChampInSlot != null) {
+                        isSlotShowingLane = false
+                    } else if (detectedRoleInSlot != null) {
+                        isSlotShowingLane = true
                     }
 
                     // 3. ANALIZAR NOMBRE DE INVOCADOR / TAG DE USUARIO:
@@ -744,6 +734,7 @@ object DraftVisionScanner {
                     val safeBox = box ?: Rect(0, 0, 10, 10)
                     if (DraftValidationLayer.isNoiseText(line)) continue
 
+                    val strippedLine = DraftValidationLayer.stripLeadingMasteryOrRoleIcon(line)
                     val cleanLine = line.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
                     val lineWithoutLeadingArtifact = if (cleanLine.length > 2 && (cleanLine[1] == ' ' || cleanLine[2] == ' ')) {
                         cleanLine.dropWhile { it != ' ' }.trim()
@@ -753,7 +744,8 @@ object DraftVisionScanner {
                     val tokenAfter2 = if (tokens.size > 2) tokens.drop(2).joinToString(" ") else null
                     val tokenLast = if (tokens.isNotEmpty()) tokens.last() else null
 
-                    val matched = ChampionNameResolver.findChampionInText(cleanLine, allChamps)
+                    val matched = ChampionNameResolver.findChampionInText(strippedLine, allChamps)
+                        ?: ChampionNameResolver.findChampionInText(cleanLine, allChamps)
                         ?: ChampionNameResolver.findChampionInText(lineWithoutLeadingArtifact, allChamps)
                         ?: ChampionNameResolver.findChampionInText(line, allChamps)
                         ?: (if (tokenAfter1 != null) ChampionNameResolver.findChampionInText(tokenAfter1, allChamps) else null)
