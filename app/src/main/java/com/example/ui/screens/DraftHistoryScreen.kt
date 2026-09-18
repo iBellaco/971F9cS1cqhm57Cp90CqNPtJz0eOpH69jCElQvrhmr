@@ -1290,7 +1290,7 @@ fun DraftHistoryScreen(
                         value = newTag,
                         onValueChange = { newTag = it },
                         label = { Text(tr("Tag / Rango Opcional"), fontSize = 12.sp) },
-                        placeholder = { Text("Ej: Challenger, LAN, Smurf", fontSize = 11.5.sp, color = TextMuted) },
+                        placeholder = { Text("Ej: Soberano, LAN, Smurf", fontSize = 11.5.sp, color = TextMuted) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(

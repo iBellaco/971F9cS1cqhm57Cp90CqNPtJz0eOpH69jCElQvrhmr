@@ -404,7 +404,7 @@ fun MatchupPreviewDialog(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = "Veredicto del Coach Challenger:",
+                                    text = "Veredicto del Coach Soberano:",
                                     color = HextechGold,
                                     fontSize = 11.5.sp,
                                     fontWeight = FontWeight.Black

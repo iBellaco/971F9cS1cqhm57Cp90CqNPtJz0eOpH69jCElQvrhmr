@@ -83,7 +83,7 @@ fun UserAvatarView(
     
     val actualShowBorder = showBorder
 
-    val infiniteTransition = rememberInfiniteTransition(label = "ChallengerGlow")
+    val infiniteTransition = rememberInfiniteTransition(label = "SoberanoGlow")
     val glowPulse by infiniteTransition.animateFloat(
         initialValue = 0.5f,
         targetValue = 1.0f,
@@ -260,7 +260,7 @@ fun Modifier.rankedBorderPainter(rank: String, glowPulse: Float, rotation: Float
                     center = Offset(cx, cy),
                     style = Stroke(width = 8.dp.toPx())
                 )
-                // Challenger Bottom Gem (Hexagon)
+                // Soberano Bottom Gem (Hexagon)
                 val gemPath = Path().apply {
                     val gemR = 8.dp.toPx()
                     val gemY = size.height - 2.dp.toPx()

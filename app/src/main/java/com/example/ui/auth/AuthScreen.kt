@@ -834,7 +834,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Consejo del Coach Challenger colocado DIRECTAMENTE debajo de los temas de regiones
+                // Consejo del Coach Soberano colocado DIRECTAMENTE debajo de los temas de regiones
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = activeTheme.surfaceVariant.copy(alpha = 0.5f),
@@ -851,7 +851,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                         Text("💡", fontSize = 22.sp)
                         Column {
                             Text(
-                                text = "Consejo del Coach Challenger",
+                                text = "Consejo del Coach Soberano",
                                 color = activeTheme.secondary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold

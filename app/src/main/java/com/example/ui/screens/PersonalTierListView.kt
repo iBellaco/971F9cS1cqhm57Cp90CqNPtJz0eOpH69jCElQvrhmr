@@ -1185,7 +1185,7 @@ private fun PersonalChampionDetailModal(
                     }
                 }
 
-                // Veredicto del Coach Challenger
+                // Veredicto del Coach Soberano
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

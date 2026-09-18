@@ -47,7 +47,7 @@ object SynergyAdvisor {
         val comboPt: String
     )
 
-    // Catálogo profundo de pares sinérgicos Challenger para Wild Rift
+    // Catálogo profundo de pares sinérgicos Soberano para Wild Rift
     private val synergyDatabase: Map<String, List<SpecificSynergyEntry>> = mapOf(
         "yasuo" to listOf(
             SpecificSynergyEntry(

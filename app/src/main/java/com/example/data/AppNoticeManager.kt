@@ -55,7 +55,7 @@ object AppNoticeManager {
     private val defaultNotices = listOf(
         AppNotice(
             title = "¡Nueva Actualización de Parche disponible!",
-            content = "Consulta las tier lists actualizadas y optimiza tus picks para subir a Challenger.",
+            content = "Consulta las tier lists actualizadas y optimiza tus picks para subir a Soberano.",
             tag = "Anuncios importantes",
             isEnabled = true
         ),

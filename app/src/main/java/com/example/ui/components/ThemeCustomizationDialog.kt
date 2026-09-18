@@ -289,7 +289,7 @@ fun ThemeCustomizationBottomSheet(
                     Text("💡", fontSize = 18.sp)
                     Column {
                         Text(
-                            text = "Consejo del Coach Challenger",
+                            text = "Consejo del Coach Soberano",
                             color = HextechGold,
                             fontSize = 11.5.sp,
                             fontWeight = FontWeight.Bold
@@ -750,7 +750,7 @@ private fun RegionVisualPreviewGridCard(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "Sinergia S+ / Tier Challenger",
+                                    text = "Sinergia S+ / Tier Soberano",
                                     color = inspectedTheme.secondary,
                                     fontSize = 9.5.sp,
                                     fontWeight = FontWeight.SemiBold

@@ -748,7 +748,7 @@ object WildRiftRepository {
             LaneRole.SUPPORT to listOf("thresh", "nautilus", "lulu", "nami", "karma", "morgana", "leona", "rakan", "braum")
         )
 
-        // Server CN Priority Meta staples (High Elo Challenger Pick & Ban)
+        // Server CN Priority Meta staples (High Elo Soberano Pick & Ban)
         val cnMetaStaples = setOf(
             "aatrox", "lee_sin", "camille", "yone", "syndra", "ahri", "varus", "ezreal", "vi", "nautilus", "thresh", "karma", "gwen", "jayce", "viego", "renekton", "rakan"
         )

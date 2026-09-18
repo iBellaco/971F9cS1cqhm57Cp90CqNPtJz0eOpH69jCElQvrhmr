@@ -43,7 +43,7 @@ fun FAQScreen(
             ),
             Pair(
                 "¿De dónde salen las estadísticas, los campeones y las builds?",
-                "Todo el contenido viene directo del meta competitivo oficial de Wild Rift y servidores de alto elo (Challenger/Grandmaster). Analizamos constantemente las builds de los mejores jugadores del mundo, las runas óptimas, los hechizos de invocador que más se usan por línea y las guías de objetos core o situacionales (como cortacuras o fajines) para que siempre tengas la información más precisa."
+                "Todo el contenido viene directo del meta competitivo oficial de Wild Rift y servidores de alto elo (Soberano/Grandmaster). Analizamos constantemente las builds de los mejores jugadores del mundo, las runas óptimas, los hechizos de invocador que más se usan por línea y las guías de objetos core o situacionales (como cortacuras o fajines) para que siempre tengas la información más precisa."
             ),
             Pair(
                 "¿Por qué cambian las recomendaciones de campeones si elijo 1er Pick?",
@@ -143,7 +143,7 @@ fun FAQScreen(
             ),
             Pair(
                 "¿De dónde sacan las combinaciones de runas que recomiendan?",
-                "El algoritmo cruza los datos de las builds más exitosas en partidas Challenger (principalmente del servidor de China, que es el más competitivo) y te muestra las que mejor porcentaje de victoria tienen frente a la composición actual."
+                "El algoritmo cruza los datos de las builds más exitosas en partidas Soberano (principalmente del servidor de China, que es el más competitivo) y te muestra las que mejor porcentaje de victoria tienen frente a la composición actual."
             ),
             Pair(
                 "¿El asistente recomienda objetos situacionales (como cortacuras)?",
@@ -170,7 +170,7 @@ fun FAQScreen(
                 "Jajaja, claro que no. Somos una app de análisis y estrategia (Coach), no un bot ni un software de trampas (hacks). Las mecánicas y el macro juego en partida dependen al 100% de ti."
             ),
             Pair(
-                "¿Me ayuda a subir a Challenger si soy Hierro 4?",
+                "¿Me ayuda a subir a Soberano si soy Hierro 4?",
                 "Te damos las herramientas teóricas, el conocimiento táctico, las builds y los counters perfectos... pero si sigues fallando el destello (Flash) contra el muro, la app no puede salvarte. ¡A practicar mecánicas!"
             ),
             Pair(

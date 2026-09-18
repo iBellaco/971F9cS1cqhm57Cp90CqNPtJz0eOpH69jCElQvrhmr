@@ -465,9 +465,9 @@ object PersonalTierListManager {
                 else "Aún no hay partidas finalizadas registradas. Marca victorias o derrotas para desbloquear tu calificación."
             }
             winRate >= 75.0 -> {
-                if (lang == "en") "⚡ God Tier Pick! Exceptional mastery in ${role.displayName}. Safe pick for climbing Challenger ranks."
+                if (lang == "en") "⚡ God Tier Pick! Exceptional mastery in ${role.displayName}. Safe pick for climbing Soberano ranks."
                 else if (lang == "pt") "⚡ God Tier Pick! Maestria excepcional em ${role.displayName}. Pick seguro para subir elo."
-                else "⚡ ¡Pick Imparable! Maestría absoluta en ${role.displayName}. Es tu mejor herramienta para subir a Challenger."
+                else "⚡ ¡Pick Imparable! Maestría absoluta en ${role.displayName}. Es tu mejor herramienta para subir a Soberano."
             }
             winRate >= 60.0 -> {
                 if (lang == "en") "🔥 Elite Performance in ${role.displayName}. Strong lane pressure and high win condition conversion."

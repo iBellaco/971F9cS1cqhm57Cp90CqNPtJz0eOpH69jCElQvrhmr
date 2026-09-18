@@ -414,8 +414,8 @@ object DraftVisionScanner {
                     
                     detectedWords.add(text)
 
-                    // Ignorar barra de bans superior y botones inferiores extremos
-                    if (yRatio < 0.080f || yRatio > 0.920f) continue
+                    // Ignorar barra de bans superior, parte superior, y botones inferiores extremos
+                    if (yRatio < 0.5f || yRatio > 0.950f) continue
 
                     val isAllyCol = xRatio in calib.allyOcrMinX..calib.allyOcrMaxX
                     val isEnemyCol = xRatio in calib.enemyOcrMinX..calib.enemyOcrMaxX
