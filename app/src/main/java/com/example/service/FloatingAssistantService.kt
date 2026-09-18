@@ -2867,35 +2867,6 @@ private fun OverlayVersusDraftBoard(
                         )
                     }
                 }
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                // Acceso directo al Visor Google MediaPipe / LiteRT (10º Pick)
-                Surface(
-                    modifier = Modifier.clickable { onOpenLiteRTViewer?.invoke() },
-                    shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF0F172A),
-                    border = BorderStroke(1.dp, Color(0xFF00E5FF).copy(alpha = 0.7f))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.AutoAwesome,
-                            contentDescription = "Visor LiteRT",
-                            tint = Color(0xFF00E5FF),
-                            modifier = Modifier.size(11.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Visor LiteRT",
-                            color = Color(0xFF00E5FF),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 9.5.sp
-                        )
-                    }
-                }
             }
 
             // Header

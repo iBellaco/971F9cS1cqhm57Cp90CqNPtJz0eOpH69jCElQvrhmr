@@ -188,12 +188,16 @@ object DraftVisionScanner {
         private var lastConfirmedChampion: Champion? = null
 
         fun process(candidate: Champion?, isUnpicked: Boolean, persistentCache: Champion?): Champion? {
-            if (isUnpicked || candidate == null) {
+            val champ = candidate ?: persistentCache ?: lastConfirmedChampion
+            if (champ != null) {
+                lastConfirmedChampion = champ
+                return champ
+            }
+            if (isUnpicked) {
                 lastConfirmedChampion = null
                 return null
             }
-            lastConfirmedChampion = candidate
-            return candidate
+            return null
         }
 
         fun reset() {
@@ -619,21 +623,28 @@ object DraftVisionScanner {
                 }
 
                 // REGLAS ESTRICTAS DEL USUARIO:
-                // "únicamente la selección se hace cuando el nombre de la línea cambia por el nombre del campeón esto es del lado aliado
-                // si no sé visualizar el nombre del campeón entonces no tienes que seleccionar ningún campeón"
-                if (isSlotShowingLane || detectedChampInSlot == null) {
-                    allySlotConfirmedChampions[i] = null
-                    allyOcrChampions[i] = null
-                    allySlotFilters[i].reset()
-                    slot.champion = null
-                    slot.confidencePercent = 0
-                    slot.isLikelyUnpicked = true
-                } else {
+                // "al seleccionar el campeón es porque has tomado su nombre lo cual es 100% correcto y no deberías quitarlo"
+                // Si el OCR detecta un campeón en este slot, se confirma al 100%.
+                // Si en frames subsiguientes no se detecta nuevo texto, se MANTIENE intacto el campeón ya confirmado.
+                if (detectedChampInSlot != null) {
                     allySlotConfirmedChampions[i] = detectedChampInSlot
                     allyOcrChampions[i] = detectedChampInSlot
                     slot.champion = detectedChampInSlot
                     slot.confidencePercent = 100
                     slot.isLikelyUnpicked = false
+                } else if (allySlotConfirmedChampions[i] != null) {
+                    // Mantener el campeón ya confirmado previamente
+                    val existingChamp = allySlotConfirmedChampions[i]
+                    allyOcrChampions[i] = existingChamp
+                    slot.champion = existingChamp
+                    slot.confidencePercent = 100
+                    slot.isLikelyUnpicked = false
+                } else {
+                    // El slot aún no ha seleccionado ningún campeón
+                    allyOcrChampions[i] = null
+                    slot.champion = null
+                    slot.confidencePercent = 0
+                    slot.isLikelyUnpicked = true
                 }
             }
 
