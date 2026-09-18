@@ -49,6 +49,8 @@ data class CustomChampionBuildRecord(
     val situationalSpells: List<SpellBuildEntry> = emptyList(),
     val gameplayVideoUri: String? = null,
     val creatorName: String,
+    val ratingSum: Double = 0.0,
+    val voteCount: Int = 0,
     val timestamp: Long = System.currentTimeMillis()
 )
 
@@ -78,8 +80,139 @@ object CustomChampionBuildsManager {
             } catch (_: Exception) {
                 _customBuilds.value = emptyList()
             }
+        } else {
+            val defaults = getDefaultBuilds()
+            _customBuilds.value = defaults
+            saveToPrefs(context, defaults)
         }
         initialized = true
+    }
+
+    private fun getDefaultBuilds(): List<CustomChampionBuildRecord> {
+        val dummyItems = listOf(
+            ItemBuildEntry("La Sanguinaria", "Gran curación en peleas prolongadas."),
+            ItemBuildEntry("Ángel custodio", "Una segunda oportunidad en teamfights.")
+        )
+        val dummySituational = listOf(
+            ItemBuildEntry("Fuerza de la Naturaleza", "Alta resistencia contra daño mágico.")
+        )
+        val dummyRunes = listOf(
+            RuneBuildEntry("Conquistador", "", "Acumula daño adaptable al golpear."),
+            RuneBuildEntry("Triunfo", "", "Restaura vida en asesinatos o asistencias.")
+        )
+        val dummySpells = listOf(
+            SpellBuildEntry("Destello", "", "Teletransporte instantáneo."),
+            SpellBuildEntry("Prender", "", "Quema al enemigo reduciendo su curación.")
+        )
+
+        return listOf(
+            CustomChampionBuildRecord(
+                championId = "yasuo",
+                championName = "Yasuo",
+                buildTitle = "Yasuo Mid Core",
+                role = "Mid Lane",
+                coreItems = listOf("La Sanguinaria", "Ángel custodio"),
+                situationalItems = listOf("Fuerza de la Naturaleza"),
+                runes = "Conquistador",
+                spells = listOf("Destello", "Prender"),
+                coreItemsWithDesc = dummyItems,
+                situationalItemsWithDesc = dummySituational,
+                coreRunes = dummyRunes,
+                coreSpells = dummySpells,
+                creatorName = "Coach System",
+                ratingSum = 25.0,
+                voteCount = 5
+            ),
+            CustomChampionBuildRecord(
+                championId = "ahri",
+                championName = "Ahri",
+                buildTitle = "Ahri Burst",
+                role = "Mid Lane",
+                coreItems = listOf("Eco de Luden", "Sombrero Mortal de Rabadon"),
+                situationalItems = listOf("Reloj de Arena de Zhonya"),
+                runes = "Electrocutar",
+                spells = listOf("Destello", "Prender"),
+                coreItemsWithDesc = listOf(
+                    ItemBuildEntry("Eco de Luden", "Ráfaga de daño mágico."),
+                    ItemBuildEntry("Sombrero Mortal de Rabadon", "Aumento masivo de poder de habilidad.")
+                ),
+                situationalItemsWithDesc = listOf(ItemBuildEntry("Reloj de Arena de Zhonya", "Estasis invulnerable.")),
+                coreRunes = listOf(RuneBuildEntry("Electrocutar", "", "Daño extra por combos rápidos.")),
+                coreSpells = dummySpells,
+                creatorName = "Coach System",
+                ratingSum = 24.0,
+                voteCount = 5
+            ),
+            CustomChampionBuildRecord(
+                championId = "jinx",
+                championName = "Jinx",
+                buildTitle = "Jinx Hypercarry",
+                role = "Dragon Lane",
+                coreItems = listOf("Huracán de Runaan", "Filo Infinito"),
+                situationalItems = listOf("Ángel custodio"),
+                runes = "Compás Letal",
+                spells = listOf("Destello", "Curar"),
+                coreItemsWithDesc = listOf(
+                    ItemBuildEntry("Huracán de Runaan", "Disparos múltiples a objetivos secundarios."),
+                    ItemBuildEntry("Filo Infinito", "Daño crítico devastador.")
+                ),
+                situationalItemsWithDesc = listOf(ItemBuildEntry("Ángel custodio", "Resurrección en peleas.")),
+                coreRunes = listOf(RuneBuildEntry("Compás Letal", "", "Velocidad de ataque incrementada.")),
+                coreSpells = listOf(
+                    SpellBuildEntry("Destello", "", "Teletransporte instantáneo."),
+                    SpellBuildEntry("Curar", "", "Cura y velocidad de movimiento de emergencia.")
+                ),
+                creatorName = "Coach System",
+                ratingSum = 22.0,
+                voteCount = 5
+            ),
+            CustomChampionBuildRecord(
+                championId = "lee_sin",
+                championName = "Lee Sin",
+                buildTitle = "Lee Sin Jungle",
+                role = "Jungle",
+                coreItems = listOf("Cuchilla Negra", "Danza de la Muerte"),
+                situationalItems = listOf("Ángel custodio"),
+                runes = "Conquistador",
+                spells = listOf("Destello", "Aplastar"),
+                coreItemsWithDesc = listOf(
+                    ItemBuildEntry("Cuchilla Negra", "Reducción de armadura y salud."),
+                    ItemBuildEntry("Danza de la Muerte", "Mitigación de daño aplazado.")
+                ),
+                situationalItemsWithDesc = listOf(ItemBuildEntry("Ángel custodio", "Resurrección clave para iniciar.")),
+                coreRunes = dummyRunes,
+                coreSpells = listOf(
+                    SpellBuildEntry("Destello", "", "Teletransporte instantáneo."),
+                    SpellBuildEntry("Aplastar", "", "Daño verdadero a monstruos épicos.")
+                ),
+                creatorName = "Coach System",
+                ratingSum = 20.0,
+                voteCount = 4
+            ),
+            CustomChampionBuildRecord(
+                championId = "darius",
+                championName = "Darius",
+                buildTitle = "Darius Bruiser",
+                role = "Baron Lane",
+                coreItems = listOf("Fuerza de la Trinidad", "Calibrador de Sterak"),
+                situationalItems = listOf("Placa del Hombre Muerto"),
+                runes = "Conquistador",
+                spells = listOf("Destello", "Fantasmal"),
+                coreItemsWithDesc = listOf(
+                    ItemBuildEntry("Fuerza de la Trinidad", "Aumento de daño sostenido y movilidad."),
+                    ItemBuildEntry("Calibrador de Sterak", "Escudo anti-burst vital.")
+                ),
+                situationalItemsWithDesc = listOf(ItemBuildEntry("Placa del Hombre Muerto", "Velocidad de movimiento extra para perseguir.")),
+                coreRunes = dummyRunes,
+                coreSpells = listOf(
+                    SpellBuildEntry("Destello", "", "Teletransporte instantáneo."),
+                    SpellBuildEntry("Fantasmal", "", "Gran velocidad de movimiento durante varios segundos.")
+                ),
+                creatorName = "Coach System",
+                ratingSum = 23.0,
+                voteCount = 5
+            )
+        )
     }
 
     fun addBuild(context: Context, record: CustomChampionBuildRecord) {
@@ -112,6 +245,23 @@ object CustomChampionBuildsManager {
 
     fun getBuildsForChampion(championId: String): List<CustomChampionBuildRecord> {
         return _customBuilds.value.filter { it.championId.equals(championId, ignoreCase = true) }
+    }
+
+    fun rateBuild(context: Context, id: String, stars: Int) {
+        init(context)
+        val current = _customBuilds.value.toMutableList()
+        val index = current.indexOfFirst { it.id == id }
+        if (index != -1) {
+            val record = current[index]
+            val newVoteCount = record.voteCount + 1
+            val newRatingSum = record.ratingSum + stars.toDouble()
+            current[index] = record.copy(
+                voteCount = newVoteCount,
+                ratingSum = newRatingSum
+            )
+            _customBuilds.value = current
+            saveToPrefs(context, current)
+        }
     }
 
     private fun saveToPrefs(context: Context, list: List<CustomChampionBuildRecord>) {

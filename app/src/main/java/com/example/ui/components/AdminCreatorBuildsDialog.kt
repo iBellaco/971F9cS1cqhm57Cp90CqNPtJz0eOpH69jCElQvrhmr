@@ -1,8 +1,10 @@
 package com.example.ui.components
 
 import android.widget.Toast
+import com.example.data.WildRiftRepository
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,6 +15,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -37,6 +40,7 @@ fun AdminCreatorBuildsDialog(
     val customBuilds by CustomChampionBuildsManager.customBuilds.collectAsStateWithLifecycle()
     var showBuildCreator by remember { mutableStateOf(false) }
     var buildToEdit by remember { mutableStateOf<CustomChampionBuildRecord?>(null) }
+    var selectedBuildForDetail by remember { mutableStateOf<CustomChampionBuildRecord?>(null) }
 
     LaunchedEffect(Unit) {
         CustomChampionBuildsManager.init(context)
@@ -49,6 +53,13 @@ fun AdminCreatorBuildsDialog(
                 showBuildCreator = false
                 buildToEdit = null
             }
+        )
+    }
+
+    if (selectedBuildForDetail != null) {
+        CustomBuildDetailDialog(
+            record = selectedBuildForDetail!!,
+            onDismiss = { selectedBuildForDetail = null }
         )
     }
 
@@ -126,10 +137,18 @@ fun AdminCreatorBuildsDialog(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(customBuilds) { record ->
+                            val champObj = remember(record.championId) {
+                                WildRiftRepository.champions.find { it.id.equals(record.championId, ignoreCase = true) }
+                            }
+                            val avgRating = if (record.voteCount > 0) record.ratingSum / record.voteCount else 0.0
+
                             Card(
                                 shape = RoundedCornerShape(8.dp),
                                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
-                                border = BorderStroke(1.dp, HextechCardBorder)
+                                border = BorderStroke(1.dp, HextechCardBorder),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { selectedBuildForDetail = record }
                             ) {
                                 Column(
                                     modifier = Modifier
@@ -142,27 +161,56 @@ fun AdminCreatorBuildsDialog(
                                         horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Column {
-                                            Text(
-                                                text = "${record.championName} - ${record.buildTitle}",
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 13.sp
-                                            )
-                                            Text(
-                                                text = "Creador: ${record.creatorName} | Rol: ${record.role}",
-                                                color = HextechGold,
-                                                fontSize = 11.sp
-                                            )
-                                        }
-                                        IconButton(
-                                            onClick = {
-                                                CustomChampionBuildsManager.deleteBuild(context, record.id)
-                                                Toast.makeText(context, "Build eliminada", Toast.LENGTH_SHORT).show()
-                                            },
-                                            modifier = Modifier.size(32.dp)
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                            modifier = Modifier.weight(1f)
                                         ) {
-                                            Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(16.dp))
+                                            if (champObj != null) {
+                                                ChampionAvatar(champion = champObj, size = 40.dp, showTierBadge = false)
+                                            }
+                                            Column {
+                                                Text(
+                                                    text = "${record.championName} - ${record.buildTitle}",
+                                                    color = Color.White,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 13.sp
+                                                )
+                                                Text(
+                                                    text = "Creador: ${record.creatorName} | Rol: ${record.role}",
+                                                    color = HextechGold,
+                                                    fontSize = 11.sp
+                                                )
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                                ) {
+                                                    Icon(Icons.Default.Star, contentDescription = null, tint = HextechGold, modifier = Modifier.size(12.dp))
+                                                    Text(
+                                                        text = "${String.format("%.1f", avgRating)} (${record.voteCount} votos)",
+                                                        color = TextSecondary,
+                                                        fontSize = 10.sp
+                                                    )
+                                                }
+                                            }
+                                        }
+
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            IconButton(
+                                                onClick = { buildToEdit = record },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Icon(Icons.Default.Edit, contentDescription = "Editar", tint = HextechGold, modifier = Modifier.size(16.dp))
+                                            }
+                                            IconButton(
+                                                onClick = {
+                                                    CustomChampionBuildsManager.deleteBuild(context, record.id)
+                                                    Toast.makeText(context, "Build eliminada", Toast.LENGTH_SHORT).show()
+                                                },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(16.dp))
+                                            }
                                         }
                                     }
 

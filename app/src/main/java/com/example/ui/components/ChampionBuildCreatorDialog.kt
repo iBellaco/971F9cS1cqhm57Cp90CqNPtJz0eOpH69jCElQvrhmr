@@ -1039,7 +1039,10 @@ fun ChampionBuildCreatorDialog(
                         if (showItemPickerForCore) {
                             base.filter { item -> coreItems.none { it.name.equals(item.name, ignoreCase = true) } }
                         } else {
-                            base.filter { item -> situationalItems.none { it.name.equals(item.name, ignoreCase = true) } }
+                            base.filter { item -> 
+                                coreItems.none { it.name.equals(item.name, ignoreCase = true) } &&
+                                situationalItems.none { it.name.equals(item.name, ignoreCase = true) }
+                            }
                         }
                     }
                     LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
