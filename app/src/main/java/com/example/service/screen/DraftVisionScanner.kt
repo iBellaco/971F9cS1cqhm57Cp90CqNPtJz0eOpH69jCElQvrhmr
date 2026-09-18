@@ -266,14 +266,16 @@ object DraftVisionScanner {
         val textDiagnosticsList = mutableListOf<TextBlockDiagnostic>()
 
         // -----------------------------------------------------------------------------------------
-        // PASO 1: OCR CON AISLAMIENTO ESTRICTO DE COLUMNAS (IGNORA EL OVERLAY CENTRAL 0.28..0.72)
+        // PASO 1: OCR CON PRE-PROCESAMIENTO ADAPTATIVO (ESCALA DE GRISES, THRESHOLD Y AISLAMIENTO)
         // -----------------------------------------------------------------------------------------
         var isLegendaryRanked = false
         var isPreparationPhase = false
         var isActiveSelectionDetected = false
         var isPreparationBannerDetected = false
+        var preprocessedBitmap: Bitmap? = null
         try {
-            val inputImage = InputImage.fromBitmap(bitmap, 0)
+            preprocessedBitmap = DraftImagePreprocessor.preprocessForOcr(bitmap, calib)
+            val inputImage = InputImage.fromBitmap(preprocessedBitmap ?: bitmap, 0)
             val visionText = recognizer.process(inputImage).await()
 
             // Detección proactiva de Clasificatoria Legendaria en pantalla completa
@@ -792,6 +794,12 @@ object DraftVisionScanner {
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error durante el análisis OCR", e)
+        } finally {
+            try {
+                if (preprocessedBitmap != null && preprocessedBitmap != bitmap && !preprocessedBitmap.isRecycled) {
+                    preprocessedBitmap.recycle()
+                }
+            } catch (_: Throwable) {}
         }
 
         // -----------------------------------------------------------------------------------------
