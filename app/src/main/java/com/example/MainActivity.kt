@@ -333,6 +333,7 @@ class MainActivity : ComponentActivity() {    private val requestPermissionLaunc
         }
         
         AppThemeManager.init(this)
+        com.example.util.UpdateHistoryManager.checkAndRecordCurrentVersion(this)
         com.example.util.SubscriptionManager.init(this)
         val currentAuthUser = com.example.util.AuthManager.getAuth()?.currentUser
         if (currentAuthUser != null && !com.example.util.AuthManager.isGuestOrUnauthenticated(currentAuthUser)) {
