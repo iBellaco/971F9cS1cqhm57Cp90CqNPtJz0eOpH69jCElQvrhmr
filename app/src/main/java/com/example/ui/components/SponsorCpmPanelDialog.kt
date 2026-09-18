@@ -208,13 +208,6 @@ fun SponsorCpmPanelDialog(
 
         String.format(Locale.US, "%.2f", total.coerceAtLeast(0.50))
     }
-    var budgetInput by remember { mutableStateOf("10.00") }
-    var isManualBudget by remember { mutableStateOf(false) }
-    LaunchedEffect(autoBudget) {
-        if (!isManualBudget) {
-            budgetInput = autoBudget
-        }
-    }
 
     // Launcher para seleccionar multimedia horizontal (imágenes PNG/JPG, videos solo MP4 máx 15s, validación estricta de tamaño recomendado)
     val horizontalPicker = rememberLauncherForActivityResult(
@@ -323,8 +316,6 @@ fun SponsorCpmPanelDialog(
                             horizontalMediaInput = ""
                             verticalMediaInput = ""
                             externalUrlInput = ""
-                            budgetInput = "10.00"
-                            isManualBudget = false
                             selectedDurationUnit = "day"
                             durationValueInput = "1"
                             showCreateDialog = true
@@ -391,6 +382,12 @@ fun SponsorCpmPanelDialog(
                     modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    // Calendario de Programación y Disponibilidad (Visible antes de publicar)
+                    Text("Calendario de Disponibilidad Actual:", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                    AdAvailabilityCalendarPanel(allNotices = allNotices)
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
                     // Título Obligatorio
                     OutlinedTextField(
                         value = titleInput,
@@ -572,23 +569,32 @@ fun SponsorCpmPanelDialog(
                         )
                     )
 
-                    // Presupuesto Total (Automático o Manual)
-                    OutlinedTextField(
-                        value = budgetInput,
-                        onValueChange = { 
-                            isManualBudget = true
-                            budgetInput = it
-                        },
-                        label = { Text("Presupuesto Total (USD) [Automático o Manual]") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    // Presupuesto Total (Automático - No Modificable)
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = HextechGold, 
-                            unfocusedBorderColor = HextechSurfaceVariant,
-                            focusedTextColor = HextechCyan,
-                            unfocusedTextColor = HextechCyan
-                        )
-                    )
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text("Presupuesto Total (Automático)", color = TextSecondary, fontSize = 11.sp)
+                                Text("Calculado automáticamente (No modificable)", color = HextechCyan, fontSize = 9.5.sp)
+                            }
+                            Text(
+                                text = "$$autoBudget USD",
+                                color = HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
 
                     // Desglose de presupuesto
                     Column(
@@ -700,7 +706,7 @@ fun SponsorCpmPanelDialog(
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    val parsedBudgetVal = budgetInput.replace(',', '.').toDoubleOrNull() ?: autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+                    val parsedBudgetVal = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
                     val requiredEssences = (parsedBudgetVal * 10).toLong()
                     val hasEnoughEssence = currentBlueEssence >= requiredEssences
 
@@ -741,7 +747,7 @@ fun SponsorCpmPanelDialog(
             confirmButton = {
                 Button(
                     onClick = {
-                        val parsedBudget = budgetInput.replace(',', '.').toDoubleOrNull() ?: autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+                        val parsedBudget = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
                         val requiredEssences = (parsedBudget * 10).toLong()
                         if (titleInput.trim().isBlank()) {
                             Toast.makeText(context, "El título del anuncio es obligatorio", Toast.LENGTH_SHORT).show()
@@ -752,6 +758,30 @@ fun SponsorCpmPanelDialog(
                             showBuyEssenceDialog = true
                             return@Button
                         }
+
+                        // Corroborar solapamiento de fechas y horas con anuncios activos o en cola existentes
+                        val propStart = System.currentTimeMillis()
+                        val propEnd = AppNoticeManager.calculateExpirationMillis(propStart, durationValueInt, selectedDurationUnit)
+
+                        val hasOverlap = allNotices.any { notice ->
+                            val isPubTag = notice.tag.equals("Publicidad", ignoreCase = true) || notice.tag.equals("Ads", ignoreCase = true) || notice.tag.equals("PUBLICIDAD", ignoreCase = true)
+                            val isExpired = notice.expiresAtMillis > 0L && notice.expiresAtMillis <= propStart
+                            if (isPubTag && !isExpired) {
+                                val existingStart = if (notice.approvedAtMillis > 0L) notice.approvedAtMillis else propStart
+                                val existingEnd = if (notice.expiresAtMillis > 0L) notice.expiresAtMillis else AppNoticeManager.calculateExpirationMillis(existingStart, notice.durationValue, notice.durationUnit)
+                                kotlin.math.max(propStart, existingStart) < kotlin.math.min(propEnd, existingEnd)
+                            } else false
+                        } || localPendingAds.any { notice ->
+                            val existingStart = if (notice.approvedAtMillis > 0L) notice.approvedAtMillis else propStart
+                            val existingEnd = if (notice.expiresAtMillis > 0L) notice.expiresAtMillis else AppNoticeManager.calculateExpirationMillis(existingStart, notice.durationValue, notice.durationUnit)
+                            kotlin.math.max(propStart, existingStart) < kotlin.math.min(propEnd, existingEnd)
+                        }
+
+                        if (hasOverlap) {
+                            Toast.makeText(context, "⚠️ El horario o fechas seleccionadas ya están ocupadas por otro anuncio. No se puede publicar ni descontar esencias azules.", Toast.LENGTH_LONG).show()
+                            return@Button
+                        }
+
                         showConfirmReviewDialog = true
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
@@ -773,7 +803,7 @@ fun SponsorCpmPanelDialog(
     }
 
     if (showConfirmReviewDialog) {
-        val parsedBudget = budgetInput.replace(',', '.').toDoubleOrNull() ?: autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
+        val parsedBudget = autoBudget.replace(',', '.').toDoubleOrNull() ?: 10.0
         val requiredEssences = (parsedBudget * 10).toLong()
 
         AlertDialog(

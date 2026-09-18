@@ -614,7 +614,12 @@ fun ChampionDetailSheet(
             // ==========================================
             // BUILDS TÁCTICAS (4 OPCIONES SEGÚN META Y CRITERIO COACH)
             // ==========================================
-            val buildOptionsList = roleProfile.buildOptions.ifEmpty {
+            val customBuilds by com.example.data.local.CustomChampionBuildsManager.customBuilds.collectAsStateWithLifecycle()
+            val championCustomBuilds = remember(customBuilds, champion.id) {
+                customBuilds.filter { it.championId.equals(champion.id, ignoreCase = true) }
+            }
+
+            val baseBuildOptions = roleProfile.buildOptions.ifEmpty {
                 // Fallback default options
                 listOf(
                     com.example.util.ChampionBuildOption(
@@ -632,6 +637,27 @@ fun ChampionDetailSheet(
                         spellsIcons = roleProfile.spellsIcons
                     )
                 )
+            }
+
+            val buildOptionsList = remember(baseBuildOptions, championCustomBuilds) {
+                val customOptions = championCustomBuilds.mapIndexed { idx, rec ->
+                    com.example.util.ChampionBuildOption(
+                        optionNumber = 100 + idx,
+                        title = rec.buildTitle,
+                        subtitle = "Creador: ${rec.creatorName}",
+                        source = "Catálogo Creador • ${rec.creatorName}",
+                        badge = "CREADOR",
+                        tacticalReason = "Build personalizada creada y verificada por el creador oficial ${rec.creatorName}.",
+                        items = rec.coreItems,
+                        bootBase = "Botas estándar",
+                        bootUpgrade = "Encantamiento adaptativo",
+                        situationalItems = rec.situationalItems,
+                        runes = listOf(rec.runes),
+                        spells = rec.spells,
+                        spellsIcons = emptyList()
+                    )
+                }
+                customOptions + baseBuildOptions
             }
 
             val activeOption = buildOptionsList.getOrNull(selectedBuildOptionIndex.coerceIn(0, buildOptionsList.size - 1))

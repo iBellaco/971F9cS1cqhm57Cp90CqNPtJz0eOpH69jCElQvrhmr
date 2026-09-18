@@ -1,9 +1,12 @@
 package com.example.ui.components
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -230,6 +233,55 @@ fun AdminSponsorNoticeItem(
 
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showDmDialog by remember { mutableStateOf(false) }
+    var showMediaViewerDialog by remember { mutableStateOf(false) }
+
+    val isVideo = NoticeMediaUtils.isVideo(context, notice.videoUrl)
+    val isVertical = notice.expandedImageUrl.isNotBlank() || NoticeMediaUtils.isMediaVertical(context, notice.videoUrl)
+    val hasUrl = notice.externalUrl.isNotBlank()
+
+    if (showMediaViewerDialog) {
+        Dialog(onDismissRequest = { showMediaViewerDialog = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(480.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechSurface),
+                border = BorderStroke(1.dp, HextechGold)
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Vista Previa Multimedia", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text(if (isVertical) "Orientación: Vertical" else "Orientación: Horizontal", color = HextechCyan, fontSize = 11.sp)
+                        }
+                        IconButton(onClick = { showMediaViewerDialog = false }) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        val mediaUrlToPlay = notice.videoUrl.ifBlank { notice.expandedImageUrl }
+                        NoticeMediaViewer(
+                            mediaUrl = mediaUrlToPlay,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     if (showDeleteConfirm) {
         AlertDialog(
@@ -305,80 +357,148 @@ fun AdminSponsorNoticeItem(
 
             Text(notice.content, color = TextSecondary, fontSize = 12.sp, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
 
-            // Badges: Tipo (Imagen/Video), Orientación (Vertical/Horizontal), URL
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
+            // Clickable Media Preview Banner (Toca para ver imagen o video)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showMediaViewerDialog = true },
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.4f))
             ) {
-                val isVideo = NoticeMediaUtils.isVideo(context, notice.videoUrl)
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = HextechSurfaceVariant,
-                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = if (isVideo) Icons.Default.Videocam else Icons.Default.Image,
-                            contentDescription = null,
-                            tint = HextechGold,
-                            modifier = Modifier.size(12.dp)
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = HextechSurfaceVariant
+                        ) {
+                            Icon(
+                                imageVector = if (isVideo) Icons.Default.Videocam else Icons.Default.Image,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(18.dp)
+                            )
+                        }
+                        Column {
+                            Text(
+                                text = if (isVideo) "Video adjunto (${if (isVertical) "Vertical" else "Horizontal"})" else "Imagen adjunta (${if (isVertical) "Vertical" else "Horizontal"})",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp
+                            )
+                            Text(
+                                text = "Toca para reproducir / ver en pantalla completa",
+                                color = HextechCyan,
+                                fontSize = 9.5.sp
+                            )
+                        }
+                    }
+                    Icon(Icons.Default.Visibility, contentDescription = "Ver", tint = HextechGold, modifier = Modifier.size(18.dp))
+                }
+            }
+
+            // Badges: Tipo, Orientación y URL con opción de copiar/abrir
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(HextechDarkBg, RoundedCornerShape(8.dp))
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Tipo
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = HextechSurfaceVariant
+                    ) {
+                        Text(
+                            text = if (isVideo) "VIDEO" else "IMAGEN",
+                            color = HextechGold,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(if (isVideo) "Video" else "Imagen", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+
+                    // Orientación
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = HextechSurfaceVariant
+                    ) {
+                        Text(
+                            text = if (isVertical) "VERTICAL" else "HORIZONTAL",
+                            color = HextechCyan,
+                            fontSize = 9.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                        )
                     }
                 }
 
-                val isVertical = notice.expandedImageUrl.isNotBlank() || NoticeMediaUtils.isMediaVertical(context, notice.videoUrl)
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = HextechSurfaceVariant,
-                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
+                // URL con botones Copiar y Abrir
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Icon(
-                            imageVector = if (isVertical) Icons.Default.PhoneAndroid else Icons.Default.Tv,
-                            contentDescription = null,
-                            tint = HextechCyan,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(if (isVertical) "Vertical" else "Horizontal", color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                val hasUrl = notice.externalUrl.isNotBlank()
-                Surface(
-                    shape = RoundedCornerShape(4.dp),
-                    color = HextechSurfaceVariant,
-                    border = BorderStroke(1.dp, (if (hasUrl) Color(0xFF10B981) else TextSecondary).copy(alpha = 0.3f)),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Link,
-                            contentDescription = null,
-                            tint = if (hasUrl) Color(0xFF10B981) else TextSecondary,
-                            modifier = Modifier.size(12.dp)
-                        )
+                        Icon(Icons.Default.Link, contentDescription = null, tint = if (hasUrl) Color(0xFF10B981) else TextSecondary, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (hasUrl) "URL: ${notice.externalUrl}" else "Sin URL",
+                            text = if (hasUrl) "URL: ${notice.externalUrl}" else "Sin URL externa",
                             color = if (hasUrl) Color(0xFF10B981) else TextSecondary,
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                         )
+                    }
+
+                    if (hasUrl) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            TextButton(
+                                onClick = {
+                                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                                    val clip = android.content.ClipData.newPlainText("URL Anuncio", notice.externalUrl)
+                                    clipboard.setPrimaryClip(clip)
+                                    Toast.makeText(context, "URL copiada al portapapeles", Toast.LENGTH_SHORT).show()
+                                },
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text("Copiar", color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            TextButton(
+                                onClick = {
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(notice.externalUrl.trim()))
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "No se pudo abrir la URL", Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                                contentPadding = PaddingValues(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text("Abrir", color = Color(0xFF10B981), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
                     }
                 }
             }
