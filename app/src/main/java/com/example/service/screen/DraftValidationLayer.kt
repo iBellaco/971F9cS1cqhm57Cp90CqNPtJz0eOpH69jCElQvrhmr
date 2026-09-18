@@ -193,32 +193,66 @@ object DraftValidationLayer {
      * En Wild Rift, cada slot muestra: [ICONO_MAESTRIA_O_ROL] + [NOMBRE_DE_LINEA o NOMBRE_DE_CAMPEON].
      * El icono siempre se mantiene a la izquierda y debe ignorarse.
      * Casos soportados:
-     * - Símbolos y puntuación: • JINX, > JINX, » JINX, * JINX, # JINX, etc.
-     * - Letras aisladas del icono: V JINX, W JINX, Y JINX, M JINX, I JINX, T JINX, X JINX
-     * - Niveles de maestría o rango: LV7 JINX, M7 JINX, 7 JINX, 1 JINX, VII JINX
-     * - Lo mismo para líneas: • APOYO, > CALLE CENTRAL, V DÚO, M7 APOYO
+     * - Símbolos y puntuación: • JINX, > JINX, » JINX, * JINX, # JINX, ~ JINX, / JINX, \ JINX, etc.
+     * - Letras y glifos aislados del icono: V JINX, W JINX, Y JINX, M JINX, I JINX, T JINX, X JINX, K JINX
+     * - Niveles de maestría o rango: LV7 JINX, M7 JINX, 7 JINX, 1 JINX, VII JINX, M6 JINX
+     * - Lo mismo para líneas: • APOYO, > CALLE CENTRAL, V DÚO, M7 APOYO, V CALLE DEL BARÓN
+     * - Prefijos pegados sin espacio: VJINX -> JINX, VCALLE -> CALLE, VAPOYO -> APOYO, VJUNGLA -> JUNGLA
      */
     fun stripLeadingMasteryOrRoleIcon(rawText: String): String {
-        val trimmed = rawText.trim()
-        if (trimmed.isBlank()) return ""
+        var clean = rawText.trim()
+        if (clean.isBlank()) return ""
 
-        // 1. Quitar símbolos no alfanuméricos iniciales (ej: "• JINX" -> "JINX", "> APOYO" -> "APOYO", "» CAITLYN" -> "CAITLYN")
-        var clean = trimmed.replace(Regex("^[\\W_]+"), "").trim()
+        var changed = true
+        var loops = 0
+        while (changed && loops < 5) {
+            changed = false
+            loops++
 
-        // 2. Quitar prefijo de icono de maestría/elo separado por espacio (de 1 a 4 caracteres)
-        // Ejemplos: "V JINX" -> "JINX", "LV7 JINX" -> "JINX", "M7 JINX" -> "JINX", "1 JINX" -> "JINX", "• APOYO" -> "APOYO"
-        val spaceIndex = clean.indexOf(' ')
-        if (spaceIndex in 1..4) {
-            val potentialIcon = clean.substring(0, spaceIndex).trim()
-            val remainder = clean.substring(spaceIndex + 1).trim()
-            // No cortar nombres legítimos de 2 palabras como "DR MUNDO", "LEE SIN", "XIN ZHAO"
-            val normLower = clean.lowercase(Locale.ROOT)
-            val isKnownTwoWordChamp = normLower.startsWith("dr ") || normLower.startsWith("lee ") ||
-                normLower.startsWith("xin ") || normLower.startsWith("jarvan ") ||
-                normLower.startsWith("miss ") || normLower.startsWith("twisted ") ||
-                normLower.startsWith("master ") || normLower.startsWith("aurelion ")
-            if (!isKnownTwoWordChamp && remainder.isNotBlank()) {
-                clean = remainder
+            // 1. Quitar símbolos no alfanuméricos iniciales (ej: "• JINX" -> "JINX", "> APOYO" -> "APOYO", "» CAITLYN" -> "CAITLYN")
+            val withoutSymbols = clean.replace(Regex("^[\\W_]+"), "").trim()
+            if (withoutSymbols != clean) {
+                clean = withoutSymbols
+                changed = true
+            }
+
+            // 2. Quitar etiquetas explícitas de maestría (ej: "M7 JINX" -> "JINX", "LV7 JINX" -> "JINX", "LEVEL 7 JINX" -> "JINX")
+            val withoutMasteryTag = clean.replace(Regex("^(m[1-7]|lv[0-9]+|lvl[0-9]+|level\\s*[0-9]+|maestria\\s*[0-9]*|maestría\\s*[0-9]*|elo)\\s+", RegexOption.IGNORE_CASE), "").trim()
+            if (withoutMasteryTag != clean) {
+                clean = withoutMasteryTag
+                changed = true
+            }
+
+            // 3. Quitar glifos o letras aisladas del icono separadas por espacio (de 1 a 3 caracteres)
+            // Ejemplos: "V JINX" -> "JINX", "W JINX" -> "JINX", "7 JINX" -> "JINX", "VII JINX" -> "JINX", "• APOYO" -> "APOYO"
+            val spaceIndex = clean.indexOf(' ')
+            if (spaceIndex in 1..3) {
+                val remainder = clean.substring(spaceIndex + 1).trim()
+                val normLower = clean.lowercase(Locale.ROOT)
+                val isKnownTwoWordChamp = normLower.startsWith("dr ") || normLower.startsWith("lee ") ||
+                    normLower.startsWith("xin ") || normLower.startsWith("jarvan ") ||
+                    normLower.startsWith("miss ") || normLower.startsWith("twisted ") ||
+                    normLower.startsWith("master ") || normLower.startsWith("aurelion ") ||
+                    normLower.startsWith("tahm ")
+                if (!isKnownTwoWordChamp && remainder.isNotBlank()) {
+                    clean = remainder
+                    changed = true
+                }
+            }
+        }
+
+        // 4. Desprender prefijos pegados de 1 a 2 letras a palabras clave de líneas (ej: "vcalle" -> "calle", "vapoyo" -> "apoyo", "vjungla" -> "jungla")
+        val lower = clean.lowercase(Locale.ROOT)
+        val rolePrefixes = listOf("calle", "carril", "linea", "apoyo", "soporte", "jungla", "baron", "central", "dragon", "dragón", "duo", "dúo")
+        for (rp in rolePrefixes) {
+            for (pLen in 1..2) {
+                if (lower.length >= rp.length + pLen && lower.substring(pLen).startsWith(rp)) {
+                    val candidate = clean.substring(pLen).trim()
+                    if (candidate.isNotBlank()) {
+                        clean = candidate
+                        break
+                    }
+                }
             }
         }
 
@@ -357,14 +391,17 @@ object DraftValidationLayer {
             }
         }
 
-        // Búsqueda por prefijo pegado (ej: "vmid", "1mid", "omid", "vcentral", "vcarrilcentral", "ojungla", "osoporte", "vduo")
+        // Búsqueda por prefijo pegado (ej: "vmid", "1mid", "omid", "vcentral", "vcarrilcentral", "vcalledelbaron", "ojungla", "osoporte", "vduo")
         val compact = textWithoutSymbols.replace(" ", "")
-        when {
-            compact.endsWith("carrilcentral") || compact.endsWith("lineacentral") || compact.endsWith("callecentral") || compact.endsWith("mid") || compact.endsWith("central") || compact.endsWith("medio") -> return LaneRole.MID
-            compact.endsWith("carrildebaron") || compact.endsWith("carrildelbaron") || compact.endsWith("baron") || compact.endsWith("solo") || compact.endsWith("top") -> return LaneRole.TOP
-            compact.endsWith("carriljungla") || compact.endsWith("jungla") || compact.endsWith("jungle") || compact.endsWith("cacador") || compact.endsWith("caçador") || compact.endsWith("selva") -> return LaneRole.JUNGLE
-            compact.endsWith("carrilduo") || compact.endsWith("carrildeldragon") || compact.endsWith("duo") || compact.endsWith("adc") || compact.endsWith("tirador") || compact.endsWith("dragon") -> return LaneRole.ADC
-            compact.endsWith("carrilsoporte") || compact.endsWith("carrilapoyo") || compact.endsWith("soporte") || compact.endsWith("suporte") || compact.endsWith("support") || compact.endsWith("apoyo") -> return LaneRole.SUPPORT
+        val compactStripped = textWithoutSymbolsStripped.replace(" ", "")
+        for (c in listOf(compactStripped, compact)) {
+            when {
+                c.endsWith("carrilcentral") || c.endsWith("lineacentral") || c.endsWith("callecentral") || c.endsWith("mid") || c.endsWith("central") || c.endsWith("medio") -> return LaneRole.MID
+                c.endsWith("calledelbaron") || c.endsWith("calledebaron") || c.endsWith("callebaron") || c.endsWith("carrildebaron") || c.endsWith("carrildelbaron") || c.endsWith("carrilbaron") || c.endsWith("lineadelbaron") || c.endsWith("baron") || c.endsWith("solo") || c.endsWith("top") -> return LaneRole.TOP
+                c.endsWith("carriljungla") || c.endsWith("callejungla") || c.endsWith("lineajungla") || c.endsWith("jungla") || c.endsWith("jungle") || c.endsWith("cacador") || c.endsWith("caçador") || c.endsWith("selva") -> return LaneRole.JUNGLE
+                c.endsWith("calledeldragon") || c.endsWith("callededragon") || c.endsWith("calledragon") || c.endsWith("carrilduo") || c.endsWith("calleduo") || c.endsWith("carrildeldragon") || c.endsWith("duo") || c.endsWith("adc") || c.endsWith("tirador") || c.endsWith("dragon") -> return LaneRole.ADC
+                c.endsWith("carrilsoporte") || c.endsWith("carrilapoyo") || c.endsWith("calleapoyo") || c.endsWith("callesoporte") || c.endsWith("soporte") || c.endsWith("suporte") || c.endsWith("support") || c.endsWith("apoyo") || c.endsWith("sup") -> return LaneRole.SUPPORT
+            }
         }
 
         return null

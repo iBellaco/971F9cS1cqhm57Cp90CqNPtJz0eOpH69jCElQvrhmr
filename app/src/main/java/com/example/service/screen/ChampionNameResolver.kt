@@ -324,17 +324,20 @@ object ChampionNameResolver {
             }
         }
 
-        // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon", "vjinx", "1jinx")
+        // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon", "vjinx", "1jinx", "lv7jinx", "m7jinx", "viijinx")
         // Típico cuando el OCR concatena el icono de rango/elo/maestría con la primera letra del nombre del campeón
         for (candCompact in listOf(compactStripped, compact)) {
-            if (candCompact.length in 4..18) {
+            if (candCompact.length in 4..20) {
                 for (champ in safeChamps) {
                     val champCompact = normalizeCompact(champ.name)
-                    if (champCompact.length >= 3 && candCompact.endsWith(champCompact)) {
-                        val prefixLen = candCompact.length - champCompact.length
-                        // Si el prefijo sobrante al inicio es de 1 a 3 caracteres (la insignia/icono)
-                        if (prefixLen in 1..3) {
-                            return champ
+                    val champIdCompact = normalizeCompact(champ.id)
+                    for (target in listOf(champCompact, champIdCompact)) {
+                        if (target.length >= 3 && candCompact.endsWith(target)) {
+                            val prefixLen = candCompact.length - target.length
+                            // Si el prefijo sobrante al inicio es de 1 a 4 caracteres (la insignia/icono/maestría)
+                            if (prefixLen in 1..4) {
+                                return champ
+                            }
                         }
                     }
                 }

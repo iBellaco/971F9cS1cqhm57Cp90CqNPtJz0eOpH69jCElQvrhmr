@@ -583,10 +583,13 @@ object DraftVisionScanner {
                             AppLogger.d(TAG, "Slot del usuario confirmado explícitamente en Slot Aliado $i ('$line')")
                         }
 
+                        val strippedCandidate = DraftValidationLayer.stripLeadingMasteryOrRoleIcon(line)
                         if (!isLegendaryRanked && line.length in 2..24 && !line.startsWith("(") && !line.endsWith(")") &&
                             !isWinRateIndicator &&
                             DraftValidationLayer.parseRoleFromText(line) == null &&
-                            ChampionNameResolver.findChampionInText(line, allChamps) == null) {
+                            DraftValidationLayer.parseRoleFromText(strippedCandidate) == null &&
+                            ChampionNameResolver.findChampionInText(line, allChamps) == null &&
+                            ChampionNameResolver.findChampionInText(strippedCandidate, allChamps) == null) {
                             summonerCandidates.add(line)
                         }
                     }
