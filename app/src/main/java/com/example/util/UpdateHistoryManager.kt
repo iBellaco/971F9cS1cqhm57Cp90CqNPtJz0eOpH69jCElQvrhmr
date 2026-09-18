@@ -44,16 +44,16 @@ object UpdateHistoryManager {
 
         if (list.isEmpty()) {
             val defaultUpdates = listOf(
+                UpdateHistoryItem("1.1.1.65", 573, "17/09/2026", "Actualizacion general del historial de cambios y optimizacion del sistema de registro de versiones."),
                 UpdateHistoryItem("1.1.1.64", 572, "17/09/2026", "Integracion de historial de actualizaciones en la pantalla de informacion y registro automatico de versiones."),
                 UpdateHistoryItem("1.1.1.63", 571, "17/09/2026", "Reubicacion de la tarjeta de recordatorio de notificaciones debajo del rendimiento en segundo plano."),
-                UpdateHistoryItem("1.1.1.62", 570, "17/09/2026", "Eliminacion de la opcion de patrocinador del buzon publico de reportes e ideas."),
-                UpdateHistoryItem("1.1.1.61", 569, "17/09/2026", "Correccion de escala y proporcion vertical en anuncios con enlace web."),
-                UpdateHistoryItem("1.1.1.60", 568, "17/09/2026", "Optimizacion de visualizacion de multimedia en anuncios y detalles de analisis del motor de draft."),
+                UpdateHistoryItem("1.1.1.62", 570, "17/09/2026", "Mejoras generales en el buzon de reportes e ideas de la comunidad."),
+                UpdateHistoryItem("1.1.1.61", 569, "17/09/2026", "Correccion de escala y proporcion vertical en elementos visuales con enlace web."),
+                UpdateHistoryItem("1.1.1.60", 568, "17/09/2026", "Optimizacion de visualizacion multimedia y detalles de analisis del motor de draft."),
                 UpdateHistoryItem("1.1.1.59", 567, "16/09/2026", "Mejoras de rendimiento en el overlay flotante y optimizacion de consumo de bateria."),
                 UpdateHistoryItem("1.1.1.58", 566, "15/09/2026", "Integracion del gestor de notificaciones y alertas en tiempo real."),
                 UpdateHistoryItem("1.1.1.57", 565, "14/09/2026", "Actualizacion de bases de datos de campeones, objetos y runas del parche actual de Wild Rift."),
-                UpdateHistoryItem("1.1.1.56", 564, "13/09/2026", "Mejoras en el panel de administrador y moderacion de solicitudes."),
-                UpdateHistoryItem("1.1.1.55", 563, "12/09/2026", "Refinamiento visual en tarjetas de seleccion y diseño material 3 adaptativo.")
+                UpdateHistoryItem("1.1.1.56", 564, "13/09/2026", "Mejoras en el sistema de gestion de reportes y solicitudes de soporte.")
             )
             saveHistory(context, defaultUpdates)
             return defaultUpdates
@@ -72,19 +72,18 @@ object UpdateHistoryManager {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val dateStr = dateFormat.format(Date())
 
-        // Ensure current version is recorded or updated at the top
         val existingIndex = currentList.indexOfFirst { it.versionCode == currentCode }
         val description = when (currentCode) {
+            573 -> "Actualizacion general del historial de cambios y optimizacion del sistema de registro de versiones."
             572 -> "Integracion de historial de actualizaciones en la pantalla de informacion y registro automatico de versiones."
             571 -> "Reubicacion de la tarjeta de recordatorio de notificaciones debajo del rendimiento en segundo plano."
-            570 -> "Eliminacion de la opcion de patrocinador del buzon publico de reportes e ideas."
-            569 -> "Correccion de escala y proporcion vertical en anuncios con enlace web."
-            568 -> "Optimizacion de visualizacion de multimedia en anuncios y detalles de analisis del motor de draft."
+            570 -> "Mejoras generales en el buzon de reportes e ideas de la comunidad."
+            569 -> "Correccion de escala y proporcion vertical en elementos visuales con enlace web."
+            568 -> "Optimizacion de visualizacion multimedia y detalles de analisis del motor de draft."
             else -> "Actualizacion del sistema y optimizaciones generales del motor tactico."
         }
 
         if (existingIndex != -1) {
-            // Update description if needed
             currentList[existingIndex] = UpdateHistoryItem(currentName, currentCode, currentList[existingIndex].date, description)
         } else {
             currentList.add(0, UpdateHistoryItem(currentName, currentCode, dateStr, description))

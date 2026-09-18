@@ -418,7 +418,7 @@ fun NoticeMediaViewer(
     val ytVideoId = remember(normalizedUrl) { NoticeMediaUtils.extractYouTubeVideoId(normalizedUrl) }
     val isWebVideo = remember(normalizedUrl) { NoticeMediaUtils.isWebVideoUrl(normalizedUrl) }
     val isVideo = remember(normalizedUrl) { NoticeMediaUtils.isVideo(context, normalizedUrl) }
-    val isVertical = remember(normalizedUrl, externalUrl, context) { NoticeMediaUtils.isMediaVertical(context, normalizedUrl) || externalUrl.isNotBlank() }
+    val isVertical = remember(normalizedUrl, context) { NoticeMediaUtils.isMediaVertical(context, normalizedUrl) }
 
     val containerModifier = if (isFullscreen) {
         modifier.fillMaxSize()
@@ -1333,30 +1333,32 @@ fun NoticeMediaFullscreenDialog(
                 }
             }
 
-            // 4. Botón flotante inferior derecho de Cerrar
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .navigationBarsPadding()
-                    .padding(end = 14.dp, bottom = 14.dp)
-            ) {
-                Button(
-                    onClick = {
-                        activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-                        onDismiss()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg.copy(alpha = 0.85f)),
-                    shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, Color.White.copy(alpha = 0.35f)),
-                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                    modifier = Modifier.height(36.dp)
+            // 4. Botón flotante inferior derecho de Cerrar (Solo horizontales)
+            if (!isVerticalMedia) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .navigationBarsPadding()
+                        .padding(end = 14.dp, bottom = 14.dp)
                 ) {
-                    Text("Cerrar", fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = TextPrimary)
+                    Button(
+                        onClick = {
+                            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+                            onDismiss()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg.copy(alpha = 0.85f)),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.35f)),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text("Cerrar", fontWeight = FontWeight.Bold, fontSize = 11.5.sp, color = TextPrimary)
+                    }
                 }
             }
 
-            // 5. Enlace interactivo flotante si es imagen con enlace externo
-            if (!isVideo && externalUrl.isNotBlank()) {
+            // 5. Enlace interactivo flotante si es imagen con enlace externo (Solo horizontales)
+            if (!isVerticalMedia && !isVideo && externalUrl.isNotBlank()) {
                 val infiniteTransition = rememberInfiniteTransition(label = "PulseTransition")
                 val pulseScale by infiniteTransition.animateFloat(
                     initialValue = 1f,
@@ -1382,6 +1384,30 @@ fun NoticeMediaFullscreenDialog(
                         Icon(Icons.Default.TouchApp, contentDescription = null, tint = HextechGold, modifier = Modifier.size(15.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text("Toca para abrir enlace", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            // 6. Para anuncios verticales, quitar botones de abajo y mostrar botón Abrir enlace
+            if (isVerticalMedia && externalUrl.isNotBlank()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 24.dp)
+                ) {
+                    Button(
+                        onClick = { openLinkAction() },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                        shape = RoundedCornerShape(24.dp),
+                        contentPadding = PaddingValues(horizontal = 22.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "Abrir enlace",
+                            color = HextechDarkBg,
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
