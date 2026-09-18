@@ -270,6 +270,20 @@ fun MetaAndDraftScreen(
     var isFirstPick by remember { mutableStateOf(false) }
     var showDraftHistoryScreen by remember { mutableStateOf(false) }
 
+    androidx.activity.compose.BackHandler {
+        if (selectedDetailChampion != null) {
+            selectedDetailChampion = null
+        } else if (pickingForTeam != null) {
+            pickingForTeam = null
+        } else if (showDraftHistoryScreen) {
+            showDraftHistoryScreen = false
+        } else if (showRoleChangeDialog) {
+            showRoleChangeDialog = false
+        } else {
+            onNavigateBack()
+        }
+    }
+
     if (showDraftHistoryScreen) {
         DraftHistoryScreen(
             onNavigateBack = { showDraftHistoryScreen = false },

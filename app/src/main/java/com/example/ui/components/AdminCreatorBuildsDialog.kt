@@ -91,7 +91,16 @@ fun AdminCreatorBuildsDialog(
         )
     }
 
-    androidx.activity.compose.BackHandler { onDismiss() }
+    androidx.activity.compose.BackHandler {
+        if (selectedBuildForDetail != null) {
+            selectedBuildForDetail = null
+        } else if (showBuildCreator || buildToEdit != null) {
+            showBuildCreator = false
+            buildToEdit = null
+        } else {
+            onDismiss()
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),

@@ -63,6 +63,16 @@ fun InfoScreen(
     var showDonationDialog by remember { mutableStateOf(false) }
     var showLegalDialog by remember { mutableStateOf(false) }
 
+    androidx.activity.compose.BackHandler {
+        if (showDonationDialog) {
+            showDonationDialog = false
+        } else if (showLegalDialog) {
+            showLegalDialog = false
+        } else {
+            onNavigateBack()
+        }
+    }
+
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = {

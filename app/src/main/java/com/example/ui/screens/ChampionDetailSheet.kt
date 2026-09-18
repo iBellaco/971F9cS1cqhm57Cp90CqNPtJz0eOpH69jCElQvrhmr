@@ -138,6 +138,23 @@ fun ChampionDetailSheet(
 
     val currentLang = LocalLanguage.current
 
+    androidx.activity.compose.BackHandler {
+        if (itemForDetail != null) {
+            itemForDetail = null
+        } else if (runeForDetail != null) {
+            runeForDetail = null
+        } else if (spellForDetail != null) {
+            spellForDetail = null
+        } else if (matchupExplanationTarget != null) {
+            matchupExplanationTarget = null
+            matchupExplanationType = null
+        } else if (selectedSituationalItem != null) {
+            selectedSituationalItem = null
+        } else {
+            onDismiss()
+        }
+    }
+
     // Perfil dinámico de estadísticas, build, runas y counters adaptados a la línea elegida
     val roleProfile = remember(champion.id, selectedRole) {
         ChampionRoleAdapter.getProfile(champion, selectedRole)

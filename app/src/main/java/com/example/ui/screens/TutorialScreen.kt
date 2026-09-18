@@ -74,6 +74,10 @@ fun TutorialScreen(onFinish: () -> Unit) {
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
 
+    androidx.activity.compose.BackHandler {
+        onFinish()
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = HextechDarkBg

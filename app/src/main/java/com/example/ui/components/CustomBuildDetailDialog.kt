@@ -56,6 +56,8 @@ fun CustomBuildDetailDialog(
     val favoriteDao = remember { AppDatabase.getDatabase(context).favoriteBuildsDao() }
     val isFavorite by favoriteDao.isFavorite(record.id).collectAsState(initial = false)
 
+    androidx.activity.compose.BackHandler { onDismiss() }
+
     val shareBuild = {
         val shareText = buildString {
             appendLine("🛡️ Build: ${record.buildTitle} para ${record.championName}")

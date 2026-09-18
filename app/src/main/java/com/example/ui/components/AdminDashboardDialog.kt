@@ -1850,9 +1850,11 @@ enum class UserFilterTab(val label: String) {
     FREE("🎮 Gratis"),
     ONLINE("🟢 Online"),
     ADMINS("🛡️ Admins"),
+    MODS("🛡️ Mods"),
+    SPONSORS("💎 Patrocinador"),
     BANNED("⛔ Baneados"),
     STREAMERS("🎥 Streamers"),
-    CREATORS("✨ Creador VIP")
+    CREATORS("✨ Creadores")
 }
 
 @Composable
@@ -1932,8 +1934,10 @@ fun EnhancedUserManagementPanel(
     }
 
     val adminUsers = users.count { (it["role"] as? String) == "admin" }
+    val modUsers = users.count { (it["role"] as? String) == "moderador" }
+    val sponsorUsers = users.count { (it["role"] as? String) == "patrocinador" }
     val streamerUsers = users.count { (it["role"] as? String) == "streamer" }
-    val creatorUsers = users.count { (it["role"] as? String) == "creador_vip" }
+    val creatorUsers = users.count { (it["role"] as? String) == "creador_vip" || (it["role"] as? String) == "creador" }
     val freeUsers = users.count { u ->
         val role = u["role"] as? String ?: "free"
         val until = (u["premiumUntil"] as? Number)?.toLong()
@@ -1962,11 +1966,13 @@ fun EnhancedUserManagementPanel(
             val matchesTab = when (selectedFilter) {
                 UserFilterTab.ALL -> true
                 UserFilterTab.PREMIUM -> isPrem
-                UserFilterTab.FREE -> role == "free" || (!isPrem && role != "admin" && role != "streamer" && role != "creador_vip")
+                UserFilterTab.FREE -> role == "free" || (!isPrem && role != "admin" && role != "moderador" && role != "patrocinador" && role != "streamer" && role != "creador_vip" && role != "creador")
                 UserFilterTab.ONLINE -> isOnline
                 UserFilterTab.ADMINS -> role == "admin"
+                UserFilterTab.MODS -> role == "moderador"
+                UserFilterTab.SPONSORS -> role == "patrocinador"
                 UserFilterTab.STREAMERS -> role == "streamer"
-                UserFilterTab.CREATORS -> role == "creador_vip"
+                UserFilterTab.CREATORS -> role == "creador_vip" || role == "creador"
                 UserFilterTab.BANNED -> isBanned
             }
 
@@ -2075,6 +2081,8 @@ fun EnhancedUserManagementPanel(
                             UserFilterTab.FREE -> freeUsers
                             UserFilterTab.ONLINE -> onlineUsers
                             UserFilterTab.ADMINS -> adminUsers
+                            UserFilterTab.MODS -> modUsers
+                            UserFilterTab.SPONSORS -> sponsorUsers
                             UserFilterTab.STREAMERS -> streamerUsers
                             UserFilterTab.CREATORS -> creatorUsers
                             UserFilterTab.BANNED -> bannedUsers
@@ -3700,7 +3708,7 @@ fun UserDetailManagementDialog(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium
                         )
-                    } else if (target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER)) {
+                    } else if (target in listOf(AppUserRole.PREMIUM, AppUserRole.MODERATOR, AppUserRole.PATROCINADOR, AppUserRole.CREATOR_VIP, AppUserRole.STREAMER)) {
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = "✨ Este rango incluye acceso activo a las herramientas y ventajas del Pase Hextech.",
@@ -3719,13 +3727,13 @@ fun UserDetailManagementDialog(
                             roleToConfirm = null
                             currentRole = newRole
                             currentBanned = isBanned
-                            if (newRole in listOf("premium", "moderador", "creador_vip", "streamer")) {
+                            if (newRole in listOf("premium", "moderador", "patrocinador", "creador", "creador_vip", "streamer")) {
                                 currentPremiumUntil = 0L
                             }
                             onUserUpdated(user.toMutableMap().apply {
                                 put("role", newRole)
                                 put("banned", isBanned)
-                                if (newRole in listOf("premium", "moderador", "creador_vip", "streamer")) {
+                                if (newRole in listOf("premium", "moderador", "patrocinador", "creador", "creador_vip", "streamer")) {
                                     put("premiumUntil", 0L)
                                 }
                             })
@@ -4538,8 +4546,16 @@ private fun updateUserRoleInCloud(
     }
 
     // Si el rol es de acceso premium / vitalicio por defecto
-    if (targetRoleId in listOf("premium", "moderador", "creador_vip", "streamer")) {
+    if (targetRoleId in listOf("premium", "moderador", "patrocinador", "creador", "creador_vip", "streamer")) {
         updatePayload["premiumUntil"] = 0L
+        updatePayload["subscriptionPlan"] = when (targetRoleId) {
+            "moderador" -> "Moderador (Vitalicio)"
+            "patrocinador" -> "Patrocinador (Vitalicio)"
+            "creador_vip" -> "Creador VIP (Vitalicio)"
+            "creador" -> "Creador (Vitalicio)"
+            "streamer" -> "Streamer (Vitalicio)"
+            else -> "Premium Vitalicio"
+        }
         updatePayload["is_premium"] = true
     } else if (targetRoleId == "free") {
         updatePayload["is_premium"] = false
