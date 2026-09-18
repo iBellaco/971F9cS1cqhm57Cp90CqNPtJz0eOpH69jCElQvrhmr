@@ -246,11 +246,6 @@ object ChampionNameResolver {
         val clean = normalize(trimmed)
         if (clean.isBlank() || UI_IGNORE_WORDS.contains(clean)) return null
 
-        // Si parece nombre de invocador con clanes, números o diminutivos, descartar
-        if (DraftValidationLayer.isLikelySummonerName(trimmed)) {
-            return null
-        }
-
         val compact = normalizeCompact(trimmed)
 
         // 1. Coincidencia directa por mapa de nombres canónicos oficiales (Cadena completa)
@@ -275,7 +270,7 @@ object ChampionNameResolver {
         }
 
         // 3. Coincidencia tras eliminar posibles prefijos de icono o números residuales iniciales
-        // (ej: "1 DARIUS", "# SETT", "• AHRI", "1DARIUS", "- JINX")
+        // (ej: "1 DARIUS", "# SETT", "• AHRI", "1DARIUS", "- JINX", "» CAITLYN", "> WUKONG")
         val strippedLeading = trimmed.replace(Regex("^[\\W_0-9]+"), "").trim()
         val strippedClean = normalize(strippedLeading)
         if (strippedClean.isNotBlank() && strippedClean != clean) {
@@ -291,18 +286,48 @@ object ChampionNameResolver {
             }
         }
 
-        // 4. Coincidencia si el primer o último token es un icono de 1 o 2 letras separado por espacio
-        // (ej: "I DARIUS", "A SETT")
+        // 4. Coincidencia por tokens separados por espacio o símbolos (icono de elo/maestría antes del nombre del campeón)
+        // Ejemplo: "V WUKONG", "• YUUMI", "LV7 CAITLYN", "10 GALIO", "> PANTHEON", "ICON JAX"
         val tokens = clean.split(" ").filter { it.isNotBlank() }
-        if (tokens.size == 2 && tokens[0].length <= 2) {
-            val candidate = tokens[1]
-            KNOWN_CHAMPIONS_MAP[candidate]?.let { id ->
-                val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
+        if (tokens.size in 2..4) {
+            // Revisamos cada token individualmente de derecha a izquierda (el nombre del campeón suele estar al final tras el icono)
+            for (token in tokens.reversed()) {
+                if (token.length >= 3 && !UI_IGNORE_WORDS.contains(token)) {
+                    KNOWN_CHAMPIONS_MAP[token]?.let { id ->
+                        val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                        if (found != null && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = found.name)) return found
+                    }
+                    for (champ in safeChamps) {
+                        val champNorm = normalize(champ.name)
+                        if (token == champNorm && !DraftValidationLayer.isLikelySummonerName(trimmed, championName = champ.name)) {
+                            return champ
+                        }
+                    }
+                }
             }
+
+            // Campeones de 2 palabras (ej: "DR MUNDO", "LEE SIN", "JARVAN IV", "MASTER YI", "AURELION SOL", "XIN ZHAO")
+            for (i in 0 until tokens.size - 1) {
+                val pair = "${tokens[i]} ${tokens[i + 1]}"
+                KNOWN_CHAMPIONS_MAP[pair]?.let { id ->
+                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                    if (found != null) return found
+                }
+            }
+        }
+
+        // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon")
+        // Típico cuando el OCR concatena el icono de rango/elo con la primera letra del nombre del campeón
+        if (compact.length in 4..18) {
             for (champ in safeChamps) {
-                val champNorm = normalize(champ.name)
-                if (candidate == champNorm) return champ
+                val champCompact = normalizeCompact(champ.name)
+                if (champCompact.length >= 3 && compact.endsWith(champCompact)) {
+                    val prefixLen = compact.length - champCompact.length
+                    // Si el prefijo sobrante al inicio es de 1 a 3 caracteres (la insignia/icono)
+                    if (prefixLen in 1..3) {
+                        return champ
+                    }
+                }
             }
         }
 

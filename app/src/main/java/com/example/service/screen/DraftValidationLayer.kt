@@ -196,6 +196,7 @@ object DraftValidationLayer {
 
     /**
      * Analiza una línea o bloque de texto y detecta si contiene una indicación explícita de carril (ES/EN/PT).
+     * Soporta prefijos de iconos de elo alto, maestría o asignación de rol (ej: "> CARRIL CENTRAL", "• MID", "vmid").
      */
     fun parseRoleFromText(rawText: String): LaneRole? {
         val lower = normalize(rawText)
@@ -206,80 +207,100 @@ object DraftValidationLayer {
             return null
         }
 
-        // 1. Frases completas de carril (Español, Inglés, Portugués)
-        // TOP
-        if (lower.contains("calle del baron") || lower.contains("calle del barón") ||
-            lower.contains("calle de baron") || lower.contains("calle de barón") ||
-            lower.contains("calle baron") || lower.contains("calle barón") ||
-            lower.contains("carril del baron") || lower.contains("carril del barón") ||
-            lower.contains("carril de baron") || lower.contains("carril de barón") ||
-            lower.contains("carril baron") || lower.contains("carril barón") ||
-            lower.contains("linea del baron") || lower.contains("linea del barón") ||
-            lower.contains("linea de baron") || lower.contains("linea de barón") ||
-            lower.contains("linea baron") || lower.contains("linea barón") ||
-            lower.contains("carril superior") || lower.contains("calle superior") ||
-            lower.contains("linea superior") || lower.contains("carril solo") ||
-            lower.contains("calle solo") || lower.contains("linea solo") ||
-            lower.contains("baron lane") || lower.contains("rota de barao") ||
-            lower.contains("rota do barao") || lower.contains("rota de barão") ||
-            lower.contains("rota do barão") || lower.contains("rota do topo") ||
-            lower.contains("rota solo") || lower.contains("solo lane")) {
-            return LaneRole.TOP
+        // Limpieza de posibles iconos o artefactos iniciales (símbolos, números o 1-3 letras iniciales que representan insignias)
+        val textWithoutSymbols = lower.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
+        val tokens = textWithoutSymbols.split(Regex("[\\s,.:;\\-_/()]+")).filter { it.isNotBlank() }
+
+        // Evaluamos tanto la cadena completa como tokens individuales y combinaciones
+        val candidatesToEvaluate = mutableListOf<String>()
+        candidatesToEvaluate.add(lower)
+        candidatesToEvaluate.add(textWithoutSymbols)
+
+        // Si hay varios tokens y el primero parece un icono/prefijo de elo (ej: "v carril central", "1 mid", "o duo")
+        if (tokens.size >= 2) {
+            candidatesToEvaluate.add(tokens.drop(1).joinToString(" "))
+        }
+        if (tokens.size >= 3) {
+            candidatesToEvaluate.add(tokens.drop(2).joinToString(" "))
         }
 
-        // MID
-        if (lower.contains("calle central") || lower.contains("carril central") ||
-            lower.contains("linea central") || lower.contains("calle medio") ||
-            lower.contains("carril medio") || lower.contains("linea medio") ||
-            lower.contains("calle de enmedio") || lower.contains("calle de en medio") ||
-            lower.contains("linea de enmedio") || lower.contains("linea de en medio") ||
-            lower.contains("carril de enmedio") || lower.contains("carril de en medio") ||
-            lower.contains("mid lane") || lower.contains("rota do meio") ||
-            lower.contains("rota central") || lower.contains("middle lane")) {
-            return LaneRole.MID
+        for (cand in candidatesToEvaluate) {
+            // TOP
+            if (cand.contains("calle del baron") || cand.contains("calle del barón") ||
+                cand.contains("calle de baron") || cand.contains("calle de barón") ||
+                cand.contains("calle baron") || cand.contains("calle barón") ||
+                cand.contains("carril del baron") || cand.contains("carril del barón") ||
+                cand.contains("carril de baron") || cand.contains("carril de barón") ||
+                cand.contains("carril baron") || cand.contains("carril barón") ||
+                cand.contains("linea del baron") || cand.contains("linea del barón") ||
+                cand.contains("linea de baron") || cand.contains("linea de barón") ||
+                cand.contains("linea baron") || cand.contains("linea barón") ||
+                cand.contains("carril superior") || cand.contains("calle superior") ||
+                cand.contains("linea superior") || cand.contains("carril solo") ||
+                cand.contains("calle solo") || cand.contains("linea solo") ||
+                cand.contains("baron lane") || cand.contains("rota de barao") ||
+                cand.contains("rota do barao") || cand.contains("rota de barão") ||
+                cand.contains("rota do barão") || cand.contains("rota do topo") ||
+                cand.contains("rota solo") || cand.contains("solo lane") ||
+                cand == "baron" || cand == "barao" || cand == "barão" || cand == "solo" || cand == "top") {
+                return LaneRole.TOP
+            }
+
+            // MID
+            if (cand.contains("calle central") || cand.contains("carril central") ||
+                cand.contains("linea central") || cand.contains("calle medio") ||
+                cand.contains("carril medio") || cand.contains("linea medio") ||
+                cand.contains("calle de enmedio") || cand.contains("calle de en medio") ||
+                cand.contains("linea de enmedio") || cand.contains("linea de en medio") ||
+                cand.contains("carril de enmedio") || cand.contains("carril de en medio") ||
+                cand.contains("mid lane") || cand.contains("rota do meio") ||
+                cand.contains("rota central") || cand.contains("middle lane") ||
+                cand == "central" || cand == "medio" || cand == "meio" || cand == "mid") {
+                return LaneRole.MID
+            }
+
+            // ADC / DÚO
+            if (cand.contains("calle del dragon") || cand.contains("calle del dragón") ||
+                cand.contains("calle de dragon") || cand.contains("calle de dragón") ||
+                cand.contains("calle dragon") || cand.contains("calle dragón") ||
+                cand.contains("carril del dragon") || cand.contains("carril del dragón") ||
+                cand.contains("carril de dragon") || cand.contains("carril de dragón") ||
+                cand.contains("carril dragon") || cand.contains("carril dragón") ||
+                cand.contains("linea del dragon") || cand.contains("linea del dragón") ||
+                cand.contains("linea de dragon") || cand.contains("linea de dragón") ||
+                cand.contains("linea dragon") || cand.contains("linea dragón") ||
+                cand.contains("calle duo") || cand.contains("calle dúo") ||
+                cand.contains("carril duo") || cand.contains("carril dúo") ||
+                cand.contains("linea duo") || cand.contains("linea dúo") ||
+                cand.contains("duo lane") || cand.contains("dragon lane") ||
+                cand.contains("rota do dragao") || cand.contains("rota do dragão") ||
+                cand.contains("rota duo") || cand.contains("carril bot") ||
+                cand.contains("calle bot") || cand.contains("linea bot") ||
+                cand.contains("bot lane") || cand == "duo" || cand == "dúo" || cand == "adc" || cand == "tirador" || cand == "bot") {
+                return LaneRole.ADC
+            }
+
+            // SUPPORT / APOYO
+            if (cand.contains("apoyo") || cand.contains("soporte") ||
+                cand.contains("suporte") || cand.contains("support") ||
+                cand.contains("rota suporte") || cand.contains("carril apoyo") ||
+                cand.contains("linea apoyo") || cand.contains("carril soporte") ||
+                cand.contains("linea soporte") || cand == "soporte" || cand == "suporte" || cand == "support" || cand == "apoyo" || cand == "sup") {
+                return LaneRole.SUPPORT
+            }
+
+            // JUNGLA
+            if (cand.contains("jungla") || cand.contains("jungle") ||
+                cand.contains("cacador") || cand.contains("caçador") ||
+                cand.contains("selva") || cand.contains("carril jungla") ||
+                cand.contains("linea jungla") || cand.contains("rota selva") ||
+                cand.contains("rota caçador") || cand.contains("rota cacador") ||
+                cand == "jungla" || cand == "jungle" || cand == "cacador" || cand == "caçador" || cand == "selva" || cand == "jg") {
+                return LaneRole.JUNGLE
+            }
         }
 
-        // ADC / DÚO
-        if (lower.contains("calle del dragon") || lower.contains("calle del dragón") ||
-            lower.contains("calle de dragon") || lower.contains("calle de dragón") ||
-            lower.contains("calle dragon") || lower.contains("calle dragón") ||
-            lower.contains("carril del dragon") || lower.contains("carril del dragón") ||
-            lower.contains("carril de dragon") || lower.contains("carril de dragón") ||
-            lower.contains("carril dragon") || lower.contains("carril dragón") ||
-            lower.contains("linea del dragon") || lower.contains("linea del dragón") ||
-            lower.contains("linea de dragon") || lower.contains("linea de dragón") ||
-            lower.contains("linea dragon") || lower.contains("linea dragón") ||
-            lower.contains("calle duo") || lower.contains("calle dúo") ||
-            lower.contains("carril duo") || lower.contains("carril dúo") ||
-            lower.contains("linea duo") || lower.contains("linea dúo") ||
-            lower.contains("duo lane") || lower.contains("dragon lane") ||
-            lower.contains("rota do dragao") || lower.contains("rota do dragão") ||
-            lower.contains("rota duo") || lower.contains("carril bot") ||
-            lower.contains("calle bot") || lower.contains("linea bot") ||
-            lower.contains("bot lane")) {
-            return LaneRole.ADC
-        }
-
-        // SUPPORT / APOYO
-        if (lower.contains("apoyo") || lower.contains("soporte") ||
-            lower.contains("suporte") || lower.contains("support") ||
-            lower.contains("rota suporte") || lower.contains("carril apoyo") ||
-            lower.contains("linea apoyo") || lower.contains("carril soporte") ||
-            lower.contains("linea soporte")) {
-            return LaneRole.SUPPORT
-        }
-
-        // JUNGLA
-        if (lower.contains("jungla") || lower.contains("jungle") ||
-            lower.contains("cacador") || lower.contains("caçador") ||
-            lower.contains("selva") || lower.contains("carril jungla") ||
-            lower.contains("linea jungla") || lower.contains("rota selva") ||
-            lower.contains("rota caçador") || lower.contains("rota cacador")) {
-            return LaneRole.JUNGLE
-        }
-
-        // 2. Tokens individuales delimitados exactamente
-        val tokens = lower.split(Regex("[\\s,.:;\\-_/()]+")).filter { it.isNotBlank() }
+        // Búsqueda por tokens individuales
         for (token in tokens) {
             when (token) {
                 "baron", "barao", "barão", "top", "solo", "topo", "superior" -> return LaneRole.TOP
@@ -288,6 +309,16 @@ object DraftValidationLayer {
                 "adc", "duo", "dúo", "dragon", "dragón", "dragao", "dragão", "tirador", "atirador", "bot" -> return LaneRole.ADC
                 "soporte", "support", "suporte", "sup", "supp", "apoyo" -> return LaneRole.SUPPORT
             }
+        }
+
+        // Búsqueda por prefijo pegado (ej: "vmid", "1mid", "omid", "vcentral", "vcarrilcentral", "ojungla", "osoporte", "vduo")
+        val compact = textWithoutSymbols.replace(" ", "")
+        when {
+            compact.endsWith("carrilcentral") || compact.endsWith("lineacentral") || compact.endsWith("callecentral") || compact.endsWith("mid") || compact.endsWith("central") || compact.endsWith("medio") -> return LaneRole.MID
+            compact.endsWith("carrildebaron") || compact.endsWith("carrildelbaron") || compact.endsWith("baron") || compact.endsWith("solo") || compact.endsWith("top") -> return LaneRole.TOP
+            compact.endsWith("carriljungla") || compact.endsWith("jungla") || compact.endsWith("jungle") || compact.endsWith("cacador") || compact.endsWith("caçador") || compact.endsWith("selva") -> return LaneRole.JUNGLE
+            compact.endsWith("carrilduo") || compact.endsWith("carrildeldragon") || compact.endsWith("duo") || compact.endsWith("adc") || compact.endsWith("tirador") || compact.endsWith("dragon") -> return LaneRole.ADC
+            compact.endsWith("carrilsoporte") || compact.endsWith("carrilapoyo") || compact.endsWith("soporte") || compact.endsWith("suporte") || compact.endsWith("support") || compact.endsWith("apoyo") -> return LaneRole.SUPPORT
         }
 
         return null

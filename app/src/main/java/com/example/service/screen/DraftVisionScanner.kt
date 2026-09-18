@@ -549,16 +549,33 @@ object DraftVisionScanner {
 
                         val lineNorm = DraftValidationLayer.normalize(line).lowercase(Locale.ROOT)
                         val lineCompressed = lineNorm.replace(" ", "")
-                        val isUserTag = !isLegendaryRanked && (
-                            lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
+
+                        // DETECCIÓN INFALIBLE DEL SLOT DEL USUARIO EN WILD RIFT:
+                        // 1) En Wild Rift, el indicador/botón "Porcentaje de victorias..." ("Taxa de vit...", "Win rate...")
+                        //    aparece ÚNICAMENTE en el slot del propio usuario local.
+                        val isWinRateIndicator = lineNorm.contains("porcentaje de vic") ||
+                            lineNorm.contains("porcentaje de") ||
+                            lineNorm.contains("porcentaje") ||
+                            lineNorm.contains("taxa de vit") ||
+                            lineNorm.contains("taxa de") ||
+                            lineNorm.contains("win rate") ||
+                            lineNorm.contains("winrate")
+
+                        // 2) Nombre de invocador conocido del usuario (ej: Diego / D I E G O / barbadiego):
+                        val isUserNameMatch = lineCompressed == "diego" ||
+                            lineCompressed.contains("diego") ||
+                            currentUserNameClean.any { it.length >= 3 && (lineCompressed == it || lineCompressed.contains(it)) }
+
+                        // 3) Indicadores canónicos de Riot ("Tú", "You", "Você"):
+                        val isExplicitTag = lineNorm == "tu" || lineNorm == "(tu)" || lineNorm == "you" || lineNorm == "(you)" ||
                             lineNorm == "voce" || lineNorm == "(voce)" ||
                             lineNorm.startsWith("(tu) ") || lineNorm.endsWith(" (tu)") ||
                             lineNorm.startsWith("(you) ") || lineNorm.endsWith(" (you)") ||
                             lineNorm.contains(" tú ") || lineNorm.contains("(tú)") ||
                             lineNorm.contains("( tu )") || lineNorm.contains("[tu]") || lineNorm.contains("[tú]") ||
-                            lineNorm.contains("( you )") || lineNorm.contains("[you]") ||
-                            currentUserNameClean.any { it.length >= 3 && (lineCompressed == it || lineCompressed.contains(it)) }
-                        )
+                            lineNorm.contains("( you )") || lineNorm.contains("[you]")
+
+                        val isUserTag = !isLegendaryRanked && (isWinRateIndicator || isUserNameMatch || isExplicitTag)
 
                         if (isUserTag) {
                             userSlotIndex = i
@@ -577,6 +594,7 @@ object DraftVisionScanner {
                         }
 
                         if (!isLegendaryRanked && line.length in 2..24 && !line.startsWith("(") && !line.endsWith(")") &&
+                            !isWinRateIndicator &&
                             DraftValidationLayer.parseRoleFromText(line) == null &&
                             ChampionNameResolver.findChampionInText(line, allChamps) == null) {
                             summonerCandidates.add(line)
@@ -667,25 +685,34 @@ object DraftVisionScanner {
                 }
             }
 
-            // Si se detectó el slot del usuario (marcado con "(TÚ)"), asignar su rol; si no, preservar el rol activo del usuario
+            // Si se detectó el slot del usuario (marcado con "(TÚ)", "Porcentaje de victorias" o nombre), asignar su rol; si no, preservar el rol activo del usuario
             if (userSlotIndex != null) {
                 cachedUserSlotIndex = userSlotIndex
             } else if (cachedUserSlotIndex != null) {
                 userSlotIndex = cachedUserSlotIndex
                 userExplicitlyConfirmed = true
             } else if (currentActiveRole != null) {
-                // Si el usuario tiene seleccionado un rol y coincide con el rol de un slot, vincular al instante
+                // Si el usuario tiene seleccionado un rol y coincide con el rol de un slot, vincular temporalmente
                 val matchingSlot = allySlots.indexOfFirst { it.explicitRole == currentActiveRole || allySlotRolesCache[it.slotIndex] == currentActiveRole }
                 if (matchingSlot != -1) {
                     userSlotIndex = matchingSlot
                     cachedUserSlotIndex = matchingSlot
-                    userExplicitlyConfirmed = true
+                    userExplicitlyConfirmed = false
                 }
             }
 
             val uIdx = userSlotIndex
             if (uIdx != null && uIdx in 0..4) {
-                val explicitRole = allySlots[uIdx].explicitRole ?: allySlotRolesCache[uIdx]
+                var explicitRole = allySlots[uIdx].explicitRole ?: allySlotRolesCache[uIdx]
+                // Si aún no tenía rol explícito, comprobar si el campeón seleccionado tiene un rol primario (ej: Galio -> MID)
+                if (explicitRole == null) {
+                    val champ = allySlots[uIdx].champion ?: allySlotConfirmedChampions[uIdx] ?: allyOcrChampions[uIdx]
+                    if (champ != null) {
+                        explicitRole = champ.primaryRole
+                        allySlots[uIdx].explicitRole = explicitRole
+                        allySlotRolesCache[uIdx] = explicitRole
+                    }
+                }
                 if (explicitRole != null) {
                     userDetectedLane = explicitRole
                     AppLogger.d(TAG, "Rol de usuario confirmado explícitamente en Slot $uIdx -> ${userDetectedLane.shortName}")
@@ -1148,7 +1175,7 @@ object DraftVisionScanner {
             enemiesByRole = finalEnemiesMap,
             enemyConfidencesByRole = enemyConfidences,
             detectedRole = userDetectedLane,
-            userExplicitlyDetectedRole = userDetectedLane,
+            userExplicitlyDetectedRole = if (userExplicitlyConfirmed) userDetectedLane else null,
             detectedFirstPick = detectedFirstPick,
             detectedRawWords = detectedWords,
             discrepancies = auditList,
