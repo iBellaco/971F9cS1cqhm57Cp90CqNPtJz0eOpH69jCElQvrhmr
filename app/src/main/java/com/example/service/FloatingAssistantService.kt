@@ -3631,6 +3631,7 @@ private fun TenthPickScannerViewerDialog(
     var selectedEngine by remember { mutableStateOf(com.example.service.screen.VisionInferenceEngineType.ZNCC_LOCAL_NATIVE) }
     var currentBenchmark by remember { mutableStateOf<com.example.service.screen.EngineInferenceBenchmark?>(null) }
     var isAutoEvaluating by remember { mutableStateOf(false) }
+    val fourEnginesDecisionState by com.example.service.screen.VisionInferenceManager.lastFourEnginesDecision.collectAsState()
 
     val step = if (isFastStep) 0.010f else 0.002f
 
@@ -3700,6 +3701,15 @@ private fun TenthPickScannerViewerDialog(
                                 )
                             } else null
 
+                            val fourDecision = if (crop != null && !crop.isRecycled) {
+                                com.example.service.screen.VisionInferenceManager.runAllFourEngines(
+                                    cropBitmap = crop,
+                                    allChamps = allChamps,
+                                    expectedRole = null,
+                                    context = context
+                                )
+                            } else null
+
                             withContext(Dispatchers.Main) {
                                 if (crop != null && !crop.isRecycled) {
                                     currentCrop = crop
@@ -3707,14 +3717,18 @@ private fun TenthPickScannerViewerDialog(
                                 currentLog = dec
                                 currentBenchmark = bench
 
-                                // Actualizar el 10º pick en el slot con el campeón ganador de los 4 motores
-                                val winningChamp = dec?.selectedChampion ?: bench?.topCandidate
-                                if (winningChamp != null) {
-                                    if (selectedVision == 0) {
-                                        com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions[4] = winningChamp
-                                    } else {
-                                        com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions[4] = winningChamp
-                                    }
+                                // Actualizar el 10º pick en el slot ÚNICAMENTE con el campeón ganador de los 4 motores
+                                // Si los 4 motores no detectan coincidencia (umbral < 60% o slot vacío), NO inventar campeón
+                                val winningChamp = if (fourDecision != null && fourDecision.isDecisionValid) {
+                                    fourDecision.topChampion
+                                } else if (dec != null && dec.selectedChampion != null && dec.confidence >= 0.60f) {
+                                    dec.selectedChampion
+                                } else null
+
+                                if (selectedVision == 0) {
+                                    com.example.service.screen.DraftVisionScanner.allySlotConfirmedChampions[4] = winningChamp
+                                } else {
+                                    com.example.service.screen.DraftVisionScanner.enemySlotConfirmedChampions[4] = winningChamp
                                 }
                             }
                         } finally {
@@ -4328,26 +4342,34 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Banner informativo sobre dinámica de Draft vs Fase de Preparación
+                // 1. UBICACIÓN EXCLUSIVA DE ESCANEO (SLOT INFERIOR)
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
                     shape = RoundedCornerShape(6.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
-                    border = BorderStroke(1.dp, HextechCardBorder.copy(alpha = 0.5f))
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Info,
-                            contentDescription = null,
-                            tint = HextechCyan,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
+                    Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = null,
+                                tint = HextechCyan,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "LUGAR DE ESCANEO: SLOT 5 INFERIOR (${if (selectedVision == 0) "LADO ALIADO" else "LADO RIVAL"})",
+                                color = HextechCyan,
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        val curX = if (selectedVision == 0) calib.allyAvatarCenterX else calib.enemyAvatarCenterX
+                        val curY = if (selectedVision == 0) calib.allySlotYRatios.getOrElse(4) { 0.739f } else calib.enemySlotYRatios.getOrElse(4) { 0.739f }
                         Text(
-                            text = "En selección activa, la barra superior muestra BANEADOS. Al concluir la selección (Fase de Preparación), la barra superior cambia a los 10 campeones ELEGIDOS.",
+                            text = "Escaneando únicamente la última imagen que se muestra en el slot inferior (X: ${(curX * 100).toInt()}%, Y: ${(curY * 100).toInt()}%, ⌀: ${(calib.avatarDiameterRatio * 100).toInt()}%). La decisión es tomada exclusivamente por los 4 motores.",
                             color = TextMuted,
                             fontSize = 7.5.sp,
                             lineHeight = 10.sp
@@ -4355,20 +4377,25 @@ private fun TenthPickScannerViewerDialog(
                     }
                 }
 
-                // COMPARATIVA EN VIVO DE GRAN TAMAÑO (84.dp): RECORTE EN VIVO VS AVATAR DE REFERENCIA
+                // 2. DECISIÓN DE LOS 4 MOTORES (COMPARATIVA EN VIVO 84.dp)
                 Text(
-                    text = "COMPARATIVA DE VISIÓN (TAMAÑO AMPLIADO)",
+                    text = "DECISIÓN DE LOS 4 MOTORES (SLOT INFERIOR)",
                     color = HextechCyan,
                     fontWeight = FontWeight.Bold,
                     fontSize = 9.sp
                 )
                 Spacer(modifier = Modifier.height(3.dp))
 
+                val fourDec = fourEnginesDecisionState
+                val isDecisionValid = (fourDec != null && fourDec.isDecisionValid && fourDec.topChampion != null)
+                val decidedChamp = if (isDecisionValid) fourDec?.topChampion else null
+                val decidedScore = if (isDecisionValid) ((fourDec?.averageConfidence ?: 0f) * 100).toInt() else 0
+
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(8.dp),
                     colors = CardDefaults.cardColors(containerColor = HextechSurface),
-                    border = BorderStroke(1.dp, HextechCardBorder)
+                    border = BorderStroke(1.dp, if (isDecisionValid) HextechGold else HextechCardBorder)
                 ) {
                     Row(
                         modifier = Modifier
@@ -4377,10 +4404,10 @@ private fun TenthPickScannerViewerDialog(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Recorte en vivo (84.dp)
+                        // Recorte en vivo del slot inferior (84.dp)
                         val displayCrop = currentCrop
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Recorte en Vivo", color = TextMuted, fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                            Text("Recorte Slot Inferior", color = TextMuted, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.height(4.dp))
                             if (displayCrop != null && !displayCrop.isRecycled) {
                                 Box(
@@ -4393,7 +4420,7 @@ private fun TenthPickScannerViewerDialog(
                                 ) {
                                     Image(
                                         bitmap = displayCrop.asImageBitmap(),
-                                        contentDescription = "Recorte en Vivo",
+                                        contentDescription = "Recorte Slot Inferior",
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape),
@@ -4414,48 +4441,44 @@ private fun TenthPickScannerViewerDialog(
                             }
                         }
 
-                        // Similitud / Coincidencia Central
-                        val log = currentLog
-                        val bench = currentBenchmark
-                        val topCand = log?.topCandidates?.firstOrNull()
-                        val matchedChamp = log?.selectedChampion ?: bench?.topCandidate ?: topCand?.champion
-                        val rawScore = log?.confidence ?: bench?.confidenceScore ?: topCand?.compositeScore ?: 0f
-                        val score = (rawScore * 100).toInt()
-                        val isConfirmed = (score >= 50 && matchedChamp != null)
-
+                        // Similitud de los 4 motores y estado de consenso
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "$score%",
-                                color = if (isConfirmed || score >= 55) HextechGold else TextMuted,
+                                text = if (isDecisionValid) "$decidedScore%" else "0%",
+                                color = if (isDecisionValid) HextechGold else TextMuted,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 16.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = if (isConfirmed) "CONFIRMADO" else if (score >= 48) "COINCIDENCIA" else "BUSCANDO",
-                                color = if (isConfirmed) Color(0xFF00FF7F) else if (score >= 48) HextechCyan else TextMuted,
+                                text = if (isDecisionValid) "4 MOTORES" else "SIN COINCIDENCIA",
+                                color = if (isDecisionValid) Color(0xFF00FF7F) else DangerRed,
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Black
                             )
+                            Text(
+                                text = if (isDecisionValid) "CONSENSO ACEPTADO" else "NO INVENTAR",
+                                color = if (isDecisionValid) Color(0xFF00FF7F) else TextMuted,
+                                fontSize = 7.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
 
-                        // Avatar Campeón Referencia (84.dp)
+                        // Avatar del Campeón Decidido por los 4 Motores (84.dp)
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = if (matchedChamp != null) {
-                                    if (isConfirmed) "${matchedChamp.name} (Confirmado)" else "${matchedChamp.name} ($score%)"
-                                } else "Sin asignar",
-                                color = if (isConfirmed) HextechGold else if (matchedChamp != null) HextechCyan else TextMuted,
+                                text = if (decidedChamp != null) decidedChamp.name else "Sin Asignar",
+                                color = if (decidedChamp != null) HextechGold else TextMuted,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 8.5.sp
                             )
                             Spacer(modifier = Modifier.height(4.dp))
-                            if (matchedChamp != null) {
+                            if (decidedChamp != null) {
                                 ChampionAvatar(
-                                    champion = matchedChamp,
+                                    champion = decidedChamp,
                                     size = 84.dp,
                                     showTierBadge = false,
-                                    borderColor = if (isConfirmed) HextechGold else HextechCyan
+                                    borderColor = HextechGold
                                 )
                             } else {
                                 Box(
@@ -4475,18 +4498,39 @@ private fun TenthPickScannerViewerDialog(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                // TOP CANDIDATOS EVALUADOS
-                val safeLog = currentLog
-                if (safeLog != null && safeLog.topCandidates.isNotEmpty()) {
+                // Estado y Explicación de los 4 Motores
+                Surface(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    color = HextechDarkBg,
+                    border = BorderStroke(1.dp, if (isDecisionValid) HextechGold.copy(alpha = 0.4f) else HextechCardBorder.copy(alpha = 0.3f))
+                ) {
                     Text(
-                        text = "TOP CANDIDATOS EVALUADOS",
+                        text = if (isDecisionValid) {
+                            fourDec?.explanation ?: "Coincidencia validada por consenso de los 4 motores de inferencia visual."
+                        } else {
+                            "No hay nada que escanear o la similitud no alcanza el 60% requerido. Los 4 motores no inventan campeones."
+                        },
+                        color = if (isDecisionValid) HextechGold else TextMuted,
+                        fontSize = 7.5.sp,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // TOP CANDIDATOS EVALUADOS POR LOS 4 MOTORES
+                val candidatesList = fourDec?.candidateScores ?: emptyList()
+                if (isDecisionValid && candidatesList.isNotEmpty()) {
+                    Text(
+                        text = "TOP CANDIDATOS (PROMEDIO DE LOS 4 MOTORES)",
                         color = HextechCyan,
                         fontWeight = FontWeight.Bold,
                         fontSize = 9.sp
                     )
                     Spacer(modifier = Modifier.height(3.dp))
-                    safeLog.topCandidates.take(5).forEachIndexed { idx, c ->
-                        val isChosen = (idx == 0 && safeLog.selectedChampion != null) || (safeLog.selectedChampion?.id == c.champion.id)
+                    candidatesList.take(5).forEachIndexed { idx, (champ, cScore) ->
+                        val isChosen = (idx == 0)
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -4517,22 +4561,20 @@ private fun TenthPickScannerViewerDialog(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     ChampionAvatar(
-                                        champion = c.champion,
+                                        champion = champ,
                                         size = 24.dp,
                                         showTierBadge = false
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Column {
-                                        Text(
-                                            text = c.champion.name,
-                                            color = if (isChosen) HextechGold else TextPrimary,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 9.5.sp
-                                        )
-                                    }
+                                    Text(
+                                        text = champ.name,
+                                        color = if (isChosen) HextechGold else TextPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 9.5.sp
+                                    )
                                 }
                                 Text(
-                                    text = "${(c.compositeScore * 100).toInt()}%",
+                                    text = "${(cScore * 100).toInt()}%",
                                     color = if (isChosen) HextechGold else TextSecondary,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 11.sp
@@ -4550,7 +4592,7 @@ private fun TenthPickScannerViewerDialog(
                         border = BorderStroke(1.dp, HextechCardBorder.copy(alpha = 0.3f))
                     ) {
                         Text(
-                            text = "Alineando retícula... En selección activa la barra superior muestra baneados. Al entrar a Fase de Preparación mostrará los campeones comparados.",
+                            text = "Sin candidatos: El slot inferior está vacío o la similitud es menor al 60%. Los 4 motores no asignan campeón hasta detectar un pick con suficiente similitud.",
                             color = TextMuted,
                             fontSize = 8.sp,
                             modifier = Modifier.padding(8.dp)
@@ -4707,7 +4749,7 @@ private fun TenthPickScannerViewerDialog(
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 8.5.sp
                                         )
-                                        val m = safeLog?.scannedMetrics
+                                        val m = currentLog?.scannedMetrics
                                         Text(
                                             text = "Luminancia: ${m?.avgLum?.toInt() ?: "--"} | Contraste: ${m?.contrast?.toInt() ?: "--"}",
                                             color = TextSecondary,
@@ -4744,9 +4786,10 @@ private fun TenthPickScannerViewerDialog(
 
                         // 2. TARJETA DETALLADA DEL MOTOR ACTIVO
                         val bench = currentBenchmark
-                        val activeChamp = bench?.topCandidate ?: safeLog?.selectedChampion ?: safeLog?.topCandidates?.firstOrNull()?.champion
-                        val activeScore = ((bench?.confidenceScore ?: (safeLog?.topCandidates?.firstOrNull()?.compositeScore ?: 0f)) * 100).toInt()
-                        val latency = bench?.inferenceTimeMs ?: selectedEngine.defaultLatencyMs
+                        val activeEngineResult = fourDec?.resultsByEngine?.get(selectedEngine)
+                        val activeChamp = activeEngineResult?.topCandidate ?: bench?.topCandidate
+                        val activeScore = (((activeEngineResult?.confidenceScore ?: bench?.confidenceScore) ?: 0f) * 100).toInt()
+                        val latency = activeEngineResult?.inferenceTimeMs ?: bench?.inferenceTimeMs ?: selectedEngine.defaultLatencyMs
 
                         Text(
                             text = "2. RESULTADO DE INFERENCIA: ${selectedEngine.displayName.uppercase()}",
@@ -4895,6 +4938,10 @@ private fun TenthPickScannerViewerDialog(
                         ) {
                             allEngines.forEach { eng ->
                                 val isCur = (eng == selectedEngine)
+                                val engResult = fourDec?.resultsByEngine?.get(eng) ?: (if (eng == selectedEngine) bench else null)
+                                val engChamp = engResult?.topCandidate
+                                val engScore = ((engResult?.confidenceScore ?: 0f) * 100).toInt()
+                                val engLat = engResult?.inferenceTimeMs ?: eng.defaultLatencyMs
                                 Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -4927,15 +4974,15 @@ private fun TenthPickScannerViewerDialog(
                                         }
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(
-                                                text = "${eng.defaultLatencyMs}ms",
+                                                text = "${engLat}ms",
                                                 color = HextechCyan,
                                                 fontSize = 7.5.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
-                                                text = if (activeChamp != null) activeChamp.name else "Listo",
-                                                color = if (isCur) Color(0xFF00FF7F) else TextMuted,
+                                                text = if (engChamp != null && engScore >= 50) "${engChamp.name} ($engScore%)" else if (engChamp != null) "${engChamp.name} ($engScore%)" else "Sin señal",
+                                                color = if (engChamp != null && engScore >= 60) Color(0xFF00FF7F) else if (isCur) HextechGold else TextMuted,
                                                 fontSize = 7.5.sp,
                                                 fontWeight = FontWeight.Bold
                                             )

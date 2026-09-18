@@ -6,6 +6,7 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -262,9 +263,25 @@ fun SponsorCpmPanelDialog(
     }
 
     Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        onDismissRequest = {
+            if (showBuyEssenceDialog) {
+                showBuyEssenceDialog = false
+            } else {
+                onDismiss()
+            }
+        },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false
+        )
     ) {
+        BackHandler(enabled = true) {
+            if (showBuyEssenceDialog) {
+                showBuyEssenceDialog = false
+            } else {
+                onDismiss()
+            }
+        }
         Surface(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             shape = RoundedCornerShape(16.dp),

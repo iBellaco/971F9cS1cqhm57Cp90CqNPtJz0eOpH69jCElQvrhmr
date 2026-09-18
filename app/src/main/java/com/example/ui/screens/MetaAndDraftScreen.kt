@@ -271,16 +271,25 @@ fun MetaAndDraftScreen(
     var showDraftHistoryScreen by remember { mutableStateOf(false) }
 
     androidx.activity.compose.BackHandler {
-        if (selectedDetailChampion != null) {
-            selectedDetailChampion = null
-        } else if (pickingForTeam != null) {
-            pickingForTeam = null
-        } else if (showDraftHistoryScreen) {
-            showDraftHistoryScreen = false
-        } else if (showRoleChangeDialog) {
-            showRoleChangeDialog = false
-        } else {
-            onNavigateBack()
+        when {
+            selectedDetailChampion != null -> {
+                selectedDetailChampion = null
+            }
+            pickingForTeam != null -> {
+                pickingForTeam = null
+            }
+            showDraftHistoryScreen -> {
+                showDraftHistoryScreen = false
+            }
+            showRoleChangeDialog -> {
+                showRoleChangeDialog = false
+            }
+            selectedTabIndex != 0 -> {
+                selectedTabIndex = 0
+            }
+            else -> {
+                onNavigateBack()
+            }
         }
     }
 
@@ -321,27 +330,6 @@ fun MetaAndDraftScreen(
             isFirstPick = isFirstPick,
             lang = lang
         )
-    }
-
-    // Manejo inteligente del botón Atrás dentro de la pantalla de Catálogo / Drafting
-    BackHandler {
-        when {
-            selectedDetailChampion != null -> {
-                selectedDetailChampion = null
-            }
-            pickingForTeam != null -> {
-                pickingForTeam = null
-            }
-            showRoleChangeDialog -> {
-                showRoleChangeDialog = false
-            }
-            selectedTabIndex != 0 -> {
-                selectedTabIndex = 0
-            }
-            else -> {
-                onNavigateBack()
-            }
-        }
     }
 
     val topBarTitle = when (mode) {

@@ -414,8 +414,9 @@ object DraftVisionScanner {
                     
                     detectedWords.add(text)
 
-                    // Ignorar barra de bans superior, parte superior, y botones inferiores extremos
-                    if (yRatio < 0.5f || yRatio > 0.950f) continue
+                    // Ignorar barra de bans superior (< 0.12f) y botones inferiores extremos (> 0.88f)
+                    // Permitir todos los 5 slots (desde y=0.15 hasta y=0.85)
+                    if (yRatio < 0.12f || yRatio > 0.880f) continue
 
                     val isAllyCol = xRatio in calib.allyOcrMinX..calib.allyOcrMaxX
                     val isEnemyCol = xRatio in calib.enemyOcrMinX..calib.enemyOcrMaxX
@@ -535,19 +536,18 @@ object DraftVisionScanner {
 
                         // B) Si NO es nombre de línea, comprobar si es un Campeón seleccionado (que ha reemplazado al texto de la línea)
                         // User request: "el icono no desaparece úsalo como referencia que después de ese icono viene el nombre"
-                        // Intentar separar el nombre del campeón si viene después de un posible icono o prefijo
+                        // Separar el nombre del campeón si viene después de un posible icono o prefijo
                         val tokens = cleanLine.split(Regex("\\s+"))
-                        val championTextToTest = if (tokens.size > 1) {
-                            // Probar combinaciones desde la segunda palabra
-                            tokens.drop(1).joinToString(" ")
-                        } else {
-                            cleanLine
-                        }
+                        val tokenAfter1 = if (tokens.size > 1) tokens.drop(1).joinToString(" ") else null
+                        val tokenAfter2 = if (tokens.size > 2) tokens.drop(2).joinToString(" ") else null
+                        val tokenLast = if (tokens.isNotEmpty()) tokens.last() else null
 
                         val matchedChamp = ChampionNameResolver.findChampionInText(cleanLine, allChamps)
                             ?: ChampionNameResolver.findChampionInText(lineWithoutLeadingArtifact, allChamps)
                             ?: ChampionNameResolver.findChampionInText(line, allChamps)
-                            ?: ChampionNameResolver.findChampionInText(championTextToTest, allChamps)
+                            ?: (if (tokenAfter1 != null) ChampionNameResolver.findChampionInText(tokenAfter1, allChamps) else null)
+                            ?: (if (tokenAfter2 != null) ChampionNameResolver.findChampionInText(tokenAfter2, allChamps) else null)
+                            ?: (if (tokenLast != null) ChampionNameResolver.findChampionInText(tokenLast, allChamps) else null)
 
                         if (matchedChamp != null) {
                             detectedChampInSlot = matchedChamp
@@ -783,8 +783,20 @@ object DraftVisionScanner {
                     }
 
                     val cleanLine = line.replace(Regex("^[^a-zA-Z0-9]+"), "").trim()
+                    val lineWithoutLeadingArtifact = if (cleanLine.length > 2 && (cleanLine[1] == ' ' || cleanLine[2] == ' ')) {
+                        cleanLine.dropWhile { it != ' ' }.trim()
+                    } else cleanLine
+                    val tokens = cleanLine.split(Regex("\\s+"))
+                    val tokenAfter1 = if (tokens.size > 1) tokens.drop(1).joinToString(" ") else null
+                    val tokenAfter2 = if (tokens.size > 2) tokens.drop(2).joinToString(" ") else null
+                    val tokenLast = if (tokens.isNotEmpty()) tokens.last() else null
+
                     val matched = ChampionNameResolver.findChampionInText(cleanLine, allChamps)
+                        ?: ChampionNameResolver.findChampionInText(lineWithoutLeadingArtifact, allChamps)
                         ?: ChampionNameResolver.findChampionInText(line, allChamps)
+                        ?: (if (tokenAfter1 != null) ChampionNameResolver.findChampionInText(tokenAfter1, allChamps) else null)
+                        ?: (if (tokenAfter2 != null) ChampionNameResolver.findChampionInText(tokenAfter2, allChamps) else null)
+                        ?: (if (tokenLast != null) ChampionNameResolver.findChampionInText(tokenLast, allChamps) else null)
 
                     if (matched != null) {
                         detectedEnemyChamp = matched

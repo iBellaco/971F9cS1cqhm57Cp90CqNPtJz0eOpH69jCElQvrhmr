@@ -210,9 +210,37 @@ fun AdminDashboardDialog(
     }
 
     Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        onDismissRequest = {
+            when {
+                showReportsPanel -> showReportsPanel = false
+                showSupportReportsPanel -> showSupportReportsPanel = false
+                showBroadcastDialog -> showBroadcastDialog = false
+                showNoticeConfigDialog -> showNoticeConfigDialog = false
+                showCpmAnalyticsDialog -> showCpmAnalyticsDialog = false
+                showDatabaseConsumptionDialog -> showDatabaseConsumptionDialog = false
+                showSponsorModerationDialog -> showSponsorModerationDialog = false
+                showSponsorPanelDialog -> showSponsorPanelDialog = false
+                else -> onDismiss()
+            }
+        },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false
+        )
     ) {
+        BackHandler(enabled = true) {
+            when {
+                showReportsPanel -> showReportsPanel = false
+                showSupportReportsPanel -> showSupportReportsPanel = false
+                showBroadcastDialog -> showBroadcastDialog = false
+                showNoticeConfigDialog -> showNoticeConfigDialog = false
+                showCpmAnalyticsDialog -> showCpmAnalyticsDialog = false
+                showDatabaseConsumptionDialog -> showDatabaseConsumptionDialog = false
+                showSponsorModerationDialog -> showSponsorModerationDialog = false
+                showSponsorPanelDialog -> showSponsorPanelDialog = false
+                else -> onDismiss()
+            }
+        }
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = HextechDarkBg
@@ -497,7 +525,22 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
         )
     ) {
         BackHandler(enabled = true) {
-            attemptDismiss()
+            if (showCpmFromNotices) {
+                showCpmFromNotices = false
+            } else if (editingIndex != null) {
+                editingIndex = null
+                editingNoticeId = null
+                title = ""
+                content = ""
+                videoUrl = ""
+                expandedImageUrl = ""
+                externalUrl = ""
+                showManualVideoUrlInput = false
+                showManualExpandedUrlInput = false
+                Toast.makeText(context, "Edición cancelada.", Toast.LENGTH_SHORT).show()
+            } else {
+                attemptDismiss()
+            }
         }
 
         Surface(
@@ -1874,6 +1917,11 @@ fun EnhancedUserManagementPanel(
     var selectedUserForManage by remember { mutableStateOf<Map<String, Any>?>(null) }
     var selectedUserForAvatarGift by remember { mutableStateOf<Map<String, Any>?>(null) }
 
+    BackHandler(enabled = selectedUserForManage != null || selectedUserForAvatarGift != null) {
+        selectedUserForManage = null
+        selectedUserForAvatarGift = null
+    }
+
     var listenerReg by remember { mutableStateOf<com.google.firebase.firestore.ListenerRegistration?>(null) }
 
     fun loadUsers() {
@@ -2808,9 +2856,31 @@ fun UserDetailManagementDialog(
     }
 
     Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        onDismissRequest = {
+            when {
+                showCustomDaysDialog -> showCustomDaysDialog = false
+                showGiveEssenceDialog -> showGiveEssenceDialog = false
+                showPrivateMessageDialog -> showPrivateMessageDialog = false
+                showUserMessagesViewerDialog -> showUserMessagesViewerDialog = false
+                roleToConfirm != null -> roleToConfirm = null
+                else -> onDismiss()
+            }
+        },
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = false
+        )
     ) {
+        BackHandler(enabled = true) {
+            when {
+                showCustomDaysDialog -> showCustomDaysDialog = false
+                showGiveEssenceDialog -> showGiveEssenceDialog = false
+                showPrivateMessageDialog -> showPrivateMessageDialog = false
+                showUserMessagesViewerDialog -> showUserMessagesViewerDialog = false
+                roleToConfirm != null -> roleToConfirm = null
+                else -> onDismiss()
+            }
+        }
         Surface(
             modifier = Modifier
                 .fillMaxWidth(0.95f)

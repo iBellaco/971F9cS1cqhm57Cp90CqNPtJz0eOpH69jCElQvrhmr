@@ -11,6 +11,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Base64
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
@@ -390,6 +391,18 @@ fun AdminFeedbackBottomSheet(
             .statusBarsPadding()
             .testTag("admin_feedback_panel")
     ) {
+        BackHandler(enabled = true) {
+            when {
+                previewImageBitmap != null -> previewImageBitmap = null
+                itemForDetail != null -> itemForDetail = null
+                reportToReply != null -> reportToReply = null
+                reportToDelete != null -> reportToDelete = null
+                showClearAllConfirm -> showClearAllConfirm = false
+                currentCategoryTab != FeedbackCategoryTab.ALL -> currentCategoryTab = FeedbackCategoryTab.ALL
+                searchQuery.isNotBlank() -> searchQuery = ""
+                else -> onDismiss()
+            }
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()

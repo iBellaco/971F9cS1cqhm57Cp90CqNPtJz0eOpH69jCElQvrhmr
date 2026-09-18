@@ -539,71 +539,44 @@ object LocalVisionAnalyzer {
         }
         if (effectiveCandidates.isEmpty()) return@withContext null
 
-        val engines = listOf(
-            VisionInferenceEngineType.ZNCC_LOCAL_NATIVE,
-            VisionInferenceEngineType.ONNX_RUNTIME,
-            VisionInferenceEngineType.NCNN,
-            VisionInferenceEngineType.MEDIAPIPE_LITERT
+        val fourEnginesDecision = VisionInferenceManager.runAllFourEngines(
+            cropBitmap = crop,
+            allChamps = effectiveCandidates,
+            expectedRole = expectedRole,
+            context = context
         )
 
-        val championScoresMap = mutableMapOf<String, MutableMap<VisionInferenceEngineType, Float>>()
-        val championObjMap = mutableMapOf<String, Champion>()
-
-        for (champ in effectiveCandidates) {
-            championObjMap[champ.id] = champ
+        // Si los 4 motores determinan que no hay coincidencia válida (umbral < 60% o slot vacío), NO inventar campeón
+        if (!fourEnginesDecision.isDecisionValid || fourEnginesDecision.topChampion == null) {
+            return@withContext null
         }
 
-        for (engine in engines) {
-            val benchmark = VisionInferenceManager.runEngineInference(crop, engine, effectiveCandidates, expectedRole, context)
-            val scoreSource = if (benchmark.allScoresMap.isNotEmpty()) {
-                benchmark.allScoresMap
-            } else {
-                benchmark.candidateScores.associate { it.first.id to it.second }
-            }
-            for ((champId, score) in scoreSource) {
-                championScoresMap.getOrPut(champId) { mutableMapOf() }[engine] = score.coerceIn(0f, 1f)
-            }
-        }
-
-        if (championScoresMap.isEmpty()) return@withContext null
-
-        val comparisons = mutableListOf<CandidateMatchComparison>()
-        for ((champId, engineScores) in championScoresMap) {
-            val champ = championObjMap[champId] ?: continue
-            val scoresList = engines.map { engineScores[it] ?: 0f }
-            val avgScore = scoresList.average().toFloat()
-            val maxScore = scoresList.maxOrNull() ?: 0f
-            val compositeScore = (avgScore * 0.4f + maxScore * 0.6f).coerceIn(0f, 1f)
-
-            comparisons.add(
-                CandidateMatchComparison(
-                    champion = champ,
-                    compositeScore = compositeScore,
-                    pixelSimilarity = scoresList.getOrElse(0) { 0f },
-                    pixelColorSim = scoresList.getOrElse(1) { 0f },
-                    blockSim = scoresList.getOrElse(2) { 0f },
-                    histSimilarity = scoresList.getOrElse(3) { 0f },
-                    avgColorSim = avgScore,
-                    roleBonus = 0f
-                )
-            )
-        }
-
-        val sortedComparisons = comparisons.sortedByDescending { it.compositeScore }
-        
-        // CRÍTICA: Umbral mínimo estricto de 60% para evitar inventar campeones.
-        val bestComparison = sortedComparisons.firstOrNull()?.takeIf { it.compositeScore >= 0.60f } ?: return@withContext null
-        
-        val selectedChamp = bestComparison.champion
-        val finalConfidence = bestComparison.compositeScore
-
-        val topEngineNames = engines.joinToString(", ") { it.shortName }
+        val selectedChamp = fourEnginesDecision.topChampion
+        val finalConfidence = fourEnginesDecision.averageConfidence
         val percentStr = "${(finalConfidence * 100).toInt()}%"
-        val reason = "Inferencia Visual con 4 Motores ($topEngineNames): Coincidencia validada con ${selectedChamp.name} con un porcentaje de similitud global del $percentStr."
+        val reason = fourEnginesDecision.explanation
         val summary = if (isConfirmedPhase) {
-            "CONFIRMACIÓN DEFINITIVA\n$phaseName -> ${selectedChamp.name} ($percentStr similitud combinada de 4 motores)"
+            "CONFIRMACIÓN 10º PICK\n$phaseName -> ${selectedChamp.name} ($percentStr similitud decidida por los 4 motores)"
         } else {
-            "CARACTERÍSTICAS ESCANEADAS (PROVISIONAL)\n$phaseName -> ${selectedChamp.name} ($percentStr similitud combinada de 4 motores)"
+            "PRESELECCIÓN 10º PICK\n$phaseName -> ${selectedChamp.name} ($percentStr similitud decidida por los 4 motores)"
+        }
+
+        val comparisons = fourEnginesDecision.candidateScores.map { (champ, score) ->
+            val bZ = fourEnginesDecision.resultsByEngine[VisionInferenceEngineType.ZNCC_LOCAL_NATIVE]?.allScoresMap?.get(champ.id) ?: score
+            val bO = fourEnginesDecision.resultsByEngine[VisionInferenceEngineType.ONNX_RUNTIME]?.allScoresMap?.get(champ.id) ?: score
+            val bN = fourEnginesDecision.resultsByEngine[VisionInferenceEngineType.NCNN]?.allScoresMap?.get(champ.id) ?: score
+            val bL = fourEnginesDecision.resultsByEngine[VisionInferenceEngineType.MEDIAPIPE_LITERT]?.allScoresMap?.get(champ.id) ?: score
+
+            CandidateMatchComparison(
+                champion = champ,
+                compositeScore = score,
+                pixelSimilarity = bZ,
+                pixelColorSim = bO,
+                blockSim = bN,
+                histSimilarity = bL,
+                avgColorSim = score,
+                roleBonus = 0f
+            )
         }
 
         return@withContext TenthPickDecisionLog(
@@ -613,10 +586,10 @@ object LocalVisionAnalyzer {
             phaseName = phaseName,
             scannedMetrics = populatedMetrics,
             candidatesEvaluatedCount = effectiveCandidates.size,
-            topCandidates = sortedComparisons.take(5),
+            topCandidates = comparisons,
             decisionReason = reason,
             formattedSummary = summary,
-            cropBitmap = crop.copy(Bitmap.Config.ARGB_8888, false)
+            cropBitmap = try { crop.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
         )
     }
 

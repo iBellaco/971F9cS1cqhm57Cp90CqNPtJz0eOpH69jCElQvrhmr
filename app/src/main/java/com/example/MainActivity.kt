@@ -31,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -426,11 +427,22 @@ fun DashboardScreen(
         )
     }
 
+    val pageHistory = remember { mutableStateListOf<Int>() }
+    LaunchedEffect(pagerState.currentPage) {
+        if (pageHistory.isEmpty() || pageHistory.last() != pagerState.currentPage) {
+            pageHistory.add(pagerState.currentPage)
+        }
+    }
+
     BackHandler(enabled = true) {
-        if (pagerState.currentPage == 0) {
-            showExitDialog = true
-        } else {
+        if (pageHistory.size > 1) {
+            pageHistory.removeAt(pageHistory.lastIndex)
+            val prev = pageHistory.last()
+            coroutineScope.launch { pagerState.animateScrollToPage(prev) }
+        } else if (pagerState.currentPage != 0) {
             coroutineScope.launch { pagerState.animateScrollToPage(0) }
+        } else {
+            showExitDialog = true
         }
     }
 

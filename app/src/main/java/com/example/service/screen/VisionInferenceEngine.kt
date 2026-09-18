@@ -80,6 +80,19 @@ data class EngineInferenceBenchmark(
 )
 
 /**
+ * Decisión unificada e incontrovertible de los 4 motores de inferencia visual.
+ * El campeón con mayor similitud promedio entre los 4 motores es el ganador.
+ */
+data class FourEnginesDecision(
+    val resultsByEngine: Map<VisionInferenceEngineType, EngineInferenceBenchmark>,
+    val topChampion: Champion?,
+    val averageConfidence: Float,
+    val isDecisionValid: Boolean,
+    val candidateScores: List<Pair<Champion, Float>>,
+    val explanation: String
+)
+
+/**
  * Gestor y ejecutor de pruebas de motores de inferencia visual para el 10º Pick.
  */
 object VisionInferenceManager {
@@ -92,9 +105,108 @@ object VisionInferenceManager {
     private val _lastBenchmark = MutableStateFlow<EngineInferenceBenchmark?>(null)
     val lastBenchmark: StateFlow<EngineInferenceBenchmark?> = _lastBenchmark.asStateFlow()
 
+    private val _lastFourEnginesDecision = MutableStateFlow<FourEnginesDecision?>(null)
+    val lastFourEnginesDecision: StateFlow<FourEnginesDecision?> = _lastFourEnginesDecision.asStateFlow()
+
     fun setEngine(engine: VisionInferenceEngineType) {
         _selectedEngine.value = engine
         AppLogger.i(TAG, "Motor de inferencia visual cambiado a: ${engine.displayName}")
+    }
+
+    /**
+     * Ejecuta la inferencia sobre los 4 motores simultáneamente.
+     * La decisión se basa ESTRICTAMENTE en el porcentaje de similitud calculado por los 4 motores.
+     * Si el recorte no contiene un campeón seleccionado o no supera el umbral del 60%, NO se inventa ningún campeón.
+     */
+    suspend fun runAllFourEngines(
+        cropBitmap: Bitmap,
+        allChamps: List<Champion>,
+        expectedRole: LaneRole? = null,
+        context: Context? = null
+    ): FourEnginesDecision = withContext(Dispatchers.Default) {
+        if (cropBitmap.isRecycled || cropBitmap.width < 12 || cropBitmap.height < 12 || allChamps.isEmpty()) {
+            val empty = FourEnginesDecision(
+                resultsByEngine = emptyMap(),
+                topChampion = null,
+                averageConfidence = 0f,
+                isDecisionValid = false,
+                candidateScores = emptyList(),
+                explanation = "Recorte inválido o no disponible"
+            )
+            _lastFourEnginesDecision.value = empty
+            return@withContext empty
+        }
+
+        // Si el avatar no está poblado (slot oscuro, marco vacío, sin rostro reconocible)
+        val metrics = LocalVisionAnalyzer.extractScannedMetrics(cropBitmap, "Slot 5 Inferior")
+        if (!metrics.isPopulated) {
+            val empty = FourEnginesDecision(
+                resultsByEngine = emptyMap(),
+                topChampion = null,
+                averageConfidence = 0f,
+                isDecisionValid = false,
+                candidateScores = emptyList(),
+                explanation = "Slot vacío: Sin campeón seleccionado en este momento"
+            )
+            _lastFourEnginesDecision.value = empty
+            return@withContext empty
+        }
+
+        val engines = listOf(
+            VisionInferenceEngineType.ZNCC_LOCAL_NATIVE,
+            VisionInferenceEngineType.ONNX_RUNTIME,
+            VisionInferenceEngineType.NCNN,
+            VisionInferenceEngineType.MEDIAPIPE_LITERT
+        )
+
+        val benchmarks = mutableMapOf<VisionInferenceEngineType, EngineInferenceBenchmark>()
+        val champScoreSum = mutableMapOf<String, Float>()
+        val champMap = mutableMapOf<String, Champion>()
+
+        for (champ in allChamps) {
+            champMap[champ.id] = champ
+        }
+
+        for (engine in engines) {
+            val bench = runEngineInference(cropBitmap, engine, allChamps, expectedRole, context)
+            benchmarks[engine] = bench
+            val scores = if (bench.allScoresMap.isNotEmpty()) {
+                bench.allScoresMap
+            } else {
+                bench.candidateScores.associate { it.first.id to it.second }
+            }
+            for ((id, s) in scores) {
+                champScoreSum[id] = (champScoreSum[id] ?: 0f) + s
+            }
+        }
+
+        val avgScores = champScoreSum.mapNotNull { (id, sum) ->
+            val champ = champMap[id] ?: return@mapNotNull null
+            val avg = sum / engines.size.toFloat()
+            Pair(champ, avg)
+        }.sortedByDescending { it.second }
+
+        val best = avgScores.firstOrNull()
+        val isValid = (best != null && best.second >= 0.60f)
+        val topChamp = if (isValid) best?.first else null
+        val conf = best?.second ?: 0f
+
+        val expl = if (isValid && topChamp != null) {
+            "Decisión unificada de los 4 motores: ${topChamp.name} con ${(conf * 100).toInt()}% de similitud global."
+        } else {
+            "Esperando selección: Similitud máxima (${(conf * 100).toInt()}%) por debajo del umbral mínimo del 60%."
+        }
+
+        val decision = FourEnginesDecision(
+            resultsByEngine = benchmarks,
+            topChampion = topChamp,
+            averageConfidence = conf,
+            isDecisionValid = isValid,
+            candidateScores = avgScores.take(5),
+            explanation = expl
+        )
+        _lastFourEnginesDecision.value = decision
+        decision
     }
 
     /**
