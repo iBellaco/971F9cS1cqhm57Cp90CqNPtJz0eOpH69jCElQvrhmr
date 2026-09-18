@@ -90,6 +90,19 @@ object CustomChampionBuildsManager {
         saveToPrefs(context, current)
     }
 
+    fun updateBuild(context: Context, record: CustomChampionBuildRecord) {
+        init(context)
+        val current = _customBuilds.value.toMutableList()
+        val index = current.indexOfFirst { it.id == record.id }
+        if (index != -1) {
+            current[index] = record
+        } else {
+            current.add(0, record)
+        }
+        _customBuilds.value = current
+        saveToPrefs(context, current)
+    }
+
     fun deleteBuild(context: Context, id: String) {
         init(context)
         val current = _customBuilds.value.filter { it.id != id }

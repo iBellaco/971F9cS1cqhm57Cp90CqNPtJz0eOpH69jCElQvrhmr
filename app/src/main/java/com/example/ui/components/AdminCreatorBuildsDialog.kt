@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,26 +36,28 @@ fun AdminCreatorBuildsDialog(
     val context = LocalContext.current
     val customBuilds by CustomChampionBuildsManager.customBuilds.collectAsStateWithLifecycle()
     var showBuildCreator by remember { mutableStateOf(false) }
+    var buildToEdit by remember { mutableStateOf<CustomChampionBuildRecord?>(null) }
 
     LaunchedEffect(Unit) {
         CustomChampionBuildsManager.init(context)
     }
 
-    if (showBuildCreator) {
+    if (showBuildCreator || buildToEdit != null) {
         ChampionBuildCreatorDialog(
-            onDismiss = { showBuildCreator = false }
+            existingRecord = buildToEdit,
+            onDismiss = {
+                showBuildCreator = false
+                buildToEdit = null
+            }
         )
     }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.85f),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = BorderStroke(1.dp, HextechGold)
-        ) {
+    androidx.activity.compose.BackHandler { onDismiss() }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = HextechSurface
+    ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -192,4 +195,3 @@ fun AdminCreatorBuildsDialog(
             }
         }
     }
-}

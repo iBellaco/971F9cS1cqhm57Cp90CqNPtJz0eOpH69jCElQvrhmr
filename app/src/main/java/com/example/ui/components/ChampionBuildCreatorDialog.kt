@@ -73,6 +73,7 @@ class EditableSpellEntry(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ChampionBuildCreatorDialog(
+    existingRecord: CustomChampionBuildRecord? = null,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -82,16 +83,89 @@ fun ChampionBuildCreatorDialog(
     val spells = remember { WildRiftRepository.summonerSpells }
     val creatorName by SubscriptionManager.userName.collectAsStateWithLifecycle()
 
-    var selectedChampion by remember { mutableStateOf<Champion?>(champions.firstOrNull()) }
-    var buildTitle by remember { mutableStateOf("") }
+    var selectedChampion by remember { 
+        mutableStateOf(
+            if (existingRecord != null) champions.find { it.id.equals(existingRecord.championId, ignoreCase = true) } else champions.firstOrNull()
+        ) 
+    }
+    var selectedRole by remember { 
+        mutableStateOf(
+            if (existingRecord != null) {
+                com.example.model.LaneRole.values().find { it.displayName.equals(existingRecord.role, ignoreCase = true) } ?: selectedChampion?.primaryRole ?: com.example.model.LaneRole.MID
+            } else {
+                selectedChampion?.primaryRole ?: com.example.model.LaneRole.MID
+            }
+        )
+    }
+
+    LaunchedEffect(selectedChampion) {
+        if (selectedChampion != null && existingRecord == null) {
+            selectedRole = selectedChampion!!.primaryRole
+        }
+    }
+
+    var buildTitle by remember { mutableStateOf(existingRecord?.buildTitle ?: "") }
     
-    val coreItems = remember { mutableStateListOf<EditableItemEntry>() }
-    val situationalItems = remember { mutableStateListOf<EditableItemEntry>() }
-    val coreRunes = remember { mutableStateListOf<EditableRuneEntry>() }
-    val situationalRunes = remember { mutableStateListOf<EditableRuneEntry>() }
-    val coreSpells = remember { mutableStateListOf<EditableSpellEntry>() }
-    val situationalSpells = remember { mutableStateListOf<EditableSpellEntry>() }
-    var gameplayVideoUri by remember { mutableStateOf<String?>(null) }
+    val coreItems = remember { 
+        mutableStateListOf<EditableItemEntry>().apply {
+            if (existingRecord != null) {
+                if (existingRecord.coreItemsWithDesc.isNotEmpty()) {
+                    addAll(existingRecord.coreItemsWithDesc.map { EditableItemEntry(it.itemName, com.example.data.WildRiftItemsData.getItemIconByName(it.itemName), it.description) })
+                } else {
+                    addAll(existingRecord.coreItems.map { EditableItemEntry(it, com.example.data.WildRiftItemsData.getItemIconByName(it), "") })
+                }
+            }
+        }
+    }
+    val situationalItems = remember { 
+        mutableStateListOf<EditableItemEntry>().apply {
+            if (existingRecord != null) {
+                if (existingRecord.situationalItemsWithDesc.isNotEmpty()) {
+                    addAll(existingRecord.situationalItemsWithDesc.map { EditableItemEntry(it.itemName, com.example.data.WildRiftItemsData.getItemIconByName(it.itemName), it.description) })
+                } else {
+                    addAll(existingRecord.situationalItems.map { EditableItemEntry(it, com.example.data.WildRiftItemsData.getItemIconByName(it), "") })
+                }
+            }
+        }
+    }
+    var coreKeystone by remember { 
+        mutableStateOf<EditableRuneEntry?>(
+            existingRecord?.coreRunes?.firstOrNull()?.let { EditableRuneEntry(it.runeName, it.iconUrl, it.description) }
+        ) 
+    }
+    val coreSecondaryRunes = remember { 
+        mutableStateListOf<EditableRuneEntry>().apply {
+            if (existingRecord != null && existingRecord.coreRunes.size > 1) {
+                addAll(existingRecord.coreRunes.drop(1).map { EditableRuneEntry(it.runeName, it.iconUrl, it.description) })
+            }
+        }
+    }
+    val situationalRunes = remember { 
+        mutableStateListOf<EditableRuneEntry>().apply {
+            if (existingRecord != null) {
+                addAll(existingRecord.situationalRunes.map { EditableRuneEntry(it.runeName, it.iconUrl, it.description) })
+            }
+        }
+    }
+    val coreSpells = remember { 
+        mutableStateListOf<EditableSpellEntry>().apply {
+            if (existingRecord != null) {
+                if (existingRecord.coreSpells.isNotEmpty()) {
+                    addAll(existingRecord.coreSpells.map { EditableSpellEntry(it.spellName, it.iconUrl, it.description) })
+                } else {
+                    addAll(existingRecord.spells.map { EditableSpellEntry(it, com.example.data.WildRiftSpellsAndRunes.getSpellIconByName(it), "") })
+                }
+            }
+        }
+    }
+    val situationalSpells = remember { 
+        mutableStateListOf<EditableSpellEntry>().apply {
+            if (existingRecord != null) {
+                addAll(existingRecord.situationalSpells.map { EditableSpellEntry(it.spellName, it.iconUrl, it.description) })
+            }
+        }
+    }
+    var gameplayVideoUri by remember { mutableStateOf<String?>(existingRecord?.gameplayVideoUri) }
 
     val videoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -116,21 +190,19 @@ fun ChampionBuildCreatorDialog(
     var showChampionPicker by remember { mutableStateOf(false) }
     var showItemPickerForCore by remember { mutableStateOf(false) }
     var showItemPickerForSituational by remember { mutableStateOf(false) }
-    var showRunePickerForCore by remember { mutableStateOf(false) }
+    var showRunePickerForKeystone by remember { mutableStateOf(false) }
+    var showRunePickerForSecondary by remember { mutableStateOf(false) }
     var showRunePickerForSituational by remember { mutableStateOf(false) }
     var showSpellPickerForCore by remember { mutableStateOf(false) }
     var showSpellPickerForSituational by remember { mutableStateOf(false) }
     var searchFilterQuery by remember { mutableStateOf("") }
 
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.92f),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = HextechSurface),
-            border = BorderStroke(1.dp, HextechGold)
-        ) {
+    androidx.activity.compose.BackHandler { onDismiss() }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = HextechSurface
+    ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -215,8 +287,50 @@ fun ChampionBuildCreatorDialog(
                         }
                     }
 
-                    // 2. Título de la Build
-                    Text("2. Título de la Build", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    // 2. Línea / Rol del Campeón
+                    Text("2. Seleccionar Línea / Rol de la Build", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        com.example.model.LaneRole.values().forEach { role ->
+                            val isSelected = selectedRole == role
+                            Card(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { selectedRole = role },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (isSelected) HextechGold.copy(alpha = 0.25f) else HextechDarkBg
+                                ),
+                                border = BorderStroke(1.dp, if (isSelected) HextechGold else HextechCardBorder)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp, horizontal = 2.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    androidx.compose.foundation.Image(
+                                        painter = androidx.compose.ui.res.painterResource(id = role.iconResId),
+                                        contentDescription = role.displayName,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Text(
+                                        text = role.shortName,
+                                        color = if (isSelected) HextechGold else Color.White,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. Título de la Build
+                    Text("3. Título de la Build", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     OutlinedTextField(
                         value = buildTitle,
                         onValueChange = { buildTitle = it },
@@ -363,25 +477,88 @@ fun ChampionBuildCreatorDialog(
                         }
                     }
 
-                    // 5. Runas Core (Imágenes con descripción obligatoria)
+                    // 6. Runa Clave (1 Runa obligatoria con descripción)
+                    Text(
+                        text = "6. Runa Clave (1 Runa) *Desc. Obligatoria",
+                        color = HextechCyan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    )
+                    if (coreKeystone == null) {
+                        Button(
+                            onClick = { showRunePickerForKeystone = true },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechDarkBg),
+                            border = BorderStroke(1.dp, HextechGold)
+                        ) {
+                            Text("+ Seleccionar Runa Clave", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    } else {
+                        val entry = coreKeystone!!
+                        Card(
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                            border = BorderStroke(1.dp, HextechGold)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        AppAssetImage(
+                                            url = entry.iconUrl,
+                                            contentDescription = entry.name,
+                                            fallbackText = entry.name.take(2),
+                                            modifier = Modifier.size(28.dp).clip(RoundedCornerShape(4.dp))
+                                        )
+                                        Text("Runa Clave: ${entry.name}", color = HextechGold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                    }
+                                    IconButton(
+                                        onClick = { coreKeystone = null },
+                                        modifier = Modifier.size(24.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(16.dp))
+                                    }
+                                }
+                                OutlinedTextField(
+                                    value = entry.description,
+                                    onValueChange = { entry.description = it },
+                                    placeholder = { Text("Descripción obligatoria de la runa clave...", color = TextSecondary) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = HextechGold,
+                                        unfocusedBorderColor = HextechSurfaceVariant,
+                                        focusedTextColor = Color.White,
+                                        unfocusedTextColor = Color.White
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    // 7. Runas Secundarias (4 Runas obligatorias con descripción)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "5. Runas Core (Imágenes) *Desc. Obligatoria",
+                            text = "7. Runas Secundarias (${coreSecondaryRunes.size}/4) *Desc. Obligatoria",
                             color = HextechCyan,
                             fontWeight = FontWeight.Bold,
                             fontSize = 13.sp,
                             modifier = Modifier.weight(1f)
                         )
-                        TextButton(onClick = { showRunePickerForCore = true }) {
-                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
+                        if (coreSecondaryRunes.size < 4) {
+                            TextButton(onClick = { showRunePickerForSecondary = true }) {
+                                Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
+                            }
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        coreRunes.forEachIndexed { index, entry ->
+                        coreSecondaryRunes.forEachIndexed { index, entry ->
                             Card(
                                 shape = RoundedCornerShape(8.dp),
                                 colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
@@ -400,10 +577,10 @@ fun ChampionBuildCreatorDialog(
                                                 fallbackText = entry.name.take(2),
                                                 modifier = Modifier.size(28.dp).clip(RoundedCornerShape(4.dp))
                                             )
-                                            Text("Runa ${index + 1}. ${entry.name}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                            Text("Secundaria ${index + 1}. ${entry.name}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                         }
                                         IconButton(
-                                            onClick = { coreRunes.remove(entry) },
+                                            onClick = { coreSecondaryRunes.remove(entry) },
                                             modifier = Modifier.size(24.dp)
                                         ) {
                                             Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = DangerRed, modifier = Modifier.size(16.dp))
@@ -412,7 +589,7 @@ fun ChampionBuildCreatorDialog(
                                     OutlinedTextField(
                                         value = entry.description,
                                         onValueChange = { entry.description = it },
-                                        placeholder = { Text("Descripción obligatoria de la runa...", color = TextSecondary) },
+                                        placeholder = { Text("Descripción obligatoria de la runa secundaria...", color = TextSecondary) },
                                         modifier = Modifier.fillMaxWidth(),
                                         colors = OutlinedTextFieldDefaults.colors(
                                             focusedBorderColor = HextechGold,
@@ -424,8 +601,8 @@ fun ChampionBuildCreatorDialog(
                                 }
                             }
                         }
-                        if (coreRunes.isEmpty()) {
-                            Text("Ninguna runa core añadida.", color = TextSecondary, fontSize = 11.sp)
+                        if (coreSecondaryRunes.isEmpty()) {
+                            Text("Ninguna runa secundaria añadida (requiere 4).", color = TextSecondary, fontSize = 11.sp)
                         }
                     }
 
@@ -711,12 +888,20 @@ fun ChampionBuildCreatorDialog(
                                 Toast.makeText(context, "Todos los objetos situacionales deben tener su descripción obligatoria", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
-                            if (coreRunes.isEmpty()) {
-                                Toast.makeText(context, "Debes añadir al menos una runa core", Toast.LENGTH_SHORT).show()
+                            if (coreKeystone == null) {
+                                Toast.makeText(context, "Debes seleccionar 1 Runa Clave", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
-                            if (coreRunes.any { it.description.trim().isBlank() }) {
-                                Toast.makeText(context, "Todas las runas core deben tener su descripción obligatoria", Toast.LENGTH_SHORT).show()
+                            if (coreKeystone?.description?.trim()?.isBlank() == true) {
+                                Toast.makeText(context, "La Runa Clave debe tener su descripción obligatoria", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            if (coreSecondaryRunes.size < 4) {
+                                Toast.makeText(context, "Debes seleccionar exactamente 4 Runas Secundarias", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            if (coreSecondaryRunes.any { it.description.trim().isBlank() }) {
+                                Toast.makeText(context, "Todas las runas secundarias deben tener su descripción obligatoria", Toast.LENGTH_SHORT).show()
                                 return@Button
                             }
                             if (situationalRunes.any { it.description.trim().isBlank() }) {
@@ -736,37 +921,43 @@ fun ChampionBuildCreatorDialog(
                                 return@Button
                             }
 
+                            val allCoreRunes = listOfNotNull(coreKeystone) + coreSecondaryRunes
                             val record = CustomChampionBuildRecord(
+                                id = existingRecord?.id ?: java.util.UUID.randomUUID().toString(),
                                 championId = champ.id,
                                 championName = champ.name,
                                 buildTitle = buildTitle.trim(),
-                                role = champ.primaryRole.displayName,
+                                role = selectedRole.displayName,
                                 coreItems = coreItems.map { it.name },
                                 situationalItems = situationalItems.map { it.name },
-                                runes = coreRunes.joinToString(", ") { it.name },
+                                runes = allCoreRunes.joinToString(", ") { it.name },
                                 spells = coreSpells.map { it.name },
                                 coreItemsWithDesc = coreItems.map { ItemBuildEntry(it.name, it.description.trim()) },
                                 situationalItemsWithDesc = situationalItems.map { ItemBuildEntry(it.name, it.description.trim()) },
-                                coreRunes = coreRunes.map { RuneBuildEntry(it.name, it.iconUrl, it.description.trim()) },
+                                coreRunes = allCoreRunes.map { RuneBuildEntry(it.name, it.iconUrl, it.description.trim()) },
                                 situationalRunes = situationalRunes.map { RuneBuildEntry(it.name, it.iconUrl, it.description.trim()) },
                                 coreSpells = coreSpells.map { SpellBuildEntry(it.name, it.iconUrl, it.description.trim()) },
                                 situationalSpells = situationalSpells.map { SpellBuildEntry(it.name, it.iconUrl, it.description.trim()) },
                                 gameplayVideoUri = gameplayVideoUri,
-                                creatorName = if (creatorName.isBlank()) "Creador Oficial" else creatorName
+                                creatorName = existingRecord?.creatorName ?: if (creatorName.isBlank()) "Creador Oficial" else creatorName
                             )
 
-                            CustomChampionBuildsManager.addBuild(context, record)
-                            Toast.makeText(context, "¡Build avanzada de ${champ.name} creada y publicada con éxito!", Toast.LENGTH_SHORT).show()
+                            if (existingRecord != null) {
+                                CustomChampionBuildsManager.updateBuild(context, record)
+                                Toast.makeText(context, "¡Build avanzada actualizada con éxito!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                CustomChampionBuildsManager.addBuild(context, record)
+                                Toast.makeText(context, "¡Build avanzada de ${champ.name} creada y publicada con éxito!", Toast.LENGTH_SHORT).show()
+                            }
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = HextechGold)
                     ) {
-                        Text("Publicar Build", color = HextechDarkBg, fontWeight = FontWeight.Bold)
+                        Text(if (existingRecord != null) "Actualizar Build" else "Publicar Build", color = HextechDarkBg, fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
-    }
 
     // Modal de selección de campeón
     if (showChampionPicker) {
@@ -888,11 +1079,12 @@ fun ChampionBuildCreatorDialog(
         }
     }
 
-    // Modal Selector de Runas (Core o Situacional)
-    val showRunePicker = showRunePickerForCore || showRunePickerForSituational
+    // Modal Selector de Runas (Keystone, Secondary o Situational)
+    val showRunePicker = showRunePickerForKeystone || showRunePickerForSecondary || showRunePickerForSituational
     if (showRunePicker) {
         Dialog(onDismissRequest = {
-            showRunePickerForCore = false
+            showRunePickerForKeystone = false
+            showRunePickerForSecondary = false
             showRunePickerForSituational = false
             searchFilterQuery = ""
         }) {
@@ -903,7 +1095,11 @@ fun ChampionBuildCreatorDialog(
             ) {
                 Column(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = if (showRunePickerForCore) "Seleccionar Runa Core" else "Seleccionar Runa Situacional",
+                        text = when {
+                            showRunePickerForKeystone -> "Seleccionar Runa Clave"
+                            showRunePickerForSecondary -> "Seleccionar Runa Secundaria (${coreSecondaryRunes.size}/4)"
+                            else -> "Seleccionar Runa Situacional"
+                        },
                         color = HextechGold,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
@@ -916,12 +1112,13 @@ fun ChampionBuildCreatorDialog(
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
                         singleLine = true
                     )
-                    val filteredRunes = remember(searchFilterQuery, runes, showRunePickerForCore, coreRunes, situationalRunes) {
+                    val filteredRunes = remember(searchFilterQuery, runes, showRunePickerForKeystone, showRunePickerForSecondary, coreKeystone, coreSecondaryRunes, situationalRunes) {
                         val base = if (searchFilterQuery.isBlank()) runes else runes.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
-                        if (showRunePickerForCore) {
-                            base.filter { rune -> coreRunes.none { it.name.equals(rune.name, ignoreCase = true) } }
-                        } else {
-                            base.filter { rune -> situationalRunes.none { it.name.equals(rune.name, ignoreCase = true) } }
+                        base.filter { rune ->
+                            val alreadyKeystone = coreKeystone?.name?.equals(rune.name, ignoreCase = true) == true
+                            val alreadySecondary = coreSecondaryRunes.any { it.name.equals(rune.name, ignoreCase = true) }
+                            val alreadySituational = situationalRunes.any { it.name.equals(rune.name, ignoreCase = true) }
+                            !alreadyKeystone && !alreadySecondary && !alreadySituational
                         }
                     }
                     LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -930,9 +1127,14 @@ fun ChampionBuildCreatorDialog(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        if (showRunePickerForCore) {
-                                            coreRunes.add(EditableRuneEntry(rune.name, rune.iconUrl))
-                                            showRunePickerForCore = false
+                                        if (showRunePickerForKeystone) {
+                                            coreKeystone = EditableRuneEntry(rune.name, rune.iconUrl)
+                                            showRunePickerForKeystone = false
+                                        } else if (showRunePickerForSecondary) {
+                                            if (coreSecondaryRunes.size < 4) {
+                                                coreSecondaryRunes.add(EditableRuneEntry(rune.name, rune.iconUrl))
+                                            }
+                                            showRunePickerForSecondary = false
                                         } else {
                                             situationalRunes.add(EditableRuneEntry(rune.name, rune.iconUrl))
                                             showRunePickerForSituational = false
