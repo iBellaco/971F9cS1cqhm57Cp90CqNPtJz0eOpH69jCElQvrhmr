@@ -1578,53 +1578,122 @@ fun AdminNoticeConfigDialog(onDismiss: () -> Unit) {
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    onClick = {
-                        if (title.isBlank() && content.isBlank()) {
-                            Toast.makeText(context, "Ingresa un título o contenido para el anuncio", Toast.LENGTH_SHORT).show()
-                            return@Button
+                if (editingIndex != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                editingIndex = null
+                                editingNoticeId = null
+                                title = ""
+                                content = ""
+                                videoUrl = ""
+                                expandedImageUrl = ""
+                                externalUrl = ""
+                                budgetText = ""
+                                showManualVideoUrlInput = false
+                                showManualExpandedUrlInput = false
+                                Toast.makeText(context, "Edición cancelada", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed),
+                            border = BorderStroke(1.dp, DangerRed.copy(alpha = 0.6f)),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null, tint = DangerRed, modifier = Modifier.size(15.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Cancelar Edición", fontWeight = FontWeight.Bold, fontSize = 11.sp)
                         }
-                        if (!isUrlValid || !isExpandedUrlValid) {
-                            Toast.makeText(context, "URL multimedia inválida", Toast.LENGTH_SHORT).show()
-                            return@Button
+
+                        Button(
+                            onClick = {
+                                if (title.isBlank() && content.isBlank()) {
+                                    Toast.makeText(context, "Ingresa un título o contenido para el anuncio", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                if (!isUrlValid || !isExpandedUrlValid) {
+                                    Toast.makeText(context, "URL multimedia inválida", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                val targetId = editingNoticeId ?: noticesList[editingIndex!!].id
+                                val newNotice = com.example.data.AppNotice(
+                                    id = targetId,
+                                    title = title.ifBlank { "Aviso Oficial" },
+                                    content = content,
+                                    videoUrl = videoUrl,
+                                    expandedImageUrl = expandedImageUrl,
+                                    externalUrl = externalUrl,
+                                    tag = selectedTag,
+                                    titleColor = titleColor,
+                                    contentColor = contentColor,
+                                    isEnabled = isEnabled,
+                                    budget = budgetText.toDoubleOrNull() ?: 0.0
+                                )
+                                noticesList = noticesList.toMutableList().apply { set(editingIndex!!, newNotice) }
+                                editingIndex = null
+                                editingNoticeId = null
+                                title = ""
+                                content = ""
+                                videoUrl = ""
+                                expandedImageUrl = ""
+                                externalUrl = ""
+                                budgetText = ""
+                                showManualVideoUrlInput = false
+                                showManualExpandedUrlInput = false
+                                Toast.makeText(context, "Anuncio guardado en la lista", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("Guardar Cambios", fontWeight = FontWeight.Bold, fontSize = 11.sp)
                         }
-                        val targetId = editingNoticeId ?: if (editingIndex != null) noticesList[editingIndex!!].id else UUID.randomUUID().toString()
-                        val newNotice = com.example.data.AppNotice(
-                            id = targetId,
-                            title = title.ifBlank { "Aviso Oficial" },
-                            content = content,
-                            videoUrl = videoUrl,
-                            expandedImageUrl = expandedImageUrl,
-                            externalUrl = externalUrl,
-                            tag = selectedTag,
-                            titleColor = titleColor,
-                            contentColor = contentColor,
-                            isEnabled = isEnabled,
-                            budget = budgetText.toDoubleOrNull() ?: 0.0
-                        )
-                        if (editingIndex != null) {
-                            noticesList = noticesList.toMutableList().apply { set(editingIndex!!, newNotice) }
-                            editingIndex = null
-                            editingNoticeId = null
-                        } else {
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            if (title.isBlank() && content.isBlank()) {
+                                Toast.makeText(context, "Ingresa un título o contenido para el anuncio", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            if (!isUrlValid || !isExpandedUrlValid) {
+                                Toast.makeText(context, "URL multimedia inválida", Toast.LENGTH_SHORT).show()
+                                return@Button
+                            }
+                            val targetId = UUID.randomUUID().toString()
+                            val newNotice = com.example.data.AppNotice(
+                                id = targetId,
+                                title = title.ifBlank { "Aviso Oficial" },
+                                content = content,
+                                videoUrl = videoUrl,
+                                expandedImageUrl = expandedImageUrl,
+                                externalUrl = externalUrl,
+                                tag = selectedTag,
+                                titleColor = titleColor,
+                                contentColor = contentColor,
+                                isEnabled = isEnabled,
+                                budget = budgetText.toDoubleOrNull() ?: 0.0
+                            )
                             noticesList = noticesList + newNotice
-                        }
-                        title = ""
-                        content = ""
-                        videoUrl = ""
-                        expandedImageUrl = ""
-                        externalUrl = ""
-                        budgetText = ""
-                        editingNoticeId = null
-                        showManualVideoUrlInput = false
-                        showManualExpandedUrlInput = false
-                        Toast.makeText(context, "Anuncio guardado en la lista", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(if (editingIndex != null) "Guardar Cambios en Anuncio" else "➕ Agregar a la Lista de Anuncios", fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                            title = ""
+                            content = ""
+                            videoUrl = ""
+                            expandedImageUrl = ""
+                            externalUrl = ""
+                            budgetText = ""
+                            editingNoticeId = null
+                            showManualVideoUrlInput = false
+                            showManualExpandedUrlInput = false
+                            Toast.makeText(context, "Anuncio guardado en la lista", Toast.LENGTH_SHORT).show()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechCyan, contentColor = HextechDarkBg),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text("➕ Agregar a la Lista de Anuncios", fontWeight = FontWeight.Bold, fontSize = 11.5.sp)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(14.dp))

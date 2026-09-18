@@ -2,9 +2,8 @@ package com.example.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -28,15 +27,18 @@ fun AdAvailabilityCalendarPanel(
     modifier: Modifier = Modifier
 ) {
     val now = System.currentTimeMillis()
+    var isExpanded by remember { mutableStateOf(true) }
 
-    // Filtrar anuncios publicitarios activos y vigentes que ocupan espacio en el calendario
+    // Filtrar anuncios publicitarios activos/visibles y en cola (excluyendo expirados)
     val activePublicityAds = remember(allNotices, now) {
         allNotices.filter { notice ->
             val isPubTag = notice.tag.equals("Publicidad", ignoreCase = true) ||
                            notice.tag.equals("Ads", ignoreCase = true) ||
                            notice.tag.equals("PUBLICIDAD", ignoreCase = true)
-            val isLive = notice.isApproved && notice.isEnabled && (notice.expiresAtMillis == 0L || notice.expiresAtMillis > now)
-            isPubTag && isLive
+            val isExpired = notice.expiresAtMillis > 0L && notice.expiresAtMillis <= now
+            // Excluir expirados; incluir aprobados habilitados (visibles) y pendientes (en cola)
+            val isValidStatus = (notice.isApproved && notice.isEnabled) || !notice.isApproved
+            isPubTag && !isExpired && isValidStatus
         }
     }
 
@@ -51,181 +53,211 @@ fun AdAvailabilityCalendarPanel(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+                .padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Header del Calendario de Disponibilidad
+            // Header del Calendario de Disponibilidad con botón de minimizar
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.EventAvailable, contentDescription = null, tint = HextechGold, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        Icons.Default.EventAvailable,
+                        contentDescription = null,
+                        tint = HextechGold,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Calendario de Disponibilidad Publicitaria",
+                        text = "Calendario de Disponibilidad",
                         color = HextechGold,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 13.sp
                     )
                 }
-                Surface(
-                    shape = RoundedCornerShape(6.dp),
-                    color = (if (activePublicityAds.isNotEmpty()) Color(0xFFF59E0B) else Color(0xFF10B981)).copy(alpha = 0.2f),
-                    border = BorderStroke(1.dp, if (activePublicityAds.isNotEmpty()) Color(0xFFF59E0B) else Color(0xFF10B981))
-                ) {
-                    Text(
-                        text = if (activePublicityAds.isNotEmpty()) "${activePublicityAds.size} Espacios Ocupados" else "Espacios Libres",
-                        color = if (activePublicityAds.isNotEmpty()) Color(0xFFF59E0B) else Color(0xFF10B981),
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                    )
-                }
-            }
 
-            Text(
-                text = "Consulte las fechas, horas, días y semanas ocupadas antes de programar su anuncio publicitario para asegurar disponibilidad exacta.",
-                color = TextSecondary,
-                fontSize = 11.sp
-            )
-
-            // Resumen de ranuras ocupadas vs libres
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Tarjeta de Ocupados
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    // Badge proporcionado y compacto
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = (if (activePublicityAds.isNotEmpty()) Color(0xFFF59E0B) else Color(0xFF10B981)).copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, if (activePublicityAds.isNotEmpty()) Color(0xFFF59E0B) else Color(0xFF10B981))
                     ) {
-                        Text("Anuncios Activos", color = TextSecondary, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "${activePublicityAds.size}",
-                            color = HextechGold,
+                            text = if (activePublicityAds.isNotEmpty()) "${activePublicityAds.size} Ocupados" else "Libre",
+                            color = if (activePublicityAds.isNotEmpty()) Color(0xFFF59E0B) else Color(0xFF10B981),
+                            fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
-                }
 
-                // Tarjeta de Estado del Sistema
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(10.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    // Botón Minimizar / Expandir
+                    IconButton(
+                        onClick = { isExpanded = !isExpanded },
+                        modifier = Modifier.size(24.dp)
                     ) {
-                        Text("Estado de Red", color = TextSecondary, fontSize = 10.sp)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Text(
-                            text = if (activePublicityAds.size >= 5) "Alta Demanda" else "Disponible",
-                            color = if (activePublicityAds.size >= 5) Color(0xFFF59E0B) else Color(0xFF10B981),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                            contentDescription = if (isExpanded) "Minimizar" else "Expandir",
+                            tint = HextechGold,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
             }
 
-            // Lista detallada de franjas horarias / días / semanas / meses ocupados
-            if (activePublicityAds.isNotEmpty()) {
+            // Contenido expandible
+            if (isExpanded) {
                 Text(
-                    text = "Franjas Horarias y Fechas Ocupadas:",
-                    color = HextechCyan,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp
+                    text = "Consulte las fechas, horas, días y semanas ocupadas antes de programar su anuncio.",
+                    color = TextSecondary,
+                    fontSize = 10.5.sp
                 )
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(HextechDarkBg, RoundedCornerShape(8.dp))
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                // Resumen compacto
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    activePublicityAds.forEach { ad ->
-                        val startStr = if (ad.approvedAtMillis > 0L) dateFormat.format(Date(ad.approvedAtMillis)) else "Inmediato"
-                        val endStr = if (ad.expiresAtMillis > 0L) dateFormat.format(Date(ad.expiresAtMillis)) else "Indefinido"
-                        val unitLabel = when (ad.durationUnit.lowercase(Locale.ROOT)) {
-                            "hour", "hours", "hora", "horas" -> "Horas"
-                            "day", "days", "dia", "dias", "día", "días" -> "Días"
-                            "week", "weeks", "semana", "semanas" -> "Semanas"
-                            "month", "months", "mes", "meses" -> "Meses"
-                            else -> ad.durationUnit
-                        }
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(HextechSurfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = ad.title,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 11.sp,
-                                    maxLines = 1
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Prog: ${ad.durationValue} $unitLabel",
-                                    color = HextechGold,
-                                    fontSize = 10.sp
-                                )
-                                Text(
-                                    text = "Desde: $startStr\nHasta: $endStr",
-                                    color = TextSecondary,
-                                    fontSize = 9.sp
-                                )
-                            }
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = DangerRed.copy(alpha = 0.2f)
-                            ) {
-                                Text(
-                                    text = "OCUPADO",
-                                    color = DangerRed,
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
+                            Text("Activos / En Cola", color = TextSecondary, fontSize = 9.sp)
+                            Spacer(modifier = Modifier.height(1.dp))
+                            Text(
+                                text = "${activePublicityAds.size}",
+                                color = HextechGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(6.dp),
+                        colors = CardDefaults.cardColors(containerColor = HextechDarkBg)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Estado Red", color = TextSecondary, fontSize = 9.sp)
+                            Spacer(modifier = Modifier.height(1.dp))
+                            Text(
+                                text = if (activePublicityAds.size >= 5) "Alta Demanda" else "Disponible",
+                                color = if (activePublicityAds.size >= 5) Color(0xFFF59E0B) else Color(0xFF10B981),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp
+                            )
                         }
                     }
                 }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(HextechDarkBg, RoundedCornerShape(8.dp))
-                        .padding(14.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(24.dp))
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Todas las fechas, horas, días y semanas están disponibles para programar su anuncio.",
-                            color = Color(0xFF10B981),
-                            fontSize = 11.sp,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
+
+                // Lista detallada de franjas horarias / días / semanas / meses ocupados
+                if (activePublicityAds.isNotEmpty()) {
+                    Text(
+                        text = "Franjas y Fechas Ocupadas:",
+                        color = HextechCyan,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 11.sp
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(HextechDarkBg, RoundedCornerShape(6.dp))
+                            .padding(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        activePublicityAds.forEach { ad ->
+                            val startStr = if (ad.approvedAtMillis > 0L) dateFormat.format(Date(ad.approvedAtMillis)) else "Inmediato"
+                            val endStr = if (ad.expiresAtMillis > 0L) dateFormat.format(Date(ad.expiresAtMillis)) else "Indefinido"
+                            val unitLabel = when (ad.durationUnit.lowercase(Locale.ROOT)) {
+                                "hour", "hours", "hora", "horas" -> "Horas"
+                                "day", "days", "dia", "dias", "día", "días" -> "Días"
+                                "week", "weeks", "semana", "semanas" -> "Semanas"
+                                "month", "months", "mes", "meses" -> "Meses"
+                                else -> ad.durationUnit
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(HextechSurfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(4.dp))
+                                    .padding(6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = ad.title,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp,
+                                        maxLines = 1
+                                    )
+                                    Spacer(modifier = Modifier.height(1.dp))
+                                    Text(
+                                        text = "Prog: ${ad.durationValue} $unitLabel",
+                                        color = HextechGold,
+                                        fontSize = 9.sp
+                                    )
+                                    Text(
+                                        text = "Desde: $startStr | Hasta: $endStr",
+                                        color = TextSecondary,
+                                        fontSize = 8.5.sp
+                                    )
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(3.dp),
+                                    color = (if (ad.isApproved) DangerRed else Color(0xFFF59E0B)).copy(alpha = 0.2f)
+                                ) {
+                                    Text(
+                                        text = if (ad.isApproved) "OCUPADO" else "EN COLA",
+                                        color = if (ad.isApproved) DangerRed else Color(0xFFF59E0B),
+                                        fontSize = 8.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(HextechDarkBg, RoundedCornerShape(6.dp))
+                            .padding(10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "Espacios totalmente disponibles para programar.",
+                                color = Color(0xFF10B981),
+                                fontSize = 10.sp
+                            )
+                        }
                     }
                 }
             }

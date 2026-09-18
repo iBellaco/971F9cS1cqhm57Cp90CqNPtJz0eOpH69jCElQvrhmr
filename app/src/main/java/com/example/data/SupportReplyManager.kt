@@ -260,10 +260,26 @@ object SupportReplyManager {
             var resolvedSenderName = "Usuario"
             var firestoreReportId = reportId
 
+            // Resolver userId por userEmail si está vacío
+            if (resolvedUserId.isBlank() && !userEmail.isNullOrBlank()) {
+                try {
+                    val userQuery = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
+                    if (!userQuery.isEmpty) {
+                        val userDoc = userQuery.documents[0]
+                        resolvedUserId = userDoc.id
+                        resolvedSenderName = userDoc.getString("userName") 
+                            ?: userDoc.getString("name") 
+                            ?: userEmail.substringBefore("@")
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "Error buscando usuario por email en sendSupportReply: ${e.message}")
+                }
+            }
+
             try {
                 var doc = db.collection("support_reports").document(reportId).get().await()
                 if (!doc.exists()) {
-                    // Fallback para reportes antiguos donde el ID de Supabase no coincide con Firestore
+                    // Fallback para reportes antiguos donde el ID no coincide con Firestore
                     val query = db.collection("support_reports")
                         .whereEqualTo("title", reportTitle?.trim() ?: "")
                         .limit(1).get().await()
@@ -282,10 +298,27 @@ object SupportReplyManager {
                     }
                     resolvedTitle = doc.getString("title") ?: resolvedTitle
                     resolvedOriginalDesc = doc.getString("description") ?: doc.getString("content") ?: resolvedOriginalDesc
-                    resolvedSenderName = doc.getString("userName") ?: "Usuario"
+                    resolvedSenderName = doc.getString("userName") ?: resolvedSenderName
+                } else {
+                    // Si no existe en support_reports (ej. anuncio/patrocinador), crearlo automáticamente para garantizar entrega
+                    val newReportData = mutableMapOf<String, Any>(
+                        "id" to reportId,
+                        "title" to resolvedTitle,
+                        "description" to resolvedOriginalDesc,
+                        "content" to resolvedOriginalDesc,
+                        "userId" to resolvedUserId,
+                        "userEmail" to (userEmail ?: ""),
+                        "userName" to resolvedSenderName.ifBlank { "Patrocinador" },
+                        "createdAt" to Timestamp.now(),
+                        "status" to "PENDIENTE",
+                        "tag" to "SUPPORT"
+                    )
+                    db.collection("support_reports").document(reportId).set(newReportData, com.google.firebase.firestore.SetOptions.merge()).await()
+                    firestoreReportId = reportId
+                    docSnap = db.collection("support_reports").document(reportId).get().await()
                 }
             } catch (e: Exception) {
-                Log.w(TAG, "Error obteniendo documento de soporte previo: ${e.message}")
+                Log.w(TAG, "Error obteniendo o creando documento de soporte en Firestore: ${e.message}")
             }
 
             val isGreeting = isDefaultGreeting(replyText)
