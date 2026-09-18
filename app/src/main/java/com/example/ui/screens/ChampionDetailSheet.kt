@@ -647,14 +647,22 @@ fun ChampionDetailSheet(
                         subtitle = "Creador: ${rec.creatorName}",
                         source = "Catálogo Creador • ${rec.creatorName}",
                         badge = "CREADOR",
-                        tacticalReason = "Build personalizada creada y verificada por el creador oficial ${rec.creatorName}.",
-                        items = rec.coreItems,
+                        tacticalReason = "Build personalizada creada y verificada por el creador oficial ${rec.creatorName}." +
+                            if (rec.coreItemsWithDesc.isNotEmpty()) "\n\nObjetos Core:\n" + rec.coreItemsWithDesc.joinToString("\n") { "• ${it.itemName}: ${it.description}" } else "",
+                        items = rec.coreItemsWithDesc.map { it.itemName }.ifEmpty { rec.coreItems },
                         bootBase = "Botas estándar",
                         bootUpgrade = "Encantamiento adaptativo",
-                        situationalItems = rec.situationalItems,
-                        runes = listOf(rec.runes),
-                        spells = rec.spells,
-                        spellsIcons = emptyList()
+                        situationalItems = rec.situationalItemsWithDesc.map { it.itemName }.ifEmpty { rec.situationalItems },
+                        runes = rec.coreRunes.map { it.runeName }.ifEmpty { listOf(rec.runes) },
+                        spells = rec.coreSpells.map { it.spellName }.ifEmpty { rec.spells },
+                        spellsIcons = rec.coreSpells.map { it.iconUrl },
+                        coreItemsWithDesc = rec.coreItemsWithDesc,
+                        situationalItemsWithDesc = rec.situationalItemsWithDesc,
+                        coreRunes = rec.coreRunes,
+                        situationalRunes = rec.situationalRunes,
+                        coreSpells = rec.coreSpells,
+                        situationalSpells = rec.situationalSpells,
+                        gameplayVideoUri = rec.gameplayVideoUri
                     )
                 }
                 customOptions + baseBuildOptions

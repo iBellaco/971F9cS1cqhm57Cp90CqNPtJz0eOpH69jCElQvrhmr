@@ -11,16 +11,43 @@ import kotlinx.serialization.json.Json
 import java.util.UUID
 
 @Serializable
+data class ItemBuildEntry(
+    val itemName: String,
+    val description: String
+)
+
+@Serializable
+data class RuneBuildEntry(
+    val runeName: String,
+    val iconUrl: String,
+    val description: String
+)
+
+@Serializable
+data class SpellBuildEntry(
+    val spellName: String,
+    val iconUrl: String,
+    val description: String
+)
+
+@Serializable
 data class CustomChampionBuildRecord(
     val id: String = UUID.randomUUID().toString(),
     val championId: String,
     val championName: String,
     val buildTitle: String,
     val role: String,
-    val coreItems: List<String>,
-    val situationalItems: List<String>,
-    val runes: String,
-    val spells: List<String>,
+    val coreItems: List<String> = emptyList(),
+    val situationalItems: List<String> = emptyList(),
+    val runes: String = "",
+    val spells: List<String> = emptyList(),
+    val coreItemsWithDesc: List<ItemBuildEntry> = emptyList(),
+    val situationalItemsWithDesc: List<ItemBuildEntry> = emptyList(),
+    val coreRunes: List<RuneBuildEntry> = emptyList(),
+    val situationalRunes: List<RuneBuildEntry> = emptyList(),
+    val coreSpells: List<SpellBuildEntry> = emptyList(),
+    val situationalSpells: List<SpellBuildEntry> = emptyList(),
+    val gameplayVideoUri: String? = null,
     val creatorName: String,
     val timestamp: Long = System.currentTimeMillis()
 )

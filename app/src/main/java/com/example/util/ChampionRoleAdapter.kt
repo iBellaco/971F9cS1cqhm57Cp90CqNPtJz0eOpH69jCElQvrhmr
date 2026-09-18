@@ -22,7 +22,14 @@ data class ChampionBuildOption(
     val situationalItems: List<String> = emptyList(),
     val runes: List<String>,
     val spells: List<String>,
-    val spellsIcons: List<String>
+    val spellsIcons: List<String>,
+    val coreItemsWithDesc: List<com.example.data.local.ItemBuildEntry> = emptyList(),
+    val situationalItemsWithDesc: List<com.example.data.local.ItemBuildEntry> = emptyList(),
+    val coreRunes: List<com.example.data.local.RuneBuildEntry> = emptyList(),
+    val situationalRunes: List<com.example.data.local.RuneBuildEntry> = emptyList(),
+    val coreSpells: List<com.example.data.local.SpellBuildEntry> = emptyList(),
+    val situationalSpells: List<com.example.data.local.SpellBuildEntry> = emptyList(),
+    val gameplayVideoUri: String? = null
 )
 
 data class ChampionRoleProfile(
