@@ -534,9 +534,20 @@ object DraftVisionScanner {
                         }
 
                         // B) Si NO es nombre de línea, comprobar si es un Campeón seleccionado (que ha reemplazado al texto de la línea)
+                        // User request: "el icono no desaparece úsalo como referencia que después de ese icono viene el nombre"
+                        // Intentar separar el nombre del campeón si viene después de un posible icono o prefijo
+                        val tokens = cleanLine.split(Regex("\\s+"))
+                        val championTextToTest = if (tokens.size > 1) {
+                            // Probar combinaciones desde la segunda palabra
+                            tokens.drop(1).joinToString(" ")
+                        } else {
+                            cleanLine
+                        }
+
                         val matchedChamp = ChampionNameResolver.findChampionInText(cleanLine, allChamps)
                             ?: ChampionNameResolver.findChampionInText(lineWithoutLeadingArtifact, allChamps)
                             ?: ChampionNameResolver.findChampionInText(line, allChamps)
+                            ?: ChampionNameResolver.findChampionInText(championTextToTest, allChamps)
 
                         if (matchedChamp != null) {
                             detectedChampInSlot = matchedChamp
@@ -1151,38 +1162,24 @@ object DraftVisionScanner {
                     val latestChamp = inferiorDecision.selectedChampion
                     val confidence = inferiorDecision.confidence
 
-                    if (confidence >= 0.35f) {
-                        lastPickVisualChampion = latestChamp
-                        lastPickVisualConfidence = confidence
-                        isLastPickVisualRecognized = true
-                        isTenthConfirmed = false // Actualización continua en vivo mientras esté en el slot
-
-                        targetSlot.champion = latestChamp
-                        targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(60, 99)
-                        targetSlot.isLikelyUnpicked = false
-
-                        if (tenthTargetIsAlly) {
-                            allySlotConfirmedChampions[4] = latestChamp
-                            allyOcrChampions[4] = latestChamp
-                            AppLogger.i(TAG, "10º Pick Aliado actualizado desde slot inferior 5: ${latestChamp.name} (${(confidence * 100).toInt()}%)")
-                        } else {
-                            enemySlotConfirmedChampions[4] = latestChamp
-                            enemyOcrChampions[4] = latestChamp
-                            AppLogger.i(TAG, "10º Pick Rival actualizado desde slot inferior 5: ${latestChamp.name} (${(confidence * 100).toInt()}%)")
-                        }
-                    } else if (existingHover != null) {
-                        lastPickVisualChampion = existingHover
-                        isLastPickVisualRecognized = true
-                        targetSlot.champion = existingHover
-                        targetSlot.confidencePercent = 85
-                        targetSlot.isLikelyUnpicked = false
-                    }
-                } else if (existingHover != null) {
-                    lastPickVisualChampion = existingHover
+                    lastPickVisualChampion = latestChamp
+                    lastPickVisualConfidence = confidence
                     isLastPickVisualRecognized = true
-                    targetSlot.champion = existingHover
-                    targetSlot.confidencePercent = 85
+                    isTenthConfirmed = false // Actualización continua en vivo mientras esté en el slot
+
+                    targetSlot.champion = latestChamp
+                    targetSlot.confidencePercent = (confidence * 100).toInt().coerceIn(60, 99)
                     targetSlot.isLikelyUnpicked = false
+
+                    if (tenthTargetIsAlly) {
+                        allySlotConfirmedChampions[4] = latestChamp
+                        allyOcrChampions[4] = latestChamp
+                        AppLogger.i(TAG, "10º Pick Aliado actualizado desde slot inferior 5: ${latestChamp.name} (${(confidence * 100).toInt()}%)")
+                    } else {
+                        enemySlotConfirmedChampions[4] = latestChamp
+                        enemyOcrChampions[4] = latestChamp
+                        AppLogger.i(TAG, "10º Pick Rival actualizado desde slot inferior 5: ${latestChamp.name} (${(confidence * 100).toInt()}%)")
+                    }
                 }
             }
         } else {
