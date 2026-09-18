@@ -189,6 +189,7 @@ fun ChampionBuildCreatorDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         selectedCoreItems.forEach { itemName ->
+                            val matchedItem = items.find { it.name.equals(itemName, ignoreCase = true) }
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
                                 color = HextechSurfaceVariant,
@@ -197,8 +198,16 @@ fun ChampionBuildCreatorDialog(
                                 Row(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
+                                    if (matchedItem != null) {
+                                        AppAssetImage(
+                                            url = matchedItem.iconUrl,
+                                            contentDescription = matchedItem.name,
+                                            fallbackText = matchedItem.name.take(2),
+                                            modifier = Modifier.size(18.dp).clip(RoundedCornerShape(3.dp))
+                                        )
+                                    }
                                     Text(itemName, color = Color.White, fontSize = 11.sp)
                                     Icon(
                                         Icons.Default.Close,
@@ -233,6 +242,7 @@ fun ChampionBuildCreatorDialog(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         selectedSituationalItems.forEach { itemName ->
+                            val matchedItem = items.find { it.name.equals(itemName, ignoreCase = true) }
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
                                 color = HextechSurfaceVariant,
@@ -241,8 +251,16 @@ fun ChampionBuildCreatorDialog(
                                 Row(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
+                                    if (matchedItem != null) {
+                                        AppAssetImage(
+                                            url = matchedItem.iconUrl,
+                                            contentDescription = matchedItem.name,
+                                            fallbackText = matchedItem.name.take(2),
+                                            modifier = Modifier.size(18.dp).clip(RoundedCornerShape(3.dp))
+                                        )
+                                    }
                                     Text(itemName, color = Color.White, fontSize = 11.sp)
                                     Icon(
                                         Icons.Default.Close,

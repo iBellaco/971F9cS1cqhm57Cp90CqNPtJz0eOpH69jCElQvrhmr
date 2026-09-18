@@ -220,7 +220,6 @@ fun MetaAndDraftScreen(
     }
 
     var showRoleChangeDialog by remember { mutableStateOf(false) }
-    var showBuildCreatorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         com.example.data.local.CustomChampionBuildsManager.init(screenContext)
@@ -513,23 +512,6 @@ fun MetaAndDraftScreen(
                     }
                 },
                 actions = {
-                    val userRoleStr by SubscriptionManager.userRole.collectAsStateWithLifecycle()
-                    val isCreator = userRoleStr.equals("creador", ignoreCase = true) ||
-                                    userRoleStr.equals("creador_vip", ignoreCase = true) ||
-                                    userRoleStr.equals("streamer", ignoreCase = true) ||
-                                    userRoleStr.equals("admin", ignoreCase = true)
-                    if (isCreator && (mode == MetaScreenMode.CATALOG || mode == MetaScreenMode.TIER_LIST)) {
-                        Button(
-                            onClick = { showBuildCreatorDialog = true },
-                            colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                            modifier = Modifier.height(34.dp).padding(end = 8.dp)
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = HextechDarkBg, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Crear Build", color = HextechDarkBg, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
                     if (mode == MetaScreenMode.DRAFTING && isPremium) {
                         IconButton(
                             onClick = { showDraftHistoryScreen = true },
@@ -810,9 +792,7 @@ fun MetaAndDraftScreen(
         )
     }
 
-    if (showBuildCreatorDialog) {
-        ChampionBuildCreatorDialog(onDismiss = { showBuildCreatorDialog = false })
-    }
+    // Removed build creator dialog from catalog
 
     // Modal Champion Picker for Draft
     if (pickingForTeam != null) {

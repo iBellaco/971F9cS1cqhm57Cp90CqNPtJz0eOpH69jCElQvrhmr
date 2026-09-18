@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
@@ -201,6 +202,7 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showInboxDialog by remember { mutableStateOf(false) }
     var showAdminDashboard by remember { mutableStateOf(false) }
+    var showAdminCreatorDialog by remember { mutableStateOf(false) }
     var showSupportPanel by remember { mutableStateOf(false) }
     var showSponsorPanel by remember { mutableStateOf(false) }
     var showSponsorModerationDialog by remember { mutableStateOf(false) }
@@ -262,6 +264,12 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
     if (showAdminDashboard) {
         com.example.ui.components.AdminDashboardDialog(
             onDismiss = { showAdminDashboard = false }
+        )
+    }
+
+    if (showAdminCreatorDialog) {
+        com.example.ui.components.AdminCreatorBuildsDialog(
+            onDismiss = { showAdminCreatorDialog = false }
         )
     }
 
@@ -960,6 +968,45 @@ fun AuthenticatedProfilePanel(user: com.google.firebase.auth.FirebaseUser, onSig
                     fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
                     fontSize = 13.sp,
                     maxLines = 1
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Botón Creador (Panel de Usuario)
+            com.example.ui.components.HextechAnimatedButton(
+                onClick = {
+                    val isAdmin = userRole == "admin" || AuthManager.isCurrentUserAdmin()
+                    if (isAdmin) {
+                        showAdminCreatorDialog = true
+                    } else {
+                        Toast.makeText(context, "Acceso restringido únicamente para administradores", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                backgroundBrush = androidx.compose.ui.graphics.Brush.horizontalGradient(
+                    listOf(HextechGold, Color(0xFFD4AF37))
+                ),
+                borderColor = HextechCyan,
+                glowColor = HextechGold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(10.dp),
+                enableShimmer = true,
+                enablePulse = true
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Build,
+                    contentDescription = null,
+                    tint = HextechDarkBg,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Creador",
+                    color = HextechDarkBg,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp
                 )
             }
             
