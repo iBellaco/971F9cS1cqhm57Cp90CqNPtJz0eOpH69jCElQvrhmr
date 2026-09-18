@@ -457,6 +457,16 @@ fun MainDraftingScreen(
                 var isIgnoringBatteryOpt by remember { mutableStateOf(SystemPermissionHelper.isIgnoringBatteryOptimizations(context)) }
                 var hasOverlayPermission by remember { mutableStateOf(SystemPermissionHelper.hasOverlayPermission(context)) }
                 var hasStoragePermission by remember { mutableStateOf(SystemPermissionHelper.hasStoragePermission(context)) }
+                var areNotificationsEnabled by remember {
+                    mutableStateOf(
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                            androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                        } else {
+                            androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                        }
+                    )
+                }
                 
                 val requestStoragePermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
                     contract = androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()
@@ -470,6 +480,12 @@ fun MainDraftingScreen(
                             isIgnoringBatteryOpt = SystemPermissionHelper.isIgnoringBatteryOptimizations(context)
                             hasOverlayPermission = SystemPermissionHelper.hasOverlayPermission(context)
                             hasStoragePermission = SystemPermissionHelper.hasStoragePermission(context)
+                            areNotificationsEnabled = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                                androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                                androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                            } else {
+                                androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                            }
                             com.example.data.AppNoticeManager.syncFromCloud(context)
                         }
                     }
@@ -581,6 +597,65 @@ fun MainDraftingScreen(
                                         Text(tr("Ajustes"), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+
+                if (!areNotificationsEnabled) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        color = HextechGold.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Recomendado: Activar Notificaciones",
+                                    color = HextechGold,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Activa las notificaciones para recibir avisos y alertas en tiempo real.",
+                                    color = TextSecondary,
+                                    fontSize = 11.sp,
+                                    lineHeight = 14.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    val intent = android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                        putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                    }
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {
+                                        try {
+                                            val generalIntent = android.content.Intent(android.provider.Settings.ACTION_SETTINGS)
+                                            context.startActivity(generalIntent)
+                                        } catch (_: Exception) {}
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("Activar", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -920,64 +995,7 @@ fun NoticeCategoryCard(
                     }
                 }
 
-                if (isPublicidadCategory && !areNotificationsEnabled) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        color = HextechGold.copy(alpha = 0.12f),
-                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Notifications,
-                                contentDescription = null,
-                                tint = HextechGold,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Recomendado: Activar Notificaciones",
-                                    color = HextechGold,
-                                    fontSize = 12.5.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Activa las notificaciones para recibir avisos y alertas en tiempo real.",
-                                    color = TextSecondary,
-                                    fontSize = 11.sp,
-                                    lineHeight = 14.sp
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Button(
-                                onClick = {
-                                    val intent = android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                        putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
-                                    }
-                                    try {
-                                        context.startActivity(intent)
-                                    } catch (_: Exception) {
-                                        try {
-                                            val generalIntent = android.content.Intent(android.provider.Settings.ACTION_SETTINGS)
-                                            context.startActivity(generalIntent)
-                                        } catch (_: Exception) {}
-                                    }
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                                modifier = Modifier.height(32.dp)
-                            ) {
-                                Text("Activar", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
+
 
                 if (currentNotice != null) {
                     Spacer(modifier = Modifier.height(10.dp))
@@ -1016,6 +1034,7 @@ fun NoticeCategoryCard(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 com.example.ui.components.NoticeMediaViewer(
                                     mediaUrl = noticeItem.videoUrl,
+                                    externalUrl = noticeItem.externalUrl,
                                     modifier = Modifier.fillMaxWidth(),
                                     onExpand = {
                                         com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)

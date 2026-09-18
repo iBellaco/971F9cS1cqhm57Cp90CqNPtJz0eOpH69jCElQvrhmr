@@ -405,6 +405,7 @@ fun NoticeMediaViewer(
     mediaUrl: String,
     modifier: Modifier = Modifier,
     isFullscreen: Boolean = false,
+    externalUrl: String = "",
     onExpand: (() -> Unit)? = null,
     onClose: (() -> Unit)? = null,
     onImageClick: (() -> Unit)? = null
@@ -417,7 +418,7 @@ fun NoticeMediaViewer(
     val ytVideoId = remember(normalizedUrl) { NoticeMediaUtils.extractYouTubeVideoId(normalizedUrl) }
     val isWebVideo = remember(normalizedUrl) { NoticeMediaUtils.isWebVideoUrl(normalizedUrl) }
     val isVideo = remember(normalizedUrl) { NoticeMediaUtils.isVideo(context, normalizedUrl) }
-    val isVertical = remember(normalizedUrl, context) { NoticeMediaUtils.isMediaVertical(context, normalizedUrl) }
+    val isVertical = remember(normalizedUrl, externalUrl, context) { NoticeMediaUtils.isMediaVertical(context, normalizedUrl) || externalUrl.isNotBlank() }
 
     val containerModifier = if (isFullscreen) {
         modifier.fillMaxSize()
@@ -644,7 +645,7 @@ fun NoticeMediaViewer(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(if (isFullscreen) 0.dp else 10.dp)),
-                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Fit
+                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
                 )
 
                 if (!isFullscreen && onExpand != null) {
