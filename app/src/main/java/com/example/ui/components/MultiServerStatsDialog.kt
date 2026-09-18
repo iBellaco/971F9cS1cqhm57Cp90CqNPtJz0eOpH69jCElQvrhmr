@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Analytics
@@ -246,26 +247,6 @@ fun MultiServerStatsDialog(
                                 }
                                 Text(text = "Zed (41.2%) • Yasuo (38.5%)", color = Color(0xFFFF6B6B), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Metric 3: Dragon Control Rate
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = tr("• Dragón Hextech / Infernal asegurados:"), color = TextSecondary, fontSize = 11.5.sp)
-                                Text(text = "62.4% del total", color = HextechGold, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(text = tr("• Precisión del Motor de Draft:"), color = TextSecondary, fontSize = 11.5.sp)
-                                Text(text = "99.98% de integridad", color = HextechCyan, fontSize = 11.5.sp, fontWeight = FontWeight.Bold)
-                            }
                         }
                     }
 
@@ -340,6 +321,57 @@ fun ServerStatCard(
     borderColor: Color,
     apiSource: String
 ) {
+    var showDetailDialog by remember { mutableStateOf(false) }
+
+    if (showDetailDialog) {
+        AlertDialog(
+            onDismissRequest = { showDetailDialog = false },
+            containerColor = HextechDarkBg,
+            titleContentColor = HextechGold,
+            textContentColor = TextPrimary,
+            title = {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = "Detalle de Análisis: $serverName", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                }
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Este bloque consolida las partidas oficiales recopiladas en tiempo real mediante $apiSource.",
+                        fontSize = 12.sp,
+                        color = TextPrimary,
+                        lineHeight = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "• Muestra analizada: $matchesText partidas en curso y finalizadas.",
+                        fontSize = 11.5.sp,
+                        color = HextechGold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "• Rango de jugadores: Diamante, Maestro, Gran Maestro y Aspirante.",
+                        fontSize = 11.5.sp,
+                        color = TextSecondary
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "• Criterio de filtrado: Partidas de alta prioridad con tasa de victoria (WR) validada por el motor de IA.",
+                        fontSize = 11.5.sp,
+                        color = TextSecondary
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showDetailDialog = false }) {
+                    Text("Cerrar", color = HextechGold, fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -397,13 +429,27 @@ fun ServerStatCard(
                     )
                 }
             }
-            Column(horizontalAlignment = Alignment.End, modifier = Modifier.padding(start = 8.dp)) {
-                Text(
-                    text = matchesText,
-                    color = HextechGold,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Black
-                )
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .clickable { showDetailDialog = true }
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = matchesText,
+                        color = HextechGold,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Detalle",
+                        tint = HextechCyan,
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
                 Text(
                     text = tr("analizadas"),
                     color = TextSecondary,

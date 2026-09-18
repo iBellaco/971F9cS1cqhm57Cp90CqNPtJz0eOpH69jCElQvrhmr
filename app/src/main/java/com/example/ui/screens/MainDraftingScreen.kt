@@ -51,6 +51,7 @@ import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Label
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -430,8 +431,11 @@ fun MainDraftingScreen(
 
                 val groupedNotices = remember(activeNotices) {
                     val orderPriority = listOf("Anuncios importantes", "PUBLICIDAD", "Ofertas", "Mantenimiento", "Noticias", "Streamers")
-                    activeNotices.groupBy { normalizeNoticeTag(it.tag) }
-                        .toList()
+                    val map = activeNotices.groupBy { normalizeNoticeTag(it.tag) }.toMutableMap()
+                    if (!map.containsKey("PUBLICIDAD")) {
+                        map["PUBLICIDAD"] = emptyList()
+                    }
+                    map.toList()
                         .sortedBy { (cat, _) ->
                             val idx = orderPriority.indexOf(cat)
                             if (idx >= 0) idx else 99
@@ -767,7 +771,36 @@ fun NoticeCategoryCard(
     intervalMillis: Long,
     context: android.content.Context
 ) {
-    if (noticeList.isEmpty()) return
+    val isPublicidadCategory = categoryTag.equals("PUBLICIDAD", true) || categoryTag.equals("Publicidad", true)
+
+    var areNotificationsEnabled by remember {
+        mutableStateOf(
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+            } else {
+                androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+            }
+        )
+    }
+
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                areNotificationsEnabled = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+                    androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                } else {
+                    androidx.core.app.NotificationManagerCompat.from(context).areNotificationsEnabled()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (noticeList.isEmpty() && (!isPublicidadCategory || areNotificationsEnabled)) return
 
     var currentIndex by remember(noticeList.size) { mutableStateOf(0) }
     var isPinned by remember { mutableStateOf(false) }
@@ -776,23 +809,25 @@ fun NoticeCategoryCard(
     var autoTimerTrigger by remember { mutableStateOf(0) }
 
     val safeIndex = currentIndex.coerceIn(0, (noticeList.size - 1).coerceAtLeast(0))
-    val currentNotice = noticeList[safeIndex]
+    val currentNotice = if (noticeList.isNotEmpty()) noticeList[safeIndex] else null
 
     val tagColor = getNoticeTagColor(categoryTag)
     val tagIcon = getNoticeTagIcon(categoryTag)
-    val isSponsored = currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("PUBLICIDAD", true) || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("PUBLICIDAD", true) || categoryTag.equals("Publicidad", true)
-    val displayTag = categoryTag
+    val isSponsored = currentNotice != null && (currentNotice.sponsorEmail.isNotBlank() || currentNotice.tag.equals("PUBLICIDAD", true) || currentNotice.tag.equals("Publicidad", true) || categoryTag.equals("PUBLICIDAD", true) || categoryTag.equals("Publicidad", true))
+    val displayTag = if (isPublicidadCategory) "Publicidad" else categoryTag
 
     // Registro de impresiones analíticas
-    LaunchedEffect(currentNotice.id) {
-        com.example.data.AppNoticeAnalyticsManager.recordImpression(context, currentNotice.id, currentNotice.tag)
+    LaunchedEffect(currentNotice?.id) {
+        if (currentNotice != null) {
+            com.example.data.AppNoticeAnalyticsManager.recordImpression(context, currentNotice.id, currentNotice.tag)
+        }
     }
 
     val rotationIntervalSec = remember(intervalMillis) { (intervalMillis / 1000L).coerceAtLeast(1L).toInt() }
-    var remainingRotationSec by remember(currentNotice.id, autoTimerTrigger, rotationIntervalSec) { mutableStateOf(rotationIntervalSec) }
+    var remainingRotationSec by remember(currentNotice?.id, autoTimerTrigger, rotationIntervalSec) { mutableStateOf(rotationIntervalSec) }
 
     // Rotación automática activa únicamente si hay múltiples avisos en esta misma categoría con contador de rotación en tiempo real
-    LaunchedEffect(currentNotice.id, noticeList.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
+    LaunchedEffect(currentNotice?.id, noticeList.size, intervalMillis, isPinned, isFullscreenMedia, autoTimerTrigger) {
         if (noticeList.size > 1 && !isPinned && !isFullscreenMedia) {
             remainingRotationSec = rotationIntervalSec
             while (remainingRotationSec > 0) {
@@ -822,28 +857,25 @@ fun NoticeCategoryCard(
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 // Encabezado del panel
-                val isPublicidadCategory = categoryTag.equals("PUBLICIDAD", true) || categoryTag.equals("Publicidad", true)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = if (isPublicidadCategory) Arrangement.End else Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    if (!isPublicidadCategory) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = tagIcon,
-                                contentDescription = null,
-                                tint = tagColor,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = displayTag,
-                                color = tagColor,
-                                fontSize = 13.5.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = tagIcon,
+                            contentDescription = null,
+                            tint = tagColor,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = displayTag,
+                            color = tagColor,
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -888,87 +920,148 @@ fun NoticeCategoryCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                AnimatedContent(
-                    targetState = currentNotice,
-                    transitionSpec = {
-                        if (slideDirection >= 0) {
-                            (slideInHorizontally(animationSpec = tween(350)) { width -> width } + fadeIn(animationSpec = tween(350)))
-                                .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> -width } + fadeOut(animationSpec = tween(350)))
-                        } else {
-                            (slideInHorizontally(animationSpec = tween(350)) { width -> -width } + fadeIn(animationSpec = tween(350)))
-                                .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> width } + fadeOut(animationSpec = tween(350)))
-                        }.using(SizeTransform(clip = false))
-                    },
-                    label = "NoticeAnimatedContent_${categoryTag}"
-                ) { noticeItem ->
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(
-                            text = noticeItem.title,
-                            color = try { Color(android.graphics.Color.parseColor(noticeItem.titleColor)) } catch (_: Exception) { HextechGold },
-                            fontSize = 13.5.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (noticeItem.content.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = noticeItem.content,
-                                color = try { Color(android.graphics.Color.parseColor(noticeItem.contentColor)) } catch (_: Exception) { TextSecondary },
-                                fontSize = 12.sp,
-                                lineHeight = 16.sp
-                            )
-                        }
-
-                        if (noticeItem.videoUrl.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            com.example.ui.components.NoticeMediaViewer(
-                                mediaUrl = noticeItem.videoUrl,
-                                modifier = Modifier.fillMaxWidth(),
-                                onExpand = {
-                                    com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)
-                                    isFullscreenMedia = true
-                                }
-                            )
-                        }
-                    }
-                }
-
-                if (noticeList.size > 1) {
+                if (isPublicidadCategory && !areNotificationsEnabled) {
                     Spacer(modifier = Modifier.height(10.dp))
-                    Row(
+                    Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+                        shape = RoundedCornerShape(10.dp),
+                        color = HextechGold.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.6f))
                     ) {
-                        noticeList.indices.forEach { idx ->
-                            val isSelected = idx == safeIndex
-                            Box(
-                                modifier = Modifier
-                                    .padding(horizontal = 3.dp)
-                                    .size(if (isSelected) 8.dp else 6.dp)
-                                    .clip(CircleShape)
-                                    .background(if (isSelected) tagColor else tagColor.copy(alpha = 0.3f))
-                                    .clickable {
-                                        slideDirection = if (idx > currentIndex) 1 else -1
-                                        currentIndex = idx
-                                        autoTimerTrigger++
-                                    }
+                        Row(
+                            modifier = Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = null,
+                                tint = HextechGold,
+                                modifier = Modifier.size(24.dp)
                             )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Recomendado: Activar Notificaciones",
+                                    color = HextechGold,
+                                    fontSize = 12.5.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Activa las notificaciones para recibir avisos y alertas en tiempo real.",
+                                    color = TextSecondary,
+                                    fontSize = 11.sp,
+                                    lineHeight = 14.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    val intent = android.content.Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                        putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                    }
+                                    try {
+                                        context.startActivity(intent)
+                                    } catch (_: Exception) {
+                                        try {
+                                            val generalIntent = android.content.Intent(android.provider.Settings.ACTION_SETTINGS)
+                                            context.startActivity(generalIntent)
+                                        } catch (_: Exception) {}
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = HextechGold),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("Activar", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
 
-                if (isFullscreenMedia) {
-                    val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
-                    val isVertical = currentNotice.expandedImageUrl.isNotBlank() && mediaToExpand == currentNotice.expandedImageUrl
-                    com.example.ui.components.NoticeMediaFullscreenDialog(
-                        mediaUrl = mediaToExpand,
-                        externalUrl = currentNotice.externalUrl,
-                        noticeId = currentNotice.id,
-                        isVertical = isVertical,
-                        onDismiss = { isFullscreenMedia = false }
-                    )
+                if (currentNotice != null) {
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    AnimatedContent(
+                        targetState = currentNotice,
+                        transitionSpec = {
+                            if (slideDirection >= 0) {
+                                (slideInHorizontally(animationSpec = tween(350)) { width -> width } + fadeIn(animationSpec = tween(350)))
+                                    .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> -width } + fadeOut(animationSpec = tween(350)))
+                            } else {
+                                (slideInHorizontally(animationSpec = tween(350)) { width -> -width } + fadeIn(animationSpec = tween(350)))
+                                    .togetherWith(slideOutHorizontally(animationSpec = tween(350)) { width -> width } + fadeOut(animationSpec = tween(350)))
+                            }.using(SizeTransform(clip = false))
+                        },
+                        label = "NoticeAnimatedContent_${categoryTag}"
+                    ) { noticeItem ->
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                text = noticeItem.title,
+                                color = try { Color(android.graphics.Color.parseColor(noticeItem.titleColor)) } catch (_: Exception) { HextechGold },
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            if (noticeItem.content.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = noticeItem.content,
+                                    color = try { Color(android.graphics.Color.parseColor(noticeItem.contentColor)) } catch (_: Exception) { TextSecondary },
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
+                            }
+
+                            if (noticeItem.videoUrl.isNotBlank()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                com.example.ui.components.NoticeMediaViewer(
+                                    mediaUrl = noticeItem.videoUrl,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    onExpand = {
+                                        com.example.data.AppNoticeAnalyticsManager.recordFullscreen(context, currentNotice.id)
+                                        isFullscreenMedia = true
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    if (noticeList.size > 1) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            noticeList.indices.forEach { idx ->
+                                val isSelected = idx == safeIndex
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 3.dp)
+                                        .size(if (isSelected) 8.dp else 6.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isSelected) tagColor else tagColor.copy(alpha = 0.3f))
+                                        .clickable {
+                                            slideDirection = if (idx > currentIndex) 1 else -1
+                                            currentIndex = idx
+                                            autoTimerTrigger++
+                                        }
+                                )
+                            }
+                        }
+                    }
+
+                    if (isFullscreenMedia) {
+                        val mediaToExpand = if (currentNotice.expandedImageUrl.isNotBlank()) currentNotice.expandedImageUrl else currentNotice.videoUrl
+                        val isVertical = currentNotice.expandedImageUrl.isNotBlank() && mediaToExpand == currentNotice.expandedImageUrl
+                        com.example.ui.components.NoticeMediaFullscreenDialog(
+                            mediaUrl = mediaToExpand,
+                            externalUrl = currentNotice.externalUrl,
+                            noticeId = currentNotice.id,
+                            isVertical = isVertical,
+                            onDismiss = { isFullscreenMedia = false }
+                        )
+                    }
                 }
             }
         }

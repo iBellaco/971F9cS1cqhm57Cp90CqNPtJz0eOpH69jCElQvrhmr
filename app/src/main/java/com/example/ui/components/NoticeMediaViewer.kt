@@ -644,7 +644,7 @@ fun NoticeMediaViewer(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(if (isFullscreen) 0.dp else 10.dp)),
-                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Crop
+                    contentScale = if (isFullscreen) ContentScale.Fit else ContentScale.Fit
                 )
 
                 if (!isFullscreen && onExpand != null) {
