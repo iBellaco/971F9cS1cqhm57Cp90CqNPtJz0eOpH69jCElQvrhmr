@@ -302,7 +302,12 @@ fun SponsorCpmPanelDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Calendario de Disponibilidad (Lo primero que ven antes de publicar un anuncio)
+                AdAvailabilityCalendarPanel(allNotices = allNotices)
+
+                Spacer(modifier = Modifier.height(14.dp))
 
                 // Action Bar
                 Row(

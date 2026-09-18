@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.ColorLens
@@ -63,7 +62,6 @@ fun InfoScreen(
     var purgeStatus by remember { mutableStateOf("") }
     var showDonationDialog by remember { mutableStateOf(false) }
     var showLegalDialog by remember { mutableStateOf(false) }
-    var showUpdateHistoryDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -278,20 +276,6 @@ fun InfoScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(tr("Información Legal y Privacidad"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                     }
-
-                    OutlinedButton(
-                        onClick = { showUpdateHistoryDialog = true },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = HextechGold),
-                        border = BorderStroke(1.2.dp, HextechGold.copy(alpha = 0.6f)),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Icon(Icons.Default.History, contentDescription = null, tint = HextechGold, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(tr("Historial de Actualizaciones"), fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    }
                 }
             }
 
@@ -343,12 +327,6 @@ fun InfoScreen(
     if (showLegalDialog) {
         com.example.ui.components.PrivacyPolicyDialog(
             onDismiss = { showLegalDialog = false }
-        )
-    }
-
-    if (showUpdateHistoryDialog) {
-        com.example.ui.components.UpdateHistoryDialog(
-            onDismiss = { showUpdateHistoryDialog = false }
         )
     }
 }

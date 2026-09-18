@@ -224,10 +224,12 @@ fun AdminSponsorNoticeItem(
     onApprove: () -> Unit,
     onReject: () -> Unit
 ) {
+    val context = LocalContext.current
     val statusText = if (notice.isApproved) "Aprobado (Visible)" else "Pendiente de Aprobación"
     val statusColor = if (notice.isApproved) Color(0xFF10B981) else Color(0xFFF59E0B)
 
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showDmDialog by remember { mutableStateOf(false) }
 
     if (showDeleteConfirm) {
         AlertDialog(
@@ -251,6 +253,21 @@ fun AdminSponsorNoticeItem(
                 }
             },
             containerColor = HextechSurface
+        )
+    }
+
+    if (showDmDialog) {
+        SupportReplyDialog(
+            reportId = notice.id,
+            reportTitle = notice.title,
+            reportDescription = notice.content,
+            userEmail = notice.sponsorEmail.ifBlank { "patrocinador@coach.app" },
+            userName = notice.sponsorEmail.substringBefore("@").ifBlank { "Patrocinador" },
+            isFirestoreDoc = false,
+            onDismiss = { showDmDialog = false },
+            onReplySent = { replyText, _ ->
+                Toast.makeText(context, "DM enviado a ${notice.sponsorEmail}", Toast.LENGTH_SHORT).show()
+            }
         )
     }
 
@@ -287,6 +304,84 @@ fun AdminSponsorNoticeItem(
             }
 
             Text(notice.content, color = TextSecondary, fontSize = 12.sp, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+
+            // Badges: Tipo (Imagen/Video), Orientación (Vertical/Horizontal), URL
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val isVideo = NoticeMediaUtils.isVideo(context, notice.videoUrl)
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = HextechSurfaceVariant,
+                    border = BorderStroke(1.dp, HextechGold.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (isVideo) Icons.Default.Videocam else Icons.Default.Image,
+                            contentDescription = null,
+                            tint = HextechGold,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(if (isVideo) "Video" else "Imagen", color = HextechGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                val isVertical = notice.expandedImageUrl.isNotBlank() || NoticeMediaUtils.isMediaVertical(context, notice.videoUrl)
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = HextechSurfaceVariant,
+                    border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.3f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (isVertical) Icons.Default.PhoneAndroid else Icons.Default.Tv,
+                            contentDescription = null,
+                            tint = HextechCyan,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(if (isVertical) "Vertical" else "Horizontal", color = HextechCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                val hasUrl = notice.externalUrl.isNotBlank()
+                Surface(
+                    shape = RoundedCornerShape(4.dp),
+                    color = HextechSurfaceVariant,
+                    border = BorderStroke(1.dp, (if (hasUrl) Color(0xFF10B981) else TextSecondary).copy(alpha = 0.3f)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Link,
+                            contentDescription = null,
+                            tint = if (hasUrl) Color(0xFF10B981) else TextSecondary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = if (hasUrl) "URL: ${notice.externalUrl}" else "Sin URL",
+                            color = if (hasUrl) Color(0xFF10B981) else TextSecondary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
 
             val unitLabel = when (notice.durationUnit.lowercase(Locale.ROOT)) {
                 "hour", "hours", "hora", "horas" -> "Horas"
@@ -334,27 +429,39 @@ fun AdminSponsorNoticeItem(
                     }
                 }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Button(
+                        onClick = { showDmDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = HextechSurfaceVariant),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f)),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Icon(Icons.Default.Chat, contentDescription = null, tint = HextechCyan, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text("DM", color = HextechCyan, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+
                     if (!notice.isApproved) {
                         Button(
                             onClick = onApprove,
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                             shape = RoundedCornerShape(6.dp)
                         ) {
-                            Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(3.dp))
                             Text("Aprobar", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     Button(
                         onClick = { showDeleteConfirm = true },
                         colors = ButtonDefaults.buttonColors(containerColor = DangerRed),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                         shape = RoundedCornerShape(6.dp)
                     ) {
-                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
+                        Spacer(modifier = Modifier.width(3.dp))
                         Text("Eliminar", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
