@@ -2,6 +2,7 @@ package com.example.ui.components
 
 import android.net.Uri
 import android.widget.Toast
+import android.widget.VideoView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -29,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.data.WildRiftRepository
@@ -235,9 +237,15 @@ fun ChampionBuildCreatorDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("3. Objetos Core (${coreItems.size}/6) *Desc. Obligatoria", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            text = "3. Objetos Core (${coreItems.size}/6) *Desc. Obligatoria",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { showItemPickerForCore = true }) {
-                            Text("+ Añadir Objeto Core", color = HextechGold, fontSize = 11.sp)
+                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -295,9 +303,15 @@ fun ChampionBuildCreatorDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("4. Objetos Situacionales *Desc. Obligatoria", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            text = "4. Objetos Situacionales *Desc. Obligatoria",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { showItemPickerForSituational = true }) {
-                            Text("+ Añadir Situacional", color = HextechGold, fontSize = 11.sp)
+                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -355,9 +369,15 @@ fun ChampionBuildCreatorDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("5. Runas Core (Imágenes) *Desc. Obligatoria", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            text = "5. Runas Core (Imágenes) *Desc. Obligatoria",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { showRunePickerForCore = true }) {
-                            Text("+ Añadir Runa Core", color = HextechGold, fontSize = 11.sp)
+                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -415,9 +435,15 @@ fun ChampionBuildCreatorDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Runas Situacionales (Opcional)", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            text = "Runas Situacionales (Opcional)",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { showRunePickerForSituational = true }) {
-                            Text("+ Añadir Sit. Runa", color = HextechGold, fontSize = 11.sp)
+                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -472,9 +498,15 @@ fun ChampionBuildCreatorDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("6. Hechizos Core (Imágenes) *Desc. Obligatoria", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            text = "6. Hechizos Core (Imágenes) *Desc. Obligatoria",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { showSpellPickerForCore = true }) {
-                            Text("+ Añadir Hechizo Core", color = HextechGold, fontSize = 11.sp)
+                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -532,9 +564,15 @@ fun ChampionBuildCreatorDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Hechizos Situacionales (Opcional)", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text(
+                            text = "Hechizos Situacionales (Opcional)",
+                            color = HextechCyan,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { showSpellPickerForSituational = true }) {
-                            Text("+ Añadir Sit. Hechizo", color = HextechGold, fontSize = 11.sp)
+                            Text("+ Añadir", color = HextechGold, fontSize = 11.sp)
                         }
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -600,6 +638,43 @@ fun ChampionBuildCreatorDialog(
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp
                         )
+                    }
+
+                    if (gameplayVideoUri != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(160.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(containerColor = HextechDarkBg),
+                            border = BorderStroke(1.dp, HextechGold)
+                        ) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                AndroidView(
+                                    factory = { ctx ->
+                                        VideoView(ctx).apply {
+                                            setVideoURI(Uri.parse(gameplayVideoUri))
+                                            setOnPreparedListener { mp ->
+                                                mp.isLooping = true
+                                                start()
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                IconButton(
+                                    onClick = { gameplayVideoUri = null },
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(4.dp)
+                                        .size(28.dp)
+                                        .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Eliminar video", tint = Color.White, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -768,8 +843,13 @@ fun ChampionBuildCreatorDialog(
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
                         singleLine = true
                     )
-                    val filteredItems = remember(searchFilterQuery, items) {
-                        if (searchFilterQuery.isBlank()) items else items.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
+                    val filteredItems = remember(searchFilterQuery, items, showItemPickerForCore, coreItems, situationalItems) {
+                        val base = if (searchFilterQuery.isBlank()) items else items.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
+                        if (showItemPickerForCore) {
+                            base.filter { item -> coreItems.none { it.name.equals(item.name, ignoreCase = true) } }
+                        } else {
+                            base.filter { item -> situationalItems.none { it.name.equals(item.name, ignoreCase = true) } }
+                        }
                     }
                     LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         items(filteredItems) { item ->
@@ -836,8 +916,13 @@ fun ChampionBuildCreatorDialog(
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
                         singleLine = true
                     )
-                    val filteredRunes = remember(searchFilterQuery, runes) {
-                        if (searchFilterQuery.isBlank()) runes else runes.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
+                    val filteredRunes = remember(searchFilterQuery, runes, showRunePickerForCore, coreRunes, situationalRunes) {
+                        val base = if (searchFilterQuery.isBlank()) runes else runes.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
+                        if (showRunePickerForCore) {
+                            base.filter { rune -> coreRunes.none { it.name.equals(rune.name, ignoreCase = true) } }
+                        } else {
+                            base.filter { rune -> situationalRunes.none { it.name.equals(rune.name, ignoreCase = true) } }
+                        }
                     }
                     LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         items(filteredRunes) { rune ->
@@ -904,8 +989,13 @@ fun ChampionBuildCreatorDialog(
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
                         singleLine = true
                     )
-                    val filteredSpells = remember(searchFilterQuery, spells) {
-                        if (searchFilterQuery.isBlank()) spells else spells.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
+                    val filteredSpells = remember(searchFilterQuery, spells, showSpellPickerForCore, coreSpells, situationalSpells) {
+                        val base = if (searchFilterQuery.isBlank()) spells else spells.filter { it.name.contains(searchFilterQuery, ignoreCase = true) }
+                        if (showSpellPickerForCore) {
+                            base.filter { spell -> coreSpells.none { it.name.equals(spell.name, ignoreCase = true) } }
+                        } else {
+                            base.filter { spell -> situationalSpells.none { it.name.equals(spell.name, ignoreCase = true) } }
+                        }
                     }
                     LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         items(filteredSpells) { spell ->
