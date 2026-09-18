@@ -38,11 +38,11 @@ data class VisionCalibrationConfig(
     val spellSizeRatio: Float = 0.041f,
     val spellYOffsetRatio: Float = 0.0f,
 
-    // Rango horizontal OCR para columnas de draft (restringido estrictamente a las columnas de slots)
-    val allyOcrMinX: Float = 0.04f,
-    val allyOcrMaxX: Float = 0.32f,
-    val enemyOcrMinX: Float = 0.68f,
-    val enemyOcrMaxX: Float = 0.96f,
+    // Rango horizontal OCR para columnas de draft (restringido estrictamente a las columnas de slots, sin tocar el centro)
+    val allyOcrMinX: Float = 0.08f,
+    val allyOcrMaxX: Float = 0.225f,
+    val enemyOcrMinX: Float = 0.78f,
+    val enemyOcrMaxX: Float = 0.935f,
 
     // --- CÍRCULOS DE AVATARES SUPERIORES (10º PICK Y FASE DE PREPARACIÓN) ---
     // En la barra superior de Wild Rift durante selección final y fase de preparación:

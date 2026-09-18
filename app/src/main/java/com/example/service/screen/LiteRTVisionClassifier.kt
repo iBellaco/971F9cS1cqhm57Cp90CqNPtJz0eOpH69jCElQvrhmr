@@ -39,6 +39,7 @@ object LiteRTVisionClassifier {
 
     enum class EngineStatus {
         WAITING_FOR_PICKS_1_TO_9,
+        WAITING_FOR_TENTH_PICK,
         RUNNING_INFERENCE,
         COMPLETED,
         NO_DETECTION
@@ -292,6 +293,33 @@ object LiteRTVisionClassifier {
             return@withContext null
         }
 
+        // COMPROBACIÓN CRÍTICA DEL USUARIO:
+        // En el slot final de Wild Rift:
+        // - Lado rival: muestra un borde rojo y un icono de yelmo espartano gris oscuro esperando selección.
+        // - Lado aliado: muestra un borde azul y el icono de la línea asignada esperando selección.
+        // - ÚNICAMENTE cuando el jugador confirma la selección, el icono es reemplazado por el Avatar del campeón.
+        val isWaitingIcon = isSlotWaitingIcon(cropBitmap, isAlly)
+        if (isWaitingIcon) {
+            val persistentCrop = try { cropBitmap.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
+            val reason = if (isAlly) {
+                "Slot final aliado en espera (icono de línea con borde azul visible). A la espera de que se reemplace por el Avatar del campeón."
+            } else {
+                "Slot final rival en espera (yelmo espartano con borde rojo visible). A la espera de que se reemplace por el Avatar del campeón."
+            }
+            _reportFlow.value = LiteRTInferenceReport(
+                status = EngineStatus.WAITING_FOR_TENTH_PICK,
+                pickedChampion = null,
+                confidencePercent = 0,
+                decisionReason = reason,
+                slotDescription = slotDesc,
+                evaluatedPicksCount = confirmedPicksCount,
+                cropBitmap = persistentCrop,
+                isConfirmed = false
+            )
+            AppLogger.d(TAG, "LiteRT 10º Pick: $reason")
+            return@withContext null
+        }
+
         val startTime = System.currentTimeMillis()
         ensureIndexed(context)
 
@@ -380,6 +408,70 @@ object LiteRTVisionClassifier {
         } else {
             return@withContext null
         }
+    }
+
+    /**
+     * Determina si el recorte del slot final corresponde al icono de espera:
+     * - En el rival: círculo con borde rojo y silueta del yelmo espartano gris oscuro en el centro.
+     * - En el aliado: círculo con borde azul y silueta del icono de línea en el centro.
+     * Cuando el jugador selecciona un campeón, este icono se reemplaza por el Avatar (splash portrait).
+     */
+    fun isSlotWaitingIcon(bitmap: Bitmap, isAlly: Boolean): Boolean {
+        val w = bitmap.width
+        val h = bitmap.height
+        if (w < 16 || h < 16) return true
+
+        val cx = w / 2f
+        val cy = h / 2f
+        val radius = min(cx, cy)
+
+        // Muestrear píxeles en el área central (0.15 * radius a 0.65 * radius)
+        // para ignorar el borde exterior rojo/azul y analizar el contenido central (yelmo o icono de línea).
+        var totalSamples = 0
+        var lowSaturationCount = 0
+        var darkPixelCount = 0
+        var totalSaturation = 0f
+
+        val step = max(1, (radius * 0.08f).toInt())
+        val startY = (cy - radius * 0.65f).toInt()
+        val endY = (cy + radius * 0.65f).toInt()
+        val startX = (cx - radius * 0.65f).toInt()
+        val endX = (cx + radius * 0.65f).toInt()
+
+        for (y in startY until endY step step) {
+            for (x in startX until endX step step) {
+                val dx = x - cx
+                val dy = y - cy
+                val dist = sqrt(dx * dx + dy * dy)
+                if (dist < radius * 0.15f || dist > radius * 0.65f) continue
+
+                val px = bitmap.getPixel(x.coerceIn(0, w - 1), y.coerceIn(0, h - 1))
+                val r = Color.red(px)
+                val g = Color.green(px)
+                val b = Color.blue(px)
+
+                val maxC = max(r, max(g, b))
+                val minC = min(r, min(g, b))
+                val sat = if (maxC > 0) (maxC - minC).toFloat() / maxC else 0f
+
+                totalSamples++
+                totalSaturation += sat
+                if (sat < 0.22f) lowSaturationCount++
+                if (maxC < 110) darkPixelCount++
+            }
+        }
+
+        if (totalSamples == 0) return true
+        val avgSat = totalSaturation / totalSamples
+        val lowSatRatio = lowSaturationCount.toFloat() / totalSamples
+        val darkRatio = darkPixelCount.toFloat() / totalSamples
+
+        // El yelmo espartano (rival) o icono de línea (aliado) sobre fondo oscuro:
+        // - Son monocromáticos (saturación media baja < 0.24, o > 70% de píxeles sin saturación)
+        // - Son oscuros (más del 70% de píxeles < 110 de brillo)
+        // Un avatar de campeón contiene rostros, efectos, cabello y variaciones cromáticas con alta saturación.
+        val isIcon = (lowSatRatio > 0.70f && avgSat < 0.25f) || (darkRatio > 0.80f && avgSat < 0.28f)
+        return isIcon
     }
 
     /**

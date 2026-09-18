@@ -130,6 +130,12 @@ fun LiteRTEngineViewerDialog(
                         "EN ESPERA: Requiere selecciones 1 al 9 (${report.evaluatedPicksCount}/9)",
                         Icons.Default.HourglassEmpty
                     )
+                    LiteRTVisionClassifier.EngineStatus.WAITING_FOR_TENTH_PICK -> Quadruple(
+                        Color(0xFF0C4A6E),
+                        Color(0xFF38BDF8),
+                        "SLOT FINAL EN ESPERA • APUNTANDO AL 10º PICK",
+                        Icons.Default.HourglassEmpty
+                    )
                     LiteRTVisionClassifier.EngineStatus.RUNNING_INFERENCE -> Quadruple(
                         Color(0xFF1E293B),
                         Color(0xFF38BDF8),
@@ -210,12 +216,18 @@ fun LiteRTEngineViewerDialog(
                                     fontSize = 10.sp
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
+                                val cropBorderColor = if (report.slotDescription.contains("Aliado", ignoreCase = true)) {
+                                    Color(0xFF00E5FF) // Azul para lado aliado
+                                } else {
+                                    Color(0xFFEF4444) // Rojo para lado rival
+                                }
+
                                 Box(
                                     modifier = Modifier
                                         .size(60.dp)
                                         .clip(CircleShape)
                                         .background(Color.Black)
-                                        .border(2.dp, Color(0xFF00E5FF), CircleShape),
+                                        .border(2.dp, cropBorderColor, CircleShape),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (report.cropBitmap != null && !report.cropBitmap!!.isRecycled) {
@@ -267,17 +279,26 @@ fun LiteRTEngineViewerDialog(
                                     }
                                 } else {
                                     Text(
-                                        text = if (report.status == LiteRTVisionClassifier.EngineStatus.WAITING_FOR_PICKS_1_TO_9) {
-                                            "A la espera de picks 1 a 9"
-                                        } else {
-                                            "Evaluando tensores..."
+                                        text = when (report.status) {
+                                            LiteRTVisionClassifier.EngineStatus.WAITING_FOR_PICKS_1_TO_9 -> "A la espera de picks 1 a 9"
+                                            LiteRTVisionClassifier.EngineStatus.WAITING_FOR_TENTH_PICK -> "Slot final en espera"
+                                            else -> "Evaluando tensores..."
                                         },
                                         color = Color(0xFF94A3B8),
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
                                     )
                                     Text(
-                                        text = report.slotDescription.ifBlank { "Slot 5 (10º Pick)" },
+                                        text = when (report.status) {
+                                            LiteRTVisionClassifier.EngineStatus.WAITING_FOR_TENTH_PICK -> {
+                                                if (report.slotDescription.contains("Aliado", ignoreCase = true)) {
+                                                    "Mostrando icono de línea. Esperando Avatar."
+                                                } else {
+                                                    "Mostrando yelmo espartano. Esperando Avatar."
+                                                }
+                                            }
+                                            else -> report.slotDescription.ifBlank { "Slot 5 (10º Pick)" }
+                                        },
                                         color = Color(0xFF64748B),
                                         fontSize = 11.sp
                                     )

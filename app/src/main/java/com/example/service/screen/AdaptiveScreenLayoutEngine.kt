@@ -66,27 +66,32 @@ object AdaptiveScreenLayoutEngine {
         val geometry = analyzeScreen(width, height)
         val ratio = geometry.aspectRatio
 
-        // Escalamiento horizontal en base al aspect ratio:
-        // En Wild Rift, los elementos verticales se anclan a los extremos laterales.
-        // Si la pantalla es más ancha que 16:9, los slots se sitúan a una distancia relativa fija al alto (H) desde los bordes.
-        val baseH = height.toFloat()
-        val baseW = width.toFloat()
+        // En Wild Rift, las columnas verticales de avatares están fijadas en los extremos de la pantalla:
+        // - Columna aliada (izquierda): el avatar circular está centrado en x ≈ 0.073f
+        // - Columna rival (derecha): el avatar circular está centrado en x ≈ 0.957f
+        // En pantallas panorámicas o con notch, se aplica un margen de seguridad mínimo para que el círculo
+        // no quede recortado por la cámara o esquinas redondeadas.
+        val adaptiveAllyCenterX = if (geometry.isUltrawide) {
+            (baseConfig.allyAvatarCenterX + geometry.safeHorizontalInsetRatio * 0.25f).coerceIn(0.070f, 0.085f)
+        } else {
+            baseConfig.allyAvatarCenterX
+        }
 
-        // Distancia nominal del centro del slot al borde lateral medida en múltiplos de la altura
-        val slotDistanceToEdgeRatioH = 0.130f 
-        val slotCenterXPxLeft = slotDistanceToEdgeRatioH * baseH + (geometry.safeHorizontalInsetRatio * baseW)
-        val slotCenterXPxRight = baseW - (slotDistanceToEdgeRatioH * baseH + (geometry.safeHorizontalInsetRatio * baseW))
+        val adaptiveEnemyCenterX = if (geometry.isUltrawide) {
+            (baseConfig.enemyAvatarCenterX - geometry.safeHorizontalInsetRatio * 0.25f).coerceIn(0.945f, 0.965f)
+        } else {
+            baseConfig.enemyAvatarCenterX
+        }
 
-        val adaptiveAllyCenterX = (slotCenterXPxLeft / baseW).coerceIn(0.04f, 0.15f)
-        val adaptiveEnemyCenterX = (slotCenterXPxRight / baseW).coerceIn(0.85f, 0.96f)
+        // Rango de búsqueda OCR adaptativo:
+        // El texto del slot aliado está estrictamente a la derecha del avatar (entre x ≈ 0.08 y x ≈ 0.225).
+        // JAMÁS debe invadir el carrusel central de selección de campeones (x >= 0.26).
+        val allyOcrMinX = (adaptiveAllyCenterX + 0.015f).coerceIn(0.08f, 0.10f)
+        val allyOcrMaxX = 0.225f
 
-        // Rango de búsqueda OCR adaptativo
-        // El texto del nombre de campeón aparece hacia el centro respecto al avatar.
-        val allyOcrMinX = (adaptiveAllyCenterX - 0.035f).coerceAtLeast(0.01f)
-        val allyOcrMaxX = (adaptiveAllyCenterX + (0.42f / (ratio / BASE_ASPECT_RATIO))).coerceIn(0.24f, 0.45f)
-
-        val enemyOcrMinX = (adaptiveEnemyCenterX - (0.42f / (ratio / BASE_ASPECT_RATIO))).coerceIn(0.55f, 0.76f)
-        val enemyOcrMaxX = (adaptiveEnemyCenterX + 0.035f).coerceAtMost(0.99f)
+        // El texto del slot rival está estrictamente a la izquierda del avatar rival (entre x ≈ 0.78 y x ≈ 0.935).
+        val enemyOcrMinX = 0.78f
+        val enemyOcrMaxX = (adaptiveEnemyCenterX - 0.018f).coerceIn(0.925f, 0.945f)
 
         // Ajuste de las posiciones horizontales de la barra superior (los 10 avatares de la cabecera)
         // En tablets los avatares superiores están ligeramente más comprimidos hacia el centro; en ultrawide hacia los bordes.
