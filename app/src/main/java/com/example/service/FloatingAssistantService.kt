@@ -1500,27 +1500,6 @@ private fun FloatingOverlayContent(
                                     }
                                 }
 
-                                // Botón Visor / Inspector del 10º Pick
-                                Surface(
-                                    modifier = Modifier
-                                        .size(28.dp)
-                                        .clickable {
-                                            showLiteRTViewer = true
-                                        },
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = Color(0xFF0F172A),
-                                    border = BorderStroke(1.dp, Color(0xFF00E5FF).copy(alpha = 0.7f))
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.Visibility,
-                                            contentDescription = "Visor 10º Pick",
-                                            tint = Color(0xFF00E5FF),
-                                            modifier = Modifier.size(15.dp)
-                                        )
-                                    }
-                                }
-
                                 // Botón Minimizar (a Burbuja flotante)
                                 Surface(
                                     modifier = Modifier

@@ -324,8 +324,8 @@ object ChampionNameResolver {
             }
         }
 
-        // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon", "vjinx", "1jinx", "lv7jinx", "m7jinx", "viijinx", "wsett")
-        // Típico cuando el OCR concatena el icono de rango/elo/maestría con la primera letra del nombre del campeón
+        // 5. Coincidencia con prefijo o sufijo de maestría pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon", "vjinx", "1jinx", "lv7jinx", "m7jinx", "viijinx", "wsett", "jinx7", "dariusm7")
+        // Típico cuando el OCR concatena el icono de rango/elo/maestría con la primera letra o final del nombre del campeón
         for (candCompact in listOf(compactStripped, compact)) {
             if (candCompact.length in 3..25) {
                 for (champ in safeChamps) {
@@ -334,9 +334,18 @@ object ChampionNameResolver {
                     for (target in listOf(champCompact, champIdCompact)) {
                         if (target.length >= 2 && candCompact.endsWith(target)) {
                             val prefixLen = candCompact.length - target.length
-                            // Si el prefijo sobrante al inicio es de 1 a 5 caracteres (la insignia/icono/maestría)
-                            if (prefixLen in 1..5) {
+                            // Si el prefijo sobrante al inicio es de 1 a 6 caracteres (la insignia/icono/maestría)
+                            if (prefixLen in 1..6) {
                                 return champ
+                            }
+                        }
+                        if (target.length >= 3 && candCompact.startsWith(target)) {
+                            val suffixLen = candCompact.length - target.length
+                            if (suffixLen in 1..5) {
+                                val suffix = candCompact.substring(target.length)
+                                if (suffix.all { it.isDigit() } || suffix.startsWith("m") || suffix.startsWith("lv") || suffix == "v" || suffix == "x") {
+                                    return champ
+                                }
                             }
                         }
                     }

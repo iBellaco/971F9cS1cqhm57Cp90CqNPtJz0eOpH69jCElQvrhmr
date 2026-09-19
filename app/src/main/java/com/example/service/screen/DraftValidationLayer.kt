@@ -205,26 +205,42 @@ object DraftValidationLayer {
 
         var changed = true
         var loops = 0
-        while (changed && loops < 5) {
+        while (changed && loops < 6) {
             changed = false
             loops++
 
-            // 1. Quitar símbolos no alfanuméricos iniciales (ej: "• JINX" -> "JINX", "> APOYO" -> "APOYO", "» CAITLYN" -> "CAITLYN")
+            // 1. Quitar símbolos no alfanuméricos y delimitadores iniciales (ej: "• JINX", "> APOYO", "» CAITLYN", "[7] JINX", "(M7) JINX")
             val withoutSymbols = clean.replace(Regex("^[\\W_]+"), "").trim()
             if (withoutSymbols != clean) {
                 clean = withoutSymbols
                 changed = true
             }
 
-            // 2. Quitar etiquetas explícitas de maestría (ej: "M7 JINX" -> "JINX", "LV7 JINX" -> "JINX", "LEVEL 7 JINX" -> "JINX")
-            val withoutMasteryTag = clean.replace(Regex("^(m[1-7]|lv[0-9]+|lvl[0-9]+|level\\s*[0-9]+|maestria\\s*[0-9]*|maestría\\s*[0-9]*|elo)\\s+", RegexOption.IGNORE_CASE), "").trim()
-            if (withoutMasteryTag != clean) {
+            // 2. Quitar etiquetas explícitas de maestría (ej: "M7 JINX", "M7JINX", "LV10 JINX", "LEVEL 7 JINX", "MAESTRIA 7 JINX")
+            val withoutMasteryTag = clean.replace(Regex("^(m[0-9]{1,2}|lv[0-9]{1,2}|lvl[0-9]{1,2}|level\\s*[0-9]{1,2}|maestria\\s*[0-9]*|maestría\\s*[0-9]*|mastery\\s*[0-9]*|elo)\\s*", RegexOption.IGNORE_CASE), "").trim()
+            if (withoutMasteryTag != clean && withoutMasteryTag.isNotBlank()) {
                 clean = withoutMasteryTag
                 changed = true
             }
 
-            // 3. Quitar glifos o letras aisladas del icono separadas por espacio (de 1 a 3 caracteres)
-            // Ejemplos: "V JINX" -> "JINX", "W JINX" -> "JINX", "7 JINX" -> "JINX", "VII JINX" -> "JINX", "• APOYO" -> "APOYO"
+            // 3. Quitar números romanos de maestría iniciales seguidos de espacio (ej: "VII JINX" -> "JINX", "IV DARIUS" -> "DARIUS")
+            val withoutRomanMastery = clean.replace(Regex("^(viii|vii|iv|iii|ii|ix|x)\\s+", RegexOption.IGNORE_CASE), "").trim()
+            if (withoutRomanMastery != clean && withoutRomanMastery.isNotBlank()) {
+                clean = withoutRomanMastery
+                changed = true
+            }
+
+            // Caso especial "VI <CAMPEON>" (ej: "VI DARIUS" -> "DARIUS"). Si va seguido de otro texto no vacío, es maestría 6
+            if (clean.length > 3 && clean.startsWith("VI ", ignoreCase = true)) {
+                val remainder = clean.substring(3).trim()
+                if (remainder.isNotBlank()) {
+                    clean = remainder
+                    changed = true
+                }
+            }
+
+            // 4. Quitar glifos o letras aisladas del icono separadas por espacio (de 1 a 3 caracteres)
+            // Ejemplos: "V JINX" -> "JINX", "W JINX" -> "JINX", "7 JINX" -> "JINX", "• APOYO" -> "APOYO"
             val spaceIndex = clean.indexOf(' ')
             if (spaceIndex in 1..3) {
                 val remainder = clean.substring(spaceIndex + 1).trim()
@@ -241,11 +257,11 @@ object DraftValidationLayer {
             }
         }
 
-        // 4. Desprender prefijos pegados de 1 a 2 letras a palabras clave de líneas (ej: "vcalle" -> "calle", "vapoyo" -> "apoyo", "vjungla" -> "jungla")
+        // 5. Desprender prefijos pegados de 1 a 3 letras a palabras clave de líneas (ej: "vcalle" -> "calle", "vapoyo" -> "apoyo", "vjungla" -> "jungla")
         val lower = clean.lowercase(Locale.ROOT)
         val rolePrefixes = listOf("calle", "carril", "linea", "apoyo", "soporte", "jungla", "baron", "central", "dragon", "dragón", "duo", "dúo")
         for (rp in rolePrefixes) {
-            for (pLen in 1..2) {
+            for (pLen in 1..3) {
                 if (lower.length >= rp.length + pLen && lower.substring(pLen).startsWith(rp)) {
                     val candidate = clean.substring(pLen).trim()
                     if (candidate.isNotBlank()) {

@@ -25,7 +25,6 @@ class DraftDetectionAndValidationTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
         synchronized(WildRiftRepository) {
             WildRiftRepository.initChampions(context)
-            com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
         }
     }
 
@@ -369,207 +368,122 @@ class DraftDetectionAndValidationTest {
     }
 
     @Test
-    fun testLocalVisionVolibearMatching() = kotlinx.coroutines.test.runTest {
-        val champs = getSafeChamps()
+    fun testLiteRTVisionClassifierInference() = kotlinx.coroutines.test.runTest {
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val dummyCrop = android.graphics.Bitmap.createBitmap(48, 48, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(dummyCrop)
+        canvas.drawColor(android.graphics.Color.BLUE)
 
-        // Cargar imagen de Volibear desde assets
-        val assetManager = context.assets
-        val stream = assetManager.open("champions/volibear.png")
-        val bmp = android.graphics.BitmapFactory.decodeStream(stream)
-        assertNotNull("Bitmap de volibear.png no debe ser nulo", bmp)
-
-        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
-        val match = com.example.service.screen.LocalVisionAnalyzer.matchAvatar(
-            crop = bmp,
-            candidates = champs,
-            expectedRole = LaneRole.JUNGLE,
+        // Simular con confirmedPicksCount < 9 (debe esperar picks 1 al 9)
+        val resultEarly = com.example.service.screen.LiteRTVisionClassifier.executeTenthPickInference(
+            cropBitmap = dummyCrop,
+            isAlly = false,
+            confirmedChampionIds = emptySet(),
+            confirmedPicksCount = 5,
             context = context
         )
+        assertNull("Con menos de 9 picks confirmados debe esperar y retornar nulo", resultEarly)
 
-        assertNotNull("Debe encontrar coincidencia para volibear", match)
-        println("TEST MATCH RESULT: ${match?.first?.name} with confidence ${match?.second}")
-        assertEquals("volibear", match?.first?.id)
+        val reportFlowVal = com.example.service.screen.LiteRTVisionClassifier.reportFlow.value
+        assertEquals(com.example.service.screen.LiteRTVisionClassifier.EngineStatus.WAITING_FOR_PICKS_1_TO_9, reportFlowVal.status)
+        assertTrue(reportFlowVal.tensorDimensions.contains("48x48"))
     }
 
     @Test
-    fun testMultiScaleVolibearLocalMatching() = kotlinx.coroutines.test.runTest {
+    fun testMasteryIconStrippingAndChampionDetection() {
         val champs = getSafeChamps()
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
 
-        val assetManager = context.assets
-        val stream = assetManager.open("champions/volibear.png")
-        val volibearBmp = android.graphics.BitmapFactory.decodeStream(stream)!!
+        // 1. Icono de maestría o símbolos seguidos de espacio
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("• JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("» JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("> JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("M7 JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("M10 JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("LV7 JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("VII JINX"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("IV JINX"))
+        assertEquals("DARIUS", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("VI DARIUS"))
+        assertEquals("JINX", DraftValidationLayer.stripLeadingMasteryOrRoleIcon("[7] JINX"))
 
-        // Escala normal
-        val matchNormal = com.example.service.screen.LocalVisionAnalyzer.matchAvatar(
-            crop = volibearBmp,
-            candidates = champs,
-            expectedRole = LaneRole.JUNGLE,
-            context = context
-        )
-        assertNotNull("Volibear en escala normal debe coincidir", matchNormal)
-        assertEquals("volibear", matchNormal?.first?.id)
+        // 2. Coincidencia con ChampionNameResolver ante presencia de maestría
+        val jinxWithMastery = ChampionNameResolver.findChampionInText("M7 JINX", champs)
+        assertNotNull(jinxWithMastery)
+        assertEquals("jinx", jinxWithMastery?.id)
 
-        // Escala reducida (88%) simulando recorte interior anti-anillos
-        val innerWidth = (volibearBmp.width * 0.88f).toInt()
-        val innerHeight = (volibearBmp.height * 0.88f).toInt()
-        val innerBmp = android.graphics.Bitmap.createScaledBitmap(volibearBmp, innerWidth, innerHeight, true)
-        val matchInner = com.example.service.screen.LocalVisionAnalyzer.matchAvatar(
-            crop = innerBmp,
-            candidates = champs,
-            expectedRole = LaneRole.JUNGLE,
-            context = context
-        )
-        assertNotNull("Volibear con recorte interior (88%) debe coincidir", matchInner)
-        assertEquals("volibear", matchInner?.first?.id)
-        assertTrue("La confianza debe ser >= 0.70", (matchInner?.second ?: 0f) >= 0.70f)
+        val dariusRoman = ChampionNameResolver.findChampionInText("VII DARIUS", champs)
+        assertNotNull(dariusRoman)
+        assertEquals("darius", dariusRoman?.id)
+
+        val settPrefixed = ChampionNameResolver.findChampionInText("wsett", champs)
+        assertNotNull(settPrefixed)
+        assertEquals("sett", settPrefixed?.id)
+
+        val jinxPrefixed = ChampionNameResolver.findChampionInText("vjinx", champs)
+        assertNotNull(jinxPrefixed)
+        assertEquals("jinx", jinxPrefixed?.id)
+
+        val kaisaNumbered = ChampionNameResolver.findChampionInText("7kaisa", champs)
+        assertNotNull(kaisaNumbered)
+        assertEquals("kai_sa", kaisaNumbered?.id)
     }
 
     @Test
-    fun test10thPickInferiorAndSuperiorFlow() = kotlinx.coroutines.test.runTest {
-        val champs = getSafeChamps()
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        val calib = com.example.service.screen.VisionCalibrationConfig()
+    fun testSlotImagePreProcessorBinaryConversion() {
+        // Crear un bitmap sintético de 200x50 con fondo oscuro y texto claro
+        val bmp = android.graphics.Bitmap.createBitmap(200, 50, android.graphics.Bitmap.Config.ARGB_8888)
+        val canvas = android.graphics.Canvas(bmp)
+        canvas.drawColor(android.graphics.Color.DKGRAY)
 
-        // Creamos un lienzo 1920x1080 simulando pantalla de Wild Rift
-        val width = 1920
-        val height = 1080
-        val frame = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(frame)
+        val paint = android.graphics.Paint().apply {
+            color = android.graphics.Color.WHITE
+            textSize = 24f
+        }
+        canvas.drawText("JINX", 80f, 32f, paint)
 
-        val assetManager = context.assets
-        val stream = assetManager.open("champions/volibear.png")
-        val volibearBmp = android.graphics.BitmapFactory.decodeStream(stream)!!
-
-        // 1. Simular Volibear en la PARTE INFERIOR DERECHA (Slot 4 Rival para Primera Selección)
-        val enemyInferiorX = (width * calib.enemyAvatarCenterX).toInt()
-        val enemyInferiorY = (height * calib.enemySlotYRatios[4]).toInt()
-        val diamInferior = (height * calib.avatarDiameterRatio).toInt()
-        val scaledInferior = android.graphics.Bitmap.createScaledBitmap(volibearBmp, diamInferior, diamInferior, true)
-        canvas.drawBitmap(scaledInferior, (enemyInferiorX - diamInferior / 2).toFloat(), (enemyInferiorY - diamInferior / 2).toFloat(), null)
-
-        // Comprobamos escaneo en parte inferior con isFirstPick = true (debe mirar inferior derecha)
-        val matchInferiorFP = com.example.service.screen.LocalVisionAnalyzer.identify10thPickInferior(
-            bitmap = frame,
-            isFirstPick = true,
-            calib = calib,
-            allChamps = champs,
-            confirmedIds = emptySet(),
-            expectedRole = LaneRole.JUNGLE,
-            context = context
+        val processed = com.example.service.screen.SlotImagePreProcessor.preprocessSlotTextRegion(
+            srcBitmap = bmp,
+            isAlly = true,
+            suppressLeadingMasteryIcon = true
         )
-        assertNotNull("Debe detectar a Volibear en la parte inferior derecha con First Pick = true", matchInferiorFP)
-        assertEquals("volibear", matchInferiorFP?.first?.id)
 
-        // 2. Simular Volibear en la PARTE SUPERIOR DERECHA (Barra superior rival)
-        val topEnemyX = (width * calib.topEnemy5XRatio).toInt()
-        val topEnemyY = (height * calib.topAvatarYRatio).toInt()
-        val diamTop = (height * calib.topAvatarDiameterRatio).toInt()
-        val scaledTop = android.graphics.Bitmap.createScaledBitmap(volibearBmp, diamTop, diamTop, true)
-        canvas.drawBitmap(scaledTop, (topEnemyX - diamTop / 2).toFloat(), (topEnemyY - diamTop / 2).toFloat(), null)
-
-        // Comprobamos confirmación en parte superior con isFirstPick = true (debe mirar superior derecha y dar 100% de certeza)
-        val matchSuperiorFP = com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperior(
-            bitmap = frame,
-            isFirstPick = true,
-            calib = calib,
-            allChamps = champs,
-            confirmedIds = emptySet(),
-            expectedRole = LaneRole.JUNGLE,
-            context = context
-        )
-        assertNotNull("Debe confirmar a Volibear en la parte superior derecha con First Pick = true", matchSuperiorFP)
-        assertEquals("volibear", matchSuperiorFP?.first?.id)
-        assertEquals(1.0f, matchSuperiorFP?.second ?: 0f, 0.001f)
-
-        // 3. Comprobación de desaparición de slots de avatares en fase de preparación
-        val dismissedInPrep = com.example.service.screen.LocalVisionAnalyzer.areAvatarSlotsDismissed(frame, isPrepPhaseDetected = true)
-        assertTrue("En fase de preparación los slots de avatares deben considerarse desaparecidos", dismissedInPrep)
-
-        // 4. Comprobación de logs detallados del 10º pick (métricas escaneadas, comparadas y justificación)
-        val detailedInferior = com.example.service.screen.LocalVisionAnalyzer.identify10thPickInferiorDetailed(
-            bitmap = frame,
-            isFirstPick = true,
-            calib = calib,
-            allChamps = champs,
-            confirmedIds = emptySet(),
-            expectedRole = LaneRole.JUNGLE,
-            context = context
-        )
-        assertNotNull("Debe generar log detallado para escaneo inferior", detailedInferior)
-        assertEquals("volibear", detailedInferior?.selectedChampion?.id)
-        assertFalse("En escaneo inferior el pick es hover y NO debe figurar como confirmado", detailedInferior?.isConfirmed ?: true)
-        assertTrue("Debe contener métricas de recorte poblado", detailedInferior?.scannedMetrics?.isPopulated ?: false)
-        assertTrue("Debe registrar candidatos comparados", (detailedInferior?.topCandidates?.size ?: 0) > 0)
-        assertTrue("Debe incluir justificación de decisión con porcentaje", detailedInferior?.decisionReason?.contains("Volibear") ?: false)
-        assertTrue("El resumen formateado debe contener secciones estructuradas", detailedInferior?.formattedSummary?.contains("CARACTERÍSTICAS ESCANEADAS") ?: false)
-
-        val detailedSuperior = com.example.service.screen.LocalVisionAnalyzer.identify10thPickSuperiorDetailed(
-            bitmap = frame,
-            isFirstPick = true,
-            calib = calib,
-            allChamps = champs,
-            confirmedIds = emptySet(),
-            expectedRole = LaneRole.JUNGLE,
-            context = context
-        )
-        assertNotNull("Debe generar log detallado para escaneo superior", detailedSuperior)
-        assertEquals("volibear", detailedSuperior?.selectedChampion?.id)
-        assertTrue("En escaneo superior el pick debe figurar como confirmado", detailedSuperior?.isConfirmed ?: false)
-        assertTrue("El resumen formateado superior debe indicar confirmación definitiva", detailedSuperior?.formattedSummary?.contains("CONFIRMACIÓN DEFINITIVA") ?: false)
+        assertNotNull("El bitmap preprocesado no debe ser nulo", processed)
+        assertEquals(200, processed?.width)
+        assertEquals(50, processed?.height)
     }
 
     @Test
-    fun testDiagnoseVolibearVsBlitzcrank() = kotlinx.coroutines.test.runTest {
-        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-        com.example.service.screen.LocalVisionAnalyzer.ensureInitialized(context)
+    fun testAllySlotDeterministicRolePreservation() {
         val champs = getSafeChamps()
+        val defaultRoles = listOf(LaneRole.TOP, LaneRole.JUNGLE, LaneRole.MID, LaneRole.ADC, LaneRole.SUPPORT)
 
-        val assetManager = context.assets
-        val voliStream = assetManager.open("champions/volibear.png")
-        val blitzStream = assetManager.open("champions/blitzcrank.png")
-        val voliBmp = android.graphics.BitmapFactory.decodeStream(voliStream)!!
-        val blitzBmp = android.graphics.BitmapFactory.decodeStream(blitzStream)!!
+        // Slot 0 juega Vayne (cuyo rol natural es ADC, pero está en el slot 0 de Barón/Top)
+        val vayne = champs.first { it.id == "vayne" }
+        // Slot 1 juega Sett (cuyo rol primario es TOP, pero está en el slot 1 de Jungla)
+        val sett = champs.first { it.id == "sett" }
 
-        val voliMetrics = com.example.service.screen.LocalVisionAnalyzer.extractScannedMetrics(voliBmp, "Asset_volibear")
-        val blitzMetrics = com.example.service.screen.LocalVisionAnalyzer.extractScannedMetrics(blitzBmp, "Asset_blitzcrank")
+        val allySlots = listOf(
+            ScannedSlotInfo(slotIndex = 0, isAlly = true, champion = vayne, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 1, isAlly = true, champion = sett, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 2, isAlly = true, champion = null, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 3, isAlly = true, champion = null, explicitRole = null),
+            ScannedSlotInfo(slotIndex = 4, isAlly = true, champion = null, explicitRole = null)
+        )
 
-        println("VOLIBEAR ASSET METRICS: R=${voliMetrics.avgR}, G=${voliMetrics.avgG}, B=${voliMetrics.avgB}, Lum=${voliMetrics.avgLum}, HueBin=${voliMetrics.dominantHueBin} (${voliMetrics.dominantHueName})")
-        println("BLITZCRANK ASSET METRICS: R=${blitzMetrics.avgR}, G=${blitzMetrics.avgG}, B=${blitzMetrics.avgB}, Lum=${blitzMetrics.avgLum}, HueBin=${blitzMetrics.dominantHueBin} (${blitzMetrics.dominantHueName})")
-
-        // Ahora simular un recorte de 77x77 con borde oscuro y marco circular como en Wild Rift
-        val crop77 = android.graphics.Bitmap.createBitmap(77, 77, android.graphics.Bitmap.Config.ARGB_8888)
-        val canvas = android.graphics.Canvas(crop77)
-        // Dibujar fondo oscuro / viñeta
-        val p = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
-        // Escalar volibear al centro
-        val scaledVoli = android.graphics.Bitmap.createScaledBitmap(voliBmp, 65, 65, true)
-        canvas.drawBitmap(scaledVoli, 6f, 6f, p)
-
-        val cropMetrics = com.example.service.screen.LocalVisionAnalyzer.extractScannedMetrics(crop77, "Crop77")
-        println("CROP77 METRICS: R=${cropMetrics.avgR}, G=${cropMetrics.avgG}, B=${cropMetrics.avgB}, Lum=${cropMetrics.avgLum}, HueBin=${cropMetrics.dominantHueBin} (${cropMetrics.dominantHueName})")
-
-        for (engine in com.example.service.screen.VisionInferenceEngineType.values()) {
-            val bench = com.example.service.screen.VisionInferenceManager.runEngineInference(crop77, engine, champs, null, context)
-            println("ENGINE ${engine.shortName}: top=${bench.topCandidate?.id} (${bench.topCandidate?.name}) score=${bench.confidenceScore}")
-            val voliScore = bench.candidateScores.find { it.first.id == "volibear" }?.second ?: 0f
-            val blitzScore = bench.candidateScores.find { it.first.id == "blitzcrank" }?.second ?: 0f
-            println("   -> voliScore=$voliScore vs blitzScore=$blitzScore")
+        val allySlotRolesCache = mutableMapOf<Int, LaneRole>()
+        for (i in 0..4) {
+            val assignedRole = allySlots[i].explicitRole ?: allySlotRolesCache[i] ?: defaultRoles[i]
+            allySlotRolesCache[i] = assignedRole
+            allySlots[i].explicitRole = assignedRole
+            allySlots[i].assignedRole = assignedRole
         }
 
-        val detailed = com.example.service.screen.LocalVisionAnalyzer.matchAvatarDetailed(
-            crop = crop77,
-            roiLabel = "Barra Superior (Rival 5)",
-            candidates = champs,
-            expectedRole = null,
-            context = context,
-            isConfirmedPhase = true
-        )
-        println("FINAL DETAILED WINNER: ${detailed?.selectedChampion?.id} (${detailed?.selectedChampion?.name}) with confidence=${detailed?.confidence}")
-        detailed?.topCandidates?.take(5)?.forEachIndexed { idx, c ->
-            println("RANK $idx: ${c.champion.id} -> composite=${c.compositeScore}")
-        }
+        // El slot 0 debe ser TOP independientemente de que Vayne sea ADC
+        assertEquals(LaneRole.TOP, allySlotRolesCache[0])
+        assertEquals(LaneRole.TOP, allySlots[0].assignedRole)
+
+        // El slot 1 debe ser JUNGLE independientemente de que Sett sea TOP
+        assertEquals(LaneRole.JUNGLE, allySlotRolesCache[1])
+        assertEquals(LaneRole.JUNGLE, allySlots[1].assignedRole)
     }
 }
 
