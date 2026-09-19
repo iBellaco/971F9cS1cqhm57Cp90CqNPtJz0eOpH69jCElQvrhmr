@@ -270,16 +270,14 @@ object DraftVisionScanner {
         val textDiagnosticsList = mutableListOf<TextBlockDiagnostic>()
 
         // -----------------------------------------------------------------------------------------
-        // PASO 1: OCR CON PRE-PROCESAMIENTO ADAPTATIVO (ESCALA DE GRISES, THRESHOLD Y AISLAMIENTO)
+        // PASO 1: OCR DIRECTO CON MÁXIMA FIDELIDAD ÓPTICA
         // -----------------------------------------------------------------------------------------
         var isLegendaryRanked = false
         var isPreparationPhase = false
         var isActiveSelectionDetected = false
         var isPreparationBannerDetected = false
-        var preprocessedBitmap: Bitmap? = null
         try {
-            preprocessedBitmap = DraftImagePreprocessor.preprocessForOcr(bitmap, calib)
-            val inputImage = InputImage.fromBitmap(preprocessedBitmap ?: bitmap, 0)
+            val inputImage = InputImage.fromBitmap(bitmap, 0)
             val visionText = recognizer.process(inputImage).await()
 
             // Detección proactiva de Clasificatoria Legendaria en pantalla completa
@@ -785,32 +783,30 @@ object DraftVisionScanner {
                     }
                 }
 
-                // REGLA ESTRICTA DEL USUARIO:
-                // "y de lado rival no se visualizan el nombre de la línea pero si el nombre del campeón"
-                // Si no se visualiza el nombre del campeón en el slot rival, no se selecciona ningún campeón.
-                if (detectedEnemyChamp == null) {
-                    enemySlotConfirmedChampions[i] = null
-                    enemyOcrChampions[i] = null
-                    enemySlotFilters[i].reset()
-                    enemySlots[i].champion = null
-                    enemySlots[i].confidencePercent = 0
-                    enemySlots[i].isLikelyUnpicked = true
-                } else {
+                // REGLAS ESTRICTAS DEL USUARIO:
+                // Si el OCR detecta un campeón en el slot rival, se confirma al 100% y se guarda en memoria.
+                // Si en fotogramas posteriores no se detecta nuevo texto, se MANTIENE intacto el campeón ya confirmado.
+                if (detectedEnemyChamp != null) {
                     enemySlotConfirmedChampions[i] = detectedEnemyChamp
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
                     enemySlots[i].confidencePercent = 100
                     enemySlots[i].isLikelyUnpicked = false
+                } else if (enemySlotConfirmedChampions[i] != null) {
+                    val existingEnemy = enemySlotConfirmedChampions[i]
+                    enemyOcrChampions[i] = existingEnemy
+                    enemySlots[i].champion = existingEnemy
+                    enemySlots[i].confidencePercent = 100
+                    enemySlots[i].isLikelyUnpicked = false
+                } else {
+                    enemyOcrChampions[i] = null
+                    enemySlots[i].champion = null
+                    enemySlots[i].confidencePercent = 0
+                    enemySlots[i].isLikelyUnpicked = true
                 }
             }
         } catch (e: Exception) {
             AppLogger.e(TAG, "Error durante el análisis OCR", e)
-        } finally {
-            try {
-                if (preprocessedBitmap != null && preprocessedBitmap != bitmap && !preprocessedBitmap.isRecycled) {
-                    preprocessedBitmap.recycle()
-                }
-            } catch (_: Throwable) {}
         }
 
         // -----------------------------------------------------------------------------------------

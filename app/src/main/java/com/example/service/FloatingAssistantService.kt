@@ -1037,26 +1037,21 @@ private fun FloatingOverlayContent(
                                     
                                     defaultRoles.forEachIndexed { idx, role ->
                                         if (manualLockedAllySlots[idx] != true) {
-                                            val scannedAlly = result.alliesByRole[role]
+                                            val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
                                             if (scannedAlly != null) {
                                                 if (allies[idx] == null || allies[idx]?.id != scannedAlly.id) {
                                                     assignAllySlot(idx, scannedAlly)
                                                     newAlliesAdded++
                                                 }
-                                            } else if (result.hasDraftActivity && allies[idx] != null && !manualLockedAllySlots.contains(idx)) {
-                                                allies[idx] = null
                                             }
                                         }
                                         if (manualLockedEnemySlots[idx] != true) {
-                                            val scannedEnemy = result.enemiesByRole[role]
+                                            val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
                                             if (scannedEnemy != null) {
                                                 if (enemies[idx] == null || enemies[idx]?.id != scannedEnemy.id) {
                                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                                     if (enemies[idx] == null) newEnemiesAdded++
                                                 }
-                                            } else if (result.hasDraftActivity && enemies[idx] != null && !manualLockedEnemySlots.contains(idx)) {
-                                                enemies[idx] = null
-                                                state.enemyConfidences.remove(role)
                                             }
                                         }
                                     }
@@ -1169,20 +1164,15 @@ private fun FloatingOverlayContent(
                         // 1. Asignación directa y de alta precisión por rol (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
                             if (manualLockedAllySlots[idx] != true) {
-                                val scannedAlly = result.alliesByRole[role]
+                                val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
-                                } else if (result.hasDraftActivity && allies[idx] != null && !manualLockedAllySlots.contains(idx)) {
-                                    allies[idx] = null
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
-                                val scannedEnemy = result.enemiesByRole[role]
+                                val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
-                                } else if (result.hasDraftActivity && enemies[idx] != null && !manualLockedEnemySlots.contains(idx)) {
-                                    enemies[idx] = null
-                                    state.enemyConfidences.remove(role)
                                 }
                             }
                         }
