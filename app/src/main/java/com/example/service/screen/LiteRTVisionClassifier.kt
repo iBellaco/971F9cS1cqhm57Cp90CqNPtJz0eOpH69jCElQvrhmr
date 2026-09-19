@@ -290,6 +290,7 @@ object LiteRTVisionClassifier {
         // REGLA FUNDAMENTAL: Requiere que las selecciones 1 a 9 estén presentes
         if (confirmedPicksCount < 9) {
             resetStabilityTracker()
+            val copiedCrop = try { cropBitmap?.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
             _reportFlow.value = LiteRTInferenceReport(
                 status = EngineStatus.WAITING_FOR_PICKS_1_TO_9,
                 pickedChampion = null,
@@ -297,7 +298,7 @@ object LiteRTVisionClassifier {
                 decisionReason = "Esperando selecciones 1 al 9 completas ($confirmedPicksCount/9 detectados)",
                 slotDescription = slotDesc,
                 evaluatedPicksCount = confirmedPicksCount,
-                cropBitmap = try { cropBitmap?.copy(Bitmap.Config.ARGB_8888, false) } catch (_: Throwable) { null }
+                cropBitmap = copiedCrop ?: _reportFlow.value.cropBitmap
             )
             return@withContext null
         }
@@ -308,7 +309,8 @@ object LiteRTVisionClassifier {
                 status = EngineStatus.NO_DETECTION,
                 decisionReason = "Recorte de imagen no disponible o inválido para inferencia",
                 slotDescription = slotDesc,
-                evaluatedPicksCount = confirmedPicksCount
+                evaluatedPicksCount = confirmedPicksCount,
+                cropBitmap = _reportFlow.value.cropBitmap
             )
             return@withContext null
         }
@@ -477,6 +479,7 @@ object LiteRTVisionClassifier {
         var totalSamples = 0
         var totalBrightness = 0f
         var maxBrightness = 0
+        var maxSaturation = 0
 
         val step = max(1, (radius * 0.08f).toInt())
         val startY = (cy - radius * 0.55f).toInt()
@@ -497,6 +500,11 @@ object LiteRTVisionClassifier {
                 val b = Color.blue(px)
                 val lum = (0.299f * r + 0.587f * g + 0.114f * b).toInt()
 
+                val maxC = max(r, max(g, b))
+                val minC = min(r, min(g, b))
+                val sat = maxC - minC
+                if (sat > maxSaturation) maxSaturation = sat
+
                 totalSamples++
                 totalBrightness += lum
                 if (lum > maxBrightness) maxBrightness = lum
@@ -506,12 +514,12 @@ object LiteRTVisionClassifier {
         if (totalSamples == 0) return true
         val avgBrightness = totalBrightness / totalSamples
 
-        // El yelmo espartano (rival) o el icono de línea (aliado) son siluetas oscuras sobre fondo negro:
-        // - El brillo promedio en su interior es muy bajo (< 45 de 255).
-        // - No contienen ninguna zona con brillo alto (maxBrightness < 115).
-        // Cualquier campeón (como Volibear con su pelaje blanco, Viktor, Ashe, etc.) tiene un maxBrightness > 160
-        // y un brillo promedio superior, por lo que pasa de inmediato a la inferencia LiteRT.
-        val isIcon = (avgBrightness < 45f && maxBrightness < 115)
+        // El yelmo espartano (rival) o el icono de línea (aliado) son siluetas monocromáticas oscuras sobre fondo negro:
+        // - El brillo promedio en su interior es muy bajo (< 40 de 255).
+        // - No contienen ninguna zona con brillo alto (maxBrightness < 105).
+        // - La saturación cromática es mínima o nula (maxSaturation < 22).
+        // Cualquier campeón tiene colores vivos, efectos mágicos o destellos que superan estos umbrales.
+        val isIcon = (avgBrightness < 40f && maxBrightness < 105 && maxSaturation < 22)
         return isIcon
     }
 

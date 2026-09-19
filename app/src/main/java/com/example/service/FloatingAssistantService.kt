@@ -1473,35 +1473,6 @@ private fun FloatingOverlayContent(
                                     }
                                 }
 
-                                // Botón del Visor LiteRT (Emoji 👁️ Visor)
-                                Surface(
-                                    modifier = Modifier
-                                        .height(28.dp)
-                                        .clickable {
-                                            showLiteRTViewer = true
-                                        },
-                                    shape = RoundedCornerShape(6.dp),
-                                    color = if (showLiteRTViewer) HextechCyan.copy(alpha = 0.35f) else Color(0xFF1E293B),
-                                    border = BorderStroke(1.dp, if (showLiteRTViewer) HextechCyan else HextechCyan.copy(alpha = 0.6f))
-                                ) {
-                                    Row(
-                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                    ) {
-                                        Text(
-                                            text = "👁️",
-                                            fontSize = 11.sp
-                                        )
-                                        Text(
-                                            text = "Visor",
-                                            color = HextechCyan,
-                                            fontSize = 8.5.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                }
-
                                 if (isAdmin) {
                                     // Botón de Depurado / Calibrador (EXCLUSIVO ADMINISTRADORES)
                                     Surface(
@@ -1533,6 +1504,25 @@ private fun FloatingOverlayContent(
                                                 fontWeight = FontWeight.Bold
                                             )
                                         }
+                                    }
+                                }
+
+                                // Botón del Visor LiteRT (Solo Emoji 👁️, en el Hub al lado de minimizar)
+                                Surface(
+                                    modifier = Modifier
+                                        .size(28.dp)
+                                        .clickable {
+                                            showLiteRTViewer = true
+                                        },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = if (showLiteRTViewer) HextechCyan.copy(alpha = 0.35f) else Color(0xFF1E293B),
+                                    border = BorderStroke(1.dp, if (showLiteRTViewer) HextechCyan else HextechCyan.copy(alpha = 0.6f))
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = "👁️",
+                                            fontSize = 13.sp
+                                        )
                                     }
                                 }
 
@@ -2892,25 +2882,6 @@ private fun OverlayVersusDraftBoard(
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.5.sp
                         )
-                    }
-                }
-
-                if (onOpenLiteRTViewer != null) {
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Surface(
-                        modifier = Modifier.clickable { onOpenLiteRTViewer.invoke() },
-                        shape = RoundedCornerShape(12.dp),
-                        color = HextechCyan.copy(alpha = 0.2f),
-                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("👁️", fontSize = 10.sp)
-                            Spacer(modifier = Modifier.width(3.dp))
-                            Text("Visor", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
-                        }
                     }
                 }
             }
