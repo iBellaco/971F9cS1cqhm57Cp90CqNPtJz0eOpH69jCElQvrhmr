@@ -31,6 +31,7 @@ enum class MessageTag(
     val textColor: Color
 ) {
     SUPPORT("support", "Soporte", "🎧", Color(0xFF0EA5E9), Color.White),
+    PATROCINADOR("patrocinador", "Patrocinador", "💼", Color(0xFFC89B3C), Color.Black),
     AVISO("aviso", "Aviso", "📢", Color(0xFF3B82F6), Color.White),
     IMPORTANTE("importante", "Importante", "🚨", Color(0xFFEF4444), Color.White),
     MANTENIMIENTO("mantenimiento", "Mantenimiento", "🛠️", Color(0xFFF97316), Color.White),
@@ -39,7 +40,8 @@ enum class MessageTag(
 
     companion object {
         fun fromId(id: String?): MessageTag {
-            if (id.equals("support", ignoreCase = true)) return SUPPORT
+            if (id.equals("support", ignoreCase = true) || id.equals("soporte", ignoreCase = true)) return SUPPORT
+            if (id.equals("patrocinador", ignoreCase = true) || id.equals("sponsor", ignoreCase = true) || id.equals("publicidad", ignoreCase = true)) return PATROCINADOR
             return values().firstOrNull { it.id.equals(id, ignoreCase = true) } ?: AVISO
         }
     }

@@ -318,11 +318,12 @@ fun AdminSponsorNoticeItem(
     if (showDmDialog) {
         SupportReplyDialog(
             reportId = notice.id,
-            reportTitle = notice.title,
-            reportDescription = notice.content,
+            reportTitle = notice.title.ifBlank { "Patrocinio: ${notice.sponsorEmail}" },
+            reportDescription = notice.content.ifBlank { "Consulta o moderación de anuncio patrocinado" },
             userEmail = notice.sponsorEmail.ifBlank { "patrocinador@coach.app" },
             userName = notice.sponsorEmail.substringBefore("@").ifBlank { "Patrocinador" },
-            isFirestoreDoc = false,
+            tag = "PATROCINADOR",
+            isFirestoreDoc = true,
             onDismiss = { showDmDialog = false },
             onReplySent = { replyText, _ ->
                 Toast.makeText(context, "DM enviado a ${notice.sponsorEmail}", Toast.LENGTH_SHORT).show()

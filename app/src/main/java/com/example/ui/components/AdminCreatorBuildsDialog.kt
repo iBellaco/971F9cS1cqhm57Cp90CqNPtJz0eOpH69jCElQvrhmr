@@ -35,6 +35,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Favorite
 import com.example.data.local.AppDatabase
 import com.example.data.local.CustomChampionBuildRecord
@@ -133,8 +134,21 @@ fun AdminCreatorBuildsDialog(
                             Text("Gestión de builds y creadores registrados", color = TextSecondary, fontSize = 11.sp)
                         }
                     }
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = {
+                            CustomChampionBuildsManager.syncFromCloud(context) { success ->
+                                Toast.makeText(
+                                    context,
+                                    if (success) "Builds sincronizadas en tiempo real" else "Sincronizando builds...",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }) {
+                            Icon(Icons.Default.Sync, contentDescription = "Sincronizar builds", tint = HextechGold)
+                        }
+                        IconButton(onClick = onDismiss) {
+                            Icon(Icons.Default.Close, contentDescription = "Cerrar", tint = Color.White)
+                        }
                     }
                 }
 

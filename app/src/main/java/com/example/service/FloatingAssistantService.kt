@@ -2092,14 +2092,9 @@ private fun FloatingOverlayContent(
         )
     }
 
-    // Modal del Visor de Diagnóstico de Draft (Pipeline OCR + LiteRT + Recomendaciones Tácticas)
+    // Modal del Visor Google MediaPipe / LiteRT para el 10º Pick
     if (showLiteRTViewer) {
         com.example.ui.components.LiteRTEngineViewerDialog(
-            allies = allies.toList(),
-            enemies = enemies.toList(),
-            activeRole = activeRole,
-            analysis = analysis,
-            isFirstPick = isFirstPick,
             onDismissRequest = { showLiteRTViewer = false }
         )
     }

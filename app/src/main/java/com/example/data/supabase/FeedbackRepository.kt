@@ -299,36 +299,36 @@ object FeedbackRepository {
         updateFeedbackStatusInCloud(id, if (completed) STATUS_COMPLETED else STATUS_PENDING)
 
     /**
-     * Determina si un mapa de mensaje corresponde a un ticket/mensaje de soporte.
+     * Determina si un mapa de mensaje corresponde a un ticket/mensaje de soporte o comunicación oficial.
      */
     fun isSupportMessage(m: Map<String, Any>?): Boolean {
         if (m == null) return false
-        val tag = (m["tag"] as? String)?.uppercase() ?: ""
+        val tag = (m["tag"] as? String)?.uppercase(Locale.ROOT) ?: ""
         val title = (m["title"] as? String) ?: ""
         val sender = (m["sender"] as? String) ?: ""
         val hasReportId = m.containsKey("reportId") && (m["reportId"] as? String)?.isNotBlank() == true
         val hasAdminReply = m.containsKey("adminReply") && (m["adminReply"] as? String)?.isNotBlank() == true
         val hasConversation = m.containsKey("conversation") && (m["conversation"] as? List<*>)?.isNotEmpty() == true
-        val isSupportTag = tag in listOf("SUPPORT", "SOPORTE", "REPORTE", "TICKET")
+        val isSupportTag = tag in listOf("SUPPORT", "SOPORTE", "REPORTE", "TICKET", "PATROCINADOR", "SPONSOR", "PATROCINIO")
         val isSupportTitle = title.startsWith("Soporte:", ignoreCase = true) ||
                 title.startsWith("Reporte:", ignoreCase = true) ||
+                title.startsWith("Patrocinio:", ignoreCase = true) ||
                 title.contains("Ticket de soporte", ignoreCase = true) ||
                 title.contains("Soporte de Coach", ignoreCase = true)
         val isSupportSender = sender.contains("Soporte", ignoreCase = true) ||
+                sender.contains("Patrocinador", ignoreCase = true) ||
                 (sender.equals("Equipo Coach", ignoreCase = true) && (hasReportId || hasAdminReply || hasConversation || isSupportTitle))
         return isSupportTag || isSupportTitle || isSupportSender || hasReportId || hasAdminReply || hasConversation
     }
 
     /**
-     * Obtiene el conjunto de IDs y títulos de tickets de soporte actualmente activos en el sistema.
-     * La fuente canónica es el panel de soporte (Supabase). Si el panel no tiene reportes de soporte activos,
-     * retorna un conjunto vacío para que todas las bandejas se sincronicen y purguen de inmediato.
+     * Obtiene el conjunto de IDs y títulos de tickets de soporte y DMs actualmente activos en el sistema.
+     * Combina tanto Supabase como Firestore para garantizar sincronización multidispositivo sin pérdida de mensajes.
      */
     suspend fun getActiveSupportReportIds(): Set<String> = withContext(Dispatchers.IO) {
         val activeIds = mutableSetOf<String>()
-        var supabaseLoadedSuccessfully = false
         try {
-            // 1. Supabase (Fuente canónica del panel de administración y soporte)
+            // 1. Supabase (Panel de soporte en la nube)
             try {
                 val client = SupabaseClientManager.client
                 val postgrest = client.postgrest
@@ -339,12 +339,12 @@ object FeedbackRepository {
                     .decodeList<FeedbackReport>()
                     .filter { !it.type.equals("SPONSOR_AD", ignoreCase = true) }
 
-                supabaseLoadedSuccessfully = true
                 for (fb in list) {
                     val rawType = fb.type.trim().uppercase(Locale.US)
-                    val isSupport = rawType in listOf("SOPORTE", "SUPPORT", "TICKET", "AYUDA") ||
+                    val isSupport = rawType in listOf("SOPORTE", "SUPPORT", "TICKET", "AYUDA", "PATROCINADOR", "SPONSOR") ||
                             fb.title.contains("Soporte", ignoreCase = true) ||
-                            fb.title.contains("Ticket", ignoreCase = true)
+                            fb.title.contains("Ticket", ignoreCase = true) ||
+                            fb.title.contains("Patrocinio", ignoreCase = true)
                     if (isSupport) {
                         fb.id?.let { activeIds.add(it) }
                         if (fb.title.isNotBlank()) {
@@ -352,38 +352,41 @@ object FeedbackRepository {
                             activeIds.add(cleanT)
                             activeIds.add("Soporte: $cleanT")
                             activeIds.add("Reporte: $cleanT")
+                            activeIds.add("Patrocinio: $cleanT")
                         }
                     }
                 }
-                Log.d(TAG, "getActiveSupportReportIds: Panel de soporte tiene ${activeIds.size} identificadores activos")
             } catch (e: Exception) {
                 Log.w(TAG, "Error consultando Supabase para activeIds: ${e.message}")
             }
 
-            // 2. Solo si Supabase falló completamente por error de red/conexión, se usa Firestore como fallback
-            if (!supabaseLoadedSuccessfully) {
-                try {
-                    val db = FirebaseFirestore.getInstance()
-                    val fireSnap = db.collection("support_reports").get().await()
-                    for (doc in fireSnap.documents) {
-                        val isDeleted = doc.getBoolean("isDeleted") == true ||
-                                doc.getBoolean("deleted") == true ||
-                                (doc.getString("status") ?: "").uppercase(Locale.US) in listOf("ELIMINADO", "DELETED", "CERRADO")
-                        if (!isDeleted) {
-                            activeIds.add(doc.id)
-                            doc.getString("id")?.let { if (it.isNotBlank()) activeIds.add(it) }
-                            doc.getString("reportId")?.let { if (it.isNotBlank()) activeIds.add(it) }
-                            val t = (doc.getString("title") ?: "").trim()
-                            if (t.isNotBlank()) {
-                                activeIds.add(t)
-                                activeIds.add("Soporte: $t")
-                                activeIds.add("Reporte: $t")
+            // 2. Firestore support_reports (Sincronización en tiempo real multidispositivo)
+            try {
+                val db = FirebaseFirestore.getInstance()
+                val fireSnap = db.collection("support_reports").get().await()
+                for (doc in fireSnap.documents) {
+                    val isDeleted = doc.getBoolean("isDeleted") == true ||
+                            doc.getBoolean("deleted") == true ||
+                            (doc.getString("status") ?: "").uppercase(Locale.US) in listOf("ELIMINADO", "DELETED", "CERRADO")
+                    if (!isDeleted) {
+                        activeIds.add(doc.id)
+                        doc.getString("id")?.let { if (it.isNotBlank()) activeIds.add(it) }
+                        doc.getString("reportId")?.let { if (it.isNotBlank()) activeIds.add(it) }
+                        val t = (doc.getString("title") ?: "").trim()
+                        if (t.isNotBlank()) {
+                            activeIds.add(t)
+                            activeIds.add("Soporte: $t")
+                            activeIds.add("Reporte: $t")
+                            activeIds.add("Patrocinio: $t")
+                            val cleanNoPrefix = t.removePrefix("Soporte: ").removePrefix("Reporte: ").removePrefix("Patrocinio: ").trim()
+                            if (cleanNoPrefix.isNotBlank()) {
+                                activeIds.add(cleanNoPrefix)
                             }
                         }
                     }
-                } catch (e: Exception) {
-                    Log.w(TAG, "Error consultando Firestore para activeIds: ${e.message}")
                 }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error consultando Firestore para activeIds: ${e.message}")
             }
         } catch (_: Exception) {}
         activeIds

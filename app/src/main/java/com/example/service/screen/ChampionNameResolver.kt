@@ -215,46 +215,6 @@ object ChampionNameResolver {
             .lowercase(Locale.ROOT)
     }
 
-    /**
-     * Colapsa caracteres individuales separados por un solo espacio producidos por el OCR con tracking amplio.
-     * Ejemplo: "J I N X" -> "JINX", "S E T T" -> "SETT", "D R   M U N D O" -> "DR MUNDO", "L E E   S I N" -> "LEE SIN"
-     */
-    private fun collapseSpacedOutLetters(input: String): String {
-        val trimmed = input.trim()
-        if (trimmed.length < 3) return trimmed
-        // Si la mayoría de los tokens son letras individuales separadas por espacios
-        val parts = trimmed.split(" ").filter { it.isNotBlank() }
-        if (parts.size >= 3 && parts.all { it.length == 1 }) {
-            return parts.joinToString("")
-        }
-        return trimmed
-    }
-
-    /**
-     * Calcula la distancia de Levenshtein para coincidencia difusa segura entre dos cadenas.
-     */
-    private fun levenshteinDistance(s1: String, s2: String): Int {
-        if (s1 == s2) return 0
-        if (s1.isEmpty()) return s2.length
-        if (s2.isEmpty()) return s1.length
-
-        val dp = Array(s1.length + 1) { IntArray(s2.length + 1) }
-        for (i in 0..s1.length) dp[i][0] = i
-        for (j in 0..s2.length) dp[0][j] = j
-
-        for (i in 1..s1.length) {
-            for (j in 1..s2.length) {
-                val cost = if (s1[i - 1] == s2[j - 1]) 0 else 1
-                dp[i][j] = minOf(
-                    dp[i - 1][j] + 1,      // eliminación
-                    dp[i][j - 1] + 1,      // inserción
-                    dp[i - 1][j - 1] + cost // sustitución
-                )
-            }
-        }
-        return dp[s1.length][s2.length]
-    }
-
     // Encuentra el campeón correspondiente a una línea de texto OCR con validación anti-falsos positivos estricta
     fun findChampionInText(text: String, allChampions: List<Champion>): Champion? {
         val trimmed = text.trim()
@@ -284,65 +244,48 @@ object ChampionNameResolver {
         }
 
         val stripped = DraftValidationLayer.stripLeadingMasteryOrRoleIcon(trimmed)
-        val unspaced = collapseSpacedOutLetters(trimmed)
-        val unspacedStripped = collapseSpacedOutLetters(stripped)
-
         val clean = normalize(trimmed)
         val cleanStripped = normalize(stripped)
-        val cleanUnspaced = normalize(unspaced)
-        val cleanUnspacedStripped = normalize(unspacedStripped)
-
         if (clean.isBlank() || UI_IGNORE_WORDS.contains(clean)) return null
 
         val compact = normalizeCompact(trimmed)
         val compactStripped = normalizeCompact(stripped)
-        val compactUnspaced = normalizeCompact(unspaced)
 
-        // 1. Coincidencia directa por mapa de nombres canónicos oficiales
-        val candidatesList = listOf(
-            cleanStripped, compactStripped, cleanUnspacedStripped,
-            clean, compact, cleanUnspaced, compactUnspaced
-        ).filter { it.isNotBlank() }
-
-        for (c in candidatesList) {
-            KNOWN_CHAMPIONS_MAP[c]?.let { id ->
-                val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                if (found != null && !DraftValidationLayer.isLikelySummonerName(c, championName = found.name)) {
-                    return found
+        // 1. Coincidencia directa por mapa de nombres canónicos oficiales (Cadena completa o con icono limpio)
+        for (c in listOf(cleanStripped, compactStripped, clean, compact)) {
+            if (c.isNotBlank()) {
+                KNOWN_CHAMPIONS_MAP[c]?.let { id ->
+                    val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
+                    if (found != null) return found
                 }
             }
         }
 
-        // 2. Coincidencia exacta por lista de campeones en memoria
+        // 2. Coincidencia exacta por lista de campeones en memoria (Cadena completa o con icono limpio)
         for (champ in safeChamps) {
             val champNorm = normalize(champ.name)
             val champCompact = normalizeCompact(champ.name)
             val champIdCompact = normalizeCompact(champ.id)
 
-            if (candidatesList.any { it == champNorm || it == champCompact || it == champIdCompact }) {
-                if (!DraftValidationLayer.isLikelySummonerName(trimmed, championName = champ.name)) {
-                    return champ
-                }
+            if (cleanStripped == champNorm || compactStripped == champCompact || compactStripped == champIdCompact ||
+                clean == champNorm || compact == champCompact || compact == champIdCompact) {
+                return champ
             }
         }
 
         // 3. Coincidencia tras eliminar posibles prefijos de icono o números residuales iniciales
-        // (ej: "1 DARIUS", "# SETT", "• AHRI", "1DARIUS", "- JINX", "» CAITLYN", "> WUKONG", "LV7 JINX", "M7 AKALI")
+        // (ej: "1 DARIUS", "# SETT", "• AHRI", "1DARIUS", "- JINX", "» CAITLYN", "> WUKONG")
         val strippedLeading = trimmed.replace(Regex("^[\\W_0-9]+"), "").trim()
         val strippedClean = normalize(strippedLeading)
         if (strippedClean.isNotBlank() && strippedClean != clean) {
             KNOWN_CHAMPIONS_MAP[strippedClean]?.let { id ->
                 val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
-                if (found != null && !DraftValidationLayer.isLikelySummonerName(strippedClean, championName = found.name)) {
-                    return found
-                }
+                if (found != null) return found
             }
             for (champ in safeChamps) {
                 val champNorm = normalize(champ.name)
                 if (strippedClean == champNorm || normalizeCompact(strippedClean) == normalizeCompact(champ.name)) {
-                    if (!DraftValidationLayer.isLikelySummonerName(strippedClean, championName = champ.name)) {
-                        return champ
-                    }
+                    return champ
                 }
             }
         }
@@ -357,7 +300,7 @@ object ChampionNameResolver {
         if (tokensToScan.isNotEmpty()) {
             // Revisamos cada token individualmente de derecha a izquierda (el nombre del campeón suele estar al final tras el icono)
             for (token in tokensToScan.reversed()) {
-                if (token.length >= 2 && !UI_IGNORE_WORDS.contains(token) && DraftValidationLayer.parseRoleFromText(token) == null) {
+                if (token.length >= 2 && !UI_IGNORE_WORDS.contains(token)) {
                     KNOWN_CHAMPIONS_MAP[token]?.let { id ->
                         val found = safeChamps.find { it.id.equals(id, ignoreCase = true) }
                         if (found != null && !DraftValidationLayer.isLikelySummonerName(token, championName = found.name)) return found
@@ -383,7 +326,7 @@ object ChampionNameResolver {
 
         // 5. Coincidencia con prefijo pegado sin espacio (ej: "vwukong", "1caitlyn", "oyuumi", "agalio", "vpantheon", "vjinx", "1jinx", "lv7jinx", "m7jinx", "viijinx", "wsett")
         // Típico cuando el OCR concatena el icono de rango/elo/maestría con la primera letra del nombre del campeón
-        for (candCompact in listOf(compactStripped, compact, compactUnspaced)) {
+        for (candCompact in listOf(compactStripped, compact)) {
             if (candCompact.length in 3..25) {
                 for (champ in safeChamps) {
                     val champCompact = normalizeCompact(champ.name)
@@ -397,19 +340,6 @@ object ChampionNameResolver {
                             }
                         }
                     }
-                }
-            }
-        }
-
-        // 6. Coincidencia Difusa Segura (Fuzzy Matching con Levenshtein) para leves aberraciones OCR
-        // Requiere longitud mínima del candidato >= 4 caracteres y distancia <= 1
-        val bestCandForFuzzy = if (cleanStripped.length >= 4) cleanStripped else clean
-        if (bestCandForFuzzy.length in 4..16 && !UI_IGNORE_WORDS.contains(bestCandForFuzzy)) {
-            for (champ in safeChamps) {
-                val champNorm = normalize(champ.name)
-                val dist = levenshteinDistance(bestCandForFuzzy, champNorm)
-                if (dist == 1 && !DraftValidationLayer.isLikelySummonerName(bestCandForFuzzy, championName = champ.name)) {
-                    return champ
                 }
             }
         }

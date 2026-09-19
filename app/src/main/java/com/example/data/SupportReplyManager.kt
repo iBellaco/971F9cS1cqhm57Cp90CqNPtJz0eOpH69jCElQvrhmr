@@ -248,6 +248,8 @@ object SupportReplyManager {
         userEmail: String? = null,
         userId: String? = null,
         reportTitle: String? = null,
+        reportDescription: String? = null,
+        tag: String = "SOPORTE",
         isFirestoreDoc: Boolean = false,
         markAsRead: Boolean = true
     ): Boolean = withContext(Dispatchers.IO) {
@@ -256,20 +258,35 @@ object SupportReplyManager {
             var docSnap: com.google.firebase.firestore.DocumentSnapshot? = null
             var resolvedUserId = userId?.takeIf { it.isNotBlank() && it != "anonimo" } ?: ""
             var resolvedTitle = reportTitle ?: "Reporte de Soporte"
-            var resolvedOriginalDesc = reportTitle ?: ""
+            var resolvedOriginalDesc = reportDescription?.takeIf { it.isNotBlank() } ?: reportTitle ?: ""
             var resolvedSenderName = "Usuario"
             var firestoreReportId = reportId
+            val finalTag = tag.uppercase(Locale.ROOT)
 
-            // Resolver userId por userEmail si está vacío
-            if (resolvedUserId.isBlank() && !userEmail.isNullOrBlank()) {
+            // Resolver userId por userEmail de forma exhaustiva
+            val cleanEmail = userEmail?.trim().orEmpty()
+            if (resolvedUserId.isBlank() && cleanEmail.isNotBlank()) {
                 try {
-                    val userQuery = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
+                    // 1. Búsqueda exacta por email
+                    var userQuery = db.collection("users").whereEqualTo("email", cleanEmail).limit(1).get().await()
+                    // 2. Búsqueda en minúsculas por email
+                    if (userQuery.isEmpty) {
+                        userQuery = db.collection("users").whereEqualTo("email", cleanEmail.lowercase(Locale.ROOT)).limit(1).get().await()
+                    }
+                    // 3. Búsqueda por campo userEmail
+                    if (userQuery.isEmpty) {
+                        userQuery = db.collection("users").whereEqualTo("userEmail", cleanEmail).limit(1).get().await()
+                    }
+                    if (userQuery.isEmpty) {
+                        userQuery = db.collection("users").whereEqualTo("userEmail", cleanEmail.lowercase(Locale.ROOT)).limit(1).get().await()
+                    }
                     if (!userQuery.isEmpty) {
                         val userDoc = userQuery.documents[0]
                         resolvedUserId = userDoc.id
                         resolvedSenderName = userDoc.getString("userName") 
+                            ?: userDoc.getString("displayName")
                             ?: userDoc.getString("name") 
-                            ?: userEmail.substringBefore("@")
+                            ?: cleanEmail.substringBefore("@")
                     }
                 } catch (e: Exception) {
                     Log.w(TAG, "Error buscando usuario por email en sendSupportReply: ${e.message}")
@@ -307,11 +324,13 @@ object SupportReplyManager {
                         "description" to resolvedOriginalDesc,
                         "content" to resolvedOriginalDesc,
                         "userId" to resolvedUserId,
-                        "userEmail" to (userEmail ?: ""),
-                        "userName" to resolvedSenderName.ifBlank { "Patrocinador" },
+                        "userEmail" to cleanEmail,
+                        "userName" to resolvedSenderName.ifBlank { if (finalTag == "PATROCINADOR") "Patrocinador" else "Invocador" },
                         "createdAt" to Timestamp.now(),
+                        "createdAtMillis" to System.currentTimeMillis(),
                         "status" to "PENDIENTE",
-                        "tag" to "SUPPORT"
+                        "tag" to finalTag,
+                        "type" to finalTag
                     )
                     db.collection("support_reports").document(reportId).set(newReportData, com.google.firebase.firestore.SetOptions.merge()).await()
                     firestoreReportId = reportId
@@ -361,7 +380,7 @@ object SupportReplyManager {
                     0,
                     SupportMessageEntry(
                         id = "${reportId}_initial",
-                        senderName = resolvedSenderName.ifBlank { "Invocador" },
+                        senderName = resolvedSenderName.ifBlank { if (finalTag == "PATROCINADOR") "Patrocinador" else "Invocador" },
                         senderRole = "USER",
                         text = resolvedOriginalDesc,
                         timestampMillis = docSnap?.getTimestamp("createdAt")?.toDate()?.time ?: System.currentTimeMillis(),
@@ -413,14 +432,16 @@ object SupportReplyManager {
                     "hasNewReply" to true,
                     "lastReplyRole" to "SUPPORT",
                     "lastReplySenderRole" to "SUPPORT",
-                    "lastReplyAt" to Timestamp.now()
+                    "lastReplyAt" to Timestamp.now(),
+                    "tag" to finalTag,
+                    "type" to finalTag
                 )
                 if (markAsRead) {
                     updateData["status"] = "LEIDO"
                     updateData["isCompleted"] = false
                 }
                 db.collection("support_reports").document(firestoreReportId).set(updateData, com.google.firebase.firestore.SetOptions.merge()).await()
-                Log.d(TAG, "Respuesta e historial sincronizados en Firestore para $firestoreReportId")
+                Log.d(TAG, "Respuesta e historial sincronizados en Firestore para $firestoreReportId con tag $finalTag")
             } catch (e: Exception) {
                 Log.w(TAG, "No se pudo actualizar respuesta en Firestore: ${e.message}")
             }
@@ -442,16 +463,24 @@ object SupportReplyManager {
 
             // Notificar a la bandeja de entrada del usuario en Firestore (multidispositivo)
             try {
-                if (resolvedUserId.isBlank() && !userEmail.isNullOrBlank()) {
-                    val userQuery = db.collection("users").whereEqualTo("email", userEmail.trim()).limit(1).get().await()
-                    if (!userQuery.isEmpty) {
-                        resolvedUserId = userQuery.documents[0].id
-                    }
+                val targetUserIds = mutableSetOf<String>()
+                if (resolvedUserId.isNotBlank() && resolvedUserId != "anonimo") {
+                    targetUserIds.add(resolvedUserId)
+                }
+                if (cleanEmail.isNotBlank()) {
+                    try {
+                        val usersByEmail = db.collection("users").whereEqualTo("email", cleanEmail).get().await()
+                        for (u in usersByEmail.documents) targetUserIds.add(u.id)
+                        val usersByEmailLower = db.collection("users").whereEqualTo("email", cleanEmail.lowercase(Locale.ROOT)).get().await()
+                        for (u in usersByEmailLower.documents) targetUserIds.add(u.id)
+                        val usersByUserEmail = db.collection("users").whereEqualTo("userEmail", cleanEmail).get().await()
+                        for (u in usersByUserEmail.documents) targetUserIds.add(u.id)
+                    } catch (_: Exception) {}
                 }
 
-                if (resolvedUserId.isNotBlank() && resolvedUserId != "anonimo") {
+                for (targetUid in targetUserIds) {
                     val messageMap = hashMapOf<String, Any>(
-                        "title" to "Soporte: $resolvedTitle",
+                        "title" to if (finalTag == "PATROCINADOR") "Patrocinio: $resolvedTitle" else "Soporte: $resolvedTitle",
                         "content" to resolvedOriginalDesc,
                         "description" to resolvedOriginalDesc,
                         "adminReply" to accumulatedReply,
@@ -462,8 +491,8 @@ object SupportReplyManager {
                         "userRead" to false,
                         "hasNewAdminReply" to true,
                         "lastReplyRole" to "SUPPORT",
-                        "tag" to "SUPPORT",
-                        "sender" to resolvedSenderName,
+                        "tag" to finalTag,
+                        "sender" to (if (finalTag == "PATROCINADOR") "Patrocinador" else resolvedSenderName),
                         "reportId" to firestoreReportId,
                         "conversation" to conversationListMap
                     )
@@ -471,10 +500,10 @@ object SupportReplyManager {
                         messageMap["status"] = "LEIDO"
                         messageMap["isCompleted"] = false
                     }
-                    db.collection("users").document(resolvedUserId).collection("messages").document(firestoreReportId)
+                    db.collection("users").document(targetUid).collection("messages").document(firestoreReportId)
                         .set(messageMap, com.google.firebase.firestore.SetOptions.merge()).await()
 
-                    val userRef = db.collection("users").document(resolvedUserId)
+                    val userRef = db.collection("users").document(targetUid)
                     userRef.set(
                         mapOf(
                             "hasUnreadMessages" to true,

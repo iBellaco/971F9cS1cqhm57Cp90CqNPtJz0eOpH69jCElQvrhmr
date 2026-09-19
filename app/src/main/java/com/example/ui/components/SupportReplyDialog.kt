@@ -45,6 +45,7 @@ fun SupportReplyDialog(
     userName: String = "",
     userId: String = "",
     initialReply: String = "",
+    tag: String = "SOPORTE",
     isFirestoreDoc: Boolean = false,
     onDismiss: () -> Unit,
     onReplySent: (replyText: String, markedAsRead: Boolean) -> Unit
@@ -182,18 +183,7 @@ fun SupportReplyDialog(
     }
 
     var replyText by remember {
-        mutableStateOf(
-            if (initialReply.isNotBlank()) initialReply
-            else if (!hasPriorSupportReply) quickTemplates[0]
-            else ""
-        )
-    }
-
-    // Solo sugerir plantilla de bienvenida inicial si NO hay respuestas previas del equipo y no hay texto
-    LaunchedEffect(displayUserName, hasPriorSupportReply) {
-        if (!hasPriorSupportReply && (replyText.isBlank() || replyText.startsWith("👋 Hola"))) {
-            replyText = quickTemplates[0]
-        }
+        mutableStateOf(initialReply)
     }
 
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
@@ -639,6 +629,8 @@ fun SupportReplyDialog(
                                         userEmail = userEmail,
                                         userId = userId,
                                         reportTitle = reportTitle,
+                                        reportDescription = reportDescription,
+                                        tag = tag,
                                         isFirestoreDoc = isFirestoreDoc,
                                         markAsRead = markAsRead
                                     )
