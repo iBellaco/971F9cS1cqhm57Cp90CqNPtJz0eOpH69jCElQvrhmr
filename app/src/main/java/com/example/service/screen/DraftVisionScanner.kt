@@ -765,6 +765,9 @@ object DraftVisionScanner {
             // En Wild Rift, cuando un rival fija o selecciona un campeón, el nombre aparece en texto:
             // "ANNIE", "VOLIBEAR", "SERAPHINE", "ASHE", "SHYVANA", "YUUMI", "SAMIRA", etc.
             // Mientras no seleccione, muestra "Jugador 1", "Jugador 2", etc.
+            // REGLA CRÍTICA MOBA: Un campeón seleccionado por el equipo aliado JAMÁS puede ser asignado al rival.
+            val currentAllyChampIds = (allySlots.mapNotNull { it.champion?.id } + allySlotConfirmedChampions.mapNotNull { it?.id }).toSet()
+
             for (i in 0..4) {
                 var detectedEnemyChamp: Champion? = null
                 val enemyEntries = enemySlotTexts[i]
@@ -792,6 +795,10 @@ object DraftVisionScanner {
                         ?: (if (tokenLast != null) ChampionNameResolver.findChampionInText(tokenLast, allChamps) else null)
 
                     if (matched != null) {
+                        if (currentAllyChampIds.contains(matched.id)) {
+                            AppLogger.d(TAG, "OCR Rival Slot $i -> Ignorado ${matched.name}: ya seleccionado por el equipo aliado")
+                            continue
+                        }
                         detectedEnemyChamp = matched
                         textDiagnosticsList.add(
                             TextBlockDiagnostic(
@@ -837,9 +844,13 @@ object DraftVisionScanner {
                                         val cMatched = ChampionNameResolver.findChampionInText(strippedLn, allChamps)
                                             ?: ChampionNameResolver.findChampionInText(lnTxt, allChamps)
                                         if (cMatched != null) {
-                                            detectedEnemyChamp = cMatched
-                                            AppLogger.d(TAG, "OCR Rival Slot $i -> Campeón detectado con Pre-Procesamiento: ${cMatched.name}")
-                                            break
+                                            if (currentAllyChampIds.contains(cMatched.id)) {
+                                                AppLogger.d(TAG, "OCR Rival Preproc Slot $i -> Ignorado ${cMatched.name}: ya seleccionado por el equipo aliado")
+                                            } else {
+                                                detectedEnemyChamp = cMatched
+                                                AppLogger.d(TAG, "OCR Rival Slot $i -> Campeón detectado con Pre-Procesamiento: ${cMatched.name}")
+                                                break
+                                            }
                                         }
                                     }
                                     if (detectedEnemyChamp != null) break
@@ -856,7 +867,8 @@ object DraftVisionScanner {
                 // REGLAS ESTRICTAS DEL USUARIO:
                 // Si el OCR detecta un campeón en el slot rival, se confirma al 100% y se guarda en memoria.
                 // Si en fotogramas posteriores no se detecta nuevo texto, se MANTIENE intacto el campeón ya confirmado.
-                if (detectedEnemyChamp != null) {
+                // Si el campeón pertenece al equipo aliado, jamás se asigna al rival.
+                if (detectedEnemyChamp != null && !currentAllyChampIds.contains(detectedEnemyChamp.id)) {
                     enemySlotConfirmedChampions[i] = detectedEnemyChamp
                     enemyOcrChampions[i] = detectedEnemyChamp
                     enemySlots[i].champion = detectedEnemyChamp
@@ -864,11 +876,20 @@ object DraftVisionScanner {
                     enemySlots[i].isLikelyUnpicked = false
                 } else if (enemySlotConfirmedChampions[i] != null) {
                     val existingEnemy = enemySlotConfirmedChampions[i]
-                    enemyOcrChampions[i] = existingEnemy
-                    enemySlots[i].champion = existingEnemy
-                    enemySlots[i].confidencePercent = 100
-                    enemySlots[i].isLikelyUnpicked = false
+                    if (existingEnemy != null && !currentAllyChampIds.contains(existingEnemy.id)) {
+                        enemyOcrChampions[i] = existingEnemy
+                        enemySlots[i].champion = existingEnemy
+                        enemySlots[i].confidencePercent = 100
+                        enemySlots[i].isLikelyUnpicked = false
+                    } else {
+                        enemySlotConfirmedChampions[i] = null
+                        enemyOcrChampions[i] = null
+                        enemySlots[i].champion = null
+                        enemySlots[i].confidencePercent = 0
+                        enemySlots[i].isLikelyUnpicked = true
+                    }
                 } else {
+                    enemySlotConfirmedChampions[i] = null
                     enemyOcrChampions[i] = null
                     enemySlots[i].champion = null
                     enemySlots[i].confidencePercent = 0
@@ -1220,7 +1241,12 @@ object DraftVisionScanner {
         }
 
         val alliesBySlotMap = allySlots.mapNotNull { s -> s.champion?.let { s.slotIndex to it } }.toMap()
-        val enemiesBySlotMap = enemySlots.mapNotNull { s -> s.champion?.let { s.slotIndex to it } }.toMap()
+        val enemiesBySlotMap = enemySlots.mapNotNull { s ->
+            val champ = s.champion
+            if (champ != null && !allyChampIds.contains(champ.id)) {
+                s.slotIndex to champ
+            } else null
+        }.toMap()
 
         val allyChampsList = alliesMap.values.toList()
         val enemyChampsList = finalEnemiesMap.values.toList()

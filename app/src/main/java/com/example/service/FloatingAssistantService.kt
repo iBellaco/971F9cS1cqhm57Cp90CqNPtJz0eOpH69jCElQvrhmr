@@ -961,20 +961,22 @@ private fun FloatingOverlayContent(
     }
 
     val assignEnemySlot: (Int, Champion, Int?) -> Unit = { targetIdx, champ, conf ->
-        for (i in 0 until 5) {
-            if (allies[i]?.id == champ.id) allies[i] = null
-        }
-        for (i in 0 until 5) {
-            if (i != targetIdx && enemies[i]?.id == champ.id) {
-                enemies[i] = null
-                defaultRoles.getOrNull(i)?.let { state.enemyConfidences.remove(it) }
+        // PROTECCIÓN ESTRICTA: Si el campeón ya está en el equipo aliado, NUNCA transferirlo al rival
+        if (!allies.any { it?.id == champ.id }) {
+            for (i in 0 until 5) {
+                if (i != targetIdx && enemies[i]?.id == champ.id) {
+                    enemies[i] = null
+                    defaultRoles.getOrNull(i)?.let { state.enemyConfidences.remove(it) }
+                }
             }
-        }
-        if (targetIdx in 0 until 5) {
-            enemies[targetIdx] = champ
-            defaultRoles.getOrNull(targetIdx)?.let { role ->
-                state.enemyConfidences[role] = conf ?: 85
+            if (targetIdx in 0 until 5) {
+                enemies[targetIdx] = champ
+                defaultRoles.getOrNull(targetIdx)?.let { role ->
+                    state.enemyConfidences[role] = conf ?: 85
+                }
             }
+        } else {
+            AppLogger.d("Overlay", "Ignorando asignación enemiga de ${champ.name}: pertenece al equipo aliado")
         }
     }
 
@@ -1037,7 +1039,12 @@ private fun FloatingOverlayContent(
                                     
                                     defaultRoles.forEachIndexed { idx, role ->
                                         if (manualLockedAllySlots[idx] != true) {
-                                            val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
+                                            // ASIGNACIÓN DETERMINÍSTICA POR ROL:
+                                            // En Wild Rift cada slot aliado muestra primero qué línea va a ir (Top, Jungla, Mid, Dúo, Soporte)
+                                            // y luego esa línea se cambia por el nombre del campeón seleccionado.
+                                            // Cada índice `idx` en `allies` corresponde estricta y únicamente a `role` (defaultRoles[idx]).
+                                            // NUNCA caer en fallback de `alliesBySlot[idx]` porque el slot físico de pick puede tener un rol distinto.
+                                            val scannedAlly = result.alliesByRole[role]
                                             if (scannedAlly != null) {
                                                 if (allies[idx] == null || allies[idx]?.id != scannedAlly.id) {
                                                     assignAllySlot(idx, scannedAlly)
@@ -1046,7 +1053,7 @@ private fun FloatingOverlayContent(
                                             }
                                         }
                                         if (manualLockedEnemySlots[idx] != true) {
-                                            val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
+                                            val scannedEnemy = result.enemiesByRole[role]
                                             if (scannedEnemy != null) {
                                                 if (enemies[idx] == null || enemies[idx]?.id != scannedEnemy.id) {
                                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
@@ -1164,13 +1171,13 @@ private fun FloatingOverlayContent(
                         // 1. Asignación directa y de alta precisión por rol (respetando selecciones manuales)
                         defaultRoles.forEachIndexed { idx, role ->
                             if (manualLockedAllySlots[idx] != true) {
-                                val scannedAlly = result.alliesByRole[role] ?: result.alliesBySlot[idx]
+                                val scannedAlly = result.alliesByRole[role]
                                 if (scannedAlly != null) {
                                     assignAllySlot(idx, scannedAlly)
                                 }
                             }
                             if (manualLockedEnemySlots[idx] != true) {
-                                val scannedEnemy = result.enemiesByRole[role] ?: result.enemiesBySlot[idx]
+                                val scannedEnemy = result.enemiesByRole[role]
                                 if (scannedEnemy != null) {
                                     assignEnemySlot(idx, scannedEnemy, result.enemyConfidencesByRole[role])
                                 }
@@ -1460,6 +1467,35 @@ private fun FloatingOverlayContent(
                                         Text(
                                             text = if (isLegendaryQueue) tr("Legendaria") else tr("Clasificatoria"),
                                             color = if (isLegendaryQueue) Color(0xFFE9D5FF) else HextechGold,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+
+                                // Botón del Visor LiteRT (Emoji 👁️ Visor)
+                                Surface(
+                                    modifier = Modifier
+                                        .height(28.dp)
+                                        .clickable {
+                                            showLiteRTViewer = true
+                                        },
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = if (showLiteRTViewer) HextechCyan.copy(alpha = 0.35f) else Color(0xFF1E293B),
+                                    border = BorderStroke(1.dp, if (showLiteRTViewer) HextechCyan else HextechCyan.copy(alpha = 0.6f))
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
+                                    ) {
+                                        Text(
+                                            text = "👁️",
+                                            fontSize = 11.sp
+                                        )
+                                        Text(
+                                            text = "Visor",
+                                            color = HextechCyan,
                                             fontSize = 8.5.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -2856,6 +2892,25 @@ private fun OverlayVersusDraftBoard(
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.5.sp
                         )
+                    }
+                }
+
+                if (onOpenLiteRTViewer != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Surface(
+                        modifier = Modifier.clickable { onOpenLiteRTViewer.invoke() },
+                        shape = RoundedCornerShape(12.dp),
+                        color = HextechCyan.copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, HextechCyan.copy(alpha = 0.6f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("👁️", fontSize = 10.sp)
+                            Spacer(modifier = Modifier.width(3.dp))
+                            Text("Visor", color = HextechCyan, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                        }
                     }
                 }
             }
